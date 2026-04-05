@@ -36,35 +36,35 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
 {
     public async Task<Result<GetFeatureFlagsResponse>> Handle(GetFeatureFlagsQuery request, CancellationToken cancellationToken)
     {
-        var definitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
+        var featureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
         var baseRows = await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken);
-        var baseRowsByKey = baseRows.ToDictionary(f => f.FlagKey);
+        var baseRowsByKey = baseRows.ToDictionary(f => f.FeatureFlagKey);
 
-        var featureFlags = definitions.Select(definition =>
+        var featureFlags = featureFlagDefinitions.Select(featureFlagDefinition =>
             {
-                if (definition.Scope == FeatureFlagScope.System)
+                if (featureFlagDefinition.Scope == FeatureFlagScope.System)
                 {
-                    var isSystemFeatureFlagActive = definition.IsSystemFeatureFlagEnabled(configuration);
+                    var isSystemFeatureFlagActive = featureFlagDefinition.IsSystemFeatureFlagEnabled(configuration);
                     return new FeatureFlagInfo(
-                        definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
-                        definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
+                        featureFlagDefinition.Key, featureFlagDefinition.Scope, featureFlagDefinition.AdminLevel, featureFlagDefinition.Description,
+                        featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan?.ToString(),
                         null, null, null, null, null, null, isSystemFeatureFlagActive
                     );
                 }
 
-                baseRowsByKey.TryGetValue(definition.Key, out var baseRow);
+                baseRowsByKey.TryGetValue(featureFlagDefinition.Key, out var baseRow);
 
                 var createdAt = baseRow?.CreatedAt;
                 var enabledAt = baseRow?.EnabledAt;
                 var disabledAt = baseRow?.DisabledAt;
-                var rolloutBucketStart = baseRow?.BucketStart;
-                var rolloutBucketEnd = baseRow?.BucketEnd;
+                var rolloutBucketStart = baseRow?.RolloutBucketStart;
+                var rolloutBucketEnd = baseRow?.RolloutBucketEnd;
                 var isActive = enabledAt is not null && (disabledAt is null || enabledAt > disabledAt);
                 var rolloutPercentage = ComputeRolloutPercentage(rolloutBucketStart, rolloutBucketEnd);
 
                 return new FeatureFlagInfo(
-                    definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
-                    definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
+                    featureFlagDefinition.Key, featureFlagDefinition.Scope, featureFlagDefinition.AdminLevel, featureFlagDefinition.Description,
+                    featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan?.ToString(),
                     createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive
                 );
             }

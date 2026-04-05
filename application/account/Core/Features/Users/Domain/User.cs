@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using Account.Features.ExternalAuthentication.Domain;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Platform;
 
 namespace Account.Features.Users.Domain;
@@ -51,9 +50,9 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
 
     public TenantId TenantId { get; }
 
-    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int existingCount)
+    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int rolloutBucket)
     {
-        return new User(tenantId, email, role, emailConfirmed, locale, RolloutBucketHasher.ComputeRolloutBucket(existingCount));
+        return new User(tenantId, email, role, emailConfirmed, locale, rolloutBucket);
     }
 
     public void Update(string firstName, string lastName, string title)

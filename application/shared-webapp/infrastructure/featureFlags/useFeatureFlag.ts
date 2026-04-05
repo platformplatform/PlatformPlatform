@@ -37,16 +37,16 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
       definition && !isSystemFlag && isAuthenticated
         ? q
             .from({ featureFlags: featureFlagCollection })
-            .where(({ featureFlags }) => eq(featureFlags.flagKey, flagKey))
+            .where(({ featureFlags }) => eq(featureFlags.featureFlagKey, flagKey))
             .select(({ featureFlags }) => ({
               id: featureFlags.id,
-              flagKey: featureFlags.flagKey,
+              featureFlagKey: featureFlags.featureFlagKey,
               tenantId: featureFlags.tenantId,
               userId: featureFlags.userId,
               enabledAt: featureFlags.enabledAt,
               disabledAt: featureFlags.disabledAt,
-              bucketStart: featureFlags.bucketStart,
-              bucketEnd: featureFlags.bucketEnd,
+              rolloutBucketStart: featureFlags.rolloutBucketStart,
+              rolloutBucketEnd: featureFlags.rolloutBucketEnd,
               configurableByTenant: featureFlags.configurableByTenant,
               configurableByUser: featureFlags.configurableByUser
             }))
@@ -86,9 +86,9 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
   }
 
   // No overrides -- check A/B rollout on base row
-  if (baseRow.bucketStart != null && baseRow.bucketEnd != null) {
-    const rolloutBucketStart = parseInt(baseRow.bucketStart);
-    const rolloutBucketEnd = parseInt(baseRow.bucketEnd);
+  if (baseRow.rolloutBucketStart != null && baseRow.rolloutBucketEnd != null) {
+    const rolloutBucketStart = parseInt(baseRow.rolloutBucketStart);
+    const rolloutBucketEnd = parseInt(baseRow.rolloutBucketEnd);
     const rolloutBucket = definition.scope === "user" ? userInfo.userRolloutBucket : userInfo.tenantRolloutBucket;
     if (rolloutBucket == null) return DISABLED;
     return isInRolloutBucketRange(rolloutBucket, rolloutBucketStart, rolloutBucketEnd) ? ENABLED : DISABLED;

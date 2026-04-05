@@ -44,8 +44,8 @@ public sealed class GetFeatureFlagTenantsHandler(IFeatureFlagRepository featureF
 {
     public async Task<Result<GetFeatureFlagTenantsResponse>> Handle(GetFeatureFlagTenantsQuery query, CancellationToken cancellationToken)
     {
-        var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
-        if (definition is null) return Result<GetFeatureFlagTenantsResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
+        var featureFlagDefinition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
+        if (featureFlagDefinition is null) return Result<GetFeatureFlagTenantsResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
 
         var tenants = await tenantRepository.GetAllUnfilteredAsync(cancellationToken);
         var tenantOverrides = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FlagKey, cancellationToken);
@@ -55,15 +55,15 @@ public sealed class GetFeatureFlagTenantsHandler(IFeatureFlagRepository featureF
 
         var featureFlagTenants = tenants.Select(tenant =>
             {
-                if (overridesByTenantId.TryGetValue(tenant.Id.Value, out var tenantOverride))
+                if (overridesByTenantId.TryGetValue(tenant.Id.Value, out var tenantFeatureFlag))
                 {
-                    var isEnabled = tenantOverride.EnabledAt is not null && (tenantOverride.DisabledAt is null || tenantOverride.EnabledAt > tenantOverride.DisabledAt);
+                    var isEnabled = tenantFeatureFlag.EnabledAt is not null && (tenantFeatureFlag.DisabledAt is null || tenantFeatureFlag.EnabledAt > tenantFeatureFlag.DisabledAt);
                     return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, isEnabled, "manual_override");
                 }
 
-                if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
+                if (featureFlagDefinition.IsAbTestEligible && baseRow?.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
                 {
-                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
                     return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, isInRange, "ab_rollout");
                 }
 

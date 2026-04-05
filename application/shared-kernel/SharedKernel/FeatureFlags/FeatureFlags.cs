@@ -34,7 +34,7 @@ public static class FeatureFlags
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.SystemAdmin,
         "Enables single sign-on for tenants",
-        RequiredPlan: PlanTier.Premium
+        RequiredPlan: SubscriptionPlan.Premium
     );
 
     public static readonly FeatureFlagDefinition CustomBranding = new(

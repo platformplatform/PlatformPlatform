@@ -26,7 +26,7 @@ public sealed class DeactivateFeatureFlagHandler(IFeatureFlagRepository featureF
     public async Task<Result> Handle(DeactivateFeatureFlagCommand command, CancellationToken cancellationToken)
     {
         var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
-        if (featureFlag is null) return Result.NotFound($"Feature featureFlag with key '{command.FlagKey}' not found.");
+        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
 
         featureFlag.Deactivate(timeProvider.GetUtcNow());
         featureFlagRepository.Update(featureFlag);

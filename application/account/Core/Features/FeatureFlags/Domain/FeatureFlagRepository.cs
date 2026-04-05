@@ -11,11 +11,11 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
 
     Task<FeatureFlag[]> GetAllBaseRowsAsync(CancellationToken cancellationToken);
 
-    Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
+    Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string featureFlagKey, CancellationToken cancellationToken);
 
-    Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, long? tenantId, string? userId, CancellationToken cancellationToken);
+    Task<FeatureFlag?> GetByKeyAndScopeAsync(string featureFlagKey, long? tenantId, string? userId, CancellationToken cancellationToken);
 
-    Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
+    Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string featureFlagKey, CancellationToken cancellationToken);
 
     Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(long tenantId, CancellationToken cancellationToken);
 }
@@ -37,23 +37,23 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken)
+    public async Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string featureFlagKey, CancellationToken cancellationToken)
     {
         return await DbSet
-            .Where(f => f.FlagKey == flagKey && f.TenantId != null && f.UserId == null)
+            .Where(f => f.FeatureFlagKey == featureFlagKey && f.TenantId != null && f.UserId == null)
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, long? tenantId, string? userId, CancellationToken cancellationToken)
+    public async Task<FeatureFlag?> GetByKeyAndScopeAsync(string featureFlagKey, long? tenantId, string? userId, CancellationToken cancellationToken)
     {
         return await DbSet
-            .FirstOrDefaultAsync(f => f.FlagKey == flagKey && f.TenantId == tenantId && f.UserId == userId, cancellationToken);
+            .FirstOrDefaultAsync(f => f.FeatureFlagKey == featureFlagKey && f.TenantId == tenantId && f.UserId == userId, cancellationToken);
     }
 
-    public async Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken)
+    public async Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string featureFlagKey, CancellationToken cancellationToken)
     {
         return await DbSet
-            .Where(f => f.FlagKey == flagKey && f.UserId != null)
+            .Where(f => f.FeatureFlagKey == featureFlagKey && f.UserId != null)
             .ToArrayAsync(cancellationToken);
     }
 

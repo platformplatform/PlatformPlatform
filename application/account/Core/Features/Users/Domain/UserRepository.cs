@@ -40,8 +40,7 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves the total count of users without applying query filters.
-    ///     This method is used to compute rollout buckets for new users.
+    ///     Retrieves the total count of users without applying query filters (bypasses tenant and soft-delete filters).
     /// </summary>
     Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
 }
@@ -155,8 +154,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Retrieves the total count of users without applying query filters.
-    ///     This method is used to compute rollout buckets for new users.
+    ///     Retrieves the total count of users without applying query filters (bypasses tenant and soft-delete filters).
     /// </summary>
     public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {

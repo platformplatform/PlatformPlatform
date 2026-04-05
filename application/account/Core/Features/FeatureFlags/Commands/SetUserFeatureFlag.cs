@@ -34,10 +34,10 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
 {
     public async Task<Result> Handle(SetUserFeatureFlagCommand command, CancellationToken cancellationToken)
     {
-        var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(command.FlagKey);
-        if (definition is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
+        var featureFlagDefinition = SharedKernel.FeatureFlags.FeatureFlags.Get(command.FlagKey);
+        if (featureFlagDefinition is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
 
-        if (definition.AdminLevel != FeatureFlagAdminLevel.User || !definition.ConfigurableByUser)
+        if (featureFlagDefinition.AdminLevel != FeatureFlagAdminLevel.User || !featureFlagDefinition.ConfigurableByUser)
         {
             return Result.Forbidden($"Feature flag '{command.FlagKey}' is not configurable by users.");
         }
@@ -48,28 +48,28 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
 
         if (command.Enabled)
         {
-            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
-            if (userOverride is null)
+            var userFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
+            if (userFeatureFlag is null)
             {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, tenantId, userId);
-                userOverride.Activate(now);
-                await featureFlagRepository.AddAsync(userOverride, cancellationToken);
+                userFeatureFlag = FeatureFlag.CreateUserOverride(command.FlagKey, tenantId, userId);
+                userFeatureFlag.Activate(now);
+                await featureFlagRepository.AddAsync(userFeatureFlag, cancellationToken);
             }
             else
             {
-                userOverride.Activate(now);
-                featureFlagRepository.Update(userOverride);
+                userFeatureFlag.Activate(now);
+                featureFlagRepository.Update(userFeatureFlag);
             }
 
             events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, userId));
         }
         else
         {
-            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
-            if (userOverride is not null)
+            var userFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
+            if (userFeatureFlag is not null)
             {
-                userOverride.Deactivate(now);
-                featureFlagRepository.Update(userOverride);
+                userFeatureFlag.Deactivate(now);
+                featureFlagRepository.Update(userFeatureFlag);
                 events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, userId));
             }
         }

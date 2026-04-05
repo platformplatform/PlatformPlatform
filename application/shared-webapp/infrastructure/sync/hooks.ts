@@ -184,7 +184,7 @@ export function useFeatureFlags() {
   return useLiveQuery((q) =>
     q.from({ featureFlags: featureFlagCollection }).select(({ featureFlags }) => ({
       id: featureFlags.id,
-      flagKey: featureFlags.flagKey,
+      featureFlagKey: featureFlags.featureFlagKey,
       tenantId: featureFlags.tenantId,
       userId: featureFlags.userId,
       enabledAt: featureFlags.enabledAt,

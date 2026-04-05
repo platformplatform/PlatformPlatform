@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using JetBrains.Annotations;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.StronglyTypedIds;
 
 namespace Account.Features.Subscriptions.Domain;

@@ -6,6 +6,7 @@ using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features;
@@ -61,26 +62,26 @@ public sealed class ExternalSignupFailed(ExternalLoginId? externalLoginId, Exter
 public sealed class ExternalSignupStarted(ExternalProviderType providerType)
     : TelemetryEvent(("provider_type", providerType));
 
-public sealed class FeatureFlagActivated(string flagKey)
-    : TelemetryEvent(("flag_key", flagKey));
+public sealed class FeatureFlagActivated(string featureFlagKey)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey));
 
-public sealed class FeatureFlagDeactivated(string flagKey)
-    : TelemetryEvent(("flag_key", flagKey));
+public sealed class FeatureFlagDeactivated(string featureFlagKey)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey));
 
-public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int rolloutPercentage)
-    : TelemetryEvent(("flag_key", flagKey), ("rollout_percentage", rolloutPercentage));
+public sealed class FeatureFlagRolloutPercentageUpdated(string featureFlagKey, int rolloutPercentage)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey), ("rollout_percentage", rolloutPercentage));
 
-public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, string tenantId)
-    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
+public sealed class FeatureFlagTenantOverrideRemoved(string featureFlagKey, string tenantId)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey), ("tenant_id", tenantId));
 
-public sealed class FeatureFlagTenantOverrideSet(string flagKey, string tenantId)
-    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
+public sealed class FeatureFlagTenantOverrideSet(string featureFlagKey, string tenantId)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey), ("tenant_id", tenantId));
 
-public sealed class FeatureFlagUserOverrideRemoved(string flagKey, string userId)
-    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
+public sealed class FeatureFlagUserOverrideRemoved(string featureFlagKey, string userId)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey), ("user_id", userId));
 
-public sealed class FeatureFlagUserOverrideSet(string flagKey, string userId)
-    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
+public sealed class FeatureFlagUserOverrideSet(string featureFlagKey, string userId)
+    : TelemetryEvent(("feature_flag_key", featureFlagKey), ("user_id", userId));
 
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));

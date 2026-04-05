@@ -4,6 +4,7 @@ using Account.Features.Users.Commands;
 using Account.Features.Users.Domain;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.Tenants.Commands;
@@ -19,7 +20,8 @@ internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, IS
     public async Task<Result<CreateTenantResponse>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
         var existingCount = await tenantRepository.GetCountUnfilteredAsync(cancellationToken);
-        var tenant = Tenant.Create(command.OwnerEmail, existingCount);
+        var rolloutBucket = RolloutBucketHasher.ComputeRolloutBucket(existingCount + 1);
+        var tenant = Tenant.Create(command.OwnerEmail, rolloutBucket);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         var subscription = Subscription.Create(tenant.Id);

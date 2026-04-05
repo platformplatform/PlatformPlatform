@@ -10,69 +10,69 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
         var enabledFeatureFlags = new List<string>();
 
-        var definitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
+        var featureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
 
         // Sort feature flags so parents are evaluated before children
-        var sorted = TopologicalSort(definitions);
+        var sortedFeatureFlagDefinitions = TopologicalSort(featureFlagDefinitions);
 
         var enabledFeatureFlagSet = new HashSet<string>();
 
-        foreach (var definition in sorted)
+        foreach (var featureFlagDefinition in sortedFeatureFlagDefinitions)
         {
-            if (definition.Scope == FeatureFlagScope.System) continue;
+            if (featureFlagDefinition.Scope == FeatureFlagScope.System) continue;
 
-            var baseRow = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId is null && f.UserId is null);
+            var baseRow = allRows.FirstOrDefault(f => f.FeatureFlagKey == featureFlagDefinition.Key && f.TenantId is null && f.UserId is null);
             if (baseRow is null) continue;
 
             if (!IsActive(baseRow)) continue;
 
-            if (definition.ParentDependency is not null && !enabledFeatureFlagSet.Contains(definition.ParentDependency)) continue;
+            if (featureFlagDefinition.ParentDependency is not null && !enabledFeatureFlagSet.Contains(featureFlagDefinition.ParentDependency)) continue;
 
-            var isEnabled = definition.Scope switch
+            var isEnabled = featureFlagDefinition.Scope switch
             {
-                FeatureFlagScope.Tenant => EvaluateTenantScope(definition, baseRow, allRows, tenantId, tenantRolloutBucket),
-                FeatureFlagScope.User => EvaluateUserScope(definition, baseRow, allRows, tenantId, userId, userRolloutBucket),
+                FeatureFlagScope.Tenant => EvaluateTenantScope(featureFlagDefinition, baseRow, allRows, tenantId, tenantRolloutBucket),
+                FeatureFlagScope.User => EvaluateUserScope(featureFlagDefinition, baseRow, allRows, tenantId, userId, userRolloutBucket),
                 _ => false
             };
 
             if (!isEnabled) continue;
 
-            enabledFeatureFlagSet.Add(definition.Key);
-            enabledFeatureFlags.Add(definition.Key);
+            enabledFeatureFlagSet.Add(featureFlagDefinition.Key);
+            enabledFeatureFlags.Add(featureFlagDefinition.Key);
         }
 
         return enabledFeatureFlags;
     }
 
-    private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, int tenantRolloutBucket)
+    private static bool EvaluateTenantScope(FeatureFlagDefinition featureFlagDefinition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, int tenantRolloutBucket)
     {
-        var tenantOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId is null);
-        if (tenantOverride is not null)
+        var tenantFeatureFlag = allRows.FirstOrDefault(f => f.FeatureFlagKey == featureFlagDefinition.Key && f.TenantId == tenantId && f.UserId is null);
+        if (tenantFeatureFlag is not null)
         {
-            return IsActive(tenantOverride);
+            return IsActive(tenantFeatureFlag);
         }
 
-        if (definition.IsAbTestEligible && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
+        if (featureFlagDefinition.IsAbTestEligible && baseRow.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
         {
-            return RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
         }
 
         return false;
     }
 
-    private static bool EvaluateUserScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, string userId, int? userRolloutBucket)
+    private static bool EvaluateUserScope(FeatureFlagDefinition featureFlagDefinition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, string userId, int? userRolloutBucket)
     {
         if (string.IsNullOrEmpty(userId)) return false;
 
-        var userOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId == userId);
-        if (userOverride is not null)
+        var userFeatureFlag = allRows.FirstOrDefault(f => f.FeatureFlagKey == featureFlagDefinition.Key && f.TenantId == tenantId && f.UserId == userId);
+        if (userFeatureFlag is not null)
         {
-            return IsActive(userOverride);
+            return IsActive(userFeatureFlag);
         }
 
-        if (definition.IsAbTestEligible && userRolloutBucket is not null && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
+        if (featureFlagDefinition.IsAbTestEligible && userRolloutBucket is not null && baseRow.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
         {
-            return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket.Value, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
         }
 
         return false;
@@ -83,25 +83,25 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
-    private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] definitions)
+    private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] featureFlagDefinitions)
     {
-        var result = new List<FeatureFlagDefinition>(definitions.Length);
+        var result = new List<FeatureFlagDefinition>(featureFlagDefinitions.Length);
 
         // Add feature flags without parent dependencies first
-        foreach (var definition in definitions)
+        foreach (var featureFlagDefinition in featureFlagDefinitions)
         {
-            if (definition.ParentDependency is null)
+            if (featureFlagDefinition.ParentDependency is null)
             {
-                result.Add(definition);
+                result.Add(featureFlagDefinition);
             }
         }
 
         // Then add feature flags with parent dependencies
-        foreach (var definition in definitions)
+        foreach (var featureFlagDefinition in featureFlagDefinitions)
         {
-            if (definition.ParentDependency is not null)
+            if (featureFlagDefinition.ParentDependency is not null)
             {
-                result.Add(definition);
+                result.Add(featureFlagDefinition);
             }
         }
 

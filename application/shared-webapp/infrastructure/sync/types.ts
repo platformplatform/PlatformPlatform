@@ -29,13 +29,13 @@ export type TenantRow = Row & {
 
 export type FeatureFlagRow = Row & {
   id: string;
-  flagKey: string;
+  featureFlagKey: string;
   tenantId: string | null;
   userId: string | null;
   enabledAt: string | null;
   disabledAt: string | null;
-  bucketStart: string | null;
-  bucketEnd: string | null;
+  rolloutBucketStart: string | null;
+  rolloutBucketEnd: string | null;
   configurableByTenant: boolean;
   configurableByUser: boolean;
 };

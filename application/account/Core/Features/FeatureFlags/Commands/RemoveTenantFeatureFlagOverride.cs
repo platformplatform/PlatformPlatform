@@ -34,10 +34,10 @@ public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(RemoveTenantFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
-        var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
-        if (tenantOverride is null) return Result.NotFound($"No tenant override found for flag '{command.FlagKey}' and tenant '{command.TenantId}'.");
+        var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+        if (tenantFeatureFlag is null) return Result.NotFound($"No tenant override found for flag '{command.FlagKey}' and tenant '{command.TenantId}'.");
 
-        featureFlagRepository.Remove(tenantOverride);
+        featureFlagRepository.Remove(tenantFeatureFlag);
 
         var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
         if (tenant is not null)

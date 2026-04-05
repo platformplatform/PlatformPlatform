@@ -14,7 +14,7 @@ public sealed record FeatureFlagDefinition(
     bool ConfigurableByUser = false,
     bool TrackInTelemetry = false,
     string? TelemetryName = null,
-    PlanTier? RequiredPlan = null,
+    SubscriptionPlan? RequiredPlan = null,
     string? SystemConfigKey = null,
     string? SystemConfigExpectedValue = null
 )

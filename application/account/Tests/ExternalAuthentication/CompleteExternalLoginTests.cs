@@ -7,6 +7,7 @@ using Account.Features.Users.Domain;
 using Account.Integrations.OAuth.Mock;
 using FluentAssertions;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Tests.Persistence;
 using Xunit;
 

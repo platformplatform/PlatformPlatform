@@ -1,7 +1,7 @@
-using Account.Features.Subscriptions.Domain;
 using Account.Integrations.Stripe;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
+using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Subscriptions.Queries;
 

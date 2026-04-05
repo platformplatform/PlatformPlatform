@@ -40,10 +40,10 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
             return Result.Forbidden("Only owners are allowed to configure tenant feature flags.");
         }
 
-        var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(command.FlagKey);
-        if (definition is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
+        var featureFlagDefinition = SharedKernel.FeatureFlags.FeatureFlags.Get(command.FlagKey);
+        if (featureFlagDefinition is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
 
-        if (definition.AdminLevel != FeatureFlagAdminLevel.TenantOwner || !definition.ConfigurableByTenant)
+        if (featureFlagDefinition.AdminLevel != FeatureFlagAdminLevel.TenantOwner || !featureFlagDefinition.ConfigurableByTenant)
         {
             return Result.Forbidden($"Feature flag '{command.FlagKey}' is not configurable by tenant owners.");
         }
@@ -53,28 +53,28 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
 
         if (command.Enabled)
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, null, cancellationToken);
-            if (tenantOverride is null)
+            var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, null, cancellationToken);
+            if (tenantFeatureFlag is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, tenantId);
-                tenantOverride.Activate(now);
-                await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
+                tenantFeatureFlag = FeatureFlag.CreateTenantOverride(command.FlagKey, tenantId);
+                tenantFeatureFlag.Activate(now);
+                await featureFlagRepository.AddAsync(tenantFeatureFlag, cancellationToken);
             }
             else
             {
-                tenantOverride.Activate(now);
-                featureFlagRepository.Update(tenantOverride);
+                tenantFeatureFlag.Activate(now);
+                featureFlagRepository.Update(tenantFeatureFlag);
             }
 
             events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FlagKey, tenantId.ToString()));
         }
         else
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, null, cancellationToken);
-            if (tenantOverride is not null)
+            var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, null, cancellationToken);
+            if (tenantFeatureFlag is not null)
             {
-                tenantOverride.Deactivate(now);
-                featureFlagRepository.Update(tenantOverride);
+                tenantFeatureFlag.Deactivate(now);
+                featureFlagRepository.Update(tenantFeatureFlag);
                 events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, tenantId.ToString()));
             }
         }

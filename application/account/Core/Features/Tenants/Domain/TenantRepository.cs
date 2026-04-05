@@ -33,8 +33,7 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves the total count of tenants without applying query filters.
-    ///     This method is used to compute rollout buckets for new tenants.
+    ///     Retrieves the total count of tenants without applying query filters (bypasses tenant and soft-delete filters).
     /// </summary>
     Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
 
@@ -85,8 +84,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     }
 
     /// <summary>
-    ///     Retrieves the total count of tenants without applying query filters.
-    ///     This method is used to compute rollout buckets for new tenants.
+    ///     Retrieves the total count of tenants without applying query filters (bypasses tenant and soft-delete filters).
     /// </summary>
     public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {

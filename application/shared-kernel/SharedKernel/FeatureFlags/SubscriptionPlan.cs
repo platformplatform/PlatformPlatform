@@ -2,9 +2,9 @@ namespace SharedKernel.FeatureFlags;
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum PlanTier
+public enum SubscriptionPlan
 {
-    Free = 0,
+    Basis = 0,
     Standard = 1,
     Premium = 2
 }

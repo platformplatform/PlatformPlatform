@@ -15,14 +15,14 @@ public sealed class AddFeatureFlags : Migration
             {
                 tenant_id = table.Column<long>("bigint", nullable: true),
                 id = table.Column<string>("text", nullable: false),
-                flag_key = table.Column<string>("text", nullable: false),
+                feature_flag_key = table.Column<string>("text", nullable: false),
                 user_id = table.Column<string>("text", nullable: true),
                 created_at = table.Column<DateTimeOffset>("timestamptz", nullable: false),
                 modified_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 enabled_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 disabled_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
-                bucket_start = table.Column<int>("integer", nullable: true),
-                bucket_end = table.Column<int>("integer", nullable: true),
+                rollout_bucket_start = table.Column<int>("integer", nullable: true),
+                rollout_bucket_end = table.Column<int>("integer", nullable: true),
                 configurable_by_tenant = table.Column<bool>("boolean", nullable: false, defaultValue: false),
                 configurable_by_user = table.Column<bool>("boolean", nullable: false, defaultValue: false),
                 source = table.Column<string>("text", nullable: false, defaultValue: "Manual")
@@ -31,7 +31,7 @@ public sealed class AddFeatureFlags : Migration
         );
 
         migrationBuilder.Sql(
-            "CREATE UNIQUE INDEX ix_feature_flags_flag_key_tenant_id_user_id ON feature_flags (flag_key, tenant_id, user_id) NULLS NOT DISTINCT"
+            "CREATE UNIQUE INDEX ix_feature_flags_feature_flag_key_tenant_id_user_id ON feature_flags (feature_flag_key, tenant_id, user_id) NULLS NOT DISTINCT"
         );
 
         migrationBuilder.Sql(
@@ -41,7 +41,7 @@ public sealed class AddFeatureFlags : Migration
         migrationBuilder.Sql(
             """
             ALTER TABLE feature_flags ADD CONSTRAINT ck_feature_flags_bucket_range
-            CHECK ((bucket_start IS NULL) = (bucket_end IS NULL) AND (bucket_start IS NULL OR (bucket_start BETWEEN 0 AND 99 AND bucket_end BETWEEN 0 AND 99)))
+            CHECK ((rollout_bucket_start IS NULL) = (rollout_bucket_end IS NULL) AND (rollout_bucket_start IS NULL OR (rollout_bucket_start BETWEEN 0 AND 99 AND rollout_bucket_end BETWEEN 0 AND 99)))
             """
         );
 

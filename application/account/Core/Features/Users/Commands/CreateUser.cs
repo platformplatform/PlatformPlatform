@@ -5,6 +5,7 @@ using FluentValidation;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
+using SharedKernel.FeatureFlags;
 using SharedKernel.SinglePageApp;
 using SharedKernel.Telemetry;
 using SharedKernel.Validation;
@@ -49,7 +50,8 @@ internal sealed class CreateUserHandler(
             ? command.PreferredLocale
             : string.Empty;
         var existingCount = await userRepository.GetCountUnfilteredAsync(cancellationToken);
-        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, locale, existingCount);
+        var rolloutBucket = RolloutBucketHasher.ComputeRolloutBucket(existingCount + 1);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, locale, rolloutBucket);
 
         await userRepository.AddAsync(user, cancellationToken);
         var gravatar = await gravatarClient.GetGravatar(user.Id, user.Email, cancellationToken);

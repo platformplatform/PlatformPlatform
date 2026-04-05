@@ -33,9 +33,11 @@ export function BetaFeaturesSection() {
     );
 
     return baseFeatureFlags.map((baseFeatureFlag): UserFlag => {
-      const override = featureFlags.find((f) => f.flagKey === baseFeatureFlag.flagKey && f.userId === userId);
+      const override = featureFlags.find(
+        (f) => f.featureFlagKey === baseFeatureFlag.featureFlagKey && f.userId === userId
+      );
       return {
-        flagKey: baseFeatureFlag.flagKey,
+        flagKey: baseFeatureFlag.featureFlagKey,
         enabled: override ? isEnabled(override) : false
       };
     });

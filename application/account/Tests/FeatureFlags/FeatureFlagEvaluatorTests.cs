@@ -219,8 +219,8 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         // Delete any seeded row with the same scope to avoid unique constraint conflicts
         using var deleteCommand = new SqliteCommand(
             tenantId is null && userId is null
-                ? "DELETE FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL"
-                : "DELETE FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+                ? "DELETE FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL"
+                : "DELETE FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             Connection
         );
         deleteCommand.Parameters.AddWithValue("@flagKey", flagKey);
@@ -234,15 +234,15 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         var id = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", id),
-                ("flag_key", flagKey),
+                ("feature_flag_key", flagKey),
                 ("tenant_id", tenantId),
                 ("user_id", userId),
                 ("created_at", TimeProvider.System.GetUtcNow()),
                 ("modified_at", null),
                 ("enabled_at", enabledAt),
                 ("disabled_at", disabledAt),
-                ("bucket_start", rolloutBucketStart),
-                ("bucket_end", rolloutBucketEnd),
+                ("rollout_bucket_start", rolloutBucketStart),
+                ("rollout_bucket_end", rolloutBucketEnd),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")

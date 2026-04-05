@@ -35,10 +35,10 @@ export function FeaturesSection() {
 
     return baseFeatureFlags.map((baseFeatureFlag): TenantFlag => {
       const override = featureFlags.find(
-        (f) => f.flagKey === baseFeatureFlag.flagKey && f.tenantId === tenantId && f.userId === null
+        (f) => f.featureFlagKey === baseFeatureFlag.featureFlagKey && f.tenantId === tenantId && f.userId === null
       );
       return {
-        flagKey: baseFeatureFlag.flagKey,
+        flagKey: baseFeatureFlag.featureFlagKey,
         enabled: override ? isEnabled(override) : false
       };
     });

@@ -31,13 +31,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagActivated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.flag_key"].Should().Be(flagKey);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(flagKey);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -47,7 +47,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "beta-features";
         var originalEnabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
 
         // Act
@@ -57,7 +57,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedEnabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         updatedEnabledAt.Should().NotBe(originalEnabledAt);
 
@@ -79,17 +79,17 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         disabledAt.Should().NotBeNullOrEmpty();
         enabledAt.Should().NotBeNullOrEmpty("EnabledAt should be preserved on deactivation");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagDeactivated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.flag_key"].Should().Be(flagKey);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(flagKey);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -125,10 +125,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
         disabledAt.Should().BeNull("DisabledAt should be cleared on reactivation");
@@ -155,12 +155,12 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId }]
         );
         rowCount.Should().Be(1);
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
@@ -185,12 +185,12 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId }]
         );
         rowCount.Should().Be(1);
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId }]
         );
         disabledAt.Should().BeNull("newly created disabled override should not have disabled_at set when never activated");
@@ -232,13 +232,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("flag_key", flagKey),
+                ("feature_flag_key", flagKey),
                 ("tenant_id", tenantId),
                 ("user_id", null),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
-                ("bucket_start", null),
-                ("bucket_end", null),
+                ("rollout_bucket_start", null),
+                ("rollout_bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")
@@ -252,7 +252,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId }]
         );
         rowCount.Should().Be(0);
@@ -402,7 +402,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND user_id = @userId",
             [new { flagKey, userId }]
         );
         rowCount.Should().Be(1);
@@ -424,13 +424,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("flag_key", flagKey),
+                ("feature_flag_key", flagKey),
                 ("tenant_id", tenantId),
                 ("user_id", userId),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
-                ("bucket_start", null),
-                ("bucket_end", null),
+                ("rollout_bucket_start", null),
+                ("rollout_bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")
@@ -444,7 +444,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND user_id = @userId",
             [new { flagKey, userId }]
         );
         rowCount.Should().Be(0);
@@ -514,13 +514,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("flag_key", flagKey),
+                ("feature_flag_key", flagKey),
                 ("tenant_id", tenantId),
                 ("user_id", userId),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
-                ("bucket_start", null),
-                ("bucket_end", null),
+                ("rollout_bucket_start", null),
+                ("rollout_bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")
@@ -568,10 +568,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         rolloutBucketStart.Should().NotBeNull();
         rolloutBucketEnd.Should().NotBeNull();
@@ -579,7 +579,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.flag_key"].Should().Be(flagKey);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(flagKey);
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.rollout_percentage"].Should().Be("50");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
@@ -600,10 +600,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         rolloutBucketStart.Should().NotBeNull();
         rolloutBucketEnd.Should().NotBeNull();
@@ -661,10 +661,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         rolloutBucketStart.Should().BeNull();
         rolloutBucketEnd.Should().BeNull();
@@ -688,10 +688,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         rolloutBucketStart.Should().Be(0);
         rolloutBucketEnd.Should().Be(99);
@@ -736,13 +736,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("flag_key", flagKey),
+                ("feature_flag_key", flagKey),
                 ("tenant_id", tenantId),
                 ("user_id", null),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
-                ("bucket_start", null),
-                ("bucket_end", null),
+                ("rollout_bucket_start", null),
+                ("rollout_bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")
@@ -767,11 +767,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "beta-features";
         var baseRowId = Connection.ExecuteScalar<string>(
-            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT id FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         Connection.Update("feature_flags", "id", baseRowId, [
-                ("bucket_start", 0),
-                ("bucket_end", 99)
+                ("rollout_bucket_start", 0),
+                ("rollout_bucket_end", 99)
             ]
         );
 
@@ -797,11 +797,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id.Value;
         var baseRowId = Connection.ExecuteScalar<string>(
-            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT id FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         Connection.Update("feature_flags", "id", baseRowId, [
-                ("bucket_start", 0),
-                ("bucket_end", 99)
+                ("rollout_bucket_start", 0),
+                ("rollout_bucket_end", 99)
             ]
         );
 
@@ -811,13 +811,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("flag_key", flagKey),
+                ("feature_flag_key", flagKey),
                 ("tenant_id", tenantId),
                 ("user_id", null),
                 ("enabled_at", null),
                 ("disabled_at", TimeProvider.GetUtcNow()),
-                ("bucket_start", null),
-                ("bucket_end", null),
+                ("rollout_bucket_start", null),
+                ("rollout_bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")

@@ -36,7 +36,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
     public async Task<Result> Handle(SetFeatureFlagRolloutPercentageCommand command, CancellationToken cancellationToken)
     {
         var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
-        if (featureFlag is null) return Result.NotFound($"Feature featureFlag with key '{command.FlagKey}' not found.");
+        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
 
         int? rolloutBucketStart;
         int? rolloutBucketEnd;

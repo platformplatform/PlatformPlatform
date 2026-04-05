@@ -50,8 +50,8 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
 {
     public async Task<Result<GetFeatureFlagUsersResponse>> Handle(GetFeatureFlagUsersQuery query, CancellationToken cancellationToken)
     {
-        var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
-        if (definition is null) return Result<GetFeatureFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
+        var featureFlagDefinition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
+        if (featureFlagDefinition is null) return Result<GetFeatureFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
 
         if (string.IsNullOrWhiteSpace(query.Search)) return new GetFeatureFlagUsersResponse([]);
 
@@ -69,15 +69,15 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
             {
                 var tenantName = tenantsById.TryGetValue(user.TenantId, out var tenant) ? tenant.Name : "Unknown";
 
-                if (overridesByUserId.TryGetValue(user.Id.Value, out var userOverride))
+                if (overridesByUserId.TryGetValue(user.Id.Value, out var userFeatureFlag))
                 {
-                    var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
+                    var isEnabled = userFeatureFlag.EnabledAt is not null && (userFeatureFlag.DisabledAt is null || userFeatureFlag.EnabledAt > userFeatureFlag.DisabledAt);
                     return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isEnabled, "manual_override");
                 }
 
-                if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
+                if (featureFlagDefinition.IsAbTestEligible && baseRow?.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
                 {
-                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
                     return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isInRange, "ab_rollout");
                 }
 

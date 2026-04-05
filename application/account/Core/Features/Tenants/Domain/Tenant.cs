@@ -1,4 +1,3 @@
-using Account.Features.Subscriptions.Domain;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 
@@ -30,9 +29,9 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 
     public int FeatureFlagVersion { get; private set; }
 
-    public static Tenant Create(string email, int existingCount)
+    public static Tenant Create(string email, int rolloutBucket)
     {
-        var tenant = new Tenant(RolloutBucketHasher.ComputeRolloutBucket(existingCount));
+        var tenant = new Tenant(rolloutBucket);
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }

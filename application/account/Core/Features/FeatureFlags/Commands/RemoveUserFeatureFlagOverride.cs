@@ -36,10 +36,10 @@ public sealed class RemoveUserFeatureFlagOverrideHandler(IFeatureFlagRepository 
 {
     public async Task<Result> Handle(RemoveUserFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
-        var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
-        if (userOverride is null) return Result.NotFound($"No user override found for flag '{command.FlagKey}' and user '{command.UserId}'.");
+        var userFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
+        if (userFeatureFlag is null) return Result.NotFound($"No user override found for flag '{command.FlagKey}' and user '{command.UserId}'.");
 
-        featureFlagRepository.Remove(userOverride);
+        featureFlagRepository.Remove(userFeatureFlag);
 
         var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
         if (tenant is not null)

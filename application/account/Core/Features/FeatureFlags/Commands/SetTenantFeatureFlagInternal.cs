@@ -36,48 +36,47 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
 {
     public async Task<Result> Handle(SetTenantFeatureFlagInternalCommand command, CancellationToken cancellationToken)
     {
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
+        if (tenant is null) return Result.NotFound($"Tenant with ID '{command.TenantId}' not found.");
+
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
-            if (tenantOverride is null)
+            var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+            if (tenantFeatureFlag is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
-                tenantOverride.Activate(now);
-                await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
+                tenantFeatureFlag = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                tenantFeatureFlag.Activate(now);
+                await featureFlagRepository.AddAsync(tenantFeatureFlag, cancellationToken);
             }
             else
             {
-                tenantOverride.Activate(now);
-                featureFlagRepository.Update(tenantOverride);
+                tenantFeatureFlag.Activate(now);
+                featureFlagRepository.Update(tenantFeatureFlag);
             }
 
             events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FlagKey, command.TenantId.ToString()));
         }
         else
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
-            if (tenantOverride is null)
+            var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+            if (tenantFeatureFlag is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
-                await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
+                tenantFeatureFlag = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                await featureFlagRepository.AddAsync(tenantFeatureFlag, cancellationToken);
             }
             else
             {
-                tenantOverride.Deactivate(now);
-                featureFlagRepository.Update(tenantOverride);
+                tenantFeatureFlag.Deactivate(now);
+                featureFlagRepository.Update(tenantFeatureFlag);
             }
 
             events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
         }
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
-        if (tenant is not null)
-        {
-            tenant.IncrementFeatureFlagVersion();
-            tenantRepository.Update(tenant);
-        }
+        tenant.IncrementFeatureFlagVersion();
+        tenantRepository.Update(tenant);
 
         return Result.Success();
     }

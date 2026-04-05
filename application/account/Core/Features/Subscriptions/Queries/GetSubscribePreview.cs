@@ -5,6 +5,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.ExecutionContext;
+using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Subscriptions.Queries;
 

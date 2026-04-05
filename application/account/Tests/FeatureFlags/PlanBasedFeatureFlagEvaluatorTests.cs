@@ -1,8 +1,8 @@
 using Account.Database;
 using Account.Features.FeatureFlags.Shared;
-using Account.Features.Subscriptions.Domain;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Tests.Persistence;
 using Xunit;
 
@@ -32,13 +32,13 @@ public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<Accoun
 
         // Assert
         var ssoEnabled = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
         ssoEnabled.Should().NotBeNullOrEmpty();
 
         var source = Connection.ExecuteScalar<string>(
-            "SELECT source FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT source FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
         source.Should().Be("Plan");
@@ -58,13 +58,13 @@ public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<Accoun
 
         // Assert
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
         disabledAt.Should().NotBeNullOrEmpty();
 
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
         enabledAt.Should().NotBeNullOrEmpty("EnabledAt should be preserved on deactivation");
@@ -79,7 +79,7 @@ public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<Accoun
         await _dbContext.SaveChangesAsync();
 
         var firstEnabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
 
@@ -89,7 +89,7 @@ public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<Accoun
 
         // Assert
         var secondEnabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
         secondEnabledAt.Should().Be(firstEnabledAt);
