@@ -17,6 +17,11 @@ msgstr ""
 msgid "{0, plural, one {# day ago} other {# days ago}}"
 msgstr "{0, plural, one {for # dag siden} other {for # dage siden}}"
 
+#. placeholder {0}: group.plan
+#. placeholder {1}: group.tenants.length
+msgid "{0} ({1})"
+msgstr "{0} ({1})"
+
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {Om # dag} other {Om # dage}}"
 
@@ -53,10 +58,6 @@ msgstr "Konti aktiveres eller deaktiveres automatisk baseret på deres abonnemen
 
 msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
 msgstr "Konti inkluderes automatisk baseret på deres udrulnings-bucket. Brug tilsidesættelser til manuelt at inkludere eller ekskludere specifikke konti."
-
-#. placeholder {0}: getFlagName(flagKey)
-msgid "Accounts for {0}"
-msgstr "Konti for {0}"
 
 msgid "Active"
 msgstr "Aktiv"
