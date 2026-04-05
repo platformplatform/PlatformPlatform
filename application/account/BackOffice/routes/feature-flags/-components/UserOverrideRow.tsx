@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { apiClient, queryClient } from "@/shared/lib/api/client";
 
-import type { FlagUserInfo } from "./types";
+import type { FeatureFlagUserInfo } from "./types";
 
 function getSourceLabel(source: string): string {
   switch (source) {
@@ -30,16 +30,16 @@ function getSourceLabel(source: string): string {
 
 export function UserOverrideRow({
   flagKey,
-  flagDescription,
+  featureFlagDescription,
   user,
-  showBucket,
-  isFlagActive
+  showRolloutBucket,
+  isFeatureFlagActive
 }: Readonly<{
   flagKey: string;
-  flagDescription: string;
-  user: FlagUserInfo;
-  showBucket: boolean;
-  isFlagActive: boolean;
+  featureFlagDescription: string;
+  user: FeatureFlagUserInfo;
+  showRolloutBucket: boolean;
+  isFeatureFlagActive: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(user.isEnabled);
 
@@ -80,8 +80,8 @@ export function UserOverrideRow({
             queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
           });
           const message = checked
-            ? t`${flagDescription} enabled for ${user.email}`
-            : t`${flagDescription} disabled for ${user.email}`;
+            ? t`${featureFlagDescription} enabled for ${user.email}`
+            : t`${featureFlagDescription} disabled for ${user.email}`;
           toast.success(message);
         },
         onError: () => {
@@ -111,7 +111,9 @@ export function UserOverrideRow({
       <TableCell className="hidden sm:table-cell">
         <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
       </TableCell>
-      {showBucket && <TableCell className="hidden text-muted-foreground sm:table-cell">{user.rolloutBucket}</TableCell>}
+      {showRolloutBucket && (
+        <TableCell className="hidden text-muted-foreground sm:table-cell">{user.rolloutBucket}</TableCell>
+      )}
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           {user.source === "manual_override" && (
@@ -139,7 +141,7 @@ export function UserOverrideRow({
             checked={optimisticEnabled}
             onCheckedChange={handleToggle}
             disabled={isPending}
-            className={!isFlagActive && optimisticEnabled ? "opacity-50" : ""}
+            className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
             aria-label={t`Override for ${user.email}`}
           />
         </div>

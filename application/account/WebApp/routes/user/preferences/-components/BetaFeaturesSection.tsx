@@ -34,8 +34,8 @@ export function BetaFeaturesSection() {
         <Trans>Opt in to try new features before they are available to everyone.</Trans>
       </p>
       <div className="flex flex-col gap-2">
-        {userFlags.map((flag) => (
-          <UserFlagToggle key={flag.flagKey} flagKey={flag.flagKey} enabled={flag.enabled} />
+        {userFlags.map((f) => (
+          <UserFlagToggle key={f.flagKey} flagKey={f.flagKey} enabled={f.enabled} />
         ))}
       </div>
     </section>

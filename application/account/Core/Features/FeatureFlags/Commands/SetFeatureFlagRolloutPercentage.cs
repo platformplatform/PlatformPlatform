@@ -21,9 +21,9 @@ public sealed class SetFeatureFlagRolloutPercentageValidator : AbstractValidator
     public SetFeatureFlagRolloutPercentageValidator()
     {
         RuleFor(x => x.FlagKey)
-            .NotEmpty().WithMessage("Flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.IsAbTestEligible == true).WithMessage("Flag must be eligible for A/B testing.");
+            .NotEmpty().WithMessage("Feature flag key must not be empty.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.IsAbTestEligible == true).WithMessage("Feature flag must be eligible for A/B testing.");
 
         RuleFor(x => x.RolloutPercentage)
             .InclusiveBetween(0, 100).WithMessage("Rollout percentage must be between 0 and 100.");
@@ -35,30 +35,30 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(SetFeatureFlagRolloutPercentageCommand command, CancellationToken cancellationToken)
     {
-        var flag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
-        if (flag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
+        var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
+        if (featureFlag is null) return Result.NotFound($"Feature featureFlag with key '{command.FlagKey}' not found.");
 
-        int? bucketStart;
-        int? bucketEnd;
+        int? rolloutBucketStart;
+        int? rolloutBucketEnd;
 
         if (command.RolloutPercentage == 0)
         {
-            bucketStart = null;
-            bucketEnd = null;
+            rolloutBucketStart = null;
+            rolloutBucketEnd = null;
         }
         else if (command.RolloutPercentage == 100)
         {
-            bucketStart = 0;
-            bucketEnd = 99;
+            rolloutBucketStart = 0;
+            rolloutBucketEnd = 99;
         }
         else
         {
-            bucketStart = ComputeStartingBucket(command.FlagKey);
-            bucketEnd = (bucketStart.Value + command.RolloutPercentage - 1) % 100;
+            rolloutBucketStart = ComputeStartingRolloutBucket(command.FlagKey);
+            rolloutBucketEnd = (rolloutBucketStart.Value + command.RolloutPercentage - 1) % 100;
         }
 
-        flag.SetRolloutRange(bucketStart, bucketEnd);
-        featureFlagRepository.Update(flag);
+        featureFlag.SetRolloutRange(rolloutBucketStart, rolloutBucketEnd);
+        featureFlagRepository.Update(featureFlag);
 
         await tenantRepository.IncrementAllFeatureFlagVersionsAsync(cancellationToken);
 
@@ -67,7 +67,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         return Result.Success();
     }
 
-    private static int ComputeStartingBucket(string flagKey)
+    private static int ComputeStartingRolloutBucket(string flagKey)
     {
         unchecked
         {

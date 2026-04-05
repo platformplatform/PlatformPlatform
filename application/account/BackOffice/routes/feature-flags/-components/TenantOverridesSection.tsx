@@ -5,26 +5,26 @@ import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import type { BucketRange } from "./rolloutBucket";
-import type { FlagTenantInfo } from "./types";
+import type { RolloutBucketRange } from "./rolloutBucket";
+import type { FeatureFlagTenantInfo } from "./types";
 
-import { sortBySourceThenBucket } from "./rolloutBucket";
+import { sortBySourceThenRolloutBucket } from "./rolloutBucket";
 import { TenantOverrideRow } from "./TenantOverrideRow";
 
 export function TenantOverridesSection({
   flagKey,
-  flagDescription,
+  featureFlagDescription,
   tenants,
-  showBucket,
-  bucketRange,
-  isFlagActive
+  showRolloutBucket,
+  rolloutBucketRange,
+  isFeatureFlagActive
 }: Readonly<{
   flagKey: string;
-  flagDescription: string;
-  tenants: FlagTenantInfo[];
-  showBucket: boolean;
-  bucketRange: BucketRange | null;
-  isFlagActive: boolean;
+  featureFlagDescription: string;
+  tenants: FeatureFlagTenantInfo[];
+  showRolloutBucket: boolean;
+  rolloutBucketRange: RolloutBucketRange | null;
+  isFeatureFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
 
@@ -39,26 +39,26 @@ export function TenantOverridesSection({
 
   const enabledTenants = useMemo(
     () =>
-      sortBySourceThenBucket(
+      sortBySourceThenRolloutBucket(
         filtered.filter((t) => t.isEnabled),
         (t) => t.source,
         (t) => t.rolloutBucket,
         "enabled",
-        bucketRange
+        rolloutBucketRange
       ),
-    [filtered, bucketRange]
+    [filtered, rolloutBucketRange]
   );
 
   const disabledTenants = useMemo(
     () =>
-      sortBySourceThenBucket(
+      sortBySourceThenRolloutBucket(
         filtered.filter((t) => !t.isEnabled),
         (t) => t.source,
         (t) => t.rolloutBucket,
         "disabled",
-        bucketRange
+        rolloutBucketRange
       ),
-    [filtered, bucketRange]
+    [filtered, rolloutBucketRange]
   );
 
   const isSearching = search.length > 0;
@@ -70,7 +70,7 @@ export function TenantOverridesSection({
           <Trans>Account status</Trans>
         </h3>
         <p className="text-sm text-muted-foreground">
-          {showBucket ? (
+          {showRolloutBucket ? (
             <Trans>
               Accounts are automatically included based on their rollout bucket. Use overrides to manually include or
               exclude specific accounts.
@@ -92,9 +92,9 @@ export function TenantOverridesSection({
           ariaLabel={t`Search results`}
           tenants={[...enabledTenants, ...disabledTenants]}
           flagKey={flagKey}
-          flagDescription={flagDescription}
-          showBucket={showBucket}
-          isFlagActive={isFlagActive}
+          featureFlagDescription={featureFlagDescription}
+          showRolloutBucket={showRolloutBucket}
+          isFeatureFlagActive={isFeatureFlagActive}
         />
       ) : (
         <>
@@ -102,17 +102,17 @@ export function TenantOverridesSection({
             label={t`Enabled (${enabledTenants.length})`}
             tenants={enabledTenants}
             flagKey={flagKey}
-            flagDescription={flagDescription}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
+            featureFlagDescription={featureFlagDescription}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
           />
           <CollapsibleTenantGroup
             label={t`Disabled (${disabledTenants.length})`}
             tenants={disabledTenants}
             flagKey={flagKey}
-            flagDescription={flagDescription}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
+            featureFlagDescription={featureFlagDescription}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
           />
         </>
       )}
@@ -122,20 +122,20 @@ export function TenantOverridesSection({
 
 interface TenantTableProps {
   ariaLabel: string;
-  tenants: FlagTenantInfo[];
+  tenants: FeatureFlagTenantInfo[];
   flagKey: string;
-  flagDescription: string;
-  showBucket: boolean;
-  isFlagActive: boolean;
+  featureFlagDescription: string;
+  showRolloutBucket: boolean;
+  isFeatureFlagActive: boolean;
 }
 
 function TenantTable({
   ariaLabel,
   tenants,
   flagKey,
-  flagDescription,
-  showBucket,
-  isFlagActive
+  featureFlagDescription,
+  showRolloutBucket,
+  isFeatureFlagActive
 }: Readonly<TenantTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
@@ -153,7 +153,7 @@ function TenantTable({
           <TableHead className="hidden w-[8rem] sm:table-cell">
             <Trans>Source</Trans>
           </TableHead>
-          {showBucket && (
+          {showRolloutBucket && (
             <TableHead className="hidden w-[5rem] sm:table-cell">
               <Trans>Bucket</Trans>
             </TableHead>
@@ -168,10 +168,10 @@ function TenantTable({
           <TenantOverrideRow
             key={tenant.tenantId}
             flagKey={flagKey}
-            flagDescription={flagDescription}
+            featureFlagDescription={featureFlagDescription}
             tenant={tenant}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
           />
         ))}
       </TableBody>

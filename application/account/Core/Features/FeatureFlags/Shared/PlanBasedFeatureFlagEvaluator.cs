@@ -4,34 +4,34 @@ using Account.Features.Tenants.Domain;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 
-namespace Account.Features.FeatureFlags;
+namespace Account.Features.FeatureFlags.Shared;
 
-public sealed class PlanBasedFeatureFlagService(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, TimeProvider timeProvider)
+public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, TimeProvider timeProvider)
 {
     public async Task EvaluatePlanFlagsForTenantAsync(TenantId tenantId, SubscriptionPlan subscriptionPlan, CancellationToken cancellationToken)
     {
-        var planTier = MapToPlanTier(subscriptionPlan);
-        var planFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
+        var subscriptionPlanTier = MapToPlanTier(subscriptionPlan);
+        var planFeatureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
 
-        if (planFlagDefinitions.Length == 0) return;
+        if (planFeatureFlagDefinitions.Length == 0) return;
 
         var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId.Value, cancellationToken);
         var overridesByKey = existingOverrides.ToDictionary(f => f.FlagKey);
         var now = timeProvider.GetUtcNow();
         var changed = false;
 
-        foreach (var definition in planFlagDefinitions)
+        foreach (var definition in planFeatureFlagDefinitions)
         {
-            var shouldBeEnabled = planTier >= definition.RequiredPlan!.Value;
+            var shouldBeEnabled = subscriptionPlanTier >= definition.RequiredPlan!.Value;
             overridesByKey.TryGetValue(definition.Key, out var existingOverride);
 
             if (shouldBeEnabled)
             {
                 if (existingOverride is null)
                 {
-                    var flag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId.Value, FeatureFlagSource.Plan);
-                    flag.Activate(now);
-                    await featureFlagRepository.AddAsync(flag, cancellationToken);
+                    var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId.Value, FeatureFlagSource.Plan);
+                    featureFlag.Activate(now);
+                    await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                     changed = true;
                 }
                 else if (!IsActive(existingOverride))
@@ -63,9 +63,9 @@ public sealed class PlanBasedFeatureFlagService(IFeatureFlagRepository featureFl
         }
     }
 
-    private static bool IsActive(FeatureFlag flag)
+    private static bool IsActive(FeatureFlag featureFlag)
     {
-        return flag.EnabledAt is not null && (flag.DisabledAt is null || flag.EnabledAt > flag.DisabledAt);
+        return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
     private static PlanTier MapToPlanTier(SubscriptionPlan plan)

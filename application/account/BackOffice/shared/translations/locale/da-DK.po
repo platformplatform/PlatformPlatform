@@ -47,12 +47,14 @@ msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
 
 #. placeholder {0}: tenant.tenantName
-msgid "{flagDescription} disabled for {0}"
-msgstr "{flagDescription} deaktiveret for {0}"
+#. placeholder {0}: user.email
+msgid "{featureFlagDescription} disabled for {0}"
+msgstr "{featureFlagDescription} deaktiveret for {0}"
 
 #. placeholder {0}: tenant.tenantName
-msgid "{flagDescription} enabled for {0}"
-msgstr "{flagDescription} aktiveret for {0}"
+#. placeholder {0}: user.email
+msgid "{featureFlagDescription} enabled for {0}"
+msgstr "{featureFlagDescription} aktiveret for {0}"
 
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inaktive"
@@ -230,6 +232,9 @@ msgstr "Samlet MRR"
 msgid "Browser"
 msgstr "Browser"
 
+msgid "Bucket"
+msgstr "Bucket"
+
 msgid "Canceled"
 msgstr "Opsagt"
 
@@ -370,12 +375,12 @@ msgstr "Aktiveret"
 msgid "Enabled ({0})"
 msgstr "Aktiveret ({0})"
 
-#. placeholder {0}: formatTimestamp(flag.enabledAt)
-#. placeholder {1}: formatTimestamp(flag.disabledAt)
+#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
+#. placeholder {1}: formatTimestamp(featureFlag.disabledAt)
 msgid "Enabled period: {0} - {1}"
 msgstr "Aktiveret periode: {0} - {1}"
 
-#. placeholder {0}: formatTimestamp(flag.enabledAt)
+#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
 msgid "Enabled: {0}"
 msgstr "Aktiveret: {0}"
 
@@ -890,11 +895,14 @@ msgstr "Udrulningsspande: {rolloutBucketStart}-99 og 0-{rolloutBucketEnd} ({roll
 msgid "Rollout %"
 msgstr "Udrulnings-%"
 
-msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Udrulningsbuckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout bucket information"
+msgstr "Information om udrulnings-bucket"
 
-msgid "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Udrulningsbuckets: {bucketStart}-99 og 0-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
+msgstr "Udrulningsbuckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
+msgstr "Udrulningsbuckets: {rolloutBucketStart}-99 og 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout percentage"
 msgstr "Udrulningsprocent"
@@ -1085,9 +1093,9 @@ msgstr "Denne bruger har ingen registrerede sessioner."
 msgid "This user is not a member of any account."
 msgstr "Denne bruger er ikke medlem af nogen konto."
 
-#. placeholder {0}: flag.description
+#. placeholder {0}: getFeatureFlagName(featureFlag.key)
 msgid "Toggle {0}"
-msgstr ""
+msgstr "Skift {0}"
 
 msgid "Toggle the override switch to enable this feature for specific accounts."
 msgstr ""

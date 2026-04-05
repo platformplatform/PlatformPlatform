@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 import { api, queryClient } from "@/shared/lib/api/client";
 
-import type { FlagTenantInfo } from "./types";
+import type { FeatureFlagTenantInfo } from "./types";
 
 function getSourceLabel(source: string): string {
   switch (source) {
@@ -29,16 +29,16 @@ function getSourceLabel(source: string): string {
 
 export function TenantOverrideRow({
   flagKey,
-  flagDescription,
+  featureFlagDescription,
   tenant,
-  showBucket,
-  isFlagActive
+  showRolloutBucket,
+  isFeatureFlagActive
 }: Readonly<{
   flagKey: string;
-  flagDescription: string;
-  tenant: FlagTenantInfo;
-  showBucket: boolean;
-  isFlagActive: boolean;
+  featureFlagDescription: string;
+  tenant: FeatureFlagTenantInfo;
+  showRolloutBucket: boolean;
+  isFeatureFlagActive: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(tenant.isEnabled);
   const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/tenant-override");
@@ -63,8 +63,8 @@ export function TenantOverrideRow({
             queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/tenants"]
           });
           const message = checked
-            ? t`${flagDescription} enabled for ${tenant.tenantName}`
-            : t`${flagDescription} disabled for ${tenant.tenantName}`;
+            ? t`${featureFlagDescription} enabled for ${tenant.tenantName}`
+            : t`${featureFlagDescription} disabled for ${tenant.tenantName}`;
           toast.success(message);
         },
         onError: () => {
@@ -100,7 +100,7 @@ export function TenantOverrideRow({
       <TableCell className="hidden sm:table-cell">
         <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
       </TableCell>
-      {showBucket && (
+      {showRolloutBucket && (
         <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.rolloutBucket}</TableCell>
       )}
       <TableCell className="text-right">
@@ -130,7 +130,7 @@ export function TenantOverrideRow({
             checked={optimisticEnabled}
             onCheckedChange={handleToggle}
             disabled={isPending}
-            className={!isFlagActive && optimisticEnabled ? "opacity-50" : ""}
+            className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
             aria-label={t`Override for ${tenant.tenantName}`}
           />
         </div>

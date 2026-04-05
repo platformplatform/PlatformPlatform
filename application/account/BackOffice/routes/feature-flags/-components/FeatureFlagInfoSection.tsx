@@ -12,10 +12,10 @@ import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo } from "./types";
 
-import { getFlagName } from "./flagLabels";
-import { formatBucketRange } from "./rolloutBucket";
+import { getFeatureFlagName } from "./flagLabels";
+import { formatRolloutBucketRange } from "./rolloutBucket";
 
-export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
+export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/activate");
   const deactivateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/deactivate");
   const isPending = activateMutation.isPending || deactivateMutation.isPending;
@@ -23,7 +23,7 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   const handleToggle = (checked: boolean) => {
     const mutation = checked ? activateMutation : deactivateMutation;
     mutation.mutate(
-      { params: { path: { flagKey: flag.key } } },
+      { params: { path: { flagKey: featureFlag.key } } },
       {
         onSuccess: () => {
           toast.success(checked ? t`Feature flag activated` : t`Feature flag deactivated`);
@@ -35,31 +35,35 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <FlagMetadata flag={flag} />
-        {flag.isAbTestEligible ? (
+        <FeatureFlagMetadata featureFlag={featureFlag} />
+        {featureFlag.isAbTestEligible ? (
           <div className="flex shrink-0 flex-col gap-1">
             <span className="text-sm font-medium text-foreground">
               <Trans>Rollout %</Trans>
             </span>
             <div className="flex items-center gap-4">
-              <RolloutPercentageInput flagKey={flag.key} currentPercentage={flag.rolloutPercentage} />
-              <Badge variant={flag.isActive ? "default" : "outline"}>{flag.isActive ? t`Active` : t`Inactive`}</Badge>
+              <RolloutPercentageInput flagKey={featureFlag.key} currentPercentage={featureFlag.rolloutPercentage} />
+              <Badge variant={featureFlag.isActive ? "default" : "outline"}>
+                {featureFlag.isActive ? t`Active` : t`Inactive`}
+              </Badge>
               <Switch
-                checked={flag.isActive}
+                checked={featureFlag.isActive}
                 onCheckedChange={handleToggle}
                 disabled={isPending}
-                aria-label={t`Toggle ${getFlagName(flag.key)}`}
+                aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
               />
             </div>
           </div>
         ) : (
           <div className="flex shrink-0 items-center gap-4">
-            <Badge variant={flag.isActive ? "default" : "outline"}>{flag.isActive ? t`Active` : t`Inactive`}</Badge>
+            <Badge variant={featureFlag.isActive ? "default" : "outline"}>
+              {featureFlag.isActive ? t`Active` : t`Inactive`}
+            </Badge>
             <Switch
-              checked={flag.isActive}
+              checked={featureFlag.isActive}
               onCheckedChange={handleToggle}
               disabled={isPending}
-              aria-label={t`Toggle ${getFlagName(flag.key)}`}
+              aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
             />
           </div>
         )}
@@ -68,31 +72,34 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   );
 }
 
-function FlagMetadata({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
+function FeatureFlagMetadata({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   const enabledLine =
-    flag.enabledAt && flag.disabledAt
-      ? t`Enabled period: ${formatTimestamp(flag.enabledAt)} - ${formatTimestamp(flag.disabledAt)}`
-      : flag.enabledAt
-        ? t`Enabled: ${formatTimestamp(flag.enabledAt)}`
+    featureFlag.enabledAt && featureFlag.disabledAt
+      ? t`Enabled period: ${formatTimestamp(featureFlag.enabledAt)} - ${formatTimestamp(featureFlag.disabledAt)}`
+      : featureFlag.enabledAt
+        ? t`Enabled: ${formatTimestamp(featureFlag.enabledAt)}`
         : null;
 
-  const bucketLine =
-    flag.isAbTestEligible && flag.bucketStart != null && flag.bucketEnd != null && flag.rolloutPercentage != null
-      ? formatBucketRange(flag.bucketStart, flag.bucketEnd, flag.rolloutPercentage)
+  const rolloutBucketLine =
+    featureFlag.isAbTestEligible &&
+    featureFlag.bucketStart != null &&
+    featureFlag.bucketEnd != null &&
+    featureFlag.rolloutPercentage != null
+      ? formatRolloutBucketRange(featureFlag.bucketStart, featureFlag.bucketEnd, featureFlag.rolloutPercentage)
       : null;
 
   return (
     <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
       <span>
-        <Trans>Name:</Trans> <span className="font-mono">{flag.key}</span>
+        <Trans>Name:</Trans> <span className="font-mono">{featureFlag.key}</span>
       </span>
       {enabledLine && <span>{enabledLine}</span>}
-      {bucketLine && (
+      {rolloutBucketLine && (
         <span className="flex items-center gap-1">
-          {bucketLine}
+          {rolloutBucketLine}
           <Tooltip>
             <TooltipTrigger>
-              <InfoIcon className="size-3.5" aria-label={t`Bucket information`} />
+              <InfoIcon className="size-3.5" aria-label={t`Rollout bucket information`} />
             </TooltipTrigger>
             <TooltipContent className="max-w-[20rem]">
               <Trans>

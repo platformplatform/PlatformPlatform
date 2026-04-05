@@ -36,8 +36,8 @@ export function FeaturesSection() {
         <Trans>Toggle features available to your account.</Trans>
       </p>
       <div className="flex flex-col gap-2">
-        {tenantFlags.map((flag) => (
-          <TenantFlagToggle key={flag.flagKey} flagKey={flag.flagKey} enabled={flag.enabled} />
+        {tenantFlags.map((f) => (
+          <TenantFlagToggle key={f.flagKey} flagKey={f.flagKey} enabled={f.enabled} />
         ))}
       </div>
     </div>

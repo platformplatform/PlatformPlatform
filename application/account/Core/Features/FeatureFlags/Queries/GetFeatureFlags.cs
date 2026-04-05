@@ -25,8 +25,8 @@ public sealed record FeatureFlagInfo(
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
-    int? BucketStart,
-    int? BucketEnd,
+    int? RolloutBucketStart,
+    int? RolloutBucketEnd,
     int? RolloutPercentage,
     bool IsActive
 );
@@ -40,15 +40,15 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
         var baseRows = await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken);
         var baseRowsByKey = baseRows.ToDictionary(f => f.FlagKey);
 
-        var flags = definitions.Select(definition =>
+        var featureFlags = definitions.Select(definition =>
             {
                 if (definition.Scope == FeatureFlagScope.System)
                 {
-                    var isSystemFlagActive = IsSystemFlagEnabled(definition.Key);
+                    var isSystemFeatureFlagActive = definition.IsSystemFeatureFlagEnabled(configuration);
                     return new FeatureFlagInfo(
                         definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                         definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                        null, null, null, null, null, null, isSystemFlagActive
+                        null, null, null, null, null, null, isSystemFeatureFlagActive
                     );
                 }
 
@@ -57,45 +57,35 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                 var createdAt = baseRow?.CreatedAt;
                 var enabledAt = baseRow?.EnabledAt;
                 var disabledAt = baseRow?.DisabledAt;
-                var bucketStart = baseRow?.BucketStart;
-                var bucketEnd = baseRow?.BucketEnd;
+                var rolloutBucketStart = baseRow?.BucketStart;
+                var rolloutBucketEnd = baseRow?.BucketEnd;
                 var isActive = enabledAt is not null && (disabledAt is null || enabledAt > disabledAt);
-                var rolloutPercentage = ComputeRolloutPercentage(bucketStart, bucketEnd);
+                var rolloutPercentage = ComputeRolloutPercentage(rolloutBucketStart, rolloutBucketEnd);
 
                 return new FeatureFlagInfo(
                     definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                     definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                    createdAt, enabledAt, disabledAt, bucketStart, bucketEnd, rolloutPercentage, isActive
+                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive
                 );
             }
         ).ToArray();
 
-        return new GetFeatureFlagsResponse(flags);
+        return new GetFeatureFlagsResponse(featureFlags);
     }
 
-    private bool IsSystemFlagEnabled(string flagKey)
+    private static int? ComputeRolloutPercentage(int? rolloutBucketStart, int? rolloutBucketEnd)
     {
-        return flagKey switch
-        {
-            "google-oauth" => !string.IsNullOrEmpty(configuration["OAuth:Google:ClientId"]),
-            "subscriptions" => configuration["Stripe:SubscriptionEnabled"] == "true",
-            _ => false
-        };
-    }
-
-    private static int? ComputeRolloutPercentage(int? bucketStart, int? bucketEnd)
-    {
-        if (bucketStart is null || bucketEnd is null) return null;
+        if (rolloutBucketStart is null || rolloutBucketEnd is null) return null;
 
         // 100% rollout uses reserved range 0-100
-        if (bucketStart == 0 && bucketEnd == 100) return 100;
+        if (rolloutBucketStart == 0 && rolloutBucketEnd == 100) return 100;
 
-        if (bucketStart <= bucketEnd)
+        if (rolloutBucketStart <= rolloutBucketEnd)
         {
-            return bucketEnd.Value - bucketStart.Value + 1;
+            return rolloutBucketEnd.Value - rolloutBucketStart.Value + 1;
         }
 
         // Wrap-around case within 1-99 range
-        return 99 - bucketStart.Value + 1 + bucketEnd.Value;
+        return 99 - rolloutBucketStart.Value + 1 + rolloutBucketEnd.Value;
     }
 }

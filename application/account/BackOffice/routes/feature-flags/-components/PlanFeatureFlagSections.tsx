@@ -6,21 +6,23 @@ import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import type { FeatureFlagInfo, FlagTenantInfo } from "./types";
+import type { FeatureFlagInfo, FeatureFlagTenantInfo } from "./types";
 
-export function PlanFlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
+export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
           <span>
-            <Trans>Name:</Trans> <span className="font-mono">{flag.key}</span>
+            <Trans>Name:</Trans> <span className="font-mono">{featureFlag.key}</span>
           </span>
           <span>
-            <Trans>Required plan:</Trans> <Badge variant="outline">{flag.requiredPlan}</Badge>
+            <Trans>Required plan:</Trans> <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
           </span>
         </div>
-        <Badge variant={flag.isActive ? "default" : "outline"}>{flag.isActive ? t`Active` : t`Inactive`}</Badge>
+        <Badge variant={featureFlag.isActive ? "default" : "outline"}>
+          {featureFlag.isActive ? t`Active` : t`Inactive`}
+        </Badge>
       </div>
       <p className="text-sm text-muted-foreground">
         <Trans>
@@ -32,7 +34,7 @@ export function PlanFlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }
   );
 }
 
-export function PlanFlagTenantsSection({ tenants }: Readonly<{ tenants: FlagTenantInfo[] }>) {
+export function PlanFeatureFlagTenantsSection({ tenants }: Readonly<{ tenants: FeatureFlagTenantInfo[] }>) {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -45,7 +47,7 @@ export function PlanFlagTenantsSection({ tenants }: Readonly<{ tenants: FlagTena
   }, [tenants, search]);
 
   const planGroups = useMemo(() => {
-    const groupMap = new Map<string, FlagTenantInfo[]>();
+    const groupMap = new Map<string, FeatureFlagTenantInfo[]>();
     for (const tenant of filtered) {
       const existing = groupMap.get(tenant.plan);
       if (existing) {
@@ -83,7 +85,7 @@ export function PlanFlagTenantsSection({ tenants }: Readonly<{ tenants: FlagTena
         className="max-w-[20rem]"
       />
       {isSearching ? (
-        <PlanFlagTenantTable ariaLabel={t`Search results`} tenants={filtered} />
+        <PlanFeatureFlagTenantTable ariaLabel={t`Search results`} tenants={filtered} />
       ) : (
         planGroups.map((group) => (
           <CollapsiblePlanGroup
@@ -97,7 +99,10 @@ export function PlanFlagTenantsSection({ tenants }: Readonly<{ tenants: FlagTena
   );
 }
 
-function PlanFlagTenantTable({ ariaLabel, tenants }: Readonly<{ ariaLabel: string; tenants: FlagTenantInfo[] }>) {
+function PlanFeatureFlagTenantTable({
+  ariaLabel,
+  tenants
+}: Readonly<{ ariaLabel: string; tenants: FeatureFlagTenantInfo[] }>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
       <TableHeader>
@@ -134,7 +139,7 @@ function PlanFlagTenantTable({ ariaLabel, tenants }: Readonly<{ ariaLabel: strin
   );
 }
 
-function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tenants: FlagTenantInfo[] }>) {
+function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tenants: FeatureFlagTenantInfo[] }>) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -151,7 +156,7 @@ function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tena
         />
         <h4 className="text-muted-foreground">{label}</h4>
       </button>
-      {isOpen && <PlanFlagTenantTable ariaLabel={label} tenants={tenants} />}
+      {isOpen && <PlanFeatureFlagTenantTable ariaLabel={label} tenants={tenants} />}
     </div>
   );
 }

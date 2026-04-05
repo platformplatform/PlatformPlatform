@@ -53,7 +53,7 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
 
     public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int existingCount)
     {
-        return new User(tenantId, email, role, emailConfirmed, locale, RolloutBucketHasher.ComputeBucket(existingCount));
+        return new User(tenantId, email, role, emailConfirmed, locale, RolloutBucketHasher.ComputeRolloutBucket(existingCount));
     }
 
     public void Update(string firstName, string lastName, string title)

@@ -1,6 +1,6 @@
 using Account.Database;
-using Account.Features.FeatureFlags;
 using Account.Features.FeatureFlags.Domain;
+using Account.Features.FeatureFlags.Shared;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,15 +10,15 @@ using Xunit;
 
 namespace Account.Tests.FeatureFlags;
 
-public sealed class FeatureFlagEvaluationServiceTests : EndpointBaseTest<AccountDbContext>
+public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContext>
 {
-    private readonly FeatureFlagEvaluationService _evaluationService;
+    private readonly FeatureFlagEvaluator _evaluationService;
     private readonly IServiceScope _scope;
 
-    public FeatureFlagEvaluationServiceTests()
+    public FeatureFlagEvaluatorTests()
     {
         _scope = Provider.CreateScope();
-        _evaluationService = _scope.ServiceProvider.GetRequiredService<FeatureFlagEvaluationService>();
+        _evaluationService = _scope.ServiceProvider.GetRequiredService<FeatureFlagEvaluator>();
     }
 
     [Fact]
@@ -214,7 +214,7 @@ public sealed class FeatureFlagEvaluationServiceTests : EndpointBaseTest<Account
         base.Dispose(disposing);
     }
 
-    private void InsertFeatureFlag(string flagKey, long? tenantId, string? userId, DateTimeOffset? enabledAt, DateTimeOffset? disabledAt, int? bucketStart, int? bucketEnd)
+    private void InsertFeatureFlag(string flagKey, long? tenantId, string? userId, DateTimeOffset? enabledAt, DateTimeOffset? disabledAt, int? rolloutBucketStart, int? rolloutBucketEnd)
     {
         // Delete any seeded row with the same scope to avoid unique constraint conflicts
         using var deleteCommand = new SqliteCommand(
@@ -241,8 +241,8 @@ public sealed class FeatureFlagEvaluationServiceTests : EndpointBaseTest<Account
                 ("modified_at", null),
                 ("enabled_at", enabledAt),
                 ("disabled_at", disabledAt),
-                ("bucket_start", bucketStart),
-                ("bucket_end", bucketEnd),
+                ("bucket_start", rolloutBucketStart),
+                ("bucket_end", rolloutBucketEnd),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual")

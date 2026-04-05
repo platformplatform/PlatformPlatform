@@ -470,7 +470,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenNoSearchProvided_ShouldReturnEmptyArray()
+    public async Task GetFeatureFlagUsers_WhenNoSearchProvided_ShouldReturnEmptyArray()
     {
         // Arrange
         var flagKey = "compact-view";
@@ -480,13 +480,13 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagUsersResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenSearchMatchesEmail_ShouldReturnMatchingUsersWithDefaultSource()
+    public async Task GetFeatureFlagUsers_WhenSearchMatchesEmail_ShouldReturnMatchingUsersWithDefaultSource()
     {
         // Arrange
         var flagKey = "compact-view";
@@ -496,14 +496,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagUsersResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Should().NotBeEmpty();
         result.Users.Should().OnlyContain(u => u.Source == "default");
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenUserHasOverride_ShouldReturnUserWithManualOverrideSource()
+    public async Task GetFeatureFlagUsers_WhenUserHasOverride_ShouldReturnUserWithManualOverrideSource()
     {
         // Arrange
         var flagKey = "compact-view";
@@ -532,7 +532,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagUsersResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Should().NotBeEmpty();
         var userResult = result.Users.Single(u => u.UserId.Value == userId);
@@ -543,7 +543,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenNonUserScopedFlag_ShouldReturnBadRequest()
+    public async Task GetFeatureFlagUsers_WhenNonUserScopedFlag_ShouldReturnBadRequest()
     {
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync("/internal-api/account/feature-flags/sso/users");
@@ -567,15 +567,15 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
-        var bucketStart = Connection.ExecuteScalar<long?>(
+        var rolloutBucketStart = Connection.ExecuteScalar<long?>(
             "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        var bucketEnd = Connection.ExecuteScalar<long?>(
+        var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
             "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        bucketStart.Should().NotBeNull();
-        bucketEnd.Should().NotBeNull();
-        CountBucketsInRange((int)bucketStart.Value, (int)bucketEnd.Value).Should().Be(50);
+        rolloutBucketStart.Should().NotBeNull();
+        rolloutBucketEnd.Should().NotBeNull();
+        CountBucketsInRange((int)rolloutBucketStart.Value, (int)rolloutBucketEnd.Value).Should().Be(50);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
@@ -599,15 +599,15 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
-        var bucketStart = Connection.ExecuteScalar<long?>(
+        var rolloutBucketStart = Connection.ExecuteScalar<long?>(
             "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        var bucketEnd = Connection.ExecuteScalar<long?>(
+        var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
             "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        bucketStart.Should().NotBeNull();
-        bucketEnd.Should().NotBeNull();
-        CountBucketsInRange((int)bucketStart.Value, (int)bucketEnd.Value).Should().Be(percentage);
+        rolloutBucketStart.Should().NotBeNull();
+        rolloutBucketEnd.Should().NotBeNull();
+        CountBucketsInRange((int)rolloutBucketStart.Value, (int)rolloutBucketEnd.Value).Should().Be(percentage);
     }
 
     [Fact]
@@ -660,14 +660,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
-        var bucketStart = Connection.ExecuteScalar<long?>(
+        var rolloutBucketStart = Connection.ExecuteScalar<long?>(
             "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        var bucketEnd = Connection.ExecuteScalar<long?>(
+        var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
             "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        bucketStart.Should().BeNull();
-        bucketEnd.Should().BeNull();
+        rolloutBucketStart.Should().BeNull();
+        rolloutBucketEnd.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
@@ -687,14 +687,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
-        var bucketStart = Connection.ExecuteScalar<long?>(
+        var rolloutBucketStart = Connection.ExecuteScalar<long?>(
             "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        var bucketEnd = Connection.ExecuteScalar<long?>(
+        var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
             "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        bucketStart.Should().Be(0);
-        bucketEnd.Should().Be(99);
+        rolloutBucketStart.Should().Be(0);
+        rolloutBucketEnd.Should().Be(99);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
@@ -732,7 +732,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     // Flag tenants query tests
 
     [Fact]
-    public async Task GetFlagTenants_WhenTenantScopedFlag_ShouldReturnAllTenantsWithDefaultSource()
+    public async Task GetFeatureFlagTenants_WhenTenantScopedFlag_ShouldReturnAllTenantsWithDefaultSource()
     {
         // Arrange
         var flagKey = "sso";
@@ -742,7 +742,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
         result.Tenants.Should().NotBeEmpty();
         result.Tenants.Should().AllSatisfy(t =>
@@ -754,7 +754,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenTenantHasOverride_ShouldReturnManualOverrideSource()
+    public async Task GetFeatureFlagTenants_WhenTenantHasOverride_ShouldReturnManualOverrideSource()
     {
         // Arrange
         var flagKey = "sso";
@@ -782,7 +782,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
         var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
         tenantResult.IsEnabled.Should().BeTrue();
@@ -790,7 +790,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenFlagHasRollout_ShouldReturnAbRolloutSource()
+    public async Task GetFeatureFlagTenants_WhenFlagHasRollout_ShouldReturnAbRolloutSource()
     {
         // Arrange
         var flagKey = "beta-features";
@@ -808,7 +808,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
         result.Tenants.Should().AllSatisfy(t =>
             {
@@ -819,7 +819,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenTenantDisabledViaOverrideWhileAbRolloutActive_ShouldReturnManualOverrideDisabled()
+    public async Task GetFeatureFlagTenants_WhenTenantDisabledViaOverrideWhileAbRolloutActive_ShouldReturnManualOverrideDisabled()
     {
         // Arrange - set up A/B rollout at 100% so all tenants are enabled
         var flagKey = "beta-features";
@@ -857,7 +857,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert - manual override should take precedence over A/B rollout
         response.ShouldBeSuccessfulGetRequest();
-        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
         var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
         tenantResult.IsEnabled.Should().BeFalse();
@@ -865,7 +865,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenNonExistentFlag_ShouldReturnBadRequest()
+    public async Task GetFeatureFlagTenants_WhenNonExistentFlag_ShouldReturnBadRequest()
     {
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync("/internal-api/account/feature-flags/non-existent/tenants");
@@ -875,7 +875,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenSystemScopedFlag_ShouldReturnBadRequest()
+    public async Task GetFeatureFlagTenants_WhenSystemScopedFlag_ShouldReturnBadRequest()
     {
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync("/internal-api/account/feature-flags/google-oauth/tenants");
@@ -931,25 +931,25 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public void BucketRange_WhenNormalRange_ShouldMatchCorrectly()
     {
         // Arrange & Act & Assert
-        IsInBucketRange(50, 40, 60).Should().BeTrue();
-        IsInBucketRange(39, 40, 60).Should().BeFalse();
-        IsInBucketRange(61, 40, 60).Should().BeFalse();
-        IsInBucketRange(40, 40, 60).Should().BeTrue();
-        IsInBucketRange(60, 40, 60).Should().BeTrue();
+        IsInRolloutBucketRange(50, 40, 60).Should().BeTrue();
+        IsInRolloutBucketRange(39, 40, 60).Should().BeFalse();
+        IsInRolloutBucketRange(61, 40, 60).Should().BeFalse();
+        IsInRolloutBucketRange(40, 40, 60).Should().BeTrue();
+        IsInRolloutBucketRange(60, 40, 60).Should().BeTrue();
     }
 
     [Fact]
     public void BucketRange_WhenWrapAround_ShouldMatchCorrectly()
     {
         // Arrange & Act & Assert (wrap-around within 0-99 range)
-        IsInBucketRange(95, 90, 10).Should().BeTrue();
-        IsInBucketRange(5, 90, 10).Should().BeTrue();
-        IsInBucketRange(50, 90, 10).Should().BeFalse();
-        IsInBucketRange(90, 90, 10).Should().BeTrue();
-        IsInBucketRange(10, 90, 10).Should().BeTrue();
-        IsInBucketRange(11, 90, 10).Should().BeFalse();
-        IsInBucketRange(89, 90, 10).Should().BeFalse();
-        IsInBucketRange(0, 90, 10).Should().BeTrue();
+        IsInRolloutBucketRange(95, 90, 10).Should().BeTrue();
+        IsInRolloutBucketRange(5, 90, 10).Should().BeTrue();
+        IsInRolloutBucketRange(50, 90, 10).Should().BeFalse();
+        IsInRolloutBucketRange(90, 90, 10).Should().BeTrue();
+        IsInRolloutBucketRange(10, 90, 10).Should().BeTrue();
+        IsInRolloutBucketRange(11, 90, 10).Should().BeFalse();
+        IsInRolloutBucketRange(89, 90, 10).Should().BeFalse();
+        IsInRolloutBucketRange(0, 90, 10).Should().BeTrue();
     }
 
     [Fact]
@@ -959,8 +959,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var sequenceNumber = 42;
 
         // Act
-        var bucket1 = RolloutBucketHasher.ComputeBucket(sequenceNumber);
-        var bucket2 = RolloutBucketHasher.ComputeBucket(sequenceNumber);
+        var bucket1 = RolloutBucketHasher.ComputeRolloutBucket(sequenceNumber);
+        var bucket2 = RolloutBucketHasher.ComputeRolloutBucket(sequenceNumber);
 
         // Assert
         bucket1.Should().Be(bucket2);
@@ -976,7 +976,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Act
         for (var i = 0; i < 1000; i++)
         {
-            var bucket = RolloutBucketHasher.ComputeBucket(i);
+            var bucket = RolloutBucketHasher.ComputeRolloutBucket(i);
             bucket.Should().BeInRange(0, 99);
             bucketCounts[bucket]++;
         }
@@ -1126,18 +1126,18 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         updatedVersion.Should().Be(originalVersion + 1);
     }
 
-    private static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)
+    private static bool IsInRolloutBucketRange(int bucket, int rolloutBucketStart, int rolloutBucketEnd)
     {
-        return RolloutBucketHasher.IsInBucketRange(bucket, bucketStart, bucketEnd);
+        return RolloutBucketHasher.IsInRolloutBucketRange(bucket, rolloutBucketStart, rolloutBucketEnd);
     }
 
-    private static int CountBucketsInRange(int bucketStart, int bucketEnd)
+    private static int CountBucketsInRange(int rolloutBucketStart, int rolloutBucketEnd)
     {
-        if (bucketStart <= bucketEnd)
+        if (rolloutBucketStart <= rolloutBucketEnd)
         {
-            return bucketEnd - bucketStart + 1;
+            return rolloutBucketEnd - rolloutBucketStart + 1;
         }
 
-        return 100 - bucketStart + bucketEnd + 1;
+        return 100 - rolloutBucketStart + rolloutBucketEnd + 1;
     }
 }

@@ -1,4 +1,4 @@
-using Account.Features.FeatureFlags;
+using Account.Features.FeatureFlags.Shared;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
@@ -12,7 +12,7 @@ namespace Account.Features.Users.Shared;
 ///     Factory for creating UserInfo instances with tenant information.
 ///     Centralizes the logic for creating UserInfo to follow SRP and avoid duplication.
 /// </summary>
-public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, FeatureFlagEvaluationService featureFlagEvaluationService, PlanBasedFeatureFlagService planBasedFeatureFlagService)
+public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, FeatureFlagEvaluator featureFlagEvaluator, PlanBasedFeatureFlagEvaluator planBasedFeatureFlagEvaluator)
 {
     /// <summary>
     ///     Creates a UserInfo instance from a User entity, including tenant name.
@@ -25,9 +25,9 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
 
         var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(user.TenantId, cancellationToken);
 
-        await planBasedFeatureFlagService.EvaluatePlanFlagsForTenantAsync(tenant.Id, subscription!.Plan, cancellationToken);
+        await planBasedFeatureFlagEvaluator.EvaluatePlanFlagsForTenantAsync(tenant.Id, subscription!.Plan, cancellationToken);
 
-        var enabledFlags = await featureFlagEvaluationService.EvaluateAsync(tenant.Id.Value, user.Id.Value, tenant.RolloutBucket, user.RolloutBucket, cancellationToken);
+        var enabledFlags = await featureFlagEvaluator.EvaluateAsync(tenant.Id.Value, user.Id.Value, tenant.RolloutBucket, user.RolloutBucket, cancellationToken);
 
         return new UserInfo
         {

@@ -14,18 +14,18 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
 
     public async Task<string> ExecuteAsync(CancellationToken cancellationToken)
     {
-        var flags = FeatureFlags.GetAll();
+        var featureFlags = FeatureFlags.GetAll();
         var now = DateTimeOffset.UtcNow;
 
         var seededCount = 0;
-        foreach (var flag in flags)
+        foreach (var featureFlag in featureFlags)
         {
-            if (flag.Scope == FeatureFlagScope.System) continue;
+            if (featureFlag.Scope == FeatureFlagScope.System) continue;
 
             seededCount++;
             var id = FeatureFlagId.NewId().Value;
 
-            var source = flag.RequiredPlan is not null ? "Plan" : "Manual";
+            var source = featureFlag.RequiredPlan is not null ? "Plan" : "Manual";
 
             await dbContext.Database.ExecuteSqlRawAsync(
                 """
@@ -38,10 +38,10 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
                 """,
                 [
                     new NpgsqlParameter("@id", id),
-                    new NpgsqlParameter("@flagKey", flag.Key),
+                    new NpgsqlParameter("@flagKey", featureFlag.Key),
                     new NpgsqlParameter("@now", now),
-                    new NpgsqlParameter("@configurableByTenant", flag.ConfigurableByTenant),
-                    new NpgsqlParameter("@configurableByUser", flag.ConfigurableByUser),
+                    new NpgsqlParameter("@configurableByTenant", featureFlag.ConfigurableByTenant),
+                    new NpgsqlParameter("@configurableByUser", featureFlag.ConfigurableByUser),
                     new NpgsqlParameter("@source", source)
                 ],
                 cancellationToken
@@ -50,6 +50,6 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return $"Upserted {seededCount} feature flag base rows";
+        return $"Upserted {seededCount} feature featureFlag base rows";
     }
 }

@@ -8,44 +8,47 @@ import { ArrowLeftIcon } from "lucide-react";
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
 import { api } from "@/shared/lib/api/client";
 
-import type { GetFeatureFlagsResponse, GetFlagTenantsResponse } from "./-components/types";
+import type { GetFeatureFlagsResponse, GetFeatureFlagTenantsResponse } from "./-components/types";
 
-import { FlagInfoSection } from "./-components/FlagInfoSection";
-import { getFlagDescription, getFlagName } from "./-components/flagLabels";
-import { PlanFlagInfoSection, PlanFlagTenantsSection } from "./-components/PlanFlagSections";
+import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
+import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
+import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
 import { ScopeIcon } from "./-components/ScopeIcon";
 import { TenantOverridesSection } from "./-components/TenantOverridesSection";
 import { UserOverridesSection } from "./-components/UserOverridesSection";
 
 export const Route = createFileRoute("/feature-flags/$flagKey")({
   staticData: { trackingTitle: "Feature flag detail" },
-  component: FlagDetailPage
+  component: FeatureFlagDetailPage
 });
 
-export default function FlagDetailPage() {
+export default function FeatureFlagDetailPage() {
   const { flagKey } = Route.useParams();
 
-  const { data: flagsData, isLoading: isLoadingFlags } = api.useQuery("get", "/api/back-office/feature-flags") as {
+  const { data: featureFlagsData, isLoading: isLoadingFeatureFlags } = api.useQuery(
+    "get",
+    "/api/back-office/feature-flags"
+  ) as {
     data: GetFeatureFlagsResponse | undefined;
     isLoading: boolean;
   };
 
-  const flag = flagsData?.flags?.find((f) => f.key === flagKey);
+  const featureFlag = featureFlagsData?.flags?.find((f) => f.key === flagKey);
 
   const { data: tenantsData, isLoading: isLoadingTenants } = api.useQuery(
     "get",
     "/api/back-office/feature-flags/{flagKey}/tenants",
     { params: { path: { flagKey } } },
-    { enabled: flag?.scope === "Tenant" }
+    { enabled: featureFlag?.scope === "Tenant" }
   ) as {
-    data: GetFlagTenantsResponse | undefined;
+    data: GetFeatureFlagTenantsResponse | undefined;
     isLoading: boolean;
   };
 
-  const isPlanFlag = flag?.requiredPlan != null;
-  const isLoading = isLoadingFlags || (flag?.scope === "Tenant" && isLoadingTenants);
-  const flagName = flag ? getFlagName(flag.key) : flagKey;
-  const description = flag ? getFlagDescription(flag.key) || flag.description : "";
+  const isPlanFeatureFlag = featureFlag?.requiredPlan != null;
+  const isLoading = isLoadingFeatureFlags || (featureFlag?.scope === "Tenant" && isLoadingTenants);
+  const featureFlagName = featureFlag ? getFeatureFlagName(featureFlag.key) : flagKey;
+  const description = featureFlag ? getFeatureFlagDescription(featureFlag.key) || featureFlag.description : "";
 
   return (
     <SidebarProvider>
@@ -53,51 +56,55 @@ export default function FlagDetailPage() {
       <SidebarInset>
         <AppLayout
           maxWidth="64rem"
-          browserTitle={flagName}
+          browserTitle={featureFlagName}
           title={
             <div className="flex items-center gap-3">
               <Link to="/feature-flags" className="text-muted-foreground hover:text-foreground">
                 <ArrowLeftIcon className="size-5" aria-label={t`Back to feature flags`} />
               </Link>
-              {flag && <ScopeIcon scope={flag.scope} className="size-6 stroke-[2.5] text-foreground" />}
-              <span>{flagName}</span>
+              {featureFlag && <ScopeIcon scope={featureFlag.scope} className="size-6 stroke-[2.5] text-foreground" />}
+              <span>{featureFlagName}</span>
             </div>
           }
-          subtitle={flag ? description : undefined}
+          subtitle={featureFlag ? description : undefined}
         >
           {isLoading ? (
-            <FlagDetailSkeleton />
-          ) : flag ? (
+            <FeatureFlagDetailSkeleton />
+          ) : featureFlag ? (
             <div className="flex flex-col gap-8">
-              {isPlanFlag ? <PlanFlagInfoSection flag={flag} /> : <FlagInfoSection flag={flag} />}
-              {flag.scope === "Tenant" && !isPlanFlag && (
+              {isPlanFeatureFlag ? (
+                <PlanFeatureFlagInfoSection featureFlag={featureFlag} />
+              ) : (
+                <FeatureFlagInfoSection featureFlag={featureFlag} />
+              )}
+              {featureFlag.scope === "Tenant" && !isPlanFeatureFlag && (
                 <TenantOverridesSection
-                  flagKey={flag.key}
-                  flagDescription={flagName}
+                  flagKey={featureFlag.key}
+                  featureFlagDescription={featureFlagName}
                   tenants={tenantsData?.tenants ?? []}
-                  showBucket={flag.isAbTestEligible}
-                  bucketRange={
-                    flag.bucketStart != null && flag.bucketEnd != null
-                      ? { bucketStart: flag.bucketStart, bucketEnd: flag.bucketEnd }
+                  showRolloutBucket={featureFlag.isAbTestEligible}
+                  rolloutBucketRange={
+                    featureFlag.bucketStart != null && featureFlag.bucketEnd != null
+                      ? { bucketStart: featureFlag.bucketStart, bucketEnd: featureFlag.bucketEnd }
                       : null
                   }
-                  isFlagActive={flag.isActive}
+                  isFeatureFlagActive={featureFlag.isActive}
                 />
               )}
-              {flag.scope === "Tenant" && isPlanFlag && (
-                <PlanFlagTenantsSection tenants={tenantsData?.tenants ?? []} />
+              {featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
+                <PlanFeatureFlagTenantsSection tenants={tenantsData?.tenants ?? []} />
               )}
-              {flag.scope === "User" && (
+              {featureFlag.scope === "User" && (
                 <UserOverridesSection
-                  flagKey={flag.key}
-                  flagDescription={flagName}
-                  showBucket={flag.isAbTestEligible}
-                  bucketRange={
-                    flag.bucketStart != null && flag.bucketEnd != null
-                      ? { bucketStart: flag.bucketStart, bucketEnd: flag.bucketEnd }
+                  flagKey={featureFlag.key}
+                  featureFlagDescription={featureFlagName}
+                  showRolloutBucket={featureFlag.isAbTestEligible}
+                  rolloutBucketRange={
+                    featureFlag.bucketStart != null && featureFlag.bucketEnd != null
+                      ? { bucketStart: featureFlag.bucketStart, bucketEnd: featureFlag.bucketEnd }
                       : null
                   }
-                  isFlagActive={flag.isActive}
+                  isFeatureFlagActive={featureFlag.isActive}
                 />
               )}
             </div>
@@ -108,7 +115,7 @@ export default function FlagDetailPage() {
   );
 }
 
-function FlagDetailSkeleton() {
+function FeatureFlagDetailSkeleton() {
   return (
     <div className="flex flex-col gap-8">
       <Skeleton className="h-20 w-full rounded-lg" />

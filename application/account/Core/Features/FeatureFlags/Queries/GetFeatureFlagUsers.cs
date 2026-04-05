@@ -10,7 +10,7 @@ using SharedKernel.FeatureFlags;
 namespace Account.Features.FeatureFlags.Queries;
 
 [PublicAPI]
-public sealed record GetFlagUsersQuery : IRequest<Result<GetFlagUsersResponse>>
+public sealed record GetFeatureFlagUsersQuery : IRequest<Result<GetFeatureFlagUsersResponse>>
 {
     [JsonIgnore] // Removes from API contract
     public string FlagKey { get; init; } = null!;
@@ -19,10 +19,10 @@ public sealed record GetFlagUsersQuery : IRequest<Result<GetFlagUsersResponse>>
 }
 
 [PublicAPI]
-public sealed record GetFlagUsersResponse(FlagUserInfo[] Users);
+public sealed record GetFeatureFlagUsersResponse(FeatureFlagUserInfo[] Users);
 
 [PublicAPI]
-public sealed record FlagUserInfo(
+public sealed record FeatureFlagUserInfo(
     UserId UserId,
     TenantId TenantId,
     string Email,
@@ -32,28 +32,28 @@ public sealed record FlagUserInfo(
     string Source
 );
 
-public sealed class GetFlagUsersValidator : AbstractValidator<GetFlagUsersQuery>
+public sealed class GetFeatureFlagUsersValidator : AbstractValidator<GetFeatureFlagUsersQuery>
 {
-    public GetFlagUsersValidator()
+    public GetFeatureFlagUsersValidator()
     {
         RuleFor(x => x.FlagKey)
-            .NotEmpty().WithMessage("Flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Flag must have user scope.");
+            .NotEmpty().WithMessage("Feature flag key must not be empty.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Feature flag must have user scope.");
 
         RuleFor(x => x.Search).MaximumLength(100).WithMessage("The search term must be at most 100 characters.");
     }
 }
 
-public sealed class GetFlagUsersHandler(IFeatureFlagRepository featureFlagRepository, IUserRepository userRepository, ITenantRepository tenantRepository)
-    : IRequestHandler<GetFlagUsersQuery, Result<GetFlagUsersResponse>>
+public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFlagRepository, IUserRepository userRepository, ITenantRepository tenantRepository)
+    : IRequestHandler<GetFeatureFlagUsersQuery, Result<GetFeatureFlagUsersResponse>>
 {
-    public async Task<Result<GetFlagUsersResponse>> Handle(GetFlagUsersQuery query, CancellationToken cancellationToken)
+    public async Task<Result<GetFeatureFlagUsersResponse>> Handle(GetFeatureFlagUsersQuery query, CancellationToken cancellationToken)
     {
         var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
-        if (definition is null) return Result<GetFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
+        if (definition is null) return Result<GetFeatureFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
 
-        if (string.IsNullOrWhiteSpace(query.Search)) return new GetFlagUsersResponse([]);
+        if (string.IsNullOrWhiteSpace(query.Search)) return new GetFeatureFlagUsersResponse([]);
 
         var users = await userRepository.SearchByEmailUnfilteredAsync(query.Search.Trim(), cancellationToken);
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FlagKey, cancellationToken);
@@ -65,26 +65,26 @@ public sealed class GetFlagUsersHandler(IFeatureFlagRepository featureFlagReposi
         var tenants = await tenantRepository.GetByIdsUnfilteredAsync(tenantIds, cancellationToken);
         var tenantsById = tenants.ToDictionary(t => t.Id);
 
-        var flagUsers = users.Select(user =>
+        var featureFlagUsers = users.Select(user =>
             {
                 var tenantName = tenantsById.TryGetValue(user.TenantId, out var tenant) ? tenant.Name : "Unknown";
 
                 if (overridesByUserId.TryGetValue(user.Id.Value, out var userOverride))
                 {
                     var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
-                    return new FlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isEnabled, "manual_override");
+                    return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isEnabled, "manual_override");
                 }
 
                 if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
                 {
-                    var isInRange = RolloutBucketHasher.IsInBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-                    return new FlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isInRange, "ab_rollout");
+                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+                    return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isInRange, "ab_rollout");
                 }
 
-                return new FlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, false, "default");
+                return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, false, "default");
             }
         ).ToArray();
 
-        return new GetFlagUsersResponse(flagUsers);
+        return new GetFeatureFlagUsersResponse(featureFlagUsers);
     }
 }

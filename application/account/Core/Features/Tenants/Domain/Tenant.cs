@@ -32,7 +32,7 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 
     public static Tenant Create(string email, int existingCount)
     {
-        var tenant = new Tenant(RolloutBucketHasher.ComputeBucket(existingCount));
+        var tenant = new Tenant(RolloutBucketHasher.ComputeRolloutBucket(existingCount));
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }
