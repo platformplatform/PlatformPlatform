@@ -14,7 +14,7 @@ public class UserInfo
 {
     private const string DefaultLocale = "en-US";
 
-    private static readonly IReadOnlySet<string> EmptyFeatureFlags = new HashSet<string>();
+    private static readonly FeatureFlagKey[] EmptyFeatureFlags = [];
 
     /// <summary>
     ///     Represents the system user, typically used for background tasks or where no user is directly authenticated.
@@ -50,7 +50,7 @@ public class UserInfo
 
     public string? TenantLogoUrl { get; init; }
 
-    public string? SubscriptionPlan { get; init; }
+    public SubscriptionPlan? SubscriptionPlan { get; init; }
 
     public bool IsInternalUser { get; init; }
 
@@ -60,9 +60,7 @@ public class UserInfo
 
     public SessionId? SessionId { get; init; }
 
-    public IReadOnlySet<string> FeatureFlags { get; init; } = EmptyFeatureFlags;
-
-    public int FeatureFlagVersion { get; init; }
+    public FeatureFlagKey[] FeatureFlags { get; init; } = EmptyFeatureFlags;
 
     public bool IsFeatureFlagEnabled(FeatureFlagKey featureFlagKey)
     {
@@ -88,7 +86,7 @@ public class UserInfo
         var sessionId = user.FindFirstValue("session_id");
         var email = user.FindFirstValue(ClaimTypes.Email);
         var featureFlagsClaim = user.FindFirstValue("feature_flags");
-        var featureFlagVersionClaim = user.FindFirstValue("feature_flag_version");
+        var subscriptionPlanClaim = user.FindFirstValue("subscription_plan");
         return new UserInfo
         {
             IsAuthenticated = true,
@@ -103,20 +101,22 @@ public class UserInfo
             AvatarUrl = user.FindFirstValue("avatar_url"),
             TenantName = user.FindFirstValue("tenant_name"),
             TenantLogoUrl = user.FindFirstValue("tenant_logo_url"),
-            SubscriptionPlan = user.FindFirstValue("subscription_plan"),
+            SubscriptionPlan = Enum.TryParse<SubscriptionPlan>(subscriptionPlanClaim, out var subscriptionPlan) ? subscriptionPlan : null,
             Locale = GetValidLocale(user.FindFirstValue("locale")),
             ZoomLevel = zoomLevel,
             Theme = theme,
             IsInternalUser = IsInternalUserEmail(email),
-            FeatureFlags = ParseFeatureFlags(featureFlagsClaim),
-            FeatureFlagVersion = !string.IsNullOrEmpty(featureFlagVersionClaim) ? int.Parse(featureFlagVersionClaim) : 0
+            FeatureFlags = ParseFeatureFlags(featureFlagsClaim)
         };
     }
 
-    private static IReadOnlySet<string> ParseFeatureFlags(string? claim)
+    private static FeatureFlagKey[] ParseFeatureFlags(string? claim)
     {
         if (string.IsNullOrEmpty(claim)) return EmptyFeatureFlags;
-        return new HashSet<string>(claim.Split(',', StringSplitOptions.RemoveEmptyEntries));
+        return claim.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(key => new FeatureFlagKey(key))
+            .OrderBy(key => key.Value)
+            .ToArray();
     }
 
     private static string GetValidLocale(string? locale)

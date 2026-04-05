@@ -44,8 +44,8 @@ msgstr "Access denied"
 msgid "Account"
 msgstr "Account"
 
-msgid "Account flags"
-msgstr "Account flags"
+msgid "Account feature flags"
+msgstr "Account feature flags"
 
 msgid "Account ID"
 msgstr "Account ID"
@@ -62,17 +62,14 @@ msgstr "Accounts are automatically included based on their rollout bucket. Use o
 msgid "Active"
 msgstr "Active"
 
-msgid "Allow users to authenticate using enterprise identity providers"
-msgstr "Allow users to authenticate using enterprise identity providers"
+msgid "Always"
+msgstr "Always"
 
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
 msgid "Back to feature flags"
 msgstr "Back to feature flags"
-
-msgid "Beta features"
-msgstr "Beta features"
 
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
@@ -95,20 +92,11 @@ msgstr "Close menu"
 msgid "Close sidebar"
 msgstr "Close sidebar"
 
-msgid "Compact view"
-msgstr "Compact view"
-
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
 
 msgid "Create <0>{search}</0>"
 msgstr "Create <0>{search}</0>"
-
-msgid "Custom branding"
-msgstr "Custom branding"
-
-msgid "Customize the login page with your organization's logo and colors"
-msgstr "Customize the login page with your organization's logo and colors"
 
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -123,7 +111,6 @@ msgid "Disabled"
 msgstr "Disabled"
 
 #. placeholder {0}: disabledTenants.length
-#. placeholder {0}: disabledUsers.length
 msgid "Disabled ({0})"
 msgstr "Disabled ({0})"
 
@@ -133,9 +120,6 @@ msgstr "Drop files here, or click to browse"
 msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 msgstr "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 
-msgid "Early access to experimental features before general availability"
-msgstr "Early access to experimental features before general availability"
-
 msgid "Email"
 msgstr "Email"
 
@@ -143,21 +127,17 @@ msgid "Enabled"
 msgstr "Enabled"
 
 #. placeholder {0}: enabledTenants.length
-#. placeholder {0}: enabledUsers.length
 msgid "Enabled ({0})"
 msgstr "Enabled ({0})"
 
-#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
-#. placeholder {1}: formatTimestamp(featureFlag.disabledAt)
+#. placeholder {0}: formatDate(featureFlag.enabledAt, true)
+#. placeholder {1}: formatDate(featureFlag.disabledAt, true)
 msgid "Enabled period: {0} - {1}"
 msgstr "Enabled period: {0} - {1}"
 
-#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
+#. placeholder {0}: formatDate(featureFlag.enabledAt, true)
 msgid "Enabled: {0}"
 msgstr "Enabled: {0}"
-
-msgid "Experimental UI"
-msgstr "Experimental UI"
 
 msgid "Feature flag activated"
 msgstr "Feature flag activated"
@@ -176,9 +156,6 @@ msgstr "Go to next page"
 
 msgid "Go to previous page"
 msgstr "Go to previous page"
-
-msgid "Google OAuth"
-msgstr "Google OAuth"
 
 msgid "Hide details"
 msgstr "Hide details"
@@ -246,14 +223,6 @@ msgstr "Open calendar"
 msgid "Open navigation menu"
 msgstr "Open navigation menu"
 
-msgid "Override"
-msgstr "Override"
-
-#. placeholder {0}: tenant.tenantName
-#. placeholder {0}: user.email
-msgid "Override for {0}"
-msgstr "Override for {0}"
-
 #. placeholder {0}: tenant.tenantName
 #. placeholder {0}: user.email
 msgid "Override removed for {0}"
@@ -268,9 +237,6 @@ msgstr "Pagination"
 msgid "Plan"
 msgstr "Plan"
 
-msgid "Plan flags"
-msgstr "Plan flags"
-
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -282,12 +248,6 @@ msgstr "Please try again or return to the home page."
 
 msgid "Previous"
 msgstr "Previous"
-
-msgid "Reduce spacing between UI elements for a denser layout"
-msgstr "Reduce spacing between UI elements for a denser layout"
-
-msgid "Remove override"
-msgstr "Remove override"
 
 #. placeholder {0}: tenant.tenantName
 #. placeholder {0}: user.email
@@ -348,12 +308,6 @@ msgstr "Show details"
 msgid "Show more"
 msgstr "Show more"
 
-msgid "Sign in with Google using OpenID Connect"
-msgstr "Sign in with Google using OpenID Connect"
-
-msgid "Single sign-on"
-msgstr "Single sign-on"
-
 msgid "Skip to main content"
 msgstr "Skip to main content"
 
@@ -369,17 +323,14 @@ msgstr "Status"
 msgid "Stay"
 msgstr "Stay"
 
-msgid "Stripe-powered subscription billing and plan management"
-msgstr "Stripe-powered subscription billing and plan management"
-
-msgid "Subscriptions"
-msgstr "Subscriptions"
+msgid "Subscription plan feature flags"
+msgstr "Subscription plan feature flags"
 
 msgid "System"
 msgstr "System"
 
-msgid "System flags"
-msgstr "System flags"
+msgid "System feature flags"
+msgstr "System feature flags"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
@@ -393,6 +344,11 @@ msgstr "Today"
 #. placeholder {0}: getFeatureFlagName(featureFlag.key)
 msgid "Toggle {0}"
 msgstr "Toggle {0}"
+
+#. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
+msgid "Toggle {featureFlagDescription} for {0}"
+msgstr "Toggle {featureFlagDescription} for {0}"
 
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
@@ -409,9 +365,6 @@ msgstr "Try adjusting your search"
 msgid "Try again"
 msgstr "Try again"
 
-msgid "Try out experimental user interface components"
-msgstr "Try out experimental user interface components"
-
 msgid "Type an email address above to find users and manage their overrides"
 msgstr "Type an email address above to find users and manage their overrides"
 
@@ -421,8 +374,8 @@ msgstr "Unsaved changes"
 msgid "User"
 msgstr "User"
 
-msgid "User flags"
-msgstr "User flags"
+msgid "User feature flags"
+msgstr "User feature flags"
 
 msgid "User status"
 msgstr "User status"

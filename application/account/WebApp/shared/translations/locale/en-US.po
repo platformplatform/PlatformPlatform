@@ -1070,6 +1070,9 @@ msgstr "E.g., Maria Rossi"
 msgid "E.g., Spaghetti Carbonara"
 msgstr "E.g., Spaghetti Carbonara"
 
+msgid "Early access to experimental features"
+msgstr "Early access to experimental features"
+
 msgid "Easy"
 msgstr "Easy"
 

@@ -17,7 +17,7 @@ export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFl
             <Trans>Name:</Trans> <span className="font-mono">{featureFlag.key}</span>
           </span>
           <span>
-            <Trans>Required plan:</Trans> <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
+            <Trans>Required plan:</Trans> <Badge variant="outline">{featureFlag.requiredSubscriptionPlan}</Badge>
           </span>
         </div>
         <Badge variant={featureFlag.isActive ? "default" : "outline"}>
@@ -49,14 +49,14 @@ export function PlanFeatureFlagTenantsSection({ tenants }: Readonly<{ tenants: F
   const planGroups = useMemo(() => {
     const groupMap = new Map<string, FeatureFlagTenantInfo[]>();
     for (const tenant of filtered) {
-      const existing = groupMap.get(tenant.plan);
+      const existing = groupMap.get(tenant.subscriptionPlan);
       if (existing) {
         existing.push(tenant);
       } else {
-        groupMap.set(tenant.plan, [tenant]);
+        groupMap.set(tenant.subscriptionPlan, [tenant]);
       }
     }
-    const planOrder: Record<string, number> = { Premium: 0, Standard: 1, Free: 2 };
+    const planOrder: Record<string, number> = { Premium: 0, Standard: 1, Basis: 2 };
     return [...groupMap.entries()]
       .sort(([a], [b]) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99))
       .map(([plan, members]) => ({ plan, tenants: members }));
@@ -104,7 +104,7 @@ function PlanFeatureFlagTenantTable({
   tenants
 }: Readonly<{ ariaLabel: string; tenants: FeatureFlagTenantInfo[] }>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
+    <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
         <TableRow>
           <TableHead className="hidden w-[14rem] lg:table-cell">
@@ -113,10 +113,10 @@ function PlanFeatureFlagTenantTable({
           <TableHead className="w-auto">
             <Trans>Account</Trans>
           </TableHead>
-          <TableHead className="w-[5rem]">
+          <TableHead className="hidden w-[5rem] sm:table-cell">
             <Trans>Plan</Trans>
           </TableHead>
-          <TableHead className="w-[6rem] text-right">
+          <TableHead className="w-[5rem] text-right">
             <Trans>Status</Trans>
           </TableHead>
         </TableRow>
@@ -126,7 +126,7 @@ function PlanFeatureFlagTenantTable({
           <TableRow key={tenant.tenantId}>
             <TableCell className="hidden truncate text-muted-foreground lg:table-cell">{tenant.tenantId}</TableCell>
             <TableCell className="truncate font-medium">{tenant.tenantName}</TableCell>
-            <TableCell className="text-muted-foreground">{tenant.plan}</TableCell>
+            <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.subscriptionPlan}</TableCell>
             <TableCell className="text-right">
               <Badge variant={tenant.isEnabled ? "default" : "outline"}>
                 {tenant.isEnabled ? t`Enabled` : t`Disabled`}

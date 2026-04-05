@@ -138,7 +138,7 @@ function TenantTable({
   isFeatureFlagActive
 }: Readonly<TenantTableProps>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
+    <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
         <TableRow>
           <TableHead className="hidden w-[14rem] lg:table-cell">
@@ -147,10 +147,7 @@ function TenantTable({
           <TableHead className="w-auto">
             <Trans>Account</Trans>
           </TableHead>
-          <TableHead className="w-[5rem]">
-            <Trans>Plan</Trans>
-          </TableHead>
-          <TableHead className="hidden w-[8rem] sm:table-cell">
+          <TableHead className="hidden w-[11rem] sm:table-cell">
             <Trans>Source</Trans>
           </TableHead>
           {showRolloutBucket && (
@@ -158,8 +155,8 @@ function TenantTable({
               <Trans>Bucket</Trans>
             </TableHead>
           )}
-          <TableHead className="w-[7rem] text-right">
-            <Trans>Override</Trans>
+          <TableHead className="w-[5rem] text-right">
+            <Trans>Status</Trans>
           </TableHead>
         </TableRow>
       </TableHeader>

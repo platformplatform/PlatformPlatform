@@ -15,7 +15,7 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
     public async Task<string> ExecuteAsync(CancellationToken cancellationToken)
     {
-        var planFeatureFlagDefinitions = FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
+        var planFeatureFlagDefinitions = FeatureFlags.GetAll().Where(f => f.RequiredSubscriptionPlan is not null).ToArray();
         if (planFeatureFlagDefinitions.Length == 0) return "No plan-based feature flags defined";
 
         var tenants = await dbContext.Database.SqlQueryRaw<TenantSubscriptionInfo>(
@@ -34,21 +34,21 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
         {
             foreach (var featureFlagDefinition in planFeatureFlagDefinitions)
             {
-                var shouldBeEnabled = tenant.Plan >= featureFlagDefinition.RequiredPlan!.Value;
+                var shouldBeEnabled = tenant.Plan >= featureFlagDefinition.RequiredSubscriptionPlan!.Value;
                 var featureFlagId = FeatureFlagId.NewId().Value;
 
                 await dbContext.Database.ExecuteSqlRawAsync(
                     """
                     INSERT INTO feature_flags (id, feature_flag_key, tenant_id, user_id, created_at, modified_at, enabled_at, disabled_at, rollout_bucket_start, rollout_bucket_end, configurable_by_tenant, configurable_by_user, source)
-                    VALUES (@featureFlagId, @featureFlagKey, @tenantId, NULL, @now, NULL, @enabledAt, @disabledAt, NULL, NULL, false, false, 'Plan')
+                    VALUES (@featureFlagId, @featureFlagKey, @tenantId, NULL, @now, NULL, @enabledAt, @disabledAt, NULL, NULL, false, false, 'SubscriptionPlan')
                     ON CONFLICT (feature_flag_key, tenant_id, user_id) DO UPDATE SET
-                        enabled_at = CASE WHEN feature_flags.source = 'Plan' THEN @enabledAt ELSE feature_flags.enabled_at END,
-                        disabled_at = CASE WHEN feature_flags.source = 'Plan' THEN @disabledAt ELSE feature_flags.disabled_at END,
-                        source = CASE WHEN feature_flags.source = 'Manual' THEN 'Plan' ELSE feature_flags.source END
+                        enabled_at = CASE WHEN feature_flags.source = 'SubscriptionPlan' THEN @enabledAt ELSE feature_flags.enabled_at END,
+                        disabled_at = CASE WHEN feature_flags.source = 'SubscriptionPlan' THEN @disabledAt ELSE feature_flags.disabled_at END,
+                        source = CASE WHEN feature_flags.source = 'Manual' THEN 'SubscriptionPlan' ELSE feature_flags.source END
                     """,
                     [
                         new NpgsqlParameter("@featureFlagId", featureFlagId),
-                        new NpgsqlParameter("@featureFlagKey", featureFlagDefinition.Key),
+                        new NpgsqlParameter("@featureFlagKey", featureFlagDefinition.Key.Value),
                         new NpgsqlParameter("@tenantId", tenant.TenantId.Value),
                         new NpgsqlParameter("@now", now),
                         new NpgsqlParameter("@enabledAt", shouldBeEnabled ? now : DBNull.Value),

@@ -3,7 +3,7 @@ import type { ChangeMessage } from "@tanstack/react-db";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 
-import type { FeatureFlagRow, SubscriptionRow, TenantRow, UserRow } from "./types";
+import type { BaseFeatureFlag, SubscriptionRow, TenantRow, UserRow } from "./types";
 
 import { getLastElectricOffset } from "../http/queryClient";
 import { createShapeOptions } from "./electricConfig";
@@ -47,7 +47,7 @@ export const subscriptionCollection = createCollection<SubscriptionRow>(
   })
 );
 
-export const featureFlagCollection = createCollection<FeatureFlagRow>(
+export const featureFlagCollection = createCollection<BaseFeatureFlag>(
   electricCollectionOptions({
     id: "feature_flags",
     shapeOptions: createShapeOptions("feature_flags"),
@@ -59,7 +59,7 @@ export const featureFlagCollection = createCollection<FeatureFlagRow>(
   })
 );
 
-featureFlagCollection.subscribeChanges((changes: Array<ChangeMessage<FeatureFlagRow>>) => {
+featureFlagCollection.subscribeChanges((changes: Array<ChangeMessage<BaseFeatureFlag>>) => {
   for (const change of changes) {
     if (change.type === "insert" || change.type === "delete") {
       markFeatureFlagChanged();

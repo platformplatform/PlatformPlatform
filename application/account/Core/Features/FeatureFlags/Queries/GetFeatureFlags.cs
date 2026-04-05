@@ -21,7 +21,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
-    SubscriptionPlan? RequiredPlan,
+    SubscriptionPlan? RequiredSubscriptionPlan,
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
@@ -47,12 +47,12 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     var isSystemFeatureFlagActive = systemFlag.IsSystemFeatureFlagEnabled(configuration);
                     return new FeatureFlagInfo(
                         featureFlagDefinition.Key, featureFlagDefinition.Scope, featureFlagDefinition.AdminLevel, featureFlagDefinition.Description,
-                        featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan,
+                        featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredSubscriptionPlan,
                         null, null, null, null, null, null, isSystemFeatureFlagActive
                     );
                 }
 
-                baseFeatureFlagsByKey.TryGetValue(new FeatureFlagKey(featureFlagDefinition.Key), out var baseFeatureFlag);
+                baseFeatureFlagsByKey.TryGetValue(featureFlagDefinition.Key, out var baseFeatureFlag);
 
                 var createdAt = baseFeatureFlag?.CreatedAt;
                 var enabledAt = baseFeatureFlag?.EnabledAt;
@@ -60,11 +60,11 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                 var rolloutBucketStart = baseFeatureFlag?.RolloutBucketStart;
                 var rolloutBucketEnd = baseFeatureFlag?.RolloutBucketEnd;
                 var isActive = enabledAt is not null && (disabledAt is null || enabledAt > disabledAt);
-                var rolloutPercentage = ComputeRolloutPercentage(rolloutBucketStart, rolloutBucketEnd);
+                var rolloutPercentage = ComputeRolloutPercentage(rolloutBucketStart, rolloutBucketEnd, featureFlagDefinition.IsAbTestEligible);
 
                 return new FeatureFlagInfo(
                     featureFlagDefinition.Key, featureFlagDefinition.Scope, featureFlagDefinition.AdminLevel, featureFlagDefinition.Description,
-                    featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan,
+                    featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredSubscriptionPlan,
                     createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive
                 );
             }
@@ -73,12 +73,12 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
         return new GetFeatureFlagsResponse(featureFlags);
     }
 
-    private static int? ComputeRolloutPercentage(int? rolloutBucketStart, int? rolloutBucketEnd)
+    private static int? ComputeRolloutPercentage(int? rolloutBucketStart, int? rolloutBucketEnd, bool isAbTestEligible)
     {
-        if (rolloutBucketStart is null || rolloutBucketEnd is null) return null;
+        if (rolloutBucketStart is null || rolloutBucketEnd is null) return isAbTestEligible ? 0 : null;
 
-        // 100% rollout uses reserved range 0-100
-        if (rolloutBucketStart == 0 && rolloutBucketEnd == 100) return 100;
+        // 100% rollout covers the full 0-99 range
+        if (rolloutBucketStart == 0 && rolloutBucketEnd == 99) return 100;
 
         if (rolloutBucketStart <= rolloutBucketEnd)
         {

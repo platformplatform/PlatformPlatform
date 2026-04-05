@@ -31,7 +31,7 @@ public sealed class TenantScopedTelemetryContextTests
             activity.Should().NotBeNull();
 
             // Act
-            TenantScopedTelemetryContext.Set(tenantId, "Premium");
+            TenantScopedTelemetryContext.Set(tenantId, SubscriptionPlan.Premium);
 
             // Assert - OpenTelemetry Activity tags
             var tenantIdTag = activity.TagObjects.FirstOrDefault(t => t.Key == "tenant.id");

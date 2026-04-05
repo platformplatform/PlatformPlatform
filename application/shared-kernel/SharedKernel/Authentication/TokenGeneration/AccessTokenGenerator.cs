@@ -24,13 +24,12 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient,
                     new Claim("tenant_id", userInfo.TenantId!.ToString()),
                     new Claim("tenant_name", userInfo.TenantName ?? string.Empty),
                     new Claim("tenant_logo_url", userInfo.TenantLogoUrl ?? string.Empty),
-                    new Claim("subscription_plan", userInfo.SubscriptionPlan ?? string.Empty),
+                    new Claim("subscription_plan", userInfo.SubscriptionPlan?.ToString() ?? string.Empty),
                     new Claim("title", userInfo.Title ?? string.Empty),
                     new Claim("avatar_url", userInfo.AvatarUrl ?? string.Empty),
                     new Claim("locale", userInfo.Locale!),
                     new Claim("session_id", userInfo.SessionId?.ToString() ?? string.Empty),
-                    new Claim("feature_flags", string.Join(",", userInfo.FeatureFlags)),
-                    new Claim("feature_flag_version", userInfo.FeatureFlagVersion.ToString())
+                    new Claim("feature_flags", string.Join(",", userInfo.FeatureFlags))
                 ]
             )
         };

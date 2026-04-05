@@ -279,7 +279,7 @@ public sealed class ProcessPendingStripeEvents(
 
     private void SendTelemetryEvents(Tenant tenant, Subscription subscription)
     {
-        TenantScopedTelemetryContext.Set(tenant.Id, subscription.Plan.ToString());
+        TenantScopedTelemetryContext.Set(tenant.Id, subscription.Plan);
 
         // Publish collected telemetry events after successful commit
         while (events.HasEvents)

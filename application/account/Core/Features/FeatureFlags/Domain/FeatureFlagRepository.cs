@@ -76,7 +76,7 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
     public async Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return await DbSet
-            .Where(f => f.TenantId == tenantId && f.UserId == null && f.Source == FeatureFlagSource.Plan)
+            .Where(f => f.TenantId == tenantId && f.UserId == null && f.Source == FeatureFlagSource.SubscriptionPlan)
             .ToArrayAsync(cancellationToken);
     }
 }

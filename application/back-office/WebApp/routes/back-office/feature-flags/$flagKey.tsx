@@ -43,7 +43,7 @@ export default function FeatureFlagDetailPage() {
     isLoading: boolean;
   };
 
-  const isPlanFeatureFlag = featureFlag?.requiredPlan != null;
+  const isPlanFeatureFlag = featureFlag?.requiredSubscriptionPlan != null;
   const isLoading = isLoadingFeatureFlags || (featureFlag?.scope === "Tenant" && isLoadingTenants);
   const featureFlagName = featureFlag ? getFeatureFlagName(featureFlag.key) : flagKey;
   const description = featureFlag ? getFeatureFlagDescription(featureFlag.key) || featureFlag.description : "";
@@ -79,8 +79,8 @@ export default function FeatureFlagDetailPage() {
               tenants={tenantsData?.tenants ?? []}
               showRolloutBucket={featureFlag.isAbTestEligible}
               rolloutBucketRange={
-                featureFlag.bucketStart != null && featureFlag.bucketEnd != null
-                  ? { bucketStart: featureFlag.bucketStart, bucketEnd: featureFlag.bucketEnd }
+                featureFlag.rolloutBucketStart != null && featureFlag.rolloutBucketEnd != null
+                  ? { bucketStart: featureFlag.rolloutBucketStart, bucketEnd: featureFlag.rolloutBucketEnd }
                   : null
               }
               isFeatureFlagActive={featureFlag.isActive}
@@ -95,8 +95,8 @@ export default function FeatureFlagDetailPage() {
               featureFlagDescription={featureFlagName}
               showRolloutBucket={featureFlag.isAbTestEligible}
               rolloutBucketRange={
-                featureFlag.bucketStart != null && featureFlag.bucketEnd != null
-                  ? { bucketStart: featureFlag.bucketStart, bucketEnd: featureFlag.bucketEnd }
+                featureFlag.rolloutBucketStart != null && featureFlag.rolloutBucketEnd != null
+                  ? { bucketStart: featureFlag.rolloutBucketStart, bucketEnd: featureFlag.rolloutBucketEnd }
                   : null
               }
               isFeatureFlagActive={featureFlag.isActive}

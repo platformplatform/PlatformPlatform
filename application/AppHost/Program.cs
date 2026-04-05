@@ -93,6 +93,8 @@ var accountApi = builder
     .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
     .WithEnvironment("Stripe__PublishableKey", stripePublishableKey)
     .WithEnvironment("Stripe__AllowMockProvider", "true")
+    .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
+    .WithEnvironment("PUBLIC_SUBSCRIPTION_ENABLED", stripeFullyConfigured ? "true" : "false")
     .WaitFor(accountWorkers);
 
 var backOfficeDatabase = postgres

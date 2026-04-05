@@ -8,42 +8,42 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
 {
     public async Task EvaluatePlanFlagsForTenantAsync(TenantId tenantId, SubscriptionPlan subscriptionPlan, CancellationToken cancellationToken)
     {
-        var planFeatureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
+        var planFeatureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll().Where(f => f.RequiredSubscriptionPlan is not null).ToArray();
 
         if (planFeatureFlagDefinitions.Length == 0) return;
 
-        var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId, cancellationToken);
-        var overridesByKey = existingOverrides.ToDictionary(f => f.FeatureFlagKey);
+        var existingPlanFeatureFlags = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId, cancellationToken);
+        var planFeatureFlagsByKey = existingPlanFeatureFlags.ToDictionary(f => f.FeatureFlagKey);
         var now = timeProvider.GetUtcNow();
         var changed = false;
 
         foreach (var featureFlagDefinition in planFeatureFlagDefinitions)
         {
-            var shouldBeEnabled = subscriptionPlan >= featureFlagDefinition.RequiredPlan!.Value;
-            overridesByKey.TryGetValue(new FeatureFlagKey(featureFlagDefinition.Key), out var existingOverride);
+            var shouldBeEnabled = subscriptionPlan >= featureFlagDefinition.RequiredSubscriptionPlan!.Value;
+            planFeatureFlagsByKey.TryGetValue(featureFlagDefinition.Key, out var existingPlanFeatureFlag);
 
             if (shouldBeEnabled)
             {
-                if (existingOverride is null)
+                if (existingPlanFeatureFlag is null)
                 {
-                    var featureFlag = FeatureFlag.CreateTenantOverride(new FeatureFlagKey(featureFlagDefinition.Key), tenantId, FeatureFlagSource.Plan);
+                    var featureFlag = FeatureFlag.CreateTenantOverride(featureFlagDefinition.Key, tenantId, FeatureFlagSource.SubscriptionPlan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                     changed = true;
                 }
-                else if (!IsActive(existingOverride))
+                else if (!IsActive(existingPlanFeatureFlag))
                 {
-                    existingOverride.Activate(now);
-                    featureFlagRepository.Update(existingOverride);
+                    existingPlanFeatureFlag.Activate(now);
+                    featureFlagRepository.Update(existingPlanFeatureFlag);
                     changed = true;
                 }
             }
             else
             {
-                if (existingOverride is not null && IsActive(existingOverride))
+                if (existingPlanFeatureFlag is not null && IsActive(existingPlanFeatureFlag))
                 {
-                    existingOverride.Deactivate(now);
-                    featureFlagRepository.Update(existingOverride);
+                    existingPlanFeatureFlag.Deactivate(now);
+                    featureFlagRepository.Update(existingPlanFeatureFlag);
                     changed = true;
                 }
             }

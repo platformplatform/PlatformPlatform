@@ -15,7 +15,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
-    SubscriptionPlan? RequiredPlan,
+    SubscriptionPlan? RequiredSubscriptionPlan,
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
@@ -32,7 +32,7 @@ public sealed record GetFeatureFlagTenantsResponse(FeatureFlagTenantInfo[] Tenan
 public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
-    SubscriptionPlan Plan,
+    SubscriptionPlan SubscriptionPlan,
     int RolloutBucket,
     bool IsEnabled,
     FeatureFlagOverrideSource Source

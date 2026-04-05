@@ -41,7 +41,7 @@ public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<Accoun
             "SELECT source FROM feature_flags WHERE feature_flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
-        source.Should().Be("Plan");
+        source.Should().Be("SubscriptionPlan");
     }
 
     [Fact]

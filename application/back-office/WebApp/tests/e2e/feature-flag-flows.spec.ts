@@ -21,27 +21,27 @@ test.describe("@smoke", () => {
     await step("Navigate to feature flags page & verify flags grouped by scope")(async () => {
       await ownerPage.goto("/back-office/feature-flags");
 
-      await expect(ownerPage.getByRole("heading", { name: "Feature flags" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "Feature flags", exact: true })).toBeVisible();
 
-      const accountTable = ownerPage.getByRole("table", { name: "Account flags" });
-      await expect(accountTable.getByText("Beta features")).toBeVisible();
-      await expect(accountTable.getByText("Custom branding")).toBeVisible();
+      const accountTable = ownerPage.getByRole("table", { name: "Account feature flags" });
+      await expect(accountTable.getByText("Beta features", { exact: true })).toBeVisible();
+      await expect(accountTable.getByText("Custom branding", { exact: true })).toBeVisible();
 
-      const planTable = ownerPage.getByRole("table", { name: "Plan flags" });
-      await expect(planTable.getByText("Single sign-on")).toBeVisible();
+      const planTable = ownerPage.getByRole("table", { name: "Subscription plan feature flags" });
+      await expect(planTable.getByText("Single sign-on", { exact: true })).toBeVisible();
 
-      const userTable = ownerPage.getByRole("table", { name: "User flags" });
-      await expect(userTable.getByText("Compact view")).toBeVisible();
+      const userTable = ownerPage.getByRole("table", { name: "User feature flags" });
+      await expect(userTable.getByText("Compact view", { exact: true })).toBeVisible();
 
-      const systemTable = ownerPage.getByRole("table", { name: "System flags" });
-      await expect(systemTable.getByText("Google OAuth")).toBeVisible();
-      await expect(systemTable.getByText("Subscriptions")).toBeVisible();
+      const systemTable = ownerPage.getByRole("table", { name: "System feature flags" });
+      await expect(systemTable.getByText("Google OAuth", { exact: true })).toBeVisible();
+      await expect(systemTable.getByText("Subscriptions", { exact: true })).toBeVisible();
     })();
 
     // === BACK-OFFICE FLAG DETAIL ===
 
     await step("Click into beta-features flag detail & verify detail page loads")(async () => {
-      const accountTable = ownerPage.getByRole("table", { name: "Account flags" });
+      const accountTable = ownerPage.getByRole("table", { name: "Account feature flags" });
       const betaRow = accountTable.locator("tr").filter({ hasText: "Beta features" });
       await betaRow.click();
 
@@ -75,7 +75,7 @@ test.describe("@smoke", () => {
       await ownerPage.getByRole("link", { name: "Back to feature flags" }).click();
 
       await expect(ownerPage).toHaveURL("/back-office/feature-flags");
-      await expect(ownerPage.getByRole("heading", { name: "Feature flags" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "Feature flags", exact: true })).toBeVisible();
     })();
 
     // === ACTIVATE FLAGS FOR ACCOUNT SETTINGS & USER PREFERENCES ===
@@ -98,7 +98,7 @@ test.describe("@smoke", () => {
       await ownerPage.goto("/account/settings");
 
       await expect(ownerPage.getByRole("heading", { name: "Features" })).toBeVisible();
-      await expect(ownerPage.getByText("Custom branding")).toBeVisible();
+      await expect(ownerPage.getByText("Custom branding", { exact: true })).toBeVisible();
     })();
 
     await step("Toggle custom branding flag & verify success toast")(async () => {
@@ -114,7 +114,7 @@ test.describe("@smoke", () => {
       await ownerPage.goto("/user/preferences");
 
       await expect(ownerPage.getByRole("heading", { name: "Beta features" })).toBeVisible();
-      await expect(ownerPage.getByText("Compact view")).toBeVisible();
+      await expect(ownerPage.getByText("Compact view", { exact: true })).toBeVisible();
     })();
 
     await step("Toggle compact view user flag & verify success toast")(async () => {

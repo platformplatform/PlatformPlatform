@@ -5,7 +5,7 @@ interface FeatureFlagLabel {
   description: string;
 }
 
-function getKnownFlagLabels(): Record<string, FeatureFlagLabel> {
+function getTranslatedLabels(): Record<string, FeatureFlagLabel> {
   return {
     "custom-branding": {
       name: t`Custom branding`,
@@ -18,20 +18,24 @@ function getKnownFlagLabels(): Record<string, FeatureFlagLabel> {
     "experimental-ui": {
       name: t`Experimental UI`,
       description: t`Try experimental UI components`
+    },
+    "beta-features": {
+      name: t`Beta features`,
+      description: t`Early access to experimental features`
     }
   };
 }
 
-function formatFlagKey(flagKey: string): string {
+function formatFeatureFlagKey(flagKey: string): string {
   const formatted = flagKey.replace(/-/g, " ");
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
 export function getFeatureFlagLabel(flagKey: string): FeatureFlagLabel {
-  const known = getKnownFlagLabels()[flagKey];
-  if (known) {
-    return known;
+  const translated = getTranslatedLabels()[flagKey];
+  if (translated) {
+    return translated;
   }
-  const name = formatFlagKey(flagKey);
+  const name = formatFeatureFlagKey(flagKey);
   return { name, description: name };
 }

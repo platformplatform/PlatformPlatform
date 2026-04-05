@@ -27,7 +27,7 @@ export type TenantRow = Row & {
   plan: string;
 };
 
-export type FeatureFlagRow = Row & {
+export type BaseFeatureFlag = Row & {
   id: string;
   featureFlagKey: string;
   tenantId: string | null;

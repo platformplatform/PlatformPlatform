@@ -1068,6 +1068,9 @@ msgstr "F.eks. Maria Rossi"
 msgid "E.g., Spaghetti Carbonara"
 msgstr "F.eks. Spaghetti Carbonara"
 
+msgid "Early access to experimental features"
+msgstr "Tidlig adgang til eksperimentelle funktioner"
+
 msgid "Easy"
 msgstr "Let"
 
@@ -1111,7 +1114,7 @@ msgid "Empty recycle bin"
 msgstr "Tøm papirkurv"
 
 msgid "Enable branded login page"
-msgstr "Aktivér branded loginside"
+msgstr "Aktiver brandet loginside"
 
 msgid "Enabled"
 msgstr "Aktiveret"
@@ -1198,7 +1201,7 @@ msgid "Feature updated"
 msgstr "Funktion opdateret"
 
 msgid "Features"
-msgstr "Funktioner"
+msgstr "Features"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
@@ -2834,7 +2837,7 @@ msgid "Try again"
 msgstr "Prøv igen"
 
 msgid "Try experimental UI components"
-msgstr "Prøv eksperimentelle brugerfladekomponenter"
+msgstr "Afprøv eksperimentelle brugerfladekomponenter"
 
 msgid "Two-factor authentication"
 msgstr ""

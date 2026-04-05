@@ -55,8 +55,8 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         if (string.IsNullOrWhiteSpace(query.Search)) return new GetFeatureFlagUsersResponse([]);
 
         var users = await userRepository.SearchByEmailUnfilteredAsync(query.Search.Trim(), cancellationToken);
-        var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
-        var featureFlagsByUserId = userOverrides.ToDictionary(f => f.UserId!);
+        var userFeatureFlags = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
+        var featureFlagsByUserId = userFeatureFlags.ToDictionary(f => f.UserId!);
 
         var baseFeatureFlag = await featureFlagRepository.GetBaseFeatureFlagByKeyAsync(query.FeatureFlagKey, cancellationToken);
 

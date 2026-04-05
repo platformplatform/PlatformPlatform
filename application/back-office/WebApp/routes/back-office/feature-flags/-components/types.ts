@@ -10,12 +10,12 @@ export interface FeatureFlagInfo {
   configurableByUser: boolean;
   enabledAt: string | null;
   disabledAt: string | null;
-  bucketStart: number | null;
-  bucketEnd: number | null;
+  rolloutBucketStart: number | null;
+  rolloutBucketEnd: number | null;
   rolloutPercentage: number | null;
   isActive: boolean;
   createdAt: string | null;
-  requiredPlan: string | null;
+  requiredSubscriptionPlan: string | null;
 }
 
 export interface GetFeatureFlagsResponse {
@@ -25,9 +25,9 @@ export interface GetFeatureFlagsResponse {
 export interface FeatureFlagTenantInfo {
   tenantId: string;
   tenantName: string;
-  plan: string;
+  subscriptionPlan: string;
   isEnabled: boolean;
-  source: "manual_override" | "ab_rollout" | "plan" | "default";
+  source: "ManualOverride" | "AbRollout" | "Default";
   rolloutBucket: number;
 }
 
@@ -41,7 +41,7 @@ export interface FeatureFlagUserInfo {
   email: string;
   tenantName: string;
   isEnabled: boolean;
-  source: "manual_override" | "ab_rollout" | "plan" | "default";
+  source: "ManualOverride" | "AbRollout" | "Default";
   rolloutBucket: number;
 }
 

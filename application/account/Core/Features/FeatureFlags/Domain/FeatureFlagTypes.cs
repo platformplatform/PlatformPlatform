@@ -4,6 +4,6 @@ namespace Account.Features.FeatureFlags.Domain;
 public enum FeatureFlagSource
 {
     Manual,
-    Plan,
+    SubscriptionPlan,
     AbRollout
 }

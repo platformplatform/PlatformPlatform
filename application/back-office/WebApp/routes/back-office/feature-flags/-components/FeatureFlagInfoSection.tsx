@@ -4,6 +4,7 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Switch } from "@repo/ui/components/Switch";
 import { TextField } from "@repo/ui/components/TextField";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { formatDate } from "@repo/utils/date/formatDate";
 import { InfoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -75,17 +76,21 @@ export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: 
 function FeatureFlagMetadata({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   const enabledLine =
     featureFlag.enabledAt && featureFlag.disabledAt
-      ? t`Enabled period: ${formatTimestamp(featureFlag.enabledAt)} - ${formatTimestamp(featureFlag.disabledAt)}`
+      ? t`Enabled period: ${formatDate(featureFlag.enabledAt, true)} - ${formatDate(featureFlag.disabledAt, true)}`
       : featureFlag.enabledAt
-        ? t`Enabled: ${formatTimestamp(featureFlag.enabledAt)}`
+        ? t`Enabled: ${formatDate(featureFlag.enabledAt, true)}`
         : null;
 
   const rolloutBucketLine =
     featureFlag.isAbTestEligible &&
-    featureFlag.bucketStart != null &&
-    featureFlag.bucketEnd != null &&
+    featureFlag.rolloutBucketStart != null &&
+    featureFlag.rolloutBucketEnd != null &&
     featureFlag.rolloutPercentage != null
-      ? formatRolloutBucketRange(featureFlag.bucketStart, featureFlag.bucketEnd, featureFlag.rolloutPercentage)
+      ? formatRolloutBucketRange(
+          featureFlag.rolloutBucketStart,
+          featureFlag.rolloutBucketEnd,
+          featureFlag.rolloutPercentage
+        )
       : null;
 
   return (
@@ -112,17 +117,6 @@ function FeatureFlagMetadata({ featureFlag }: Readonly<{ featureFlag: FeatureFla
       )}
     </div>
   );
-}
-
-function formatTimestamp(isoDate: string): string {
-  const date = new Date(isoDate);
-  return new Intl.DateTimeFormat(navigator.language, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(date);
 }
 
 function RolloutPercentageInput({

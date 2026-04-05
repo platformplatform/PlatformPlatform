@@ -1,0 +1,52 @@
+[
+  {
+    "featureFlagKey": "google-oauth",
+    "name": "Google OAuth",
+    "type": "system",
+    "description": "Google OAuth authentication",
+    "systemConfigKey": "PUBLIC_GOOGLE_OAUTH_ENABLED"
+  },
+  {
+    "featureFlagKey": "subscriptions",
+    "name": "Subscriptions",
+    "type": "system",
+    "description": "Subscription billing via Stripe",
+    "systemConfigKey": "PUBLIC_SUBSCRIPTION_ENABLED"
+  },
+  {
+    "featureFlagKey": "beta-features",
+    "name": "Beta features",
+    "type": "tenant",
+    "description": "Enables beta features for tenants",
+    "isAbTestEligible": true
+  },
+  {
+    "featureFlagKey": "sso",
+    "name": "Single sign-on",
+    "type": "subscriptionPlan",
+    "description": "Enables single sign-on for tenants",
+    "requiredSubscriptionPlan": "premium"
+  },
+  {
+    "featureFlagKey": "custom-branding",
+    "name": "Custom branding",
+    "type": "tenant",
+    "description": "Enables custom branding options for tenants",
+    "adminLevel": "tenantOwner",
+    "configurableByTenant": true
+  },
+  {
+    "featureFlagKey": "compact-view",
+    "name": "Compact view",
+    "type": "user",
+    "description": "Enables compact view in the user interface",
+    "configurableByUser": true
+  },
+  {
+    "featureFlagKey": "experimental-ui",
+    "name": "Experimental UI",
+    "type": "user",
+    "description": "Enables experimental UI components for users",
+    "isAbTestEligible": true
+  }
+]

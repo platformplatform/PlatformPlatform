@@ -25,7 +25,7 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
             seededCount++;
             var featureFlagId = FeatureFlagId.NewId().Value;
 
-            var source = featureFlag.RequiredPlan is not null ? "Plan" : "Manual";
+            var source = featureFlag.RequiredSubscriptionPlan is not null ? "SubscriptionPlan" : "Manual";
 
             await dbContext.Database.ExecuteSqlRawAsync(
                 """
@@ -38,7 +38,7 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
                 """,
                 [
                     new NpgsqlParameter("@featureFlagId", featureFlagId),
-                    new NpgsqlParameter("@featureFlagKey", featureFlag.Key),
+                    new NpgsqlParameter("@featureFlagKey", featureFlag.Key.Value),
                     new NpgsqlParameter("@now", now),
                     new NpgsqlParameter("@configurableByTenant", featureFlag.ConfigurableByTenant),
                     new NpgsqlParameter("@configurableByUser", featureFlag.ConfigurableByUser),

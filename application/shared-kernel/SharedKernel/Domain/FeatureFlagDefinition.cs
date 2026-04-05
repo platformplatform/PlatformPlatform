@@ -4,11 +4,10 @@ namespace SharedKernel.Domain;
 
 [PublicAPI]
 public abstract record FeatureFlagDefinition(
-    string Key,
+    FeatureFlagKey Key,
     FeatureFlagScope Scope,
     FeatureFlagAdminLevel AdminLevel,
-    string Description,
-    string? ParentDependency = null
+    string Description
 )
 {
     public virtual bool IsAbTestEligible => false;
@@ -17,52 +16,40 @@ public abstract record FeatureFlagDefinition(
 
     public virtual bool ConfigurableByUser => false;
 
-    public virtual bool TrackInTelemetry => true;
-
-    public virtual SubscriptionPlan? RequiredPlan => null;
+    public virtual SubscriptionPlan? RequiredSubscriptionPlan => null;
 }
 
 [PublicAPI]
 public sealed record SystemFeatureFlagDefinition(
-    string Key,
+    FeatureFlagKey Key,
     string Description,
-    string SystemConfigKey,
-    string? SystemConfigExpectedValue = null,
-    string? ParentDependency = null
-) : FeatureFlagDefinition(Key, FeatureFlagScope.System, FeatureFlagAdminLevel.SystemAdmin, Description, ParentDependency)
+    string SystemConfigKey
+) : FeatureFlagDefinition(Key, FeatureFlagScope.System, FeatureFlagAdminLevel.SystemAdmin, Description)
 {
-    public override bool TrackInTelemetry => false;
-
     public bool IsSystemFeatureFlagEnabled(IConfiguration configuration)
     {
-        var configValue = configuration[SystemConfigKey];
-
-        return SystemConfigExpectedValue is not null
-            ? configValue == SystemConfigExpectedValue
-            : !string.IsNullOrEmpty(configValue);
+        return configuration[SystemConfigKey] == "true";
     }
 }
 
 [PublicAPI]
 public sealed record SubscriptionPlanFeatureFlagDefinition(
-    string Key,
+    FeatureFlagKey Key,
     string Description,
-    SubscriptionPlan Plan,
-    string? ParentDependency = null
-) : FeatureFlagDefinition(Key, FeatureFlagScope.Tenant, FeatureFlagAdminLevel.SystemAdmin, Description, ParentDependency)
+    SubscriptionPlan Plan
+) : FeatureFlagDefinition(Key, FeatureFlagScope.Tenant, FeatureFlagAdminLevel.SystemAdmin, Description)
 {
-    public override SubscriptionPlan? RequiredPlan => Plan;
+    public override SubscriptionPlan? RequiredSubscriptionPlan => Plan;
 }
 
 [PublicAPI]
 public sealed record TenantFeatureFlagDefinition(
-    string Key,
+    FeatureFlagKey Key,
     string Description,
-    FeatureFlagAdminLevel AdminLevel = FeatureFlagAdminLevel.SystemAdmin,
-    bool IsAbTestEligible = false,
-    bool ConfigurableByTenant = false,
-    string? ParentDependency = null
-) : FeatureFlagDefinition(Key, FeatureFlagScope.Tenant, AdminLevel, Description, ParentDependency)
+    FeatureFlagAdminLevel AdminLevel,
+    bool IsAbTestEligible,
+    bool ConfigurableByTenant
+) : FeatureFlagDefinition(Key, FeatureFlagScope.Tenant, AdminLevel, Description)
 {
     public override bool IsAbTestEligible { get; } = IsAbTestEligible;
 
@@ -71,12 +58,11 @@ public sealed record TenantFeatureFlagDefinition(
 
 [PublicAPI]
 public sealed record UserFeatureFlagDefinition(
-    string Key,
+    FeatureFlagKey Key,
     string Description,
-    bool IsAbTestEligible = false,
-    bool ConfigurableByUser = false,
-    string? ParentDependency = null
-) : FeatureFlagDefinition(Key, FeatureFlagScope.User, FeatureFlagAdminLevel.User, Description, ParentDependency)
+    bool IsAbTestEligible,
+    bool ConfigurableByUser
+) : FeatureFlagDefinition(Key, FeatureFlagScope.User, FeatureFlagAdminLevel.User, Description)
 {
     public override bool IsAbTestEligible { get; } = IsAbTestEligible;
 

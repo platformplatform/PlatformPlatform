@@ -6,7 +6,7 @@ namespace SharedKernel.Telemetry;
 
 public static class TenantScopedTelemetryContext
 {
-    public static void Set(TenantId tenantId, string? subscriptionPlan)
+    public static void Set(TenantId tenantId, SubscriptionPlan? subscriptionPlan)
     {
         var userInfo = new UserInfo
         {
@@ -17,7 +17,7 @@ public static class TenantScopedTelemetryContext
         };
 
         Activity.Current?.SetTag("tenant.id", tenantId.Value);
-        Activity.Current?.SetTag("tenant.subscription_plan", subscriptionPlan);
+        Activity.Current?.SetTag("tenant.subscription_plan", subscriptionPlan?.ToString());
         ApplicationInsightsTelemetryInitializer.SetContext(new BackgroundWorkerExecutionContext(tenantId, userInfo));
     }
 }

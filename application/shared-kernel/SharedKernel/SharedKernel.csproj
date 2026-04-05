@@ -58,6 +58,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Platform\platform-settings.jsonc"/>
+        <EmbeddedResource Include="..\..\feature-flags.json" Link="Domain\feature-flags.json" LogicalName="SharedKernel.Domain.feature-flags.json"/>
     </ItemGroup>
 
 </Project>

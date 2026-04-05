@@ -1,9 +1,6 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { Button } from "@repo/ui/components/Button";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -14,13 +11,11 @@ import type { FeatureFlagTenantInfo } from "./types";
 
 function getSourceLabel(source: string): string {
   switch (source) {
-    case "manual_override":
+    case "ManualOverride":
       return t`Manual override`;
-    case "ab_rollout":
+    case "AbRollout":
       return t`A/B rollout`;
-    case "plan":
-      return t`Plan`;
-    case "default":
+    case "Default":
       return t`Default`;
     default:
       return source;
@@ -96,44 +91,35 @@ export function TenantOverrideRow({
     <TableRow>
       <TableCell className="hidden truncate text-muted-foreground lg:table-cell">{tenant.tenantId}</TableCell>
       <TableCell className="truncate font-medium">{tenant.tenantName}</TableCell>
-      <TableCell className="text-muted-foreground">{tenant.plan}</TableCell>
       <TableCell className="hidden sm:table-cell">
-        <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
+        {tenant.source === "ManualOverride" ? (
+          <button
+            type="button"
+            className="inline-flex cursor-pointer items-center gap-1 truncate rounded-md border px-2 py-0.5 text-sm text-muted-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={handleRemoveOverride}
+            disabled={isPending}
+            aria-label={t`Remove override for ${tenant.tenantName}`}
+          >
+            {getSourceLabel(tenant.source)}
+            <XIcon className="size-3 shrink-0" />
+          </button>
+        ) : (
+          <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
+        )}
       </TableCell>
       {showRolloutBucket && (
-        <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.rolloutBucket}</TableCell>
+        <TableCell className="hidden text-muted-foreground sm:table-cell">
+          {tenant.rolloutBucket === 100 ? t`Always` : tenant.rolloutBucket}
+        </TableCell>
       )}
       <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          {tenant.source === "manual_override" && (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-7"
-                    onClick={handleRemoveOverride}
-                    disabled={isPending}
-                    aria-label={t`Remove override for ${tenant.tenantName}`}
-                  />
-                }
-              >
-                <XIcon className="size-4" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <Trans>Remove override</Trans>
-              </TooltipContent>
-            </Tooltip>
-          )}
-          <Switch
-            checked={optimisticEnabled}
-            onCheckedChange={handleToggle}
-            disabled={isPending}
-            className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
-            aria-label={t`Override for ${tenant.tenantName}`}
-          />
-        </div>
+        <Switch
+          checked={optimisticEnabled}
+          onCheckedChange={handleToggle}
+          disabled={isPending}
+          className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
+          aria-label={t`Toggle ${featureFlagDescription} for ${tenant.tenantName}`}
+        />
       </TableCell>
     </TableRow>
   );

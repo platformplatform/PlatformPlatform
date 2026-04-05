@@ -44,8 +44,8 @@ msgstr "Adgang nægtet"
 msgid "Account"
 msgstr "Konto"
 
-msgid "Account flags"
-msgstr "Kontoflag"
+msgid "Account feature flags"
+msgstr "Konto-feature flags"
 
 msgid "Account ID"
 msgstr "Konto-ID"
@@ -62,17 +62,14 @@ msgstr "Konti inkluderes automatisk baseret på deres udrulnings-bucket. Brug ti
 msgid "Active"
 msgstr "Aktiv"
 
-msgid "Allow users to authenticate using enterprise identity providers"
-msgstr "Tillad brugere at godkende sig med enterprise-identitetsudbydere"
+msgid "Always"
+msgstr "Altid"
 
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
 msgid "Back to feature flags"
 msgstr "Tilbage til funktionsflag"
-
-msgid "Beta features"
-msgstr "Betafunktioner"
 
 msgid "Breadcrumb"
 msgstr "Brødkrumme"
@@ -95,20 +92,11 @@ msgstr "Luk menu"
 msgid "Close sidebar"
 msgstr "Luk sidemenu"
 
-msgid "Compact view"
-msgstr "Kompakt visning"
-
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
 msgid "Create <0>{search}</0>"
 msgstr "Opret <0>{search}</0>"
-
-msgid "Custom branding"
-msgstr "Brugerdefineret branding"
-
-msgid "Customize the login page with your organization's logo and colors"
-msgstr "Tilpas login-siden med din organisations logo og farver"
 
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -123,7 +111,6 @@ msgid "Disabled"
 msgstr "Deaktiveret"
 
 #. placeholder {0}: disabledTenants.length
-#. placeholder {0}: disabledUsers.length
 msgid "Disabled ({0})"
 msgstr "Deaktiveret ({0})"
 
@@ -133,9 +120,6 @@ msgstr ""
 msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 msgstr "Hver konto eller bruger tildeles en fast bucket (0-99) baseret på deres sekvensnummer. Udrulningen målretter et specifikt interval af buckets, hvilket sikrer konsistent og forudsigelig funktionsudrulning."
 
-msgid "Early access to experimental features before general availability"
-msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighed"
-
 msgid "Email"
 msgstr "E-mail"
 
@@ -143,30 +127,26 @@ msgid "Enabled"
 msgstr "Aktiveret"
 
 #. placeholder {0}: enabledTenants.length
-#. placeholder {0}: enabledUsers.length
 msgid "Enabled ({0})"
 msgstr "Aktiveret ({0})"
 
-#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
-#. placeholder {1}: formatTimestamp(featureFlag.disabledAt)
+#. placeholder {0}: formatDate(featureFlag.enabledAt, true)
+#. placeholder {1}: formatDate(featureFlag.disabledAt, true)
 msgid "Enabled period: {0} - {1}"
 msgstr "Aktiveringsperiode: {0} - {1}"
 
-#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
+#. placeholder {0}: formatDate(featureFlag.enabledAt, true)
 msgid "Enabled: {0}"
 msgstr "Aktiveret: {0}"
 
-msgid "Experimental UI"
-msgstr "Eksperimentel brugerflade"
-
 msgid "Feature flag activated"
-msgstr "Funktionsflag aktiveret"
+msgstr "Feature flag aktiveret"
 
 msgid "Feature flag deactivated"
-msgstr "Funktionsflag deaktiveret"
+msgstr "Feature flag deaktiveret"
 
 msgid "Feature flags"
-msgstr "Funktionsflag"
+msgstr "Feature flags"
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
@@ -176,9 +156,6 @@ msgstr "Gå til næste side"
 
 msgid "Go to previous page"
 msgstr "Gå til forrige side"
-
-msgid "Google OAuth"
-msgstr "Google OAuth"
 
 msgid "Hide details"
 msgstr "Skjul detaljer"
@@ -246,14 +223,6 @@ msgstr ""
 msgid "Open navigation menu"
 msgstr "Åbn navigationsmenu"
 
-msgid "Override"
-msgstr "Tilsidesættelse"
-
-#. placeholder {0}: tenant.tenantName
-#. placeholder {0}: user.email
-msgid "Override for {0}"
-msgstr "Tilsidesættelse for {0}"
-
 #. placeholder {0}: tenant.tenantName
 #. placeholder {0}: user.email
 msgid "Override removed for {0}"
@@ -268,9 +237,6 @@ msgstr "Paginering"
 msgid "Plan"
 msgstr "Plan"
 
-msgid "Plan flags"
-msgstr "Planflag"
-
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -282,12 +248,6 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 
 msgid "Previous"
 msgstr "Forrige"
-
-msgid "Reduce spacing between UI elements for a denser layout"
-msgstr "Reducer afstanden mellem UI-elementer for et tættere layout"
-
-msgid "Remove override"
-msgstr "Fjern tilsidesættelse"
 
 #. placeholder {0}: tenant.tenantName
 #. placeholder {0}: user.email
@@ -348,12 +308,6 @@ msgstr "Vis detaljer"
 msgid "Show more"
 msgstr "Vis flere"
 
-msgid "Sign in with Google using OpenID Connect"
-msgstr "Log ind med Google via OpenID Connect"
-
-msgid "Single sign-on"
-msgstr "Single sign-on"
-
 msgid "Skip to main content"
 msgstr "Spring til hovedindhold"
 
@@ -369,17 +323,14 @@ msgstr "Status"
 msgid "Stay"
 msgstr "Bliv"
 
-msgid "Stripe-powered subscription billing and plan management"
-msgstr "Stripe-drevet abonnementsfakturering og planstyring"
-
-msgid "Subscriptions"
-msgstr "Abonnementer"
+msgid "Subscription plan feature flags"
+msgstr "Abonnementsplan-feature flags"
 
 msgid "System"
 msgstr "System"
 
-msgid "System flags"
-msgstr "Systemflag"
+msgid "System feature flags"
+msgstr "System-feature flags"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
@@ -393,6 +344,11 @@ msgstr "I dag"
 #. placeholder {0}: getFeatureFlagName(featureFlag.key)
 msgid "Toggle {0}"
 msgstr "Skift {0}"
+
+#. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
+msgid "Toggle {featureFlagDescription} for {0}"
+msgstr "Skift {featureFlagDescription} for {0}"
 
 msgid "Toggle sidebar"
 msgstr "Vis/skjul sidepanel"
@@ -409,9 +365,6 @@ msgstr "Prøv at justere din søgning"
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Try out experimental user interface components"
-msgstr "Prøv eksperimentelle brugerfladekomponenter"
-
 msgid "Type an email address above to find users and manage their overrides"
 msgstr "Indtast en e-mailadresse ovenfor for at finde brugere og administrere deres tilsidesættelser"
 
@@ -421,8 +374,8 @@ msgstr "Ugemte ændringer"
 msgid "User"
 msgstr "Bruger"
 
-msgid "User flags"
-msgstr "Brugerflag"
+msgid "User feature flags"
+msgstr "Bruger-feature flags"
 
 msgid "User status"
 msgstr "Brugerstatus"

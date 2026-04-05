@@ -1,9 +1,6 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { Button } from "@repo/ui/components/Button";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useMutation } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,13 +12,11 @@ import type { FeatureFlagUserInfo } from "./types";
 
 function getSourceLabel(source: string): string {
   switch (source) {
-    case "manual_override":
+    case "ManualOverride":
       return t`Manual override`;
-    case "ab_rollout":
+    case "AbRollout":
       return t`A/B rollout`;
-    case "plan":
-      return t`Plan`;
-    case "default":
+    case "Default":
       return t`Default`;
     default:
       return source;
@@ -45,8 +40,7 @@ export function UserOverrideRow({
 
   const overrideMutation = useMutation({
     mutationFn: async (vars: { enabled: boolean }) => {
-      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { error } = await apiClient.PUT("/api/back-office/feature-flags/{featureFlagKey}/user-override" as any, {
+      const { error } = await apiClient.PUT("/api/back-office/feature-flags/{featureFlagKey}/user-override", {
         params: { path: { featureFlagKey: flagKey } },
         body: { userId: user.userId, tenantId: user.tenantId, enabled: vars.enabled }
       });
@@ -56,8 +50,7 @@ export function UserOverrideRow({
 
   const removeMutation = useMutation({
     mutationFn: async () => {
-      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { error } = await apiClient.DELETE("/api/back-office/feature-flags/{featureFlagKey}/user-override" as any, {
+      const { error } = await apiClient.DELETE("/api/back-office/feature-flags/{featureFlagKey}/user-override", {
         params: { path: { featureFlagKey: flagKey }, query: { userId: user.userId, tenantId: user.tenantId } }
       });
       if (error) throw error;
@@ -107,44 +100,36 @@ export function UserOverrideRow({
   return (
     <TableRow>
       <TableCell className="truncate font-medium">{user.email}</TableCell>
-      <TableCell className="truncate text-muted-foreground">{user.tenantName}</TableCell>
+      <TableCell className="hidden truncate text-muted-foreground sm:table-cell">{user.tenantName}</TableCell>
       <TableCell className="hidden sm:table-cell">
-        <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
+        {user.source === "ManualOverride" ? (
+          <button
+            type="button"
+            className="inline-flex cursor-pointer items-center gap-1 truncate rounded-md border px-2 py-0.5 text-sm text-muted-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={handleRemoveOverride}
+            disabled={isPending}
+            aria-label={t`Remove override for ${user.email}`}
+          >
+            {getSourceLabel(user.source)}
+            <XIcon className="size-3 shrink-0" />
+          </button>
+        ) : (
+          <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
+        )}
       </TableCell>
       {showRolloutBucket && (
-        <TableCell className="hidden text-muted-foreground sm:table-cell">{user.rolloutBucket}</TableCell>
+        <TableCell className="hidden text-muted-foreground sm:table-cell">
+          {user.rolloutBucket === 100 ? t`Always` : user.rolloutBucket}
+        </TableCell>
       )}
       <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          {user.source === "manual_override" && (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-7"
-                    onClick={handleRemoveOverride}
-                    disabled={isPending}
-                    aria-label={t`Remove override for ${user.email}`}
-                  />
-                }
-              >
-                <XIcon className="size-4" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <Trans>Remove override</Trans>
-              </TooltipContent>
-            </Tooltip>
-          )}
-          <Switch
-            checked={optimisticEnabled}
-            onCheckedChange={handleToggle}
-            disabled={isPending}
-            className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
-            aria-label={t`Override for ${user.email}`}
-          />
-        </div>
+        <Switch
+          checked={optimisticEnabled}
+          onCheckedChange={handleToggle}
+          disabled={isPending}
+          className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
+          aria-label={t`Toggle ${featureFlagDescription} for ${user.email}`}
+        />
       </TableCell>
     </TableRow>
   );

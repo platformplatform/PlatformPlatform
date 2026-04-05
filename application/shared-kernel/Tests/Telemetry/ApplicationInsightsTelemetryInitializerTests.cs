@@ -25,7 +25,7 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
             IsAuthenticated = true,
             Id = userId,
             TenantId = tenantId,
-            SubscriptionPlan = "Standard",
+            SubscriptionPlan = SubscriptionPlan.Standard,
             SessionId = sessionId,
             Locale = "en-US",
             ZoomLevel = "1.25",

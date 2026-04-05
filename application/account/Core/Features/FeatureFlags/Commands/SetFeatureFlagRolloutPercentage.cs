@@ -1,9 +1,9 @@
-using SharedKernel.Domain;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
+using SharedKernel.Domain;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Commands;

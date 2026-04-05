@@ -10,14 +10,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var allFeatureFlags = await featureFlagRepository.GetAllRelevantFeatureFlagsAsync(tenantId, userId, cancellationToken);
         var enabledFeatureFlags = new List<string>();
 
-        var featureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll();
-
-        // Sort feature flags so parents are evaluated before children
-        var sortedFeatureFlagDefinitions = TopologicalSort(featureFlagDefinitions);
-
-        var enabledFeatureFlagSet = new HashSet<string>();
-
-        foreach (var featureFlagDefinition in sortedFeatureFlagDefinitions)
+        foreach (var featureFlagDefinition in SharedKernel.Domain.FeatureFlags.GetAll())
         {
             if (featureFlagDefinition.Scope == FeatureFlagScope.System) continue;
 
@@ -25,8 +18,6 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
             if (baseFeatureFlag is null) continue;
 
             if (!IsActive(baseFeatureFlag)) continue;
-
-            if (featureFlagDefinition.ParentDependency is not null && !enabledFeatureFlagSet.Contains(featureFlagDefinition.ParentDependency)) continue;
 
             var isEnabled = featureFlagDefinition.Scope switch
             {
@@ -37,7 +28,6 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
 
             if (!isEnabled) continue;
 
-            enabledFeatureFlagSet.Add(featureFlagDefinition.Key);
             enabledFeatureFlags.Add(featureFlagDefinition.Key);
         }
 
@@ -79,30 +69,5 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
     private static bool IsActive(FeatureFlag featureFlag)
     {
         return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
-    }
-
-    private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] featureFlagDefinitions)
-    {
-        var result = new List<FeatureFlagDefinition>(featureFlagDefinitions.Length);
-
-        // Add feature flags without parent dependencies first
-        foreach (var featureFlagDefinition in featureFlagDefinitions)
-        {
-            if (featureFlagDefinition.ParentDependency is null)
-            {
-                result.Add(featureFlagDefinition);
-            }
-        }
-
-        // Then add feature flags with parent dependencies
-        foreach (var featureFlagDefinition in featureFlagDefinitions)
-        {
-            if (featureFlagDefinition.ParentDependency is not null)
-            {
-                result.Add(featureFlagDefinition);
-            }
-        }
-
-        return result.ToArray();
     }
 }

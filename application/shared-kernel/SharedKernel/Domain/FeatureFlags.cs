@@ -1,56 +1,17 @@
+using System.Text.Json;
+
 namespace SharedKernel.Domain;
 
 [PublicAPI]
 public static class FeatureFlags
 {
-    public static readonly SystemFeatureFlagDefinition GoogleOauth = new(
-        "google-oauth",
-        "Google OAuth authentication",
-        "OAuth:Google:ClientId"
-    );
-
-    public static readonly SystemFeatureFlagDefinition Subscriptions = new(
-        "subscriptions",
-        "Subscription billing via Stripe",
-        "Stripe:SubscriptionEnabled",
-        "true"
-    );
-
-    public static readonly TenantFeatureFlagDefinition BetaFeatures = new(
-        "beta-features",
-        "Enables beta features for tenants",
-        IsAbTestEligible: true
-    );
-
-    public static readonly SubscriptionPlanFeatureFlagDefinition Sso = new(
-        "sso",
-        "Enables single sign-on for tenants",
-        SubscriptionPlan.Premium
-    );
-
-    public static readonly TenantFeatureFlagDefinition CustomBranding = new(
-        "custom-branding",
-        "Enables custom branding options for tenants",
-        FeatureFlagAdminLevel.TenantOwner,
-        ConfigurableByTenant: true
-    );
-
-    public static readonly UserFeatureFlagDefinition CompactView = new(
-        "compact-view",
-        "Enables compact view in the user interface",
-        ConfigurableByUser: true
-    );
-
-    public static readonly UserFeatureFlagDefinition ExperimentalUi = new(
-        "experimental-ui",
-        "Enables experimental UI components for users",
-        true
-    );
-
-    private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
+    private static readonly FeatureFlagDefinition[] AllFeatureFlags;
+    private static readonly Dictionary<FeatureFlagKey, FeatureFlagDefinition> FeatureFlagsByKey;
 
     static FeatureFlags()
     {
+        AllFeatureFlags = LoadFromEmbeddedResource();
+        FeatureFlagsByKey = AllFeatureFlags.ToDictionary(f => f.Key);
         ValidateFlags();
     }
 
@@ -61,23 +22,113 @@ public static class FeatureFlags
 
     public static FeatureFlagDefinition? Get(string key)
     {
-        return AllFeatureFlags.FirstOrDefault(f => f.Key == key);
+        return FeatureFlagsByKey.GetValueOrDefault(new FeatureFlagKey(key));
+    }
+
+    public static FeatureFlagDefinition? Get(FeatureFlagKey key)
+    {
+        return FeatureFlagsByKey.GetValueOrDefault(key);
+    }
+
+    private static FeatureFlagDefinition[] LoadFromEmbeddedResource()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = "SharedKernel.Domain.feature-flags.json";
+
+        using var stream = assembly.GetManifestResourceStream(resourceName)
+                           ?? throw new InvalidOperationException($"Could not find embedded resource: {resourceName}");
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+        };
+        var entries = JsonSerializer.Deserialize<FeatureFlagJsonEntry[]>(stream, options)
+                      ?? throw new InvalidOperationException("Failed to deserialize feature-flags.json.");
+
+        return entries.Select(ParseEntry).ToArray();
+    }
+
+    private static FeatureFlagDefinition ParseEntry(FeatureFlagJsonEntry entry)
+    {
+        return entry.Type switch
+        {
+            FeatureFlagType.System => new SystemFeatureFlagDefinition(
+                entry.FeatureFlagKey,
+                entry.Description,
+                entry.SystemConfigKey ?? throw new InvalidOperationException($"Feature flag '{entry.FeatureFlagKey}' of type 'System' must have 'systemConfigKey'.")
+            ),
+            FeatureFlagType.SubscriptionPlan => new SubscriptionPlanFeatureFlagDefinition(
+                entry.FeatureFlagKey,
+                entry.Description,
+                entry.RequiredSubscriptionPlan ?? throw new InvalidOperationException($"Feature flag '{entry.FeatureFlagKey}' of type 'SubscriptionPlan' must have 'requiredSubscriptionPlan'.")
+            ),
+            FeatureFlagType.Tenant => new TenantFeatureFlagDefinition(
+                entry.FeatureFlagKey,
+                entry.Description,
+                entry.AdminLevel ?? FeatureFlagAdminLevel.SystemAdmin,
+                entry.IsAbTestEligible ?? false,
+                entry.ConfigurableByTenant ?? false
+            ),
+            FeatureFlagType.User => new UserFeatureFlagDefinition(
+                entry.FeatureFlagKey,
+                entry.Description,
+                entry.IsAbTestEligible ?? false,
+                entry.ConfigurableByUser ?? false
+            ),
+            _ => throw new InvalidOperationException($"Feature flag '{entry.FeatureFlagKey}' has unknown type '{entry.Type}'.")
+        };
     }
 
     private static void ValidateFlags()
     {
-        var featureFlagsByKey = AllFeatureFlags.ToDictionary(f => f.Key);
+        var keys = new HashSet<FeatureFlagKey>();
 
         foreach (var featureFlag in AllFeatureFlags)
         {
-            if (featureFlag.Key.Length > 50)
+            if (!keys.Add(featureFlag.Key))
+            {
+                throw new InvalidOperationException($"Duplicate feature flag key '{featureFlag.Key}'.");
+            }
+
+            if (featureFlag.Key.Value.Length > 50)
             {
                 throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' exceeds 50 characters.");
             }
 
-            if (featureFlag.Key.Contains(','))
+            if (featureFlag.Key.Value.Contains(','))
             {
                 throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' must not contain commas.");
+            }
+
+            if (featureFlag is SystemFeatureFlagDefinition { IsAbTestEligible: true })
+            {
+                throw new InvalidOperationException($"System feature flag '{featureFlag.Key}' cannot be A/B test eligible.");
+            }
+
+            if (featureFlag is SystemFeatureFlagDefinition { ConfigurableByTenant: true } or SystemFeatureFlagDefinition { ConfigurableByUser: true })
+            {
+                throw new InvalidOperationException($"System feature flag '{featureFlag.Key}' cannot be configurable.");
+            }
+
+            if (featureFlag is SubscriptionPlanFeatureFlagDefinition { IsAbTestEligible: true })
+            {
+                throw new InvalidOperationException($"Subscription plan feature flag '{featureFlag.Key}' cannot be A/B test eligible.");
+            }
+
+            if (featureFlag is SubscriptionPlanFeatureFlagDefinition { ConfigurableByTenant: true } or SubscriptionPlanFeatureFlagDefinition { ConfigurableByUser: true })
+            {
+                throw new InvalidOperationException($"Subscription plan feature flag '{featureFlag.Key}' cannot be configurable.");
+            }
+
+            if (featureFlag is TenantFeatureFlagDefinition { ConfigurableByUser: true })
+            {
+                throw new InvalidOperationException($"Tenant feature flag '{featureFlag.Key}' cannot have configurableByUser.");
+            }
+
+            if (featureFlag is UserFeatureFlagDefinition { ConfigurableByTenant: true })
+            {
+                throw new InvalidOperationException($"User feature flag '{featureFlag.Key}' cannot have configurableByTenant.");
             }
 
             if (featureFlag is TenantFeatureFlagDefinition { ConfigurableByTenant: true, IsAbTestEligible: true })
@@ -89,19 +140,28 @@ public static class FeatureFlags
             {
                 throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' can only be ConfigurableByTenant when AdminLevel=TenantOwner.");
             }
-
-            if (featureFlag.ParentDependency is not null)
-            {
-                if (!featureFlagsByKey.TryGetValue(featureFlag.ParentDependency, out var parent))
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' references non-existent parent dependency '{featureFlag.ParentDependency}'.");
-                }
-
-                if (parent.ParentDependency is not null)
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' has parent '{featureFlag.ParentDependency}' which itself has a parent dependency. Only one level of dependency is allowed.");
-                }
-            }
         }
+    }
+
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    private sealed record FeatureFlagJsonEntry
+    {
+        public required FeatureFlagKey FeatureFlagKey { get; init; }
+
+        public required FeatureFlagType Type { get; init; }
+
+        public required string Description { get; init; }
+
+        public string? SystemConfigKey { get; init; }
+
+        public SubscriptionPlan? RequiredSubscriptionPlan { get; init; }
+
+        public FeatureFlagAdminLevel? AdminLevel { get; init; }
+
+        public bool? IsAbTestEligible { get; init; }
+
+        public bool? ConfigurableByTenant { get; init; }
+
+        public bool? ConfigurableByUser { get; init; }
     }
 }

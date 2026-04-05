@@ -1,7 +1,7 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 
 import { featureFlagCollection } from "../sync/collections";
-import { getFlag } from "./registry";
+import { getFlag } from "./featureFlagDefinitions";
 
 type FeatureFlagResult = { enabled: boolean; isLoading: boolean };
 
@@ -19,7 +19,7 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
   const definition = getFlag(flagKey);
   const userInfo = import.meta.user_info_env;
   const isAuthenticated = userInfo.isAuthenticated;
-  const isSystemFlag = definition?.scope === "system";
+  const isSystemFlag = definition?.type === "system";
 
   // Query feature flag rows for database-scoped flags
   const { data: rows } = useLiveQuery(
@@ -46,9 +46,8 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
   if (!definition) return DISABLED;
 
   // System-scoped flags: read from env vars
-  if (definition.scope === "system") {
-    const envVar = definition.envVar as keyof RuntimeEnv;
-    return import.meta.runtime_env[envVar] === "true" ? ENABLED : DISABLED;
+  if (definition.type === "system") {
+    return import.meta.runtime_env[definition.runtimeEnvKey] === "true" ? ENABLED : DISABLED;
   }
 
   // Unauthenticated context: non-system flags are disabled

@@ -1,3 +1,5 @@
+import type { FeatureFlagType } from "@repo/infrastructure/featureFlags/featureFlagDefinitions";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
@@ -19,7 +21,12 @@ export const Route = createFileRoute("/back-office/feature-flags/")({
   component: FeatureFlagsPage
 });
 
-type FeatureFlagGroupKey = "Tenant" | "Plan" | "User" | "System";
+type FeatureFlagGroupKey = {
+  system: "System";
+  subscriptionPlan: "Plan";
+  tenant: "Tenant";
+  user: "User";
+}[FeatureFlagType];
 
 interface FeatureFlagGroup {
   groupKey: FeatureFlagGroupKey;
@@ -37,18 +44,20 @@ export default function FeatureFlagsPage() {
     if (!data?.flags) return [];
     const groupOrder: FeatureFlagGroupKey[] = ["Tenant", "Plan", "User", "System"];
     const groupLabels: Record<FeatureFlagGroupKey, string> = {
-      Tenant: t`Account flags`,
-      Plan: t`Plan flags`,
-      User: t`User flags`,
-      System: t`System flags`
+      Tenant: t`Account feature flags`,
+      Plan: t`Subscription plan feature flags`,
+      User: t`User feature flags`,
+      System: t`System feature flags`
     };
     return groupOrder
       .map((groupKey) => ({
         groupKey,
         label: groupLabels[groupKey],
         featureFlags: data.flags.filter((featureFlag) => {
-          if (groupKey === "Plan") return featureFlag.scope === "Tenant" && featureFlag.requiredPlan != null;
-          if (groupKey === "Tenant") return featureFlag.scope === "Tenant" && featureFlag.requiredPlan == null;
+          if (groupKey === "Plan")
+            return featureFlag.scope === "Tenant" && featureFlag.requiredSubscriptionPlan != null;
+          if (groupKey === "Tenant")
+            return featureFlag.scope === "Tenant" && featureFlag.requiredSubscriptionPlan == null;
           return featureFlag.scope === groupKey;
         })
       }))
@@ -72,27 +81,21 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
       {groups.map((group) => {
         const isPlanGroup = group.groupKey === "Plan";
         const isSystemGroup = group.groupKey === "System";
-        const showRollout = !isSystemGroup && !isPlanGroup;
         return (
           <div key={group.groupKey} className="flex flex-col gap-2">
             <h3>{group.label}</h3>
             <Table rowSize="compact" aria-label={group.label}>
               <TableHeader>
                 <TableRow>
-                  <TableHead>
+                  <TableHead className="w-auto">
                     <Trans>Name</Trans>
                   </TableHead>
-                  {isPlanGroup && (
+                  {!isSystemGroup && (
                     <TableHead className="hidden w-[8rem] sm:table-cell">
-                      <Trans>Required plan</Trans>
+                      {isPlanGroup ? <Trans>Required plan</Trans> : <Trans>Rollout</Trans>}
                     </TableHead>
                   )}
-                  {showRollout && (
-                    <TableHead className="hidden w-[5rem] sm:table-cell">
-                      <Trans>Rollout</Trans>
-                    </TableHead>
-                  )}
-                  <TableHead className="hidden w-[6rem] text-right sm:table-cell">
+                  <TableHead className="w-[5rem] text-right">
                     <Trans>Status</Trans>
                   </TableHead>
                 </TableRow>
@@ -123,21 +126,18 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                         </span>
                       </div>
                     </TableCell>
-                    {isPlanGroup && (
+                    {!isSystemGroup && (
                       <TableCell className="hidden sm:table-cell">
-                        <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
-                      </TableCell>
-                    )}
-                    {showRollout && (
-                      <TableCell className="hidden sm:table-cell">
-                        {featureFlag.rolloutPercentage !== null ? (
+                        {isPlanGroup ? (
+                          <Badge variant="outline">{featureFlag.requiredSubscriptionPlan}</Badge>
+                        ) : featureFlag.rolloutPercentage !== null ? (
                           `${featureFlag.rolloutPercentage}%`
                         ) : (
                           <span className="text-muted-foreground">--</span>
                         )}
                       </TableCell>
                     )}
-                    <TableCell className="hidden text-right sm:table-cell">
+                    <TableCell className="text-right">
                       <Badge variant={featureFlag.isActive ? "default" : "outline"}>
                         {featureFlag.isActive ? t`Active` : t`Inactive`}
                       </Badge>

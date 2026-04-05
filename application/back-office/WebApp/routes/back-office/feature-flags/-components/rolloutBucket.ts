@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 
 const ROLLOUT_BUCKET_MAX = 100;
+const ALWAYS_INCLUDED_BUCKET = 100;
 
 export function formatRolloutBucketRange(
   rolloutBucketStart: number,
@@ -36,17 +37,21 @@ export function sortBySourceThenRolloutBucket<T>(
 ): T[] {
   return [...items].sort((a, b) => {
     const aOrder =
-      getSource(a) === "manual_override"
+      getSource(a) === "ManualOverride"
         ? -1
-        : rolloutBucketRange
-          ? rolloutBucketSortOrder(getRolloutBucket(a), group, rolloutBucketRange)
-          : 0;
+        : getRolloutBucket(a) === ALWAYS_INCLUDED_BUCKET
+          ? -0.5
+          : rolloutBucketRange
+            ? rolloutBucketSortOrder(getRolloutBucket(a), group, rolloutBucketRange)
+            : 0;
     const bOrder =
-      getSource(b) === "manual_override"
+      getSource(b) === "ManualOverride"
         ? -1
-        : rolloutBucketRange
-          ? rolloutBucketSortOrder(getRolloutBucket(b), group, rolloutBucketRange)
-          : 0;
+        : getRolloutBucket(b) === ALWAYS_INCLUDED_BUCKET
+          ? -0.5
+          : rolloutBucketRange
+            ? rolloutBucketSortOrder(getRolloutBucket(b), group, rolloutBucketRange)
+            : 0;
     return aOrder - bOrder;
   });
 }

@@ -21,7 +21,7 @@ public sealed record GetFeatureFlagTenantsResponse(FeatureFlagTenantInfo[] Tenan
 public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
-    SubscriptionPlan Plan,
+    SubscriptionPlan SubscriptionPlan,
     int RolloutBucket,
     bool IsEnabled,
     FeatureFlagOverrideSource Source
@@ -47,8 +47,8 @@ public sealed class GetFeatureFlagTenantsHandler(IFeatureFlagRepository featureF
         if (featureFlagDefinition is null) return Result<GetFeatureFlagTenantsResponse>.NotFound($"Feature flag with key '{query.FeatureFlagKey}' not found.");
 
         var tenants = await tenantRepository.GetAllUnfilteredAsync(cancellationToken);
-        var tenantOverrides = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
-        var featureFlagsByTenantId = tenantOverrides.ToDictionary(f => f.TenantId!);
+        var tenantFeatureFlags = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
+        var featureFlagsByTenantId = tenantFeatureFlags.ToDictionary(f => f.TenantId!);
 
         var baseFeatureFlag = await featureFlagRepository.GetBaseFeatureFlagByKeyAsync(query.FeatureFlagKey, cancellationToken);
 

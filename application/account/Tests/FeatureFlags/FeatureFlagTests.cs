@@ -227,9 +227,9 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange - create an override row first
         var featureFlagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        var overrideId = FeatureFlagId.NewId().ToString();
+        var featureFlagId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
-                ("id", overrideId),
+                ("id", featureFlagId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("feature_flag_key", featureFlagKey),
@@ -419,9 +419,9 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var featureFlagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id;
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        var overrideId = FeatureFlagId.NewId().ToString();
+        var featureFlagId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
-                ("id", overrideId),
+                ("id", featureFlagId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("feature_flag_key", featureFlagKey),
@@ -509,9 +509,9 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var featureFlagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id;
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        var overrideId = FeatureFlagId.NewId().ToString();
+        var featureFlagId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
-                ("id", overrideId),
+                ("id", featureFlagId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("feature_flag_key", featureFlagKey),
@@ -731,9 +731,9 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var featureFlagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        var overrideId = FeatureFlagId.NewId().ToString();
+        var featureFlagId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
-                ("id", overrideId),
+                ("id", featureFlagId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("feature_flag_key", featureFlagKey),
@@ -806,9 +806,9 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Create a disabled override for the tenant (simulating admin toggling OFF)
-        var overrideId = FeatureFlagId.NewId().ToString();
+        var featureFlagId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
-                ("id", overrideId),
+                ("id", featureFlagId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("feature_flag_key", featureFlagKey),

@@ -5,6 +5,7 @@ using Account.Features.Users.Domain;
 using SharedKernel.Authentication;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Cqrs;
+using SharedKernel.Domain;
 
 namespace Account.Features.Users.Shared;
 
@@ -43,11 +44,10 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
             AvatarUrl = user.Avatar.Url,
             TenantName = tenant.Name,
             TenantLogoUrl = tenant.Logo.Url,
-            SubscriptionPlan = subscription.Plan.ToString(),
+            SubscriptionPlan = subscription.Plan,
             Locale = user.Locale,
             IsInternalUser = user.IsInternalUser,
-            FeatureFlags = new HashSet<string>(enabledFlags),
-            FeatureFlagVersion = tenant.FeatureFlagVersion
+            FeatureFlags = enabledFlags.Select(key => new FeatureFlagKey(key)).OrderBy(key => key.Value).ToArray()
         };
     }
 }

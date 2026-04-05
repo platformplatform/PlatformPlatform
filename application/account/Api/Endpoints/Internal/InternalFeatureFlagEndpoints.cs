@@ -8,45 +8,49 @@ namespace Account.Api.Endpoints.Internal;
 
 public sealed class InternalFeatureFlagEndpoints : IEndpoints
 {
+    private const string RoutesPrefix = "/internal-api/account/feature-flags";
+
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        routes.MapGet("/internal-api/account/feature-flags", async Task<ApiResult<GetFeatureFlagsResponse>> (IMediator mediator)
+        var group = routes.MapGroup(RoutesPrefix).WithTags("InternalFeatureFlags").ProducesValidationProblem();
+
+        group.MapGet("/", async Task<ApiResult<GetFeatureFlagsResponse>> (IMediator mediator)
             => await mediator.Send(new GetFeatureFlagsQuery())
         ).Produces<GetFeatureFlagsResponse>();
 
-        routes.MapGet("/internal-api/account/feature-flags/{featureFlagKey}/tenants", async Task<ApiResult<GetFeatureFlagTenantsResponse>> (FeatureFlagKey featureFlagKey, IMediator mediator)
+        group.MapGet("/{featureFlagKey}/tenants", async Task<ApiResult<GetFeatureFlagTenantsResponse>> (FeatureFlagKey featureFlagKey, IMediator mediator)
             => await mediator.Send(new GetFeatureFlagTenantsQuery { FeatureFlagKey = featureFlagKey })
         ).Produces<GetFeatureFlagTenantsResponse>();
 
-        routes.MapPut("/internal-api/account/feature-flags/{featureFlagKey}/activate", async Task<ApiResult> (FeatureFlagKey featureFlagKey, IMediator mediator)
+        group.MapPut("/{featureFlagKey}/activate", async Task<ApiResult> (FeatureFlagKey featureFlagKey, IMediator mediator)
             => await mediator.Send(new ActivateFeatureFlagCommand(featureFlagKey))
         ).DisableAntiforgery();
 
-        routes.MapPut("/internal-api/account/feature-flags/{featureFlagKey}/deactivate", async Task<ApiResult> (FeatureFlagKey featureFlagKey, IMediator mediator)
+        group.MapPut("/{featureFlagKey}/deactivate", async Task<ApiResult> (FeatureFlagKey featureFlagKey, IMediator mediator)
             => await mediator.Send(new DeactivateFeatureFlagCommand(featureFlagKey))
         ).DisableAntiforgery();
 
-        routes.MapPut("/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, SetTenantFeatureFlagInternalCommand command, IMediator mediator)
+        group.MapPut("/{featureFlagKey}/tenant-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, SetTenantFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FeatureFlagKey = featureFlagKey })
         ).DisableAntiforgery();
 
-        routes.MapPut("/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", async Task<ApiResult> (FeatureFlagKey featureFlagKey, SetFeatureFlagRolloutPercentageCommand command, IMediator mediator)
+        group.MapPut("/{featureFlagKey}/rollout-percentage", async Task<ApiResult> (FeatureFlagKey featureFlagKey, SetFeatureFlagRolloutPercentageCommand command, IMediator mediator)
             => await mediator.Send(command with { FeatureFlagKey = featureFlagKey })
         ).DisableAntiforgery();
 
-        routes.MapDelete("/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, TenantId tenantId, IMediator mediator)
+        group.MapDelete("/{featureFlagKey}/tenant-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, TenantId tenantId, IMediator mediator)
             => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FeatureFlagKey = featureFlagKey, TenantId = tenantId })
         ).DisableAntiforgery();
 
-        routes.MapGet("/internal-api/account/feature-flags/{featureFlagKey}/users", async Task<ApiResult<GetFeatureFlagUsersResponse>> (FeatureFlagKey featureFlagKey, string? search, IMediator mediator)
+        group.MapGet("/{featureFlagKey}/users", async Task<ApiResult<GetFeatureFlagUsersResponse>> (FeatureFlagKey featureFlagKey, string? search, IMediator mediator)
             => await mediator.Send(new GetFeatureFlagUsersQuery { FeatureFlagKey = featureFlagKey, Search = search })
         ).Produces<GetFeatureFlagUsersResponse>();
 
-        routes.MapPut("/internal-api/account/feature-flags/{featureFlagKey}/user-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, SetUserFeatureFlagInternalCommand command, IMediator mediator)
+        group.MapPut("/{featureFlagKey}/user-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, SetUserFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FeatureFlagKey = featureFlagKey })
         ).DisableAntiforgery();
 
-        routes.MapDelete("/internal-api/account/feature-flags/{featureFlagKey}/user-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, UserId userId, TenantId tenantId, IMediator mediator)
+        group.MapDelete("/{featureFlagKey}/user-override", async Task<ApiResult> (FeatureFlagKey featureFlagKey, UserId userId, TenantId tenantId, IMediator mediator)
             => await mediator.Send(new RemoveUserFeatureFlagOverrideCommand { FeatureFlagKey = featureFlagKey, UserId = userId, TenantId = tenantId })
         ).DisableAntiforgery();
     }

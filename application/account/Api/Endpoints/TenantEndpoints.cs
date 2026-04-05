@@ -2,7 +2,6 @@ using Account.Features.Tenants.Commands;
 using Account.Features.Tenants.Queries;
 using Account.Features.Tenants.Shared;
 using SharedKernel.ApiResults;
-using SharedKernel.Domain;
 using SharedKernel.Endpoints;
 
 namespace Account.Api.Endpoints;

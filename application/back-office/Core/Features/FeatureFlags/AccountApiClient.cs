@@ -28,7 +28,7 @@ public sealed class AccountApiClient(HttpClient accountApiHttpClient)
     public async Task<HttpResponseMessage> SetTenantOverrideAsync(FeatureFlagKey featureFlagKey, long tenantId, bool enabled, CancellationToken cancellationToken)
     {
         return await accountApiHttpClient.PutAsJsonAsync(
-            $"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", new { TenantId = tenantId, Enabled = enabled }, cancellationToken
+            $"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", new { TenantId = tenantId.ToString(), Enabled = enabled }, cancellationToken
         );
     }
 
@@ -54,7 +54,7 @@ public sealed class AccountApiClient(HttpClient accountApiHttpClient)
     public async Task<HttpResponseMessage> SetUserOverrideAsync(FeatureFlagKey featureFlagKey, string userId, long tenantId, bool enabled, CancellationToken cancellationToken)
     {
         return await accountApiHttpClient.PutAsJsonAsync(
-            $"/internal-api/account/feature-flags/{featureFlagKey}/user-override", new { UserId = userId, TenantId = tenantId, Enabled = enabled }, cancellationToken
+            $"/internal-api/account/feature-flags/{featureFlagKey}/user-override", new { UserId = userId, TenantId = tenantId.ToString(), Enabled = enabled }, cancellationToken
         );
     }
 
