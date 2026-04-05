@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Account.Database.Migrations;
 
 [DbContext(typeof(AccountDbContext))]
-[Migration("20260310000000_AddFeatureFlags")]
+[Migration("20260405074500_AddFeatureFlags")]
 public sealed class AddFeatureFlags : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,7 +24,8 @@ public sealed class AddFeatureFlags : Migration
                 bucket_start = table.Column<int>("integer", nullable: true),
                 bucket_end = table.Column<int>("integer", nullable: true),
                 configurable_by_tenant = table.Column<bool>("boolean", nullable: false, defaultValue: false),
-                configurable_by_user = table.Column<bool>("boolean", nullable: false, defaultValue: false)
+                configurable_by_user = table.Column<bool>("boolean", nullable: false, defaultValue: false),
+                source = table.Column<string>("text", nullable: false, defaultValue: "Manual")
             },
             constraints: table => { table.PrimaryKey("pk_feature_flags", x => x.id); }
         );
@@ -40,16 +41,61 @@ public sealed class AddFeatureFlags : Migration
         migrationBuilder.Sql(
             """
             ALTER TABLE feature_flags ADD CONSTRAINT ck_feature_flags_bucket_range
-            CHECK ((bucket_start IS NULL) = (bucket_end IS NULL) AND (bucket_start IS NULL OR (bucket_start BETWEEN 1 AND 100 AND bucket_end BETWEEN 1 AND 100)))
+            CHECK ((bucket_start IS NULL) = (bucket_end IS NULL) AND (bucket_start IS NULL OR (bucket_start BETWEEN 0 AND 99 AND bucket_end BETWEEN 0 AND 99)))
             """
         );
 
+        migrationBuilder.AddColumn<int>("feature_flag_version", "tenants", "integer", nullable: false, defaultValue: 0);
+
+        // Add rollout_bucket to tenants and users, computed via van der Corput sequence
         migrationBuilder.AddColumn<short>("rollout_bucket", "tenants", "smallint", nullable: true);
-        migrationBuilder.Sql("UPDATE tenants SET rollout_bucket = floor(random() * 100 + 1)::smallint WHERE rollout_bucket IS NULL");
+        migrationBuilder.AddColumn<short>("rollout_bucket", "users", "smallint", nullable: true);
+
+        migrationBuilder.Sql(
+            """
+            CREATE OR REPLACE FUNCTION van_der_corput_bucket(seq integer) RETURNS integer AS $$
+            DECLARE
+                result double precision := 0;
+                denominator double precision := 2;
+                n integer := seq;
+            BEGIN
+                WHILE n > 0 LOOP
+                    result := result + (n & 1)::double precision / denominator;
+                    n := n >> 1;
+                    denominator := denominator * 2;
+                END LOOP;
+                RETURN floor(result * 100)::integer;
+            END;
+            $$ LANGUAGE plpgsql IMMUTABLE;
+            """
+        );
+
+        migrationBuilder.Sql(
+            """
+            WITH numbered AS (
+                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS seq
+                FROM tenants
+            )
+            UPDATE tenants SET rollout_bucket = van_der_corput_bucket(numbered.seq)
+            FROM numbered WHERE tenants.id = numbered.id
+            """
+        );
+
         migrationBuilder.Sql("ALTER TABLE tenants ALTER COLUMN rollout_bucket SET NOT NULL");
 
-        migrationBuilder.AddColumn<short>("rollout_bucket", "users", "smallint", nullable: true);
-        migrationBuilder.Sql("UPDATE users SET rollout_bucket = floor(random() * 100 + 1)::smallint WHERE rollout_bucket IS NULL");
+        migrationBuilder.Sql(
+            """
+            WITH numbered AS (
+                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS seq
+                FROM users
+            )
+            UPDATE users SET rollout_bucket = van_der_corput_bucket(numbered.seq)
+            FROM numbered WHERE users.id = numbered.id
+            """
+        );
+
         migrationBuilder.Sql("ALTER TABLE users ALTER COLUMN rollout_bucket SET NOT NULL");
+
+        migrationBuilder.Sql("DROP FUNCTION van_der_corput_bucket(integer)");
     }
 }
