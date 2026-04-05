@@ -67,7 +67,7 @@ public sealed class PlanBasedFeatureFlagServiceTests : EndpointBaseTest<AccountD
             "SELECT enabled_at FROM feature_flags WHERE flag_key = 'sso' AND tenant_id = @tenantId AND user_id IS NULL",
             [new { tenantId = tenantId.Value }]
         );
-        enabledAt.Should().BeNull();
+        enabledAt.Should().NotBeNullOrEmpty("EnabledAt should be preserved on deactivation");
     }
 
     [Fact]
