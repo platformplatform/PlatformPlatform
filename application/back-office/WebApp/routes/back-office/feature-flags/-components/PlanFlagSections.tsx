@@ -11,7 +11,7 @@ import type { FeatureFlagInfo, FlagTenantInfo } from "./types";
 export function PlanFlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
           <span>
             <Trans>Name:</Trans> <span className="font-mono">{flag.key}</span>
@@ -54,7 +54,10 @@ export function PlanFlagTenantsSection({ tenants }: Readonly<{ tenants: FlagTena
         groupMap.set(tenant.plan, [tenant]);
       }
     }
-    return [...groupMap.entries()].map(([plan, members]) => ({ plan, tenants: members }));
+    const planOrder: Record<string, number> = { Premium: 0, Standard: 1, Free: 2 };
+    return [...groupMap.entries()]
+      .sort(([a], [b]) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99))
+      .map(([plan, members]) => ({ plan, tenants: members }));
   }, [filtered]);
 
   const isSearching = search.length > 0;

@@ -85,7 +85,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
             "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         disabledAt.Should().NotBeNullOrEmpty();
-        enabledAt.Should().BeNull("EnabledAt should be cleared on deactivation");
+        enabledAt.Should().NotBeNullOrEmpty("EnabledAt should be preserved on deactivation");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagDeactivated");
@@ -193,7 +193,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
             "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId }]
         );
-        disabledAt.Should().NotBeNullOrEmpty();
+        disabledAt.Should().BeNull("newly created disabled override should not have disabled_at set when never activated");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagTenantOverrideRemoved");

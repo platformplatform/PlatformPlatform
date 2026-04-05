@@ -34,20 +34,35 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <FlagMetadata flag={flag} />
-        <div className="flex shrink-0 items-center gap-4">
-          {flag.isAbTestEligible && (
-            <RolloutPercentageInput flagKey={flag.key} currentPercentage={flag.rolloutPercentage} />
-          )}
-          <Badge variant={flag.isActive ? "default" : "outline"}>{flag.isActive ? t`Active` : t`Inactive`}</Badge>
-          <Switch
-            checked={flag.isActive}
-            onCheckedChange={handleToggle}
-            disabled={isPending}
-            aria-label={t`Toggle ${getFlagName(flag.key)}`}
-          />
-        </div>
+        {flag.isAbTestEligible ? (
+          <div className="flex shrink-0 flex-col gap-1">
+            <span className="text-sm font-medium text-foreground">
+              <Trans>Rollout %</Trans>
+            </span>
+            <div className="flex items-center gap-4">
+              <RolloutPercentageInput flagKey={flag.key} currentPercentage={flag.rolloutPercentage} />
+              <Badge variant={flag.isActive ? "default" : "outline"}>{flag.isActive ? t`Active` : t`Inactive`}</Badge>
+              <Switch
+                checked={flag.isActive}
+                onCheckedChange={handleToggle}
+                disabled={isPending}
+                aria-label={t`Toggle ${getFlagName(flag.key)}`}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex shrink-0 items-center gap-4">
+            <Badge variant={flag.isActive ? "default" : "outline"}>{flag.isActive ? t`Active` : t`Inactive`}</Badge>
+            <Switch
+              checked={flag.isActive}
+              onCheckedChange={handleToggle}
+              disabled={isPending}
+              aria-label={t`Toggle ${getFlagName(flag.key)}`}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -142,7 +157,7 @@ function RolloutPercentageInput({
 
   return (
     <TextField
-      label={t`Rollout %`}
+      aria-label={t`Rollout %`}
       name="rolloutPercentage"
       type="number"
       value={percentage}

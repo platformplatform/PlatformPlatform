@@ -66,8 +66,9 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public void Deactivate(DateTimeOffset now)
     {
+        if (EnabledAt is null) return;
+
         DisabledAt = now;
-        EnabledAt = null;
     }
 
     public void SetRolloutRange(int? bucketStart, int? bucketEnd)

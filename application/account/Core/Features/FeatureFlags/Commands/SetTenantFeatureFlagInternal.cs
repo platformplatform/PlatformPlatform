@@ -61,7 +61,6 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
             if (tenantOverride is null)
             {
                 tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
-                tenantOverride.Deactivate(now);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
             }
             else

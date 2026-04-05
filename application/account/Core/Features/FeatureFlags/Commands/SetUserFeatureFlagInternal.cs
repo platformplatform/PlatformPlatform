@@ -63,7 +63,6 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
             if (userOverride is null)
             {
                 userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId);
-                userOverride.Deactivate(now);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);
             }
             else
