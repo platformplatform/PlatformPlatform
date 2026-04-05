@@ -1,4 +1,4 @@
-namespace SharedKernel.FeatureFlags;
+namespace SharedKernel.Domain;
 
 public static class RolloutBucketHasher
 {

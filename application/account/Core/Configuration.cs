@@ -66,6 +66,8 @@ public static class Configuration
                 .AddScoped<AvatarUpdater>()
                 .AddScoped<FeatureFlagEvaluator>()
                 .AddScoped<PlanBasedFeatureFlagEvaluator>()
+                .AddScoped<TenantFeatureFlagToggler>()
+                .AddScoped<UserFeatureFlagToggler>()
                 .AddScoped<UserInfoFactory>()
                 .AddScoped<ProcessPendingStripeEvents>()
                 .AddScoped<ExternalAuthenticationService>()

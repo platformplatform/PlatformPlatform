@@ -1,7 +1,6 @@
 using Account.Features.Tenants.Domain;
 using JetBrains.Annotations;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Tenants.Shared;
 

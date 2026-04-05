@@ -12,7 +12,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         FeatureFlagKey = string.Empty;
     }
 
-    private FeatureFlag(string featureFlagKey, long? tenantId, string? userId, FeatureFlagSource source)
+    private FeatureFlag(string featureFlagKey, TenantId? tenantId, UserId? userId, FeatureFlagSource source)
         : base(FeatureFlagId.NewId())
     {
         FeatureFlagKey = featureFlagKey;
@@ -23,9 +23,9 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public string FeatureFlagKey { get; private set; }
 
-    public long? TenantId { get; private set; }
+    public TenantId? TenantId { get; private set; }
 
-    public string? UserId { get; private set; }
+    public UserId? UserId { get; private set; }
 
     public DateTimeOffset? EnabledAt { get; private set; }
 
@@ -48,12 +48,12 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         return new FeatureFlag(featureFlagKey, null, null, source);
     }
 
-    public static FeatureFlag CreateTenantOverride(string featureFlagKey, long tenantId, FeatureFlagSource source = FeatureFlagSource.Manual)
+    public static FeatureFlag CreateTenantOverride(string featureFlagKey, TenantId tenantId, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
         return new FeatureFlag(featureFlagKey, tenantId, null, source);
     }
 
-    public static FeatureFlag CreateUserOverride(string featureFlagKey, long tenantId, string userId)
+    public static FeatureFlag CreateUserOverride(string featureFlagKey, TenantId tenantId, UserId userId)
     {
         return new FeatureFlag(featureFlagKey, tenantId, userId, FeatureFlagSource.Manual);
     }

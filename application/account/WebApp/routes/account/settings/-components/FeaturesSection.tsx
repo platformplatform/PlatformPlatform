@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { featureFlagCollection } from "@repo/infrastructure/sync/collections";
 import { useFeatureFlags } from "@repo/infrastructure/sync/hooks";
 import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "@repo/ui/components/Item";
 import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Switch } from "@repo/ui/components/Switch";
@@ -75,8 +76,8 @@ function TenantFlagToggle({ flagKey, enabled }: Readonly<TenantFlag>) {
 
   const toggleMutation = useElectricMutation({
     mutationFn: async (variables: { flagKey: string; enabled: boolean }) => {
-      const { error } = await apiClient.PUT("/api/account/feature-flags/{flagKey}/tenant-override", {
-        params: { path: { flagKey: variables.flagKey } },
+      const { error } = await apiClient.PUT("/api/account/feature-flags/{featureFlagKey}/tenant-override", {
+        params: { path: { featureFlagKey: variables.flagKey } },
         body: { enabled: variables.enabled }
       });
       if (error) {
@@ -94,18 +95,20 @@ function TenantFlagToggle({ flagKey, enabled }: Readonly<TenantFlag>) {
   };
 
   return (
-    <div className="flex items-center justify-between rounded-lg border p-4">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium">{label.name}</span>
-        <span className="text-sm text-muted-foreground">{label.description}</span>
-      </div>
-      <Switch
-        checked={enabled}
-        onCheckedChange={handleToggle}
-        disabled={toggleMutation.isPending}
-        aria-label={label.name}
-      />
-    </div>
+    <Item variant="outline">
+      <ItemContent>
+        <ItemTitle>{label.name}</ItemTitle>
+        <ItemDescription>{label.description}</ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        <Switch
+          checked={enabled}
+          onCheckedChange={handleToggle}
+          disabled={toggleMutation.isPending}
+          aria-label={label.name}
+        />
+      </ItemActions>
+    </Item>
   );
 }
 

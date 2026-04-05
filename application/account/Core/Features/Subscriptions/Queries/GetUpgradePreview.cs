@@ -4,8 +4,8 @@ using Account.Features.Users.Domain;
 using Account.Integrations.Stripe;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
+using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
-using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Subscriptions.Queries;
 

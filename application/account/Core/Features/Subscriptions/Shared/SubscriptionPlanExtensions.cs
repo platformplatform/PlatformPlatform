@@ -1,4 +1,4 @@
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 
 namespace Account.Features.Subscriptions.Shared;
 

@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Billing.Commands;
 using FluentAssertions;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using Xunit;

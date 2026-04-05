@@ -37,11 +37,11 @@ export function UserOverridesSection({
   }, [search]);
 
   const { data: usersData, isLoading } = useQuery({
-    queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users", { flagKey, search: debouncedSearch }],
+    queryKey: ["get", "/api/back-office/feature-flags/{featureFlagKey}/users", { flagKey, search: debouncedSearch }],
     queryFn: async () => {
       // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { data } = await apiClient.GET("/api/back-office/feature-flags/{flagKey}/users" as any, {
-        params: { path: { flagKey }, query: { search: debouncedSearch } }
+      const { data } = await apiClient.GET("/api/back-office/feature-flags/{featureFlagKey}/users" as any, {
+        params: { path: { featureFlagKey: flagKey }, query: { search: debouncedSearch } }
       });
       return data as GetFeatureFlagUsersResponse | undefined;
     },

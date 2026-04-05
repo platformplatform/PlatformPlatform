@@ -4,7 +4,7 @@ using Account.Database;
 using Account.Features.Billing.Commands;
 using Account.Integrations.Stripe;
 using FluentAssertions;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using Xunit;

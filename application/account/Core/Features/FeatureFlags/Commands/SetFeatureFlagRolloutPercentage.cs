@@ -11,7 +11,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record SetFeatureFlagRolloutPercentageCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public string FlagKey { get; init; } = null!;
+    public string FeatureFlagKey { get; init; } = null!;
 
     public required int RolloutPercentage { get; init; }
 }
@@ -20,10 +20,10 @@ public sealed class SetFeatureFlagRolloutPercentageValidator : AbstractValidator
 {
     public SetFeatureFlagRolloutPercentageValidator()
     {
-        RuleFor(x => x.FlagKey)
+        RuleFor(x => x.FeatureFlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.IsAbTestEligible == true).WithMessage("Feature flag must be eligible for A/B testing.");
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key)?.IsAbTestEligible == true).WithMessage("Feature flag must be eligible for A/B testing.");
 
         RuleFor(x => x.RolloutPercentage)
             .InclusiveBetween(0, 100).WithMessage("Rollout percentage must be between 0 and 100.");
@@ -35,8 +35,8 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(SetFeatureFlagRolloutPercentageCommand command, CancellationToken cancellationToken)
     {
-        var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
-        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
+        var featureFlag = await featureFlagRepository.GetBaseRowByKeyAsync(command.FeatureFlagKey, cancellationToken);
+        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FeatureFlagKey}' not found.");
 
         int? rolloutBucketStart;
         int? rolloutBucketEnd;
@@ -53,7 +53,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         }
         else
         {
-            rolloutBucketStart = ComputeStartingRolloutBucket(command.FlagKey);
+            rolloutBucketStart = ComputeStartingRolloutBucket(command.FeatureFlagKey);
             rolloutBucketEnd = (rolloutBucketStart.Value + command.RolloutPercentage - 1) % 100;
         }
 
@@ -62,17 +62,17 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
 
         await tenantRepository.IncrementAllFeatureFlagVersionsAsync(cancellationToken);
 
-        events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FlagKey, command.RolloutPercentage));
+        events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FeatureFlagKey, command.RolloutPercentage));
 
         return Result.Success();
     }
 
-    private static int ComputeStartingRolloutBucket(string flagKey)
+    private static int ComputeStartingRolloutBucket(string featureFlagKey)
     {
         unchecked
         {
             var hash = 2166136261u;
-            foreach (var c in flagKey)
+            foreach (var c in featureFlagKey)
             {
                 hash ^= c;
                 hash *= 16777619u;

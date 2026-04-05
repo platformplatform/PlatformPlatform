@@ -35,8 +35,8 @@ export default function FeatureFlagDetailPage() {
 
   const { data: tenantsData, isLoading: isLoadingTenants } = api.useQuery(
     "get",
-    "/api/back-office/feature-flags/{flagKey}/tenants",
-    { params: { path: { flagKey } } },
+    "/api/back-office/feature-flags/{featureFlagKey}/tenants",
+    { params: { path: { featureFlagKey: flagKey } } },
     { enabled: featureFlag?.scope === "Tenant" }
   ) as {
     data: GetFeatureFlagTenantsResponse | undefined;

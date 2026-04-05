@@ -1,7 +1,6 @@
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Tenants.Domain;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 
 namespace Account.Features.FeatureFlags.Shared;
 
@@ -9,11 +8,11 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
 {
     public async Task EvaluatePlanFlagsForTenantAsync(TenantId tenantId, SubscriptionPlan subscriptionPlan, CancellationToken cancellationToken)
     {
-        var planFeatureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
+        var planFeatureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
 
         if (planFeatureFlagDefinitions.Length == 0) return;
 
-        var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId.Value, cancellationToken);
+        var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId, cancellationToken);
         var overridesByKey = existingOverrides.ToDictionary(f => f.FeatureFlagKey);
         var now = timeProvider.GetUtcNow();
         var changed = false;
@@ -27,7 +26,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
             {
                 if (existingOverride is null)
                 {
-                    var featureFlag = FeatureFlag.CreateTenantOverride(featureFlagDefinition.Key, tenantId.Value, FeatureFlagSource.Plan);
+                    var featureFlag = FeatureFlag.CreateTenantOverride(featureFlagDefinition.Key, tenantId, FeatureFlagSource.Plan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                     changed = true;

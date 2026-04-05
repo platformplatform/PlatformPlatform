@@ -4,7 +4,6 @@ using Account.Features.Users.Commands;
 using Account.Features.Users.Domain;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.Tenants.Commands;

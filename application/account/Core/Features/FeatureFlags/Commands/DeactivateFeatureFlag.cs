@@ -8,15 +8,15 @@ using SharedKernel.Telemetry;
 namespace Account.Features.FeatureFlags.Commands;
 
 [PublicAPI]
-public sealed record DeactivateFeatureFlagCommand(string FlagKey) : ICommand, IRequest<Result>;
+public sealed record DeactivateFeatureFlagCommand(string FeatureFlagKey) : ICommand, IRequest<Result>;
 
 public sealed class DeactivateFeatureFlagValidator : AbstractValidator<DeactivateFeatureFlagCommand>
 {
     public DeactivateFeatureFlagValidator()
     {
-        RuleFor(x => x.FlagKey)
+        RuleFor(x => x.FeatureFlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.");
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.");
     }
 }
 
@@ -25,15 +25,15 @@ public sealed class DeactivateFeatureFlagHandler(IFeatureFlagRepository featureF
 {
     public async Task<Result> Handle(DeactivateFeatureFlagCommand command, CancellationToken cancellationToken)
     {
-        var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
-        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
+        var featureFlag = await featureFlagRepository.GetBaseRowByKeyAsync(command.FeatureFlagKey, cancellationToken);
+        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FeatureFlagKey}' not found.");
 
         featureFlag.Deactivate(timeProvider.GetUtcNow());
         featureFlagRepository.Update(featureFlag);
 
         await tenantRepository.IncrementAllFeatureFlagVersionsAsync(cancellationToken);
 
-        events.CollectEvent(new FeatureFlagDeactivated(command.FlagKey));
+        events.CollectEvent(new FeatureFlagDeactivated(command.FeatureFlagKey));
 
         return Result.Success();
     }

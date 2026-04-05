@@ -49,15 +49,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task GetFeatureFlagTenants_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         MockAccountApiHandler.ResponseContent = """{"tenants":[]}""";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{flagKey}/tenants");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{featureFlagKey}/tenants");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/tenants");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/tenants");
     }
 
     [Fact]
@@ -74,14 +74,14 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task ActivateFlag_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/api/back-office/feature-flags/{flagKey}/activate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/api/back-office/feature-flags/{featureFlagKey}/activate", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/activate");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/activate");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Put);
     }
 
@@ -99,14 +99,14 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task DeactivateFlag_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/api/back-office/feature-flags/{flagKey}/deactivate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/api/back-office/feature-flags/{featureFlagKey}/deactivate", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/deactivate");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/deactivate");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Put);
     }
 
@@ -124,15 +124,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task SetTenantOverride_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         var request = new SetTenantOverrideRequest(new TenantId(123), true);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override", request);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{featureFlagKey}/tenant-override", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/tenant-override");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Put);
     }
 
@@ -150,15 +150,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task SetRolloutPercentage_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         var request = new SetRolloutPercentageRequest(50);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/rollout-percentage", request);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{featureFlagKey}/rollout-percentage", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Put);
     }
 
@@ -176,15 +176,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task RemoveTenantOverride_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         var tenantId = new TenantId(123);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={tenantId.Value}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/back-office/feature-flags/{featureFlagKey}/tenant-override?tenantId={tenantId.Value}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId.Value}");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override?tenantId={tenantId.Value}");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Delete);
     }
 
@@ -202,15 +202,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task GetFeatureFlagUsers_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         MockAccountApiHandler.ResponseContent = """{"users":[]}""";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{flagKey}/users?search=test@example.com");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{featureFlagKey}/users?search=test@example.com");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/users?search=test%40example.com");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/users?search=test%40example.com");
     }
 
     [Fact]
@@ -227,15 +227,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task SetUserOverride_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         var request = new SetUserOverrideRequest(UserId.NewId(), new TenantId(123), true);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/user-override", request);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{featureFlagKey}/user-override", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/user-override");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/user-override");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Put);
     }
 
@@ -253,15 +253,15 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task RemoveUserOverride_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
-        const string flagKey = "test-flag";
+        const string featureFlagKey = "test-flag";
         var userId = UserId.NewId();
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId=123");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/back-office/feature-flags/{featureFlagKey}/user-override?userId={userId}&tenantId=123");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId=123");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{featureFlagKey}/user-override?userId={userId}&tenantId=123");
         MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Delete);
     }
 

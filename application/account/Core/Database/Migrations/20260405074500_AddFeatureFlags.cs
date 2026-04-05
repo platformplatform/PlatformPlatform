@@ -23,8 +23,8 @@ public sealed class AddFeatureFlags : Migration
                 disabled_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 rollout_bucket_start = table.Column<int>("integer", nullable: true),
                 rollout_bucket_end = table.Column<int>("integer", nullable: true),
-                configurable_by_tenant = table.Column<bool>("boolean", nullable: false, defaultValue: false),
-                configurable_by_user = table.Column<bool>("boolean", nullable: false, defaultValue: false),
+                configurable_by_tenant = table.Column<bool>("boolean", nullable: false),
+                configurable_by_user = table.Column<bool>("boolean", nullable: false),
                 source = table.Column<string>("text", nullable: false, defaultValue: "Manual")
             },
             constraints: table => { table.PrimaryKey("pk_feature_flags", x => x.id); }
@@ -53,11 +53,11 @@ public sealed class AddFeatureFlags : Migration
 
         migrationBuilder.Sql(
             """
-            CREATE OR REPLACE FUNCTION van_der_corput_bucket(seq integer) RETURNS integer AS $$
+            CREATE OR REPLACE FUNCTION van_der_corput_bucket(sequence_number integer) RETURNS integer AS $$
             DECLARE
                 result double precision := 0;
                 denominator double precision := 2;
-                n integer := seq;
+                n integer := sequence_number;
             BEGIN
                 WHILE n > 0 LOOP
                     result := result + (n & 1)::double precision / denominator;
@@ -73,10 +73,10 @@ public sealed class AddFeatureFlags : Migration
         migrationBuilder.Sql(
             """
             WITH numbered AS (
-                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS seq
+                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS sequence_number
                 FROM tenants
             )
-            UPDATE tenants SET rollout_bucket = van_der_corput_bucket(numbered.seq)
+            UPDATE tenants SET rollout_bucket = van_der_corput_bucket(numbered.sequence_number)
             FROM numbered WHERE tenants.id = numbered.id
             """
         );
@@ -86,10 +86,10 @@ public sealed class AddFeatureFlags : Migration
         migrationBuilder.Sql(
             """
             WITH numbered AS (
-                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS seq
+                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS sequence_number
                 FROM users
             )
-            UPDATE users SET rollout_bucket = van_der_corput_bucket(numbered.seq)
+            UPDATE users SET rollout_bucket = van_der_corput_bucket(numbered.sequence_number)
             FROM numbered WHERE users.id = numbered.id
             """
         );

@@ -1,10 +1,10 @@
-using Account.Features.FeatureFlags.Domain;
+using Account.Features.FeatureFlags.Shared;
 using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
+using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Commands;
@@ -13,7 +13,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record SetUserFeatureFlagCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public string FlagKey { get; init; } = null!;
+    public string FeatureFlagKey { get; init; } = null!;
 
     public required bool Enabled { get; init; }
 }
@@ -22,56 +22,39 @@ public sealed class SetUserFeatureFlagValidator : AbstractValidator<SetUserFeatu
 {
     public SetUserFeatureFlagValidator()
     {
-        RuleFor(x => x.FlagKey)
+        RuleFor(x => x.FeatureFlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Feature flag must have user scope.");
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Feature flag must have user scope.");
     }
 }
 
-public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, IExecutionContext executionContext, TimeProvider timeProvider, ITelemetryEventsCollector events)
+public sealed class SetUserFeatureFlagHandler(UserFeatureFlagToggler userFeatureFlagToggler, ITenantRepository tenantRepository, IExecutionContext executionContext, TimeProvider timeProvider, ITelemetryEventsCollector events)
     : IRequestHandler<SetUserFeatureFlagCommand, Result>
 {
     public async Task<Result> Handle(SetUserFeatureFlagCommand command, CancellationToken cancellationToken)
     {
-        var featureFlagDefinition = SharedKernel.FeatureFlags.FeatureFlags.Get(command.FlagKey);
-        if (featureFlagDefinition is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
+        var featureFlagDefinition = SharedKernel.Domain.FeatureFlags.Get(command.FeatureFlagKey);
+        if (featureFlagDefinition is null) return Result.NotFound($"Feature flag with key '{command.FeatureFlagKey}' not found.");
 
         if (featureFlagDefinition.AdminLevel != FeatureFlagAdminLevel.User || !featureFlagDefinition.ConfigurableByUser)
         {
-            return Result.Forbidden($"Feature flag '{command.FlagKey}' is not configurable by users.");
+            return Result.Forbidden($"Feature flag '{command.FeatureFlagKey}' is not configurable by users.");
         }
 
-        var tenantId = executionContext.TenantId!.Value;
-        var userId = executionContext.UserInfo.Id!.ToString();
+        var tenantId = executionContext.TenantId!;
+        var userId = executionContext.UserInfo.Id!;
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)
         {
-            var userFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
-            if (userFeatureFlag is null)
-            {
-                userFeatureFlag = FeatureFlag.CreateUserOverride(command.FlagKey, tenantId, userId);
-                userFeatureFlag.Activate(now);
-                await featureFlagRepository.AddAsync(userFeatureFlag, cancellationToken);
-            }
-            else
-            {
-                userFeatureFlag.Activate(now);
-                featureFlagRepository.Update(userFeatureFlag);
-            }
-
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, userId));
+            await userFeatureFlagToggler.EnableAsync(command.FeatureFlagKey, tenantId, userId, now, cancellationToken);
+            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FeatureFlagKey, userId.ToString()));
         }
         else
         {
-            var userFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
-            if (userFeatureFlag is not null)
-            {
-                userFeatureFlag.Deactivate(now);
-                featureFlagRepository.Update(userFeatureFlag);
-                events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, userId));
-            }
+            await userFeatureFlagToggler.DisableAsync(command.FeatureFlagKey, tenantId, userId, now, cancellationToken);
+            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FeatureFlagKey, userId.ToString()));
         }
 
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);

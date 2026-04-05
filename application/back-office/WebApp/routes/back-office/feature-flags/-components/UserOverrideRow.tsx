@@ -46,8 +46,8 @@ export function UserOverrideRow({
   const overrideMutation = useMutation({
     mutationFn: async (vars: { enabled: boolean }) => {
       // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { error } = await apiClient.PUT("/api/back-office/feature-flags/{flagKey}/user-override" as any, {
-        params: { path: { flagKey } },
+      const { error } = await apiClient.PUT("/api/back-office/feature-flags/{featureFlagKey}/user-override" as any, {
+        params: { path: { featureFlagKey: flagKey } },
         body: { userId: user.userId, tenantId: user.tenantId, enabled: vars.enabled }
       });
       if (error) throw error;
@@ -57,8 +57,8 @@ export function UserOverrideRow({
   const removeMutation = useMutation({
     mutationFn: async () => {
       // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { error } = await apiClient.DELETE("/api/back-office/feature-flags/{flagKey}/user-override" as any, {
-        params: { path: { flagKey }, query: { userId: user.userId, tenantId: user.tenantId } }
+      const { error } = await apiClient.DELETE("/api/back-office/feature-flags/{featureFlagKey}/user-override" as any, {
+        params: { path: { featureFlagKey: flagKey }, query: { userId: user.userId, tenantId: user.tenantId } }
       });
       if (error) throw error;
     }
@@ -77,7 +77,7 @@ export function UserOverrideRow({
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
+            queryKey: ["get", "/api/back-office/feature-flags/{featureFlagKey}/users"]
           });
           const message = checked
             ? t`${featureFlagDescription} enabled for ${user.email}`
@@ -95,7 +95,7 @@ export function UserOverrideRow({
     removeMutation.mutate(undefined, {
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
+          queryKey: ["get", "/api/back-office/feature-flags/{featureFlagKey}/users"]
         });
         toast.success(t`Override removed for ${user.email}`);
       }

@@ -1,5 +1,5 @@
 using Account.Features.Subscriptions.Domain;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 
 namespace Account.Integrations.Stripe;
 

@@ -2,7 +2,6 @@ using System.Net;
 using Account.Database;
 using FluentAssertions;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using Xunit;

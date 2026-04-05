@@ -64,13 +64,9 @@ public class UserInfo
 
     public int FeatureFlagVersion { get; init; }
 
-    public int TenantRolloutBucket { get; init; }
-
-    public int? UserRolloutBucket { get; init; }
-
-    public bool IsFeatureFlagEnabled(string flagKey)
+    public bool IsFeatureFlagEnabled(string featureFlagKey)
     {
-        return FeatureFlags.Contains(flagKey);
+        return FeatureFlags.Contains(featureFlagKey);
     }
 
     public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale, string? zoomLevel = null, string? theme = null)
@@ -93,8 +89,6 @@ public class UserInfo
         var email = user.FindFirstValue(ClaimTypes.Email);
         var featureFlagsClaim = user.FindFirstValue("feature_flags");
         var featureFlagVersionClaim = user.FindFirstValue("feature_flag_version");
-        var tenantRolloutBucketClaim = user.FindFirstValue("tenant_rollout_bucket");
-        var userRolloutBucketClaim = user.FindFirstValue("user_rollout_bucket");
         return new UserInfo
         {
             IsAuthenticated = true,
@@ -115,9 +109,7 @@ public class UserInfo
             Theme = theme,
             IsInternalUser = IsInternalUserEmail(email),
             FeatureFlags = ParseFeatureFlags(featureFlagsClaim),
-            FeatureFlagVersion = !string.IsNullOrEmpty(featureFlagVersionClaim) ? int.Parse(featureFlagVersionClaim) : 0,
-            TenantRolloutBucket = !string.IsNullOrEmpty(tenantRolloutBucketClaim) ? int.Parse(tenantRolloutBucketClaim) : 0,
-            UserRolloutBucket = !string.IsNullOrEmpty(userRolloutBucketClaim) ? int.Parse(userRolloutBucketClaim) : null
+            FeatureFlagVersion = !string.IsNullOrEmpty(featureFlagVersionClaim) ? int.Parse(featureFlagVersionClaim) : 0
         };
     }
 

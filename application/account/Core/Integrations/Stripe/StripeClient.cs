@@ -2,7 +2,7 @@ using System.Text.Json;
 using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 using Stripe;
 using Stripe.Checkout;
 using PaymentMethod = Account.Features.Subscriptions.Domain.PaymentMethod;

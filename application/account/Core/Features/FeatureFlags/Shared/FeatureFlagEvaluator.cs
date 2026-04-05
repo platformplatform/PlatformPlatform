@@ -1,16 +1,16 @@
 using Account.Features.FeatureFlags.Domain;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 
 namespace Account.Features.FeatureFlags.Shared;
 
 public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository)
 {
-    public async Task<IReadOnlyList<string>> EvaluateAsync(long tenantId, string userId, int tenantRolloutBucket, int? userRolloutBucket, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<string>> EvaluateAsync(TenantId tenantId, UserId userId, int tenantRolloutBucket, int userRolloutBucket, CancellationToken cancellationToken)
     {
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
         var enabledFeatureFlags = new List<string>();
 
-        var featureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
+        var featureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll();
 
         // Sort feature flags so parents are evaluated before children
         var sortedFeatureFlagDefinitions = TopologicalSort(featureFlagDefinitions);
@@ -44,7 +44,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         return enabledFeatureFlags;
     }
 
-    private static bool EvaluateTenantScope(FeatureFlagDefinition featureFlagDefinition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, int tenantRolloutBucket)
+    private static bool EvaluateTenantScope(FeatureFlagDefinition featureFlagDefinition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, int tenantRolloutBucket)
     {
         var tenantFeatureFlag = allRows.FirstOrDefault(f => f.FeatureFlagKey == featureFlagDefinition.Key && f.TenantId == tenantId && f.UserId is null);
         if (tenantFeatureFlag is not null)
@@ -60,19 +60,17 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         return false;
     }
 
-    private static bool EvaluateUserScope(FeatureFlagDefinition featureFlagDefinition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, string userId, int? userRolloutBucket)
+    private static bool EvaluateUserScope(FeatureFlagDefinition featureFlagDefinition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, UserId userId, int userRolloutBucket)
     {
-        if (string.IsNullOrEmpty(userId)) return false;
-
         var userFeatureFlag = allRows.FirstOrDefault(f => f.FeatureFlagKey == featureFlagDefinition.Key && f.TenantId == tenantId && f.UserId == userId);
         if (userFeatureFlag is not null)
         {
             return IsActive(userFeatureFlag);
         }
 
-        if (featureFlagDefinition.IsAbTestEligible && userRolloutBucket is not null && baseRow.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
+        if (featureFlagDefinition.IsAbTestEligible && baseRow.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
         {
-            return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket.Value, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
+            return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
         }
 
         return false;

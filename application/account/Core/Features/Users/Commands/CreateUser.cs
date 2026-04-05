@@ -5,7 +5,6 @@ using FluentValidation;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
-using SharedKernel.FeatureFlags;
 using SharedKernel.SinglePageApp;
 using SharedKernel.Telemetry;
 using SharedKernel.Validation;

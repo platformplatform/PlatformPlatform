@@ -5,12 +5,12 @@ using Account.Features.FeatureFlags.Commands;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.FeatureFlags.Queries;
 using FluentAssertions;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using Xunit;
-using FeatureFlagRegistry = SharedKernel.FeatureFlags.FeatureFlags;
-using FeatureFlagScope = SharedKernel.FeatureFlags.FeatureFlagScope;
+using FeatureFlagRegistry = SharedKernel.Domain.FeatureFlags;
+using FeatureFlagScope = SharedKernel.Domain.FeatureFlagScope;
 
 namespace Account.Tests.FeatureFlags;
 
@@ -22,22 +22,22 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task ActivateFeatureFlag_WhenValid_ShouldSetEnabledAt()
     {
         // Arrange
-        var flagKey = "sso";
+        var featureFlagKey = "sso";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/activate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/activate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagActivated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(flagKey);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(featureFlagKey);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -45,19 +45,19 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task ActivateFeatureFlag_WhenAlreadyActive_ShouldUpdateEnabledAt()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var originalEnabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/activate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/activate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedEnabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         updatedEnabledAt.Should().NotBe(originalEnabledAt);
 
@@ -70,26 +70,26 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task DeactivateFeatureFlag_WhenActive_ShouldSetDisabledAt()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/deactivate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/deactivate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         disabledAt.Should().NotBeNullOrEmpty();
         enabledAt.Should().NotBeNullOrEmpty("EnabledAt should be preserved on deactivation");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagDeactivated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(flagKey);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(featureFlagKey);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -97,10 +97,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task DeactivateFeatureFlag_WhenAlreadyInactive_ShouldHandleGracefully()
     {
         // Arrange
-        var flagKey = "sso";
+        var featureFlagKey = "sso";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/deactivate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/deactivate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -114,21 +114,21 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task ActivateFeatureFlag_AfterDeactivation_ShouldReactivateFlag()
     {
         // Arrange
-        var flagKey = "beta-features";
-        await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/deactivate", null);
+        var featureFlagKey = "beta-features";
+        await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/deactivate", null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/activate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/activate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
         disabledAt.Should().BeNull("DisabledAt should be cleared on reactivation");
@@ -144,24 +144,24 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenEnabled_ShouldCreateOverrideRow()
     {
         // Arrange
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { featureFlagKey, tenantId = tenantId.Value }]
         );
         rowCount.Should().Be(1);
         var enabledAt = Connection.ExecuteScalar<string>(
-            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            "SELECT enabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { featureFlagKey, tenantId = tenantId.Value }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
 
@@ -174,24 +174,24 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenDisabledWithNoExistingOverride_ShouldCreateDisabledOverrideRow()
     {
         // Arrange - tenant has no override row (enabled via A/B rollout or default)
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { featureFlagKey, tenantId = tenantId.Value }]
         );
         rowCount.Should().Be(1);
         var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            "SELECT disabled_at FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { featureFlagKey, tenantId = tenantId.Value }]
         );
         disabledAt.Should().BeNull("newly created disabled override should not have disabled_at set when never activated");
 
@@ -204,12 +204,12 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenCalledWithoutAuthContext_ShouldSucceed()
     {
         // Arrange
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
-        var response = await AnonymousHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AnonymousHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -225,15 +225,15 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task RemoveTenantFeatureFlagOverride_WhenOverrideExists_ShouldDeleteRow()
     {
         // Arrange - create an override row first
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("feature_flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("feature_flag_key", featureFlagKey),
+                ("tenant_id", tenantId.Value),
                 ("user_id", null),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
@@ -246,14 +246,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override?tenantId={tenantId}");
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { featureFlagKey, tenantId = tenantId.Value }]
         );
         rowCount.Should().Be(0);
 
@@ -266,11 +266,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task RemoveTenantFeatureFlagOverride_WhenNoOverrideExists_ShouldReturnNotFound()
     {
         // Arrange
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override?tenantId={tenantId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -282,11 +282,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenOwnerForConfigurableFlag_ShouldSucceed()
     {
         // Arrange
-        var flagKey = "custom-branding";
+        var featureFlagKey = "custom-branding";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -300,14 +300,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenOwnerForNonConfigurableFlag_ShouldReturnForbidden()
     {
         // Arrange
-        var flagKey = "sso";
+        var featureFlagKey = "sso";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, $"Feature flag '{flagKey}' is not configurable by tenant owners.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, $"Feature flag '{featureFlagKey}' is not configurable by tenant owners.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
@@ -317,14 +317,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenOwnerForAdminOnlyFlag_ShouldReturnForbidden()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, $"Feature flag '{flagKey}' is not configurable by tenant owners.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, $"Feature flag '{featureFlagKey}' is not configurable by tenant owners.");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
@@ -334,11 +334,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenMember_ShouldReturnForbidden()
     {
         // Arrange
-        var flagKey = "custom-branding";
+        var featureFlagKey = "custom-branding";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners are allowed to configure tenant feature flags.");
@@ -353,11 +353,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetUserFeatureFlag_WhenUserConfigurable_ShouldCreateOverrideRow()
     {
         // Arrange
-        var flagKey = "compact-view";
+        var featureFlagKey = "compact-view";
         var command = new SetUserFeatureFlagCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/user-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/user-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -371,11 +371,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetUserFeatureFlag_WhenNotUserScoped_ShouldFailValidation()
     {
         // Arrange
-        var flagKey = "sso";
+        var featureFlagKey = "sso";
         var command = new SetUserFeatureFlagCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/user-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/user-override", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -390,20 +390,20 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetUserFeatureFlagInternal_WhenEnabled_ShouldCreateOverrideRow()
     {
         // Arrange
-        var flagKey = "compact-view";
-        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/user-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/user-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND user_id = @userId",
-            [new { flagKey, userId }]
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND user_id = @userId",
+            [new { featureFlagKey, userId = userId.Value }]
         );
         rowCount.Should().Be(1);
 
@@ -416,17 +416,17 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task RemoveUserFeatureFlagOverride_WhenOverrideExists_ShouldDeleteRow()
     {
         // Arrange
-        var flagKey = "compact-view";
-        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("feature_flag_key", flagKey),
-                ("tenant_id", tenantId),
-                ("user_id", userId),
+                ("feature_flag_key", featureFlagKey),
+                ("tenant_id", tenantId.Value),
+                ("user_id", userId.Value),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
                 ("rollout_bucket_start", null),
@@ -438,14 +438,14 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{featureFlagKey}/user-override?userId={userId}&tenantId={tenantId}");
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @flagKey AND user_id = @userId",
-            [new { flagKey, userId }]
+            "SELECT COUNT(*) FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND user_id = @userId",
+            [new { featureFlagKey, userId = userId.Value }]
         );
         rowCount.Should().Be(0);
 
@@ -458,12 +458,12 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task RemoveUserFeatureFlagOverride_WhenNoOverrideExists_ShouldReturnNotFound()
     {
         // Arrange
-        var flagKey = "compact-view";
-        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{featureFlagKey}/user-override?userId={userId}&tenantId={tenantId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -473,10 +473,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task GetFeatureFlagUsers_WhenNoSearchProvided_ShouldReturnEmptyArray()
     {
         // Arrange
-        var flagKey = "compact-view";
+        var featureFlagKey = "compact-view";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/users");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -489,34 +489,34 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task GetFeatureFlagUsers_WhenSearchMatchesEmail_ShouldReturnMatchingUsersWithDefaultSource()
     {
         // Arrange
-        var flagKey = "compact-view";
+        var featureFlagKey = "compact-view";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?search=owner@tenant-1");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/users?search=owner@tenant-1");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Should().NotBeEmpty();
-        result.Users.Should().OnlyContain(u => u.Source == "default");
+        result.Users.Should().OnlyContain(u => u.Source == FeatureFlagOverrideSource.Default);
     }
 
     [Fact]
     public async Task GetFeatureFlagUsers_WhenUserHasOverride_ShouldReturnUserWithManualOverrideSource()
     {
         // Arrange
-        var flagKey = "compact-view";
-        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("feature_flag_key", flagKey),
-                ("tenant_id", tenantId),
-                ("user_id", userId),
+                ("feature_flag_key", featureFlagKey),
+                ("tenant_id", tenantId.Value),
+                ("user_id", userId.Value),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
                 ("rollout_bucket_start", null),
@@ -528,7 +528,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?search=owner@tenant-1");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/users?search=owner@tenant-1");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -537,7 +537,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         result.Users.Should().NotBeEmpty();
         var userResult = result.Users.Single(u => u.UserId.Value == userId);
         userResult.IsEnabled.Should().BeTrue();
-        userResult.Source.Should().Be("manual_override");
+        userResult.Source.Should().Be(FeatureFlagOverrideSource.ManualOverride);
         userResult.Email.Should().NotBe("Unknown");
         userResult.TenantName.Should().NotBe("Unknown");
     }
@@ -558,20 +558,20 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenValidPercentage_ShouldUpdateBucketRange()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         rolloutBucketStart.Should().NotBeNull();
         rolloutBucketEnd.Should().NotBeNull();
@@ -579,7 +579,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(flagKey);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.feature_flag_key"].Should().Be(featureFlagKey);
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.rollout_percentage"].Should().Be("50");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
@@ -590,20 +590,20 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenSetToNPercent_ShouldIncludeExactlyNBuckets(int percentage)
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = percentage };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         rolloutBucketStart.Should().NotBeNull();
         rolloutBucketEnd.Should().NotBeNull();
@@ -614,11 +614,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenInvalidPercentage_ShouldFailValidation()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 101 };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -631,11 +631,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenNonAbTestEligible_ShouldFailValidation()
     {
         // Arrange
-        var flagKey = "sso";
+        var featureFlagKey = "sso";
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -648,23 +648,23 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenZeroPercent_ShouldClearBucketRange()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var setCommand = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
-        await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", setCommand);
+        await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", setCommand);
         TelemetryEventsCollectorSpy.Reset();
         var clearCommand = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 0 };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", clearCommand);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", clearCommand);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         rolloutBucketStart.Should().BeNull();
         rolloutBucketEnd.Should().BeNull();
@@ -678,20 +678,20 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenHundredPercent_ShouldSetFullRange()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 100 };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var rolloutBucketStart = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_start FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         var rolloutBucketEnd = Connection.ExecuteScalar<long?>(
-            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT rollout_bucket_end FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         rolloutBucketStart.Should().Be(0);
         rolloutBucketEnd.Should().Be(99);
@@ -707,10 +707,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task GetFeatureFlagTenants_WhenTenantScopedFlag_ShouldReturnAllTenantsWithDefaultSource()
     {
         // Arrange
-        var flagKey = "sso";
+        var featureFlagKey = "sso";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -719,7 +719,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         result.Tenants.Should().NotBeEmpty();
         result.Tenants.Should().AllSatisfy(t =>
             {
-                t.Source.Should().Be("default");
+                t.Source.Should().Be(FeatureFlagOverrideSource.Default);
                 t.IsEnabled.Should().BeFalse();
             }
         );
@@ -729,15 +729,15 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task GetFeatureFlagTenants_WhenTenantHasOverride_ShouldReturnManualOverrideSource()
     {
         // Arrange
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("feature_flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("feature_flag_key", featureFlagKey),
+                ("tenant_id", tenantId.Value),
                 ("user_id", null),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
@@ -750,7 +750,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -758,16 +758,16 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         result.Should().NotBeNull();
         var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
         tenantResult.IsEnabled.Should().BeTrue();
-        tenantResult.Source.Should().Be("manual_override");
+        tenantResult.Source.Should().Be(FeatureFlagOverrideSource.ManualOverride);
     }
 
     [Fact]
     public async Task GetFeatureFlagTenants_WhenFlagHasRollout_ShouldReturnAbRolloutSource()
     {
         // Arrange
-        var flagKey = "beta-features";
+        var featureFlagKey = "beta-features";
         var baseRowId = Connection.ExecuteScalar<string>(
-            "SELECT id FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT id FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         Connection.Update("feature_flags", "id", baseRowId, [
                 ("rollout_bucket_start", 0),
@@ -776,7 +776,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenants");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -784,7 +784,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         result.Should().NotBeNull();
         result.Tenants.Should().AllSatisfy(t =>
             {
-                t.Source.Should().Be("ab_rollout");
+                t.Source.Should().Be(FeatureFlagOverrideSource.AbRollout);
                 t.IsEnabled.Should().BeTrue();
             }
         );
@@ -794,10 +794,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task GetFeatureFlagTenants_WhenTenantDisabledViaOverrideWhileAbRolloutActive_ShouldReturnManualOverrideDisabled()
     {
         // Arrange - set up A/B rollout at 100% so all tenants are enabled
-        var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var baseRowId = Connection.ExecuteScalar<string>(
-            "SELECT id FROM feature_flags WHERE feature_flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+            "SELECT id FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
         Connection.Update("feature_flags", "id", baseRowId, [
                 ("rollout_bucket_start", 0),
@@ -811,8 +811,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("id", overrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
-                ("feature_flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("feature_flag_key", featureFlagKey),
+                ("tenant_id", tenantId.Value),
                 ("user_id", null),
                 ("enabled_at", null),
                 ("disabled_at", TimeProvider.GetUtcNow()),
@@ -825,7 +825,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenants");
 
         // Assert - manual override should take precedence over A/B rollout
         response.ShouldBeSuccessfulGetRequest();
@@ -833,7 +833,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         result.Should().NotBeNull();
         var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
         tenantResult.IsEnabled.Should().BeFalse();
-        tenantResult.Source.Should().Be("manual_override");
+        tenantResult.Source.Should().Be(FeatureFlagOverrideSource.ManualOverride);
     }
 
     [Fact]
@@ -966,20 +966,20 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task ActivateFeatureFlag_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/activate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/activate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -988,20 +988,20 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task DeactivateFeatureFlag_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/deactivate", null);
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{featureFlagKey}/deactivate", null);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1010,21 +1010,21 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1033,21 +1033,21 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "custom-branding";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "custom-branding";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/tenant-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1056,21 +1056,21 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetUserFeatureFlag_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "compact-view";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "compact-view";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetUserFeatureFlagCommand { Enabled = true };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/user-override", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{featureFlagKey}/user-override", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1079,21 +1079,21 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetFeatureFlagRolloutPercentage_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var featureFlagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{featureFlagKey}/rollout-percentage", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }

@@ -1,6 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Configuration;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 
 namespace Account.Integrations.Stripe;
 

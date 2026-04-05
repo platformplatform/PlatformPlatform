@@ -6,7 +6,6 @@ using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features;

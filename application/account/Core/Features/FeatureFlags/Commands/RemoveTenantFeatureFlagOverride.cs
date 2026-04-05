@@ -4,7 +4,6 @@ using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Commands;
@@ -13,19 +12,19 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record RemoveTenantFeatureFlagOverrideCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes from API contract
-    public string FlagKey { get; init; } = null!;
+    public string FeatureFlagKey { get; init; } = null!;
 
-    public required long TenantId { get; init; }
+    public required TenantId TenantId { get; init; }
 }
 
 public sealed class RemoveTenantFeatureFlagOverrideValidator : AbstractValidator<RemoveTenantFeatureFlagOverrideCommand>
 {
     public RemoveTenantFeatureFlagOverrideValidator()
     {
-        RuleFor(x => x.FlagKey)
+        RuleFor(x => x.FeatureFlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.");
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.");
     }
 }
 
@@ -34,19 +33,18 @@ public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(RemoveTenantFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
-        var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
-        if (tenantFeatureFlag is null) return Result.NotFound($"No tenant override found for flag '{command.FlagKey}' and tenant '{command.TenantId}'.");
+        var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndTenantAsync(command.FeatureFlagKey, command.TenantId, cancellationToken);
+        if (tenantFeatureFlag is null) return Result.NotFound($"No tenant override found for flag '{command.FeatureFlagKey}' and tenant '{command.TenantId}'.");
 
         featureFlagRepository.Remove(tenantFeatureFlag);
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
-        if (tenant is not null)
-        {
-            tenant.IncrementFeatureFlagVersion();
-            tenantRepository.Update(tenant);
-        }
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
+        if (tenant is null) return Result.NotFound($"Tenant with ID '{command.TenantId}' not found.");
 
-        events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
+        tenant.IncrementFeatureFlagVersion();
+        tenantRepository.Update(tenant);
+
+        events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FeatureFlagKey, command.TenantId.ToString()));
 
         return Result.Success();
     }

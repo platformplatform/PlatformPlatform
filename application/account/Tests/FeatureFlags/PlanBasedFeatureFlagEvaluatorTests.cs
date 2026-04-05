@@ -2,7 +2,7 @@ using Account.Database;
 using Account.Features.FeatureFlags.Shared;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 using SharedKernel.Tests.Persistence;
 using Xunit;
 

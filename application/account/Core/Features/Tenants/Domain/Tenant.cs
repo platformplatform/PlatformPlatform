@@ -1,5 +1,4 @@
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Tenants.Domain;
 

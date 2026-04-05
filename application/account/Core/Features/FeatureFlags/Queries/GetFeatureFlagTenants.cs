@@ -4,7 +4,6 @@ using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 
 namespace Account.Features.FeatureFlags.Queries;
 
@@ -12,7 +11,7 @@ namespace Account.Features.FeatureFlags.Queries;
 public sealed record GetFeatureFlagTenantsQuery : IRequest<Result<GetFeatureFlagTenantsResponse>>
 {
     [JsonIgnore] // Removes from API contract
-    public string FlagKey { get; init; } = null!;
+    public string FeatureFlagKey { get; init; } = null!;
 }
 
 [PublicAPI]
@@ -22,20 +21,20 @@ public sealed record GetFeatureFlagTenantsResponse(FeatureFlagTenantInfo[] Tenan
 public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
-    string Plan,
+    SubscriptionPlan Plan,
     int RolloutBucket,
     bool IsEnabled,
-    string Source
+    FeatureFlagOverrideSource Source
 );
 
 public sealed class GetFeatureFlagTenantsValidator : AbstractValidator<GetFeatureFlagTenantsQuery>
 {
     public GetFeatureFlagTenantsValidator()
     {
-        RuleFor(x => x.FlagKey)
+        RuleFor(x => x.FeatureFlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.");
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.Domain.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.");
     }
 }
 
@@ -44,30 +43,30 @@ public sealed class GetFeatureFlagTenantsHandler(IFeatureFlagRepository featureF
 {
     public async Task<Result<GetFeatureFlagTenantsResponse>> Handle(GetFeatureFlagTenantsQuery query, CancellationToken cancellationToken)
     {
-        var featureFlagDefinition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
-        if (featureFlagDefinition is null) return Result<GetFeatureFlagTenantsResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
+        var featureFlagDefinition = SharedKernel.Domain.FeatureFlags.Get(query.FeatureFlagKey);
+        if (featureFlagDefinition is null) return Result<GetFeatureFlagTenantsResponse>.NotFound($"Feature flag with key '{query.FeatureFlagKey}' not found.");
 
         var tenants = await tenantRepository.GetAllUnfilteredAsync(cancellationToken);
-        var tenantOverrides = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FlagKey, cancellationToken);
-        var overridesByTenantId = tenantOverrides.ToDictionary(f => f.TenantId!.Value);
+        var tenantOverrides = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
+        var featureFlagsByTenantId = tenantOverrides.ToDictionary(f => f.TenantId!);
 
-        var baseRow = await featureFlagRepository.GetByKeyAndScopeAsync(query.FlagKey, null, null, cancellationToken);
+        var baseRow = await featureFlagRepository.GetBaseRowByKeyAsync(query.FeatureFlagKey, cancellationToken);
 
         var featureFlagTenants = tenants.Select(tenant =>
             {
-                if (overridesByTenantId.TryGetValue(tenant.Id.Value, out var tenantFeatureFlag))
+                if (featureFlagsByTenantId.TryGetValue(tenant.Id, out var tenantFeatureFlag))
                 {
                     var isEnabled = tenantFeatureFlag.EnabledAt is not null && (tenantFeatureFlag.DisabledAt is null || tenantFeatureFlag.EnabledAt > tenantFeatureFlag.DisabledAt);
-                    return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, isEnabled, "manual_override");
+                    return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan, tenant.RolloutBucket, isEnabled, FeatureFlagOverrideSource.ManualOverride);
                 }
 
                 if (featureFlagDefinition.IsAbTestEligible && baseRow?.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
                 {
                     var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
-                    return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, isInRange, "ab_rollout");
+                    return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan, tenant.RolloutBucket, isInRange, FeatureFlagOverrideSource.AbRollout);
                 }
 
-                return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, false, "default");
+                return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan, tenant.RolloutBucket, false, FeatureFlagOverrideSource.Default);
             }
         ).ToArray();
 

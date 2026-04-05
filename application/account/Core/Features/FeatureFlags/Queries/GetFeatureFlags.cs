@@ -2,7 +2,7 @@ using Account.Features.FeatureFlags.Domain;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
 using SharedKernel.Cqrs;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 
 namespace Account.Features.FeatureFlags.Queries;
 
@@ -21,7 +21,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
-    string? RequiredPlan,
+    SubscriptionPlan? RequiredPlan,
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
@@ -36,18 +36,18 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
 {
     public async Task<Result<GetFeatureFlagsResponse>> Handle(GetFeatureFlagsQuery request, CancellationToken cancellationToken)
     {
-        var featureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
+        var featureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll();
         var baseRows = await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken);
         var baseRowsByKey = baseRows.ToDictionary(f => f.FeatureFlagKey);
 
         var featureFlags = featureFlagDefinitions.Select(featureFlagDefinition =>
             {
-                if (featureFlagDefinition.Scope == FeatureFlagScope.System)
+                if (featureFlagDefinition is SystemFeatureFlagDefinition systemFlag)
                 {
-                    var isSystemFeatureFlagActive = featureFlagDefinition.IsSystemFeatureFlagEnabled(configuration);
+                    var isSystemFeatureFlagActive = systemFlag.IsSystemFeatureFlagEnabled(configuration);
                     return new FeatureFlagInfo(
                         featureFlagDefinition.Key, featureFlagDefinition.Scope, featureFlagDefinition.AdminLevel, featureFlagDefinition.Description,
-                        featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan?.ToString(),
+                        featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan,
                         null, null, null, null, null, null, isSystemFeatureFlagActive
                     );
                 }
@@ -64,7 +64,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
 
                 return new FeatureFlagInfo(
                     featureFlagDefinition.Key, featureFlagDefinition.Scope, featureFlagDefinition.AdminLevel, featureFlagDefinition.Description,
-                    featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan?.ToString(),
+                    featureFlagDefinition.IsAbTestEligible, featureFlagDefinition.ConfigurableByTenant, featureFlagDefinition.ConfigurableByUser, featureFlagDefinition.RequiredPlan,
                     createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive
                 );
             }

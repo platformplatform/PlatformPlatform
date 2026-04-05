@@ -101,13 +101,13 @@ export declare global {
      **/
     isInternalUser?: boolean;
     /**
-     * Tenant rollout bucket (1-100) for A/B testing
+     * Tenant rollout bucket (0-99) for A/B testing
      **/
     tenantRolloutBucket?: number;
     /**
-     * User rollout bucket (1-100) for A/B testing
+     * User rollout bucket (0-99) for A/B testing
      **/
-    userRolloutBucket?: number | null;
+    userRolloutBucket?: number;
   }
 
   /**

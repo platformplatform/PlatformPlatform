@@ -5,7 +5,6 @@ using Account.Features.Authentication.Queries;
 using FluentAssertions;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using Xunit;

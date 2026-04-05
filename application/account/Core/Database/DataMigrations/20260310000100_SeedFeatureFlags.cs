@@ -2,7 +2,7 @@ using Account.Features.FeatureFlags.Domain;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SharedKernel.Database;
-using SharedKernel.FeatureFlags;
+using SharedKernel.Domain;
 
 namespace Account.Database.DataMigrations;
 

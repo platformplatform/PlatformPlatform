@@ -1,5 +1,6 @@
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
+using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
 
 namespace SharedKernel.Telemetry;
@@ -46,12 +47,11 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
         AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
 
-        foreach (var featureFlag in FeatureFlags.FeatureFlags.GetAll())
+        foreach (var featureFlag in FeatureFlags.GetAll())
         {
             if (!featureFlag.TrackInTelemetry) continue;
-            var telemetryName = featureFlag.TelemetryName ?? featureFlag.Key;
             var value = executionContext.UserInfo.FeatureFlags.Contains(featureFlag.Key) ? "enabled" : "disabled";
-            AddCustomProperty(telemetry, $"feature_{telemetryName}", value);
+            AddCustomProperty(telemetry, $"feature_{featureFlag.Key}", value);
         }
     }
 

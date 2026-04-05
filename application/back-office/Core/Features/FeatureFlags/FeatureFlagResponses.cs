@@ -1,6 +1,5 @@
 using JetBrains.Annotations;
 using SharedKernel.Domain;
-using SharedKernel.FeatureFlags;
 
 namespace BackOffice.Features.FeatureFlags;
 
@@ -16,7 +15,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
-    string? RequiredPlan,
+    SubscriptionPlan? RequiredPlan,
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
@@ -33,10 +32,10 @@ public sealed record GetFeatureFlagTenantsResponse(FeatureFlagTenantInfo[] Tenan
 public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
-    string Plan,
+    SubscriptionPlan Plan,
     int RolloutBucket,
     bool IsEnabled,
-    string Source
+    FeatureFlagOverrideSource Source
 );
 
 [PublicAPI]
@@ -50,5 +49,5 @@ public sealed record FeatureFlagUserInfo(
     string TenantName,
     int RolloutBucket,
     bool IsEnabled,
-    string Source
+    FeatureFlagOverrideSource Source
 );

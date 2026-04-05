@@ -16,14 +16,14 @@ import { getFeatureFlagName } from "./flagLabels";
 import { formatRolloutBucketRange } from "./rolloutBucket";
 
 export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
-  const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/activate");
-  const deactivateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/deactivate");
+  const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{featureFlagKey}/activate");
+  const deactivateMutation = api.useMutation("put", "/api/back-office/feature-flags/{featureFlagKey}/deactivate");
   const isPending = activateMutation.isPending || deactivateMutation.isPending;
 
   const handleToggle = (checked: boolean) => {
     const mutation = checked ? activateMutation : deactivateMutation;
     mutation.mutate(
-      { params: { path: { flagKey: featureFlag.key } } },
+      { params: { path: { featureFlagKey: featureFlag.key } } },
       {
         onSuccess: () => {
           toast.success(checked ? t`Feature flag activated` : t`Feature flag deactivated`);
@@ -135,7 +135,7 @@ function RolloutPercentageInput({
   const [percentage, setPercentage] = useState(String(currentPercentage ?? 0));
   const lastSavedValue = useRef(String(currentPercentage ?? 0));
 
-  const rolloutMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/rollout-percentage");
+  const rolloutMutation = api.useMutation("put", "/api/back-office/feature-flags/{featureFlagKey}/rollout-percentage");
 
   const handleBlur = () => {
     const value = Number.parseInt(percentage, 10);
@@ -147,7 +147,7 @@ function RolloutPercentageInput({
 
     rolloutMutation.mutate(
       {
-        params: { path: { flagKey } },
+        params: { path: { featureFlagKey: flagKey } },
         body: { rolloutPercentage: value }
       },
       {
