@@ -5,7 +5,7 @@ namespace Account.Features.FeatureFlags.Shared;
 
 public sealed class TenantFeatureFlagToggler(IFeatureFlagRepository featureFlagRepository)
 {
-    public async Task EnableAsync(string featureFlagKey, TenantId tenantId, DateTimeOffset now, CancellationToken cancellationToken)
+    public async Task EnableAsync(FeatureFlagKey featureFlagKey, TenantId tenantId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndTenantAsync(featureFlagKey, tenantId, cancellationToken);
         if (tenantFeatureFlag is null)
@@ -21,7 +21,7 @@ public sealed class TenantFeatureFlagToggler(IFeatureFlagRepository featureFlagR
         }
     }
 
-    public async Task DisableAsync(string featureFlagKey, TenantId tenantId, DateTimeOffset now, CancellationToken cancellationToken)
+    public async Task DisableAsync(FeatureFlagKey featureFlagKey, TenantId tenantId, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var tenantFeatureFlag = await featureFlagRepository.GetByKeyAndTenantAsync(featureFlagKey, tenantId, cancellationToken);
         if (tenantFeatureFlag is null)

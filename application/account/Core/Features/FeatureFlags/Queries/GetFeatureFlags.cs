@@ -37,8 +37,8 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
     public async Task<Result<GetFeatureFlagsResponse>> Handle(GetFeatureFlagsQuery request, CancellationToken cancellationToken)
     {
         var featureFlagDefinitions = SharedKernel.Domain.FeatureFlags.GetAll();
-        var baseRows = await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken);
-        var baseRowsByKey = baseRows.ToDictionary(f => f.FeatureFlagKey);
+        var baseFeatureFlags = await featureFlagRepository.GetAllBaseFeatureFlagsAsync(cancellationToken);
+        var baseFeatureFlagsByKey = baseFeatureFlags.ToDictionary(f => f.FeatureFlagKey);
 
         var featureFlags = featureFlagDefinitions.Select(featureFlagDefinition =>
             {
@@ -52,13 +52,13 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     );
                 }
 
-                baseRowsByKey.TryGetValue(featureFlagDefinition.Key, out var baseRow);
+                baseFeatureFlagsByKey.TryGetValue(new FeatureFlagKey(featureFlagDefinition.Key), out var baseFeatureFlag);
 
-                var createdAt = baseRow?.CreatedAt;
-                var enabledAt = baseRow?.EnabledAt;
-                var disabledAt = baseRow?.DisabledAt;
-                var rolloutBucketStart = baseRow?.RolloutBucketStart;
-                var rolloutBucketEnd = baseRow?.RolloutBucketEnd;
+                var createdAt = baseFeatureFlag?.CreatedAt;
+                var enabledAt = baseFeatureFlag?.EnabledAt;
+                var disabledAt = baseFeatureFlag?.DisabledAt;
+                var rolloutBucketStart = baseFeatureFlag?.RolloutBucketStart;
+                var rolloutBucketEnd = baseFeatureFlag?.RolloutBucketEnd;
                 var isActive = enabledAt is not null && (disabledAt is null || enabledAt > disabledAt);
                 var rolloutPercentage = ComputeRolloutPercentage(rolloutBucketStart, rolloutBucketEnd);
 

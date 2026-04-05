@@ -9,10 +9,10 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
     [UsedImplicitly]
     private FeatureFlag() : base(FeatureFlagId.NewId())
     {
-        FeatureFlagKey = string.Empty;
+        FeatureFlagKey = new FeatureFlagKey(string.Empty);
     }
 
-    private FeatureFlag(string featureFlagKey, TenantId? tenantId, UserId? userId, FeatureFlagSource source)
+    private FeatureFlag(FeatureFlagKey featureFlagKey, TenantId? tenantId, UserId? userId, FeatureFlagSource source)
         : base(FeatureFlagId.NewId())
     {
         FeatureFlagKey = featureFlagKey;
@@ -21,7 +21,7 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         Source = source;
     }
 
-    public string FeatureFlagKey { get; private set; }
+    public FeatureFlagKey FeatureFlagKey { get; private set; }
 
     public TenantId? TenantId { get; private set; }
 
@@ -43,17 +43,17 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public FeatureFlagSource Source { get; private set; }
 
-    public static FeatureFlag Create(string featureFlagKey, FeatureFlagSource source = FeatureFlagSource.Manual)
+    public static FeatureFlag Create(FeatureFlagKey featureFlagKey, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
         return new FeatureFlag(featureFlagKey, null, null, source);
     }
 
-    public static FeatureFlag CreateTenantOverride(string featureFlagKey, TenantId tenantId, FeatureFlagSource source = FeatureFlagSource.Manual)
+    public static FeatureFlag CreateTenantOverride(FeatureFlagKey featureFlagKey, TenantId tenantId, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
         return new FeatureFlag(featureFlagKey, tenantId, null, source);
     }
 
-    public static FeatureFlag CreateUserOverride(string featureFlagKey, TenantId tenantId, UserId userId)
+    public static FeatureFlag CreateUserOverride(FeatureFlagKey featureFlagKey, TenantId tenantId, UserId userId)
     {
         return new FeatureFlag(featureFlagKey, tenantId, userId, FeatureFlagSource.Manual);
     }

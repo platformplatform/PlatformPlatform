@@ -766,10 +766,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var featureFlagKey = "beta-features";
-        var baseRowId = Connection.ExecuteScalar<string>(
+        var baseFeatureFlagId = Connection.ExecuteScalar<string>(
             "SELECT id FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
-        Connection.Update("feature_flags", "id", baseRowId, [
+        Connection.Update("feature_flags", "id", baseFeatureFlagId, [
                 ("rollout_bucket_start", 0),
                 ("rollout_bucket_end", 99)
             ]
@@ -796,10 +796,10 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange - set up A/B rollout at 100% so all tenants are enabled
         var featureFlagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        var baseRowId = Connection.ExecuteScalar<string>(
+        var baseFeatureFlagId = Connection.ExecuteScalar<string>(
             "SELECT id FROM feature_flags WHERE feature_flag_key = @featureFlagKey AND tenant_id IS NULL AND user_id IS NULL", [new { featureFlagKey }]
         );
-        Connection.Update("feature_flags", "id", baseRowId, [
+        Connection.Update("feature_flags", "id", baseFeatureFlagId, [
                 ("rollout_bucket_start", 0),
                 ("rollout_bucket_end", 99)
             ]

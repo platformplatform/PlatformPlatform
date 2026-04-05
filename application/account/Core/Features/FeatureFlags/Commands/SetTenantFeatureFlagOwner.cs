@@ -14,7 +14,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record SetTenantFeatureFlagOwnerCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 
     public required bool Enabled { get; init; }
 }
@@ -48,22 +48,23 @@ public sealed class SetTenantFeatureFlagOwnerHandler(TenantFeatureFlagToggler te
             return Result.Forbidden($"Feature flag '{command.FeatureFlagKey}' is not configurable by tenant owners.");
         }
 
-        var tenantId = executionContext.TenantId!;
+        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
+        if (tenant is null) return Result.NotFound("Tenant not found.");
+
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)
         {
-            await tenantFeatureFlagToggler.EnableAsync(command.FeatureFlagKey, tenantId, now, cancellationToken);
-            events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FeatureFlagKey, tenantId.ToString()));
+            await tenantFeatureFlagToggler.EnableAsync(command.FeatureFlagKey, tenant.Id, now, cancellationToken);
+            events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FeatureFlagKey, tenant.Id.ToString()));
         }
         else
         {
-            await tenantFeatureFlagToggler.DisableAsync(command.FeatureFlagKey, tenantId, now, cancellationToken);
-            events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FeatureFlagKey, tenantId.ToString()));
+            await tenantFeatureFlagToggler.DisableAsync(command.FeatureFlagKey, tenant.Id, now, cancellationToken);
+            events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FeatureFlagKey, tenant.Id.ToString()));
         }
 
-        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
-        tenant!.IncrementFeatureFlagVersion();
+        tenant.IncrementFeatureFlagVersion();
         tenantRepository.Update(tenant);
 
         return Result.Success();

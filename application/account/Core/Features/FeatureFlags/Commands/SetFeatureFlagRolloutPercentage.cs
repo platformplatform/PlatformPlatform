@@ -1,3 +1,4 @@
+using SharedKernel.Domain;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Tenants.Domain;
 using FluentValidation;
@@ -11,7 +12,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record SetFeatureFlagRolloutPercentageCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 
     public required int RolloutPercentage { get; init; }
 }
@@ -35,7 +36,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(SetFeatureFlagRolloutPercentageCommand command, CancellationToken cancellationToken)
     {
-        var featureFlag = await featureFlagRepository.GetBaseRowByKeyAsync(command.FeatureFlagKey, cancellationToken);
+        var featureFlag = await featureFlagRepository.GetBaseFeatureFlagByKeyAsync(command.FeatureFlagKey, cancellationToken);
         if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FeatureFlagKey}' not found.");
 
         int? rolloutBucketStart;
@@ -67,12 +68,12 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         return Result.Success();
     }
 
-    private static int ComputeStartingRolloutBucket(string featureFlagKey)
+    private static int ComputeStartingRolloutBucket(FeatureFlagKey featureFlagKey)
     {
         unchecked
         {
             var hash = 2166136261u;
-            foreach (var c in featureFlagKey)
+            foreach (var c in featureFlagKey.Value)
             {
                 hash ^= c;
                 hash *= 16777619u;

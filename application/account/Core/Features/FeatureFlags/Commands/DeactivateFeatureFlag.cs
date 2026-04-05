@@ -1,3 +1,4 @@
+using SharedKernel.Domain;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Tenants.Domain;
 using FluentValidation;
@@ -8,7 +9,7 @@ using SharedKernel.Telemetry;
 namespace Account.Features.FeatureFlags.Commands;
 
 [PublicAPI]
-public sealed record DeactivateFeatureFlagCommand(string FeatureFlagKey) : ICommand, IRequest<Result>;
+public sealed record DeactivateFeatureFlagCommand(FeatureFlagKey FeatureFlagKey) : ICommand, IRequest<Result>;
 
 public sealed class DeactivateFeatureFlagValidator : AbstractValidator<DeactivateFeatureFlagCommand>
 {
@@ -25,7 +26,7 @@ public sealed class DeactivateFeatureFlagHandler(IFeatureFlagRepository featureF
 {
     public async Task<Result> Handle(DeactivateFeatureFlagCommand command, CancellationToken cancellationToken)
     {
-        var featureFlag = await featureFlagRepository.GetBaseRowByKeyAsync(command.FeatureFlagKey, cancellationToken);
+        var featureFlag = await featureFlagRepository.GetBaseFeatureFlagByKeyAsync(command.FeatureFlagKey, cancellationToken);
         if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FeatureFlagKey}' not found.");
 
         featureFlag.Deactivate(timeProvider.GetUtcNow());

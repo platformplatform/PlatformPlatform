@@ -22,7 +22,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     }
 
     [Fact]
-    public async Task Evaluate_WhenNoBaseRow_ShouldReturnEmpty()
+    public async Task Evaluate_WhenNoBaseFeatureFlag_ShouldReturnEmpty()
     {
         // Act
         var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
@@ -32,7 +32,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     }
 
     [Fact]
-    public async Task Evaluate_WhenBaseRowActiveWithTenantOverride_ShouldReturnEnabled()
+    public async Task Evaluate_WhenBaseFeatureFlagActiveWithTenantOverride_ShouldReturnEnabled()
     {
         // Arrange
         var now = TimeProvider.System.GetUtcNow();
@@ -47,7 +47,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     }
 
     [Fact]
-    public async Task Evaluate_WhenBaseRowInactive_ShouldReturnEmpty()
+    public async Task Evaluate_WhenBaseFeatureFlagInactive_ShouldReturnEmpty()
     {
         // Arrange
         InsertFeatureFlag("sso", null, null, null, null, null, null);

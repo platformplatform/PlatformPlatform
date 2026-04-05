@@ -11,7 +11,7 @@ namespace Account.Features.FeatureFlags.Queries;
 public sealed record GetFeatureFlagTenantsQuery : IRequest<Result<GetFeatureFlagTenantsResponse>>
 {
     [JsonIgnore] // Removes from API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 }
 
 [PublicAPI]
@@ -50,7 +50,7 @@ public sealed class GetFeatureFlagTenantsHandler(IFeatureFlagRepository featureF
         var tenantOverrides = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
         var featureFlagsByTenantId = tenantOverrides.ToDictionary(f => f.TenantId!);
 
-        var baseRow = await featureFlagRepository.GetBaseRowByKeyAsync(query.FeatureFlagKey, cancellationToken);
+        var baseFeatureFlag = await featureFlagRepository.GetBaseFeatureFlagByKeyAsync(query.FeatureFlagKey, cancellationToken);
 
         var featureFlagTenants = tenants.Select(tenant =>
             {
@@ -60,9 +60,9 @@ public sealed class GetFeatureFlagTenantsHandler(IFeatureFlagRepository featureF
                     return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan, tenant.RolloutBucket, isEnabled, FeatureFlagOverrideSource.ManualOverride);
                 }
 
-                if (featureFlagDefinition.IsAbTestEligible && baseRow?.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
+                if (featureFlagDefinition.IsAbTestEligible && baseFeatureFlag?.RolloutBucketStart is not null && baseFeatureFlag.RolloutBucketEnd is not null)
                 {
-                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
+                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseFeatureFlag.RolloutBucketStart.Value, baseFeatureFlag.RolloutBucketEnd.Value);
                     return new FeatureFlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan, tenant.RolloutBucket, isInRange, FeatureFlagOverrideSource.AbRollout);
                 }
 

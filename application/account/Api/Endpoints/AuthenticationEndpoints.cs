@@ -29,10 +29,5 @@ public sealed class AuthenticationEndpoints : IEndpoints
         group.MapDelete("/sessions/{id}", async Task<ApiResult> (SessionId id, IMediator mediator)
             => await mediator.Send(new RevokeSessionCommand { Id = id })
         );
-
-        // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
-        routes.MapPost("/internal-api/account/authentication/refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)
-            => await mediator.Send(new RefreshAuthenticationTokensCommand())
-        ).DisableAntiforgery();
     }
 }

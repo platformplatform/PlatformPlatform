@@ -100,14 +100,6 @@ export declare global {
      * Is internal user (has access to BackOffice)
      **/
     isInternalUser?: boolean;
-    /**
-     * Tenant rollout bucket (0-99) for A/B testing
-     **/
-    tenantRolloutBucket?: number;
-    /**
-     * User rollout bucket (0-99) for A/B testing
-     **/
-    userRolloutBucket?: number;
   }
 
   /**

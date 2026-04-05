@@ -32,11 +32,9 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
         foreach (var tenant in tenants)
         {
-            if (!Enum.TryParse<SubscriptionPlan>(tenant.Plan, out var tenantSubscriptionPlan)) continue;
-
             foreach (var featureFlagDefinition in planFeatureFlagDefinitions)
             {
-                var shouldBeEnabled = tenantSubscriptionPlan >= featureFlagDefinition.RequiredPlan!.Value;
+                var shouldBeEnabled = tenant.Plan >= featureFlagDefinition.RequiredPlan!.Value;
                 var featureFlagId = FeatureFlagId.NewId().Value;
 
                 await dbContext.Database.ExecuteSqlRawAsync(
@@ -51,7 +49,7 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
                     [
                         new NpgsqlParameter("@featureFlagId", featureFlagId),
                         new NpgsqlParameter("@featureFlagKey", featureFlagDefinition.Key),
-                        new NpgsqlParameter("@tenantId", tenant.TenantId),
+                        new NpgsqlParameter("@tenantId", tenant.TenantId.Value),
                         new NpgsqlParameter("@now", now),
                         new NpgsqlParameter("@enabledAt", shouldBeEnabled ? now : DBNull.Value),
                         new NpgsqlParameter("@disabledAt", shouldBeEnabled ? DBNull.Value : now)
@@ -69,5 +67,5 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
     }
 
     [UsedImplicitly]
-    private sealed record TenantSubscriptionInfo(long TenantId, string Plan);
+    private sealed record TenantSubscriptionInfo(TenantId TenantId, SubscriptionPlan Plan);
 }

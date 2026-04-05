@@ -64,7 +64,7 @@ public class UserInfo
 
     public int FeatureFlagVersion { get; init; }
 
-    public bool IsFeatureFlagEnabled(string featureFlagKey)
+    public bool IsFeatureFlagEnabled(FeatureFlagKey featureFlagKey)
     {
         return FeatureFlags.Contains(featureFlagKey);
     }

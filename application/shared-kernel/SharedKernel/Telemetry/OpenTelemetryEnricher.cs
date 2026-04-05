@@ -1,4 +1,3 @@
-using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
 
 namespace SharedKernel.Telemetry;
@@ -36,11 +35,6 @@ public class OpenTelemetryEnricher(IExecutionContext executionContext)
         Activity.Current.SetTag("user.role", executionContext.UserInfo.Role);
         Activity.Current.SetTag("user.session_id", executionContext.UserInfo.SessionId?.Value);
 
-        foreach (var featureFlag in FeatureFlags.GetAll())
-        {
-            if (!featureFlag.TrackInTelemetry) continue;
-            var value = executionContext.UserInfo.FeatureFlags.Contains(featureFlag.Key) ? "enabled" : "disabled";
-            Activity.Current.SetTag($"feature_{featureFlag.Key}", value);
-        }
+        Activity.Current.SetTag("feature_flags", string.Join(",", executionContext.UserInfo.FeatureFlags));
     }
 }

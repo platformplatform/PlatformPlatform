@@ -1,7 +1,5 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 
-import type { FeatureFlagRow } from "../sync/types";
-
 import { featureFlagCollection } from "../sync/collections";
 import { getFlag } from "./registry";
 
@@ -11,18 +9,10 @@ const DISABLED: FeatureFlagResult = { enabled: false, isLoading: false };
 const ENABLED: FeatureFlagResult = { enabled: true, isLoading: false };
 const LOADING: FeatureFlagResult = { enabled: false, isLoading: true };
 
-function isRowActive(row: FeatureFlagRow): boolean {
+function isRowActive(row: { enabledAt: string | null; disabledAt: string | null }): boolean {
   if (row.enabledAt == null) return false;
   if (row.disabledAt == null) return true;
   return new Date(row.enabledAt) > new Date(row.disabledAt);
-}
-
-function isInRolloutBucketRange(rolloutBucket: number, rolloutBucketStart: number, rolloutBucketEnd: number): boolean {
-  if (rolloutBucketStart <= rolloutBucketEnd) {
-    return rolloutBucket >= rolloutBucketStart && rolloutBucket <= rolloutBucketEnd;
-  }
-  // Wrap-around range (e.g., 90-10 means 90-99 and 0-10)
-  return rolloutBucket >= rolloutBucketStart || rolloutBucket <= rolloutBucketEnd;
 }
 
 export function useFeatureFlag(flagKey: string): FeatureFlagResult {
@@ -45,8 +35,6 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
               userId: featureFlags.userId,
               enabledAt: featureFlags.enabledAt,
               disabledAt: featureFlags.disabledAt,
-              rolloutBucketStart: featureFlags.rolloutBucketStart,
-              rolloutBucketEnd: featureFlags.rolloutBucketEnd,
               configurableByTenant: featureFlags.configurableByTenant,
               configurableByUser: featureFlags.configurableByUser
             }))
@@ -83,15 +71,6 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
   if (userInfo.tenantId) {
     const tenantOverride = rows.find((r) => r.tenantId === userInfo.tenantId && r.userId == null);
     if (tenantOverride) return isRowActive(tenantOverride) ? ENABLED : DISABLED;
-  }
-
-  // No overrides -- check A/B rollout on base row
-  if (baseRow.rolloutBucketStart != null && baseRow.rolloutBucketEnd != null) {
-    const rolloutBucketStart = parseInt(baseRow.rolloutBucketStart);
-    const rolloutBucketEnd = parseInt(baseRow.rolloutBucketEnd);
-    const rolloutBucket = definition.scope === "user" ? userInfo.userRolloutBucket : userInfo.tenantRolloutBucket;
-    if (rolloutBucket == null) return DISABLED;
-    return isInRolloutBucketRange(rolloutBucket, rolloutBucketStart, rolloutBucketEnd) ? ENABLED : DISABLED;
   }
 
   return ENABLED;

@@ -5,6 +5,7 @@ using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
+using SharedKernel.Domain;
 
 namespace Account.Tests;
 
@@ -44,22 +45,22 @@ public sealed class DatabaseSeeder
 
         var now = DateTimeOffset.UtcNow;
 
-        BetaFeaturesFlag = FeatureFlag.Create("beta-features");
+        BetaFeaturesFlag = FeatureFlag.Create(new FeatureFlagKey("beta-features"));
         BetaFeaturesFlag.Activate(now);
         accountDbContext.Set<FeatureFlag>().Add(BetaFeaturesFlag);
 
-        SsoFlag = FeatureFlag.Create("sso");
+        SsoFlag = FeatureFlag.Create(new FeatureFlagKey("sso"));
         accountDbContext.Set<FeatureFlag>().Add(SsoFlag);
 
-        CustomBrandingFlag = FeatureFlag.Create("custom-branding");
+        CustomBrandingFlag = FeatureFlag.Create(new FeatureFlagKey("custom-branding"));
         CustomBrandingFlag.Activate(now);
         accountDbContext.Set<FeatureFlag>().Add(CustomBrandingFlag);
 
-        CompactViewFlag = FeatureFlag.Create("compact-view");
+        CompactViewFlag = FeatureFlag.Create(new FeatureFlagKey("compact-view"));
         CompactViewFlag.Activate(now);
         accountDbContext.Set<FeatureFlag>().Add(CompactViewFlag);
 
-        ExperimentalUiFlag = FeatureFlag.Create("experimental-ui");
+        ExperimentalUiFlag = FeatureFlag.Create(new FeatureFlagKey("experimental-ui"));
         ExperimentalUiFlag.Activate(now);
         accountDbContext.Set<FeatureFlag>().Add(ExperimentalUiFlag);
 

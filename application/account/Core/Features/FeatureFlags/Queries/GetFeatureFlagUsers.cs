@@ -12,7 +12,7 @@ namespace Account.Features.FeatureFlags.Queries;
 public sealed record GetFeatureFlagUsersQuery : IRequest<Result<GetFeatureFlagUsersResponse>>
 {
     [JsonIgnore] // Removes from API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 
     public string? Search { get; init; }
 }
@@ -58,7 +58,7 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FeatureFlagKey, cancellationToken);
         var featureFlagsByUserId = userOverrides.ToDictionary(f => f.UserId!);
 
-        var baseRow = await featureFlagRepository.GetBaseRowByKeyAsync(query.FeatureFlagKey, cancellationToken);
+        var baseFeatureFlag = await featureFlagRepository.GetBaseFeatureFlagByKeyAsync(query.FeatureFlagKey, cancellationToken);
 
         var tenantIds = users.Select(u => u.TenantId).Distinct().ToArray();
         var tenants = await tenantRepository.GetByIdsUnfilteredAsync(tenantIds, cancellationToken);
@@ -74,9 +74,9 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
                     return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isEnabled, FeatureFlagOverrideSource.ManualOverride);
                 }
 
-                if (featureFlagDefinition.IsAbTestEligible && baseRow?.RolloutBucketStart is not null && baseRow.RolloutBucketEnd is not null)
+                if (featureFlagDefinition.IsAbTestEligible && baseFeatureFlag?.RolloutBucketStart is not null && baseFeatureFlag.RolloutBucketEnd is not null)
                 {
-                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.RolloutBucketStart.Value, baseRow.RolloutBucketEnd.Value);
+                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseFeatureFlag.RolloutBucketStart.Value, baseFeatureFlag.RolloutBucketEnd.Value);
                     return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isInRange, FeatureFlagOverrideSource.AbRollout);
                 }
 

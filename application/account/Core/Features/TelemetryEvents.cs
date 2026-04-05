@@ -61,25 +61,25 @@ public sealed class ExternalSignupFailed(ExternalLoginId? externalLoginId, Exter
 public sealed class ExternalSignupStarted(ExternalProviderType providerType)
     : TelemetryEvent(("provider_type", providerType));
 
-public sealed class FeatureFlagActivated(string featureFlagKey)
+public sealed class FeatureFlagActivated(FeatureFlagKey featureFlagKey)
     : TelemetryEvent(("feature_flag_key", featureFlagKey));
 
-public sealed class FeatureFlagDeactivated(string featureFlagKey)
+public sealed class FeatureFlagDeactivated(FeatureFlagKey featureFlagKey)
     : TelemetryEvent(("feature_flag_key", featureFlagKey));
 
-public sealed class FeatureFlagRolloutPercentageUpdated(string featureFlagKey, int rolloutPercentage)
+public sealed class FeatureFlagRolloutPercentageUpdated(FeatureFlagKey featureFlagKey, int rolloutPercentage)
     : TelemetryEvent(("feature_flag_key", featureFlagKey), ("rollout_percentage", rolloutPercentage));
 
-public sealed class FeatureFlagTenantOverrideRemoved(string featureFlagKey, string tenantId)
+public sealed class FeatureFlagTenantOverrideRemoved(FeatureFlagKey featureFlagKey, string tenantId)
     : TelemetryEvent(("feature_flag_key", featureFlagKey), ("tenant_id", tenantId));
 
-public sealed class FeatureFlagTenantOverrideSet(string featureFlagKey, string tenantId)
+public sealed class FeatureFlagTenantOverrideSet(FeatureFlagKey featureFlagKey, string tenantId)
     : TelemetryEvent(("feature_flag_key", featureFlagKey), ("tenant_id", tenantId));
 
-public sealed class FeatureFlagUserOverrideRemoved(string featureFlagKey, string userId)
+public sealed class FeatureFlagUserOverrideRemoved(FeatureFlagKey featureFlagKey, string userId)
     : TelemetryEvent(("feature_flag_key", featureFlagKey), ("user_id", userId));
 
-public sealed class FeatureFlagUserOverrideSet(string featureFlagKey, string userId)
+public sealed class FeatureFlagUserOverrideSet(FeatureFlagKey featureFlagKey, string userId)
     : TelemetryEvent(("feature_flag_key", featureFlagKey), ("user_id", userId));
 
 public sealed class GravatarUpdated(long size)

@@ -20,13 +20,13 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
         foreach (var featureFlagDefinition in planFeatureFlagDefinitions)
         {
             var shouldBeEnabled = subscriptionPlan >= featureFlagDefinition.RequiredPlan!.Value;
-            overridesByKey.TryGetValue(featureFlagDefinition.Key, out var existingOverride);
+            overridesByKey.TryGetValue(new FeatureFlagKey(featureFlagDefinition.Key), out var existingOverride);
 
             if (shouldBeEnabled)
             {
                 if (existingOverride is null)
                 {
-                    var featureFlag = FeatureFlag.CreateTenantOverride(featureFlagDefinition.Key, tenantId, FeatureFlagSource.Plan);
+                    var featureFlag = FeatureFlag.CreateTenantOverride(new FeatureFlagKey(featureFlagDefinition.Key), tenantId, FeatureFlagSource.Plan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                     changed = true;

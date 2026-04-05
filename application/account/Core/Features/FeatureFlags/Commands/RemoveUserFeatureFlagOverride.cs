@@ -12,7 +12,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record RemoveUserFeatureFlagOverrideCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes from API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 
     public required UserId UserId { get; init; }
 

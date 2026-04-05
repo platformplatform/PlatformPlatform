@@ -12,7 +12,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record SetTenantFeatureFlagInternalCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 
     public required TenantId TenantId { get; init; }
 

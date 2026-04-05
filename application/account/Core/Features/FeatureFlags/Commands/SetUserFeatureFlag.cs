@@ -1,10 +1,10 @@
 using Account.Features.FeatureFlags.Shared;
 using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
-using SharedKernel.ExecutionContext;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Commands;
@@ -13,7 +13,7 @@ namespace Account.Features.FeatureFlags.Commands;
 public sealed record SetUserFeatureFlagCommand : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public string FeatureFlagKey { get; init; } = null!;
+    public FeatureFlagKey FeatureFlagKey { get; init; } = null!;
 
     public required bool Enabled { get; init; }
 }
@@ -29,7 +29,7 @@ public sealed class SetUserFeatureFlagValidator : AbstractValidator<SetUserFeatu
     }
 }
 
-public sealed class SetUserFeatureFlagHandler(UserFeatureFlagToggler userFeatureFlagToggler, ITenantRepository tenantRepository, IExecutionContext executionContext, TimeProvider timeProvider, ITelemetryEventsCollector events)
+public sealed class SetUserFeatureFlagHandler(UserFeatureFlagToggler userFeatureFlagToggler, IUserRepository userRepository, ITenantRepository tenantRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
     : IRequestHandler<SetUserFeatureFlagCommand, Result>
 {
     public async Task<Result> Handle(SetUserFeatureFlagCommand command, CancellationToken cancellationToken)
@@ -42,23 +42,24 @@ public sealed class SetUserFeatureFlagHandler(UserFeatureFlagToggler userFeature
             return Result.Forbidden($"Feature flag '{command.FeatureFlagKey}' is not configurable by users.");
         }
 
-        var tenantId = executionContext.TenantId!;
-        var userId = executionContext.UserInfo.Id!;
+        var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
+        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
+        if (tenant is null) return Result.NotFound("Tenant not found.");
+
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)
         {
-            await userFeatureFlagToggler.EnableAsync(command.FeatureFlagKey, tenantId, userId, now, cancellationToken);
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FeatureFlagKey, userId.ToString()));
+            await userFeatureFlagToggler.EnableAsync(command.FeatureFlagKey, tenant.Id, user.Id, now, cancellationToken);
+            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FeatureFlagKey, user.Id.ToString()));
         }
         else
         {
-            await userFeatureFlagToggler.DisableAsync(command.FeatureFlagKey, tenantId, userId, now, cancellationToken);
-            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FeatureFlagKey, userId.ToString()));
+            await userFeatureFlagToggler.DisableAsync(command.FeatureFlagKey, tenant.Id, user.Id, now, cancellationToken);
+            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FeatureFlagKey, user.Id.ToString()));
         }
 
-        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
-        tenant!.IncrementFeatureFlagVersion();
+        tenant.IncrementFeatureFlagVersion();
         tenantRepository.Update(tenant);
 
         return Result.Success();
