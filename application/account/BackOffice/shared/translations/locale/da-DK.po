@@ -21,6 +21,11 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 
+#. placeholder {0}: group.plan
+#. placeholder {1}: group.tenants.length
+msgid "{0} ({1})"
+msgstr ""
+
 #. placeholder {0}: formatCurrency(blended, currency)
 msgid "{0} blended"
 msgstr "{0} samlet"
@@ -131,10 +136,6 @@ msgid "Accounts are automatically enabled or disabled based on their subscriptio
 msgstr ""
 
 msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
-msgstr ""
-
-#. placeholder {0}: getFlagName(flagKey)
-msgid "Accounts for {0}"
 msgstr ""
 
 msgid "Accounts will appear here as they are created."

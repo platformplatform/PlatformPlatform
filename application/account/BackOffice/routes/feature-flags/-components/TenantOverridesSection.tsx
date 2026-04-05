@@ -141,7 +141,7 @@ function TenantTable({
     <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead className="hidden w-[10rem] lg:table-cell">
+          <TableHead className="hidden w-[14rem] lg:table-cell">
             <Trans>Account ID</Trans>
           </TableHead>
           <TableHead className="w-auto">
