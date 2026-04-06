@@ -3,6 +3,11 @@ exec 2>/dev/null
 export LC_NUMERIC=C
 input=$(cat)
 
+if ! command -v jq &>/dev/null; then
+  printf "⚠️  jq is required for the status line — install with: \033[1;33mwinget install jqlang.jq\033[0m (Windows) or \033[1;33mbrew install jq\033[0m (Mac)"
+  exit 0
+fi
+
 # State directory for cost tracking
 STATE_DIR="$HOME/.claude/statusline-state"
 mkdir -p "$STATE_DIR"
