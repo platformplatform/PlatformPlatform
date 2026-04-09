@@ -64,7 +64,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Set A/B rollout percentage & verify success toast on blur")(async () => {
-      const percentageInput = ownerPage.getByRole("spinbutton", { name: "Rollout %" });
+      const percentageInput = ownerPage.getByRole("textbox", { name: "Rollout %" });
       await percentageInput.fill(String((Date.now() % 99) + 1));
       await blurActiveElement(ownerPage);
 
@@ -72,7 +72,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate back to flag list & verify return to list page")(async () => {
-      await ownerPage.getByRole("link", { name: "Back to feature flags" }).click();
+      await ownerPage.getByLabel("breadcrumb").getByRole("link", { name: "Feature flags" }).click();
 
       await expect(ownerPage).toHaveURL("/back-office/feature-flags");
       await expect(ownerPage.getByRole("heading", { name: "Feature flags", exact: true })).toBeVisible();
