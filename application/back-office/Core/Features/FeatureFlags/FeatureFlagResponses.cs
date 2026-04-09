@@ -33,7 +33,7 @@ public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
     SubscriptionPlan SubscriptionPlan,
-    int RolloutBucket,
+    int? RolloutBucket,
     bool IsEnabled,
     FeatureFlagOverrideSource Source
 );
@@ -47,7 +47,7 @@ public sealed record FeatureFlagUserInfo(
     TenantId TenantId,
     string Email,
     string TenantName,
-    int RolloutBucket,
+    int? RolloutBucket,
     bool IsEnabled,
     FeatureFlagOverrideSource Source
 );

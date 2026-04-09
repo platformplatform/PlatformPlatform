@@ -1,5 +1,6 @@
 using Account.Features.FeatureFlags.Domain;
-using JetBrains.Annotations;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SharedKernel.Database;
@@ -18,13 +19,11 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
         var planFeatureFlagDefinitions = FeatureFlags.GetAll().Where(f => f.RequiredSubscriptionPlan is not null).ToArray();
         if (planFeatureFlagDefinitions.Length == 0) return "No plan-based feature flags defined";
 
-        var tenants = await dbContext.Database.SqlQueryRaw<TenantSubscriptionInfo>(
-            """
-            SELECT t.id AS tenant_id, s.plan AS plan
-            FROM tenants t
-            JOIN subscriptions s ON s.tenant_id = t.id
-            WHERE t.deleted_at IS NULL
-            """
+        var tenants = await (
+            from tenant in dbContext.Set<Tenant>().IgnoreQueryFilters()
+            join subscription in dbContext.Set<Subscription>().IgnoreQueryFilters() on tenant.Id equals subscription.TenantId
+            where tenant.DeletedAt == null
+            select new { TenantId = tenant.Id, subscription.Plan }
         ).ToArrayAsync(cancellationToken);
 
         var now = DateTimeOffset.UtcNow;
@@ -65,7 +64,4 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
         return $"Seeded {seededCount} plan-based feature flag overrides across {tenants.Length} tenants";
     }
-
-    [UsedImplicitly]
-    private sealed record TenantSubscriptionInfo(TenantId TenantId, SubscriptionPlan Plan);
 }

@@ -7,7 +7,7 @@ namespace Account.Features.Users.Domain;
 
 public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEntity
 {
-    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int rolloutBucket)
+    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int? rolloutBucket)
         : base(UserId.NewId())
     {
         Email = email;
@@ -46,11 +46,11 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
 
     public ImmutableArray<ExternalIdentity> ExternalIdentities { get; private set; }
 
-    public int RolloutBucket { get; private set; }
+    public int? RolloutBucket { get; private set; }
 
     public TenantId TenantId { get; }
 
-    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int rolloutBucket)
+    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int? rolloutBucket)
     {
         return new User(tenantId, email, role, emailConfirmed, locale, rolloutBucket);
     }

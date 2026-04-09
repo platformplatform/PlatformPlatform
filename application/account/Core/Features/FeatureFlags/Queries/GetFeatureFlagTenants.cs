@@ -22,7 +22,7 @@ public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
     SubscriptionPlan SubscriptionPlan,
-    int RolloutBucket,
+    int? RolloutBucket,
     bool IsEnabled,
     FeatureFlagOverrideSource Source
 );

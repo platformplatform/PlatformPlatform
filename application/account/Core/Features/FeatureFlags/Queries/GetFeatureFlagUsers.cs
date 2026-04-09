@@ -26,7 +26,7 @@ public sealed record FeatureFlagUserInfo(
     TenantId TenantId,
     string Email,
     string TenantName,
-    int RolloutBucket,
+    int? RolloutBucket,
     bool IsEnabled,
     FeatureFlagOverrideSource Source
 );

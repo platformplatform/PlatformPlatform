@@ -73,7 +73,7 @@ public sealed class AddFeatureFlags : Migration
         migrationBuilder.Sql(
             """
             WITH numbered AS (
-                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS sequence_number
+                SELECT id, (row_number() OVER (ORDER BY created_at, id) - 1)::integer AS sequence_number
                 FROM tenants
             )
             UPDATE tenants SET rollout_bucket = van_der_corput_bucket(numbered.sequence_number)
@@ -81,20 +81,16 @@ public sealed class AddFeatureFlags : Migration
             """
         );
 
-        migrationBuilder.Sql("ALTER TABLE tenants ALTER COLUMN rollout_bucket SET NOT NULL");
-
         migrationBuilder.Sql(
             """
             WITH numbered AS (
-                SELECT id, row_number() OVER (ORDER BY created_at, id) - 1 AS sequence_number
+                SELECT id, (row_number() OVER (ORDER BY created_at, id) - 1)::integer AS sequence_number
                 FROM users
             )
             UPDATE users SET rollout_bucket = van_der_corput_bucket(numbered.sequence_number)
             FROM numbered WHERE users.id = numbered.id
             """
         );
-
-        migrationBuilder.Sql("ALTER TABLE users ALTER COLUMN rollout_bucket SET NOT NULL");
 
         migrationBuilder.Sql("DROP FUNCTION van_der_corput_bucket(integer)");
     }

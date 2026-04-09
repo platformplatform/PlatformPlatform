@@ -15,8 +15,10 @@ public static class RolloutBucketHasher
 
     public static bool IsInRolloutBucketRange(int? bucket, int rolloutBucketStart, int rolloutBucketEnd)
     {
-        if (bucket is null) return false;
         if (bucket == AlwaysIncludedBucket) return true;
+
+        // Null bucket means the entity is excluded from rollouts until the feature reaches 100%
+        if (bucket is null) return rolloutBucketStart == 0 && rolloutBucketEnd == 99;
 
         if (rolloutBucketStart <= rolloutBucketEnd)
         {

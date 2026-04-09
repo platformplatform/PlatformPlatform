@@ -28,30 +28,28 @@ function rolloutBucketSortOrder(
   return (rolloutBucket - ref + ROLLOUT_BUCKET_MAX) % ROLLOUT_BUCKET_MAX;
 }
 
+function computeSortOrder(
+  source: string,
+  rolloutBucket: number | null,
+  group: "enabled" | "disabled",
+  rolloutBucketRange: RolloutBucketRange | null
+): number {
+  if (source === "ManualOverride") return -1;
+  if (rolloutBucket === ALWAYS_INCLUDED_BUCKET) return -0.5;
+  if (rolloutBucket === null) return ROLLOUT_BUCKET_MAX;
+  return rolloutBucketRange ? rolloutBucketSortOrder(rolloutBucket, group, rolloutBucketRange) : 0;
+}
+
 export function sortBySourceThenRolloutBucket<T>(
   items: T[],
   getSource: (item: T) => string,
-  getRolloutBucket: (item: T) => number,
+  getRolloutBucket: (item: T) => number | null,
   group: "enabled" | "disabled",
   rolloutBucketRange: RolloutBucketRange | null
 ): T[] {
   return [...items].sort((a, b) => {
-    const aOrder =
-      getSource(a) === "ManualOverride"
-        ? -1
-        : getRolloutBucket(a) === ALWAYS_INCLUDED_BUCKET
-          ? -0.5
-          : rolloutBucketRange
-            ? rolloutBucketSortOrder(getRolloutBucket(a), group, rolloutBucketRange)
-            : 0;
-    const bOrder =
-      getSource(b) === "ManualOverride"
-        ? -1
-        : getRolloutBucket(b) === ALWAYS_INCLUDED_BUCKET
-          ? -0.5
-          : rolloutBucketRange
-            ? rolloutBucketSortOrder(getRolloutBucket(b), group, rolloutBucketRange)
-            : 0;
+    const aOrder = computeSortOrder(getSource(a), getRolloutBucket(a), group, rolloutBucketRange);
+    const bOrder = computeSortOrder(getSource(b), getRolloutBucket(b), group, rolloutBucketRange);
     return aOrder - bOrder;
   });
 }

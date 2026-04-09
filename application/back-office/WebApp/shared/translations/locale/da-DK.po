@@ -205,6 +205,9 @@ msgstr "Navn:"
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Never"
+msgstr ""
+
 msgid "Next"
 msgstr "Næste"
 

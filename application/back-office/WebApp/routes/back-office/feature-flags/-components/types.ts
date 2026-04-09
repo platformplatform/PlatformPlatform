@@ -28,7 +28,7 @@ export interface FeatureFlagTenantInfo {
   subscriptionPlan: string;
   isEnabled: boolean;
   source: "ManualOverride" | "AbRollout" | "Default";
-  rolloutBucket: number;
+  rolloutBucket: number | null;
 }
 
 export interface GetFeatureFlagTenantsResponse {
@@ -42,7 +42,7 @@ export interface FeatureFlagUserInfo {
   tenantName: string;
   isEnabled: boolean;
   source: "ManualOverride" | "AbRollout" | "Default";
-  rolloutBucket: number;
+  rolloutBucket: number | null;
 }
 
 export interface GetFeatureFlagUsersResponse {

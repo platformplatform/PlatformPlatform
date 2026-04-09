@@ -109,7 +109,7 @@ export function TenantOverrideRow({
       </TableCell>
       {showRolloutBucket && (
         <TableCell className="hidden text-muted-foreground sm:table-cell">
-          {tenant.rolloutBucket === 100 ? t`Always` : tenant.rolloutBucket}
+          {tenant.rolloutBucket === null ? t`Never` : tenant.rolloutBucket === 100 ? t`Always` : tenant.rolloutBucket}
         </TableCell>
       )}
       <TableCell className="text-right">

@@ -205,6 +205,9 @@ msgstr "Name:"
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Never"
+msgstr "Never"
+
 msgid "Next"
 msgstr "Next"
 

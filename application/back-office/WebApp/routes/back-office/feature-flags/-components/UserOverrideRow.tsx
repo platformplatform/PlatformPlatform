@@ -119,7 +119,7 @@ export function UserOverrideRow({
       </TableCell>
       {showRolloutBucket && (
         <TableCell className="hidden text-muted-foreground sm:table-cell">
-          {user.rolloutBucket === 100 ? t`Always` : user.rolloutBucket}
+          {user.rolloutBucket === null ? t`Never` : user.rolloutBucket === 100 ? t`Always` : user.rolloutBucket}
         </TableCell>
       )}
       <TableCell className="text-right">
