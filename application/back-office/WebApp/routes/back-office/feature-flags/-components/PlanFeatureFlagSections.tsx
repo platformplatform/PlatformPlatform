@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
+import { Button } from "@repo/ui/components/Button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
@@ -144,18 +145,16 @@ function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tena
 
   return (
     <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-1 text-left"
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-2 w-fit justify-start gap-1"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
       >
-        <ChevronDown
-          className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
-          aria-hidden={true}
-        />
+        <ChevronDown className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`} aria-hidden />
         <h4 className="text-muted-foreground">{label}</h4>
-      </button>
+      </Button>
       {isOpen && <PlanFeatureFlagTenantTable ariaLabel={label} tenants={tenants} />}
     </div>
   );

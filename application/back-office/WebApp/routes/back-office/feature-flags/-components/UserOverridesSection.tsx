@@ -18,14 +18,12 @@ export function UserOverridesSection({
   flagKey,
   featureFlagDescription,
   showRolloutBucket,
-  rolloutBucketRange,
-  isFeatureFlagActive
+  rolloutBucketRange
 }: Readonly<{
   flagKey: string;
   featureFlagDescription: string;
   showRolloutBucket: boolean;
   rolloutBucketRange: RolloutBucketRange | null;
-  isFeatureFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -118,7 +116,6 @@ export function UserOverridesSection({
                 featureFlagDescription={featureFlagDescription}
                 user={user}
                 showRolloutBucket={showRolloutBucket}
-                isFeatureFlagActive={isFeatureFlagActive}
               />
             ))}
           </TableBody>

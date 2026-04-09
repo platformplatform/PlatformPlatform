@@ -68,8 +68,8 @@ msgstr "Always"
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
-msgid "Back to feature flags"
-msgstr "Back to feature flags"
+msgid "Back office"
+msgstr "Back office"
 
 msgid "Breadcrumb"
 msgstr "Breadcrumb"

@@ -1,8 +1,14 @@
-import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage
+} from "@repo/ui/components/Breadcrumb";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeftIcon } from "lucide-react";
 
 import { api } from "@/shared/lib/api/client";
 
@@ -11,7 +17,6 @@ import type { GetFeatureFlagsResponse, GetFeatureFlagTenantsResponse } from "./-
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
 import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
 import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
-import { ScopeIcon } from "./-components/ScopeIcon";
 import { TenantOverridesSection } from "./-components/TenantOverridesSection";
 import { UserOverridesSection } from "./-components/UserOverridesSection";
 
@@ -52,16 +57,22 @@ export default function FeatureFlagDetailPage() {
     <AppLayout
       maxWidth="64rem"
       browserTitle={featureFlagName}
-      title={
-        <div className="flex items-center gap-3">
-          <Link to="/back-office/feature-flags" className="text-muted-foreground hover:text-foreground">
-            <ArrowLeftIcon className="size-5" aria-label={t`Back to feature flags`} />
-          </Link>
-          {featureFlag && <ScopeIcon scope={featureFlag.scope} className="size-6 stroke-[2.5] text-foreground" />}
-          <span>{featureFlagName}</span>
-        </div>
-      }
+      title={featureFlagName}
       subtitle={featureFlag ? description : undefined}
+      beforeHeader={
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link to="/back-office/feature-flags" />}>
+                <Trans>Feature flags</Trans>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{featureFlagName}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      }
     >
       {isLoading ? (
         <FeatureFlagDetailSkeleton />
@@ -83,7 +94,6 @@ export default function FeatureFlagDetailPage() {
                   ? { bucketStart: featureFlag.rolloutBucketStart, bucketEnd: featureFlag.rolloutBucketEnd }
                   : null
               }
-              isFeatureFlagActive={featureFlag.isActive}
             />
           )}
           {featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
@@ -99,7 +109,6 @@ export default function FeatureFlagDetailPage() {
                   ? { bucketStart: featureFlag.rolloutBucketStart, bucketEnd: featureFlag.rolloutBucketEnd }
                   : null
               }
-              isFeatureFlagActive={featureFlag.isActive}
             />
           )}
         </div>

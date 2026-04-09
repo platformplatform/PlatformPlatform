@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { Badge } from "@repo/ui/components/Badge";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { useMutation } from "@tanstack/react-query";
@@ -27,14 +28,12 @@ export function UserOverrideRow({
   flagKey,
   featureFlagDescription,
   user,
-  showRolloutBucket,
-  isFeatureFlagActive
+  showRolloutBucket
 }: Readonly<{
   flagKey: string;
   featureFlagDescription: string;
   user: FeatureFlagUserInfo;
   showRolloutBucket: boolean;
-  isFeatureFlagActive: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(user.isEnabled);
 
@@ -103,16 +102,15 @@ export function UserOverrideRow({
       <TableCell className="hidden truncate text-muted-foreground sm:table-cell">{user.tenantName}</TableCell>
       <TableCell className="hidden sm:table-cell">
         {user.source === "ManualOverride" ? (
-          <button
-            type="button"
-            className="inline-flex cursor-pointer items-center gap-1 truncate rounded-md border px-2 py-0.5 text-sm text-muted-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+          <Badge
+            variant="outline"
             onClick={handleRemoveOverride}
-            disabled={isPending}
+            className="cursor-pointer gap-1"
             aria-label={t`Remove override for ${user.email}`}
           >
             {getSourceLabel(user.source)}
             <XIcon className="size-3 shrink-0" />
-          </button>
+          </Badge>
         ) : (
           <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
         )}
@@ -127,7 +125,6 @@ export function UserOverrideRow({
           checked={optimisticEnabled}
           onCheckedChange={handleToggle}
           disabled={isPending}
-          className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
           aria-label={t`Toggle ${featureFlagDescription} for ${user.email}`}
         />
       </TableCell>

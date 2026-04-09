@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Button } from "@repo/ui/components/Button";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
@@ -16,15 +17,13 @@ export function TenantOverridesSection({
   featureFlagDescription,
   tenants,
   showRolloutBucket,
-  rolloutBucketRange,
-  isFeatureFlagActive
+  rolloutBucketRange
 }: Readonly<{
   flagKey: string;
   featureFlagDescription: string;
   tenants: FeatureFlagTenantInfo[];
   showRolloutBucket: boolean;
   rolloutBucketRange: RolloutBucketRange | null;
-  isFeatureFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
 
@@ -94,7 +93,6 @@ export function TenantOverridesSection({
           flagKey={flagKey}
           featureFlagDescription={featureFlagDescription}
           showRolloutBucket={showRolloutBucket}
-          isFeatureFlagActive={isFeatureFlagActive}
         />
       ) : (
         <>
@@ -104,7 +102,6 @@ export function TenantOverridesSection({
             flagKey={flagKey}
             featureFlagDescription={featureFlagDescription}
             showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
           />
           <CollapsibleTenantGroup
             label={t`Disabled (${disabledTenants.length})`}
@@ -112,7 +109,6 @@ export function TenantOverridesSection({
             flagKey={flagKey}
             featureFlagDescription={featureFlagDescription}
             showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
           />
         </>
       )}
@@ -126,7 +122,6 @@ interface TenantTableProps {
   flagKey: string;
   featureFlagDescription: string;
   showRolloutBucket: boolean;
-  isFeatureFlagActive: boolean;
 }
 
 function TenantTable({
@@ -134,8 +129,7 @@ function TenantTable({
   tenants,
   flagKey,
   featureFlagDescription,
-  showRolloutBucket,
-  isFeatureFlagActive
+  showRolloutBucket
 }: Readonly<TenantTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel}>
@@ -168,7 +162,6 @@ function TenantTable({
             featureFlagDescription={featureFlagDescription}
             tenant={tenant}
             showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
           />
         ))}
       </TableBody>
@@ -184,18 +177,16 @@ function CollapsibleTenantGroup({
 
   return (
     <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-1 text-left"
+      <Button
+        variant="ghost"
+        size="sm"
+        className="-ml-2 w-fit justify-start gap-1"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
       >
-        <ChevronDown
-          className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
-          aria-hidden={true}
-        />
+        <ChevronDown className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`} aria-hidden />
         <h4 className="text-muted-foreground">{label}</h4>
-      </button>
+      </Button>
       {isOpen &&
         (tableProps.tenants.length > 0 ? (
           <TenantTable ariaLabel={label} {...tableProps} />

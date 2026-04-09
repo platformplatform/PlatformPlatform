@@ -1,12 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Badge } from "@repo/ui/components/Badge";
-import { Switch } from "@repo/ui/components/Switch";
-import { TextField } from "@repo/ui/components/TextField";
+import { NumberField } from "@repo/ui/components/NumberField";
+import { SwitchField } from "@repo/ui/components/SwitchField";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { InfoIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { api } from "@/shared/lib/api/client";
@@ -38,35 +37,24 @@ export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <FeatureFlagMetadata featureFlag={featureFlag} />
         {featureFlag.isAbTestEligible ? (
-          <div className="flex shrink-0 flex-col gap-1">
-            <span className="text-sm font-medium text-foreground">
-              <Trans>Rollout %</Trans>
-            </span>
-            <div className="flex items-center gap-4">
-              <RolloutPercentageInput flagKey={featureFlag.key} currentPercentage={featureFlag.rolloutPercentage} />
-              <Badge variant={featureFlag.isActive ? "default" : "outline"}>
-                {featureFlag.isActive ? t`Active` : t`Inactive`}
-              </Badge>
-              <Switch
-                checked={featureFlag.isActive}
-                onCheckedChange={handleToggle}
-                disabled={isPending}
-                aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="flex shrink-0 items-center gap-4">
-            <Badge variant={featureFlag.isActive ? "default" : "outline"}>
-              {featureFlag.isActive ? t`Active` : t`Inactive`}
-            </Badge>
-            <Switch
+          <div className="flex shrink-0 items-end gap-4">
+            <RolloutPercentageInput flagKey={featureFlag.key} currentPercentage={featureFlag.rolloutPercentage} />
+            <SwitchField
+              label={featureFlag.isActive ? t`Active` : t`Inactive`}
               checked={featureFlag.isActive}
               onCheckedChange={handleToggle}
               disabled={isPending}
               aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
             />
           </div>
+        ) : (
+          <SwitchField
+            label={featureFlag.isActive ? t`Active` : t`Inactive`}
+            checked={featureFlag.isActive}
+            onCheckedChange={handleToggle}
+            disabled={isPending}
+            aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
+          />
         )}
       </div>
     </div>
@@ -126,45 +114,47 @@ function RolloutPercentageInput({
   flagKey: string;
   currentPercentage: number | null;
 }>) {
-  const [percentage, setPercentage] = useState(String(currentPercentage ?? 0));
-  const lastSavedValue = useRef(String(currentPercentage ?? 0));
+  const [percentage, setPercentage] = useState(currentPercentage ?? 0);
+  const lastSavedValue = useRef(currentPercentage ?? 0);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const rolloutMutation = api.useMutation("put", "/api/back-office/feature-flags/{featureFlagKey}/rollout-percentage");
 
-  const handleBlur = () => {
-    const value = Number.parseInt(percentage, 10);
-    if (Number.isNaN(value) || value < 0 || value > 100) {
-      setPercentage(lastSavedValue.current);
-      return;
-    }
-    if (percentage === lastSavedValue.current) return;
+  useEffect(() => () => clearTimeout(saveTimerRef.current), []);
 
-    rolloutMutation.mutate(
-      {
-        params: { path: { featureFlagKey: flagKey } },
-        body: { rolloutPercentage: value }
-      },
-      {
-        onSuccess: () => {
-          lastSavedValue.current = String(value);
-          toast.success(t`Rollout percentage updated`);
+  const handleChange = (value: number | null) => {
+    const newValue = value ?? 0;
+    setPercentage(newValue);
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      if (newValue === lastSavedValue.current) return;
+      rolloutMutation.mutate(
+        {
+          params: { path: { featureFlagKey: flagKey } },
+          body: { rolloutPercentage: newValue }
         },
-        onError: () => {
-          setPercentage(lastSavedValue.current);
+        {
+          onSuccess: () => {
+            lastSavedValue.current = newValue;
+            toast.success(t`Rollout percentage updated`);
+          },
+          onError: () => {
+            setPercentage(lastSavedValue.current);
+          }
         }
-      }
-    );
+      );
+    }, 800);
   };
 
   return (
-    <TextField
-      aria-label={t`Rollout %`}
+    <NumberField
+      label={t`Rollout %`}
       name="rolloutPercentage"
-      type="number"
       value={percentage}
-      onChange={(value) => setPercentage(value)}
-      onBlur={handleBlur}
-      className="w-[6rem] whitespace-nowrap"
+      onChange={handleChange}
+      minValue={0}
+      maxValue={100}
+      className="w-[6rem]"
     />
   );
 }

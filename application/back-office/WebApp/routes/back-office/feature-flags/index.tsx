@@ -4,9 +4,16 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage
+} from "@repo/ui/components/Breadcrumb";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 
 import { api } from "@/shared/lib/api/client";
@@ -65,7 +72,27 @@ export default function FeatureFlagsPage() {
   }, [data?.flags]);
 
   return (
-    <AppLayout title={t`Feature flags`} subtitle={t`Manage feature flags across the platform.`} maxWidth="64rem">
+    <AppLayout
+      title={t`Feature flags`}
+      subtitle={t`Manage feature flags across the platform.`}
+      maxWidth="64rem"
+      beforeHeader={
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link to="/back-office" />}>
+                <Trans>Back office</Trans>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                <Trans>Feature flags</Trans>
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      }
+    >
       {isLoading ? <FeatureFlagsSkeleton /> : <FeatureFlagGroupList groups={groups} />}
     </AppLayout>
   );

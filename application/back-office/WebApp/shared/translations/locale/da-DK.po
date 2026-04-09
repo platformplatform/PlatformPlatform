@@ -68,8 +68,8 @@ msgstr "Altid"
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
-msgid "Back to feature flags"
-msgstr "Tilbage til funktionsflag"
+msgid "Back office"
+msgstr "Back office"
 
 msgid "Breadcrumb"
 msgstr "Brødkrumme"
