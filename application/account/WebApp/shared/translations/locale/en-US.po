@@ -227,14 +227,23 @@ msgstr "Add notes about this recipe"
 msgid "Add notes here"
 msgstr "Add notes here"
 
+msgid "Add or remove users to manage who belongs to this team."
+msgstr "Add or remove users to manage who belongs to this team."
+
 msgid "Add profile picture"
 msgstr "Add profile picture"
 
 msgid "Add recipe"
 msgstr "Add recipe"
 
+msgid "Add selected users to team"
+msgstr "Add selected users to team"
+
 msgid "Add to favorites"
 msgstr "Add to favorites"
+
+msgid "Add users from the left to get started."
+msgstr "Add users from the left to get started."
 
 msgid "Add your account name"
 msgstr "Add your account name"
@@ -338,6 +347,10 @@ msgstr "Archive this item?"
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Are you sure you want to delete <0>{0} users</0>?"
+
+#. placeholder {0}: team.name
+msgid "Are you sure you want to delete <0>{0}</0>? This cannot be undone."
+msgstr "Are you sure you want to delete <0>{0}</0>? This cannot be undone."
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
@@ -697,6 +710,9 @@ msgstr "Close recipe details"
 msgid "Close sidebar"
 msgstr "Close sidebar"
 
+msgid "Close team details"
+msgstr "Close team details"
+
 msgid "Close user profile"
 msgstr "Close user profile"
 
@@ -811,11 +827,20 @@ msgstr "Create new account"
 msgid "Create shortcut..."
 msgstr "Create shortcut..."
 
+msgid "Create team"
+msgstr "Create team"
+
 msgid "Create your account"
 msgstr "Create your account"
 
+msgid "Create your first team to organize users."
+msgstr "Create your first team to organize users."
+
 msgid "Created"
 msgstr "Created"
+
+msgid "Creating..."
+msgstr "Creating..."
 
 msgid "Credit note"
 msgstr "Credit note"
@@ -934,6 +959,9 @@ msgstr "Delete recipe"
 
 msgid "Delete selected recipes"
 msgstr "Delete selected recipes"
+
+msgid "Delete team"
+msgstr "Delete team"
 
 msgid "Delete this item?"
 msgstr "Delete this item?"
@@ -1064,6 +1092,9 @@ msgstr "E.g. Taylor"
 msgid "E.g., Alex Taylor"
 msgstr "E.g., Alex Taylor"
 
+msgid "E.g., Engineering"
+msgstr "E.g., Engineering"
+
 msgid "E.g., Maria Rossi"
 msgstr "E.g., Maria Rossi"
 
@@ -1090,6 +1121,16 @@ msgstr "Edit profile"
 
 msgid "Edit recipe"
 msgstr "Edit recipe"
+
+msgid "Edit team"
+msgstr "Edit team"
+
+msgid "Edit team members"
+msgstr "Edit team members"
+
+#. placeholder {0}: team.name
+msgid "Edit team members - {0}"
+msgstr "Edit team members - {0}"
 
 msgid "Edit user profile"
 msgstr "Edit user profile"
@@ -1154,6 +1195,9 @@ msgstr "Estimated next bill: {targetFormattedPrice}"
 msgid "Europe"
 msgstr "Europe"
 
+msgid "Everyone is already a member."
+msgstr "Everyone is already a member."
+
 msgid "Examples"
 msgstr "Examples"
 
@@ -1198,6 +1242,9 @@ msgstr "Failed"
 
 msgid "Failed to load payment processor."
 msgstr "Failed to load payment processor."
+
+msgid "Failed to update role"
+msgstr "Failed to update role"
 
 msgid "Feature updated"
 msgstr "Feature updated"
@@ -1598,6 +1645,12 @@ msgstr "Main content"
 msgid "Main navigation"
 msgstr "Main navigation"
 
+msgid "Make admin"
+msgstr "Make admin"
+
+msgid "Make member"
+msgstr "Make member"
+
 msgid "Manage"
 msgstr "Manage"
 
@@ -1606,6 +1659,9 @@ msgstr "Manage subscription"
 
 msgid "Manage your account here."
 msgstr "Manage your account here."
+
+msgid "Manage your organization's teams here."
+msgstr "Manage your organization's teams here."
 
 msgid "Manage your payment methods and billing information."
 msgstr "Manage your payment methods and billing information."
@@ -1636,6 +1692,12 @@ msgstr "Meeting notes from last week"
 
 msgid "Member"
 msgstr "Member"
+
+msgid "Member actions"
+msgstr "Member actions"
+
+msgid "Members"
+msgstr "Members"
 
 msgid "Merge"
 msgstr "Merge"
@@ -1787,8 +1849,17 @@ msgstr "No results found"
 msgid "No results found."
 msgstr "No results found."
 
+msgid "No team members"
+msgstr "No team members"
+
+msgid "No teams yet"
+msgstr "No teams yet"
+
 msgid "No users found"
 msgstr "No users found"
+
+msgid "No users to add"
+msgstr "No users to add"
 
 msgid "None"
 msgstr "None"
@@ -2212,6 +2283,9 @@ msgstr "Remove logo"
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
 
+msgid "Remove selected users from team"
+msgstr "Remove selected users from team"
+
 msgid "Request a new code"
 msgstr "Request a new code"
 
@@ -2279,6 +2353,9 @@ msgstr "Rogan josh"
 msgid "Role"
 msgstr "Role"
 
+msgid "Role updated"
+msgstr "Role updated"
+
 msgid "Safari"
 msgstr "Safari"
 
@@ -2318,11 +2395,17 @@ msgstr "Search"
 msgid "Search and run commands"
 msgstr "Search and run commands"
 
+msgid "Search by name, email, or title"
+msgstr "Search by name, email, or title"
+
 msgid "Search charts..."
 msgstr "Search charts..."
 
 msgid "Search emoji"
 msgstr "Search emoji"
+
+msgid "Search users"
+msgstr "Search users"
 
 msgid "Search-driven menu with grouped items and inline shortcuts. Wrap it in CommandDialog to surface as a Cmd+K palette."
 msgstr "Search-driven menu with grouped items and inline shortcuts. Wrap it in CommandDialog to surface as a Cmd+K palette."
@@ -2652,6 +2735,33 @@ msgstr "Tax"
 msgid "Tax ID (VAT number)"
 msgstr "Tax ID (VAT number)"
 
+msgid "Team actions"
+msgstr "Team actions"
+
+msgid "Team created"
+msgstr "Team created"
+
+msgid "Team deleted"
+msgstr "Team deleted"
+
+msgid "Team details"
+msgstr "Team details"
+
+msgid "Team members"
+msgstr "Team members"
+
+msgid "Team members updated successfully"
+msgstr "Team members updated successfully"
+
+msgid "Team updated"
+msgstr "Team updated"
+
+msgid "Teams"
+msgstr "Teams"
+
+msgid "Teams group users together so you can manage access and responsibilities."
+msgstr "Teams group users together so you can manage access and responsibilities."
+
 msgid "Tell us a bit about yourself to get started."
 msgstr "Tell us a bit about yourself to get started."
 
@@ -2832,6 +2942,9 @@ msgstr "Trust Center"
 msgid "Trust Center (opens in new window)"
 msgstr "Trust Center (opens in new window)"
 
+msgid "Try a different search."
+msgstr "Try a different search."
+
 msgid "Try adjusting your search or filters"
 msgstr "Try adjusting your search or filters"
 
@@ -2886,11 +2999,17 @@ msgstr "Update payment method"
 msgid "Update the billing details associated with your subscription."
 msgstr "Update the billing details associated with your subscription."
 
+msgid "Update the team name or description."
+msgstr "Update the team name or description."
+
 msgid "Update your personal information and profile photo."
 msgstr "Update your personal information and profile photo."
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
+
+msgid "Updated"
+msgstr "Updated"
 
 msgid "Updating..."
 msgstr "Updating..."
@@ -3045,6 +3164,9 @@ msgstr "We detected a security issue with your login attempt. Please try again."
 
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "We detected suspicious activity on your account. Someone may have attempted to take over your session."
+
+msgid "What is this team responsible for?"
+msgstr "What is this team responsible for?"
 
 msgid "What's at the market this week"
 msgstr "What's at the market this week"

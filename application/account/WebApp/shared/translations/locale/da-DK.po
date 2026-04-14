@@ -225,14 +225,23 @@ msgstr "Tilføj noter om denne opskrift"
 msgid "Add notes here"
 msgstr "Tilføj noter her"
 
+msgid "Add or remove users to manage who belongs to this team."
+msgstr "Tilføj eller fjern brugere for at administrere, hvem der hører til dette team."
+
 msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
 
 msgid "Add recipe"
 msgstr "Tilføj opskrift"
 
+msgid "Add selected users to team"
+msgstr "Tilføj valgte brugere til teamet"
+
 msgid "Add to favorites"
 msgstr "Tilføj til favoritter"
+
+msgid "Add users from the left to get started."
+msgstr "Tilføj brugere fra venstre for at komme i gang."
 
 msgid "Add your account name"
 msgstr "Tilføj dit kontonavn"
@@ -336,6 +345,10 @@ msgstr "Arkiver dette element?"
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
+
+#. placeholder {0}: team.name
+msgid "Are you sure you want to delete <0>{0}</0>? This cannot be undone."
+msgstr "Er du sikker på, at du vil slette <0>{0}</0>? Dette kan ikke fortrydes."
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
@@ -695,6 +708,9 @@ msgstr "Luk opskriftsdetaljer"
 msgid "Close sidebar"
 msgstr "Luk sidemenu"
 
+msgid "Close team details"
+msgstr "Luk teamdetaljer"
+
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
 
@@ -809,11 +825,20 @@ msgstr "Opret ny konto"
 msgid "Create shortcut..."
 msgstr "Opret genvej..."
 
+msgid "Create team"
+msgstr "Opret team"
+
 msgid "Create your account"
 msgstr "Opret din konto"
 
+msgid "Create your first team to organize users."
+msgstr "Opret dit første team for at organisere brugere."
+
 msgid "Created"
 msgstr "Oprettet"
+
+msgid "Creating..."
+msgstr "Opretter..."
 
 msgid "Credit note"
 msgstr "Kreditnota"
@@ -932,6 +957,9 @@ msgstr "Slet opskrift"
 
 msgid "Delete selected recipes"
 msgstr "Slet valgte opskrifter"
+
+msgid "Delete team"
+msgstr "Slet team"
 
 msgid "Delete this item?"
 msgstr "Slet dette element?"
@@ -1062,6 +1090,9 @@ msgstr "F.eks. Jensen"
 msgid "E.g., Alex Taylor"
 msgstr "F.eks. Alex Taylor"
 
+msgid "E.g., Engineering"
+msgstr "F.eks. Engineering"
+
 msgid "E.g., Maria Rossi"
 msgstr "F.eks. Maria Rossi"
 
@@ -1088,6 +1119,16 @@ msgstr "Rediger profil"
 
 msgid "Edit recipe"
 msgstr "Rediger opskrift"
+
+msgid "Edit team"
+msgstr "Rediger team"
+
+msgid "Edit team members"
+msgstr "Rediger teammedlemmer"
+
+#. placeholder {0}: team.name
+msgid "Edit team members - {0}"
+msgstr "Rediger teammedlemmer - {0}"
 
 msgid "Edit user profile"
 msgstr "Rediger brugerprofil"
@@ -1152,6 +1193,9 @@ msgstr "Forventet næste regning: {targetFormattedPrice}"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Everyone is already a member."
+msgstr "Alle er allerede medlemmer."
+
 msgid "Examples"
 msgstr "Eksempler"
 
@@ -1196,6 +1240,9 @@ msgstr "Mislykket"
 
 msgid "Failed to load payment processor."
 msgstr "Kunne ikke indlæse betalingsprocessor."
+
+msgid "Failed to update role"
+msgstr "Kunne ikke opdatere rolle"
 
 msgid "Feature updated"
 msgstr "Funktion opdateret"
@@ -1596,6 +1643,12 @@ msgstr "Hovedindhold"
 msgid "Main navigation"
 msgstr "Hovednavigation"
 
+msgid "Make admin"
+msgstr "Gør til admin"
+
+msgid "Make member"
+msgstr "Gør til medlem"
+
 msgid "Manage"
 msgstr ""
 
@@ -1604,6 +1657,9 @@ msgstr "Administrer abonnement"
 
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
+
+msgid "Manage your organization's teams here."
+msgstr "Administrer din organisations teams her."
 
 msgid "Manage your payment methods and billing information."
 msgstr "Administrer dine betalingsmetoder og faktureringsoplysninger."
@@ -1634,6 +1690,12 @@ msgstr "Mødenoter fra sidste uge"
 
 msgid "Member"
 msgstr "Medlem"
+
+msgid "Member actions"
+msgstr "Medlemshandlinger"
+
+msgid "Members"
+msgstr "Medlemmer"
 
 msgid "Merge"
 msgstr "Flet"
@@ -1785,8 +1847,17 @@ msgstr "Ingen resultater fundet"
 msgid "No results found."
 msgstr "Ingen resultater fundet."
 
+msgid "No team members"
+msgstr "Ingen teammedlemmer"
+
+msgid "No teams yet"
+msgstr "Ingen teams endnu"
+
 msgid "No users found"
 msgstr "Ingen brugere fundet"
+
+msgid "No users to add"
+msgstr "Ingen brugere at tilføje"
 
 msgid "None"
 msgstr "Ingen"
@@ -2210,6 +2281,9 @@ msgstr "Fjern logo"
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
 
+msgid "Remove selected users from team"
+msgstr "Fjern valgte brugere fra teamet"
+
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
 
@@ -2277,6 +2351,9 @@ msgstr "Rogan josh"
 msgid "Role"
 msgstr "Rolle"
 
+msgid "Role updated"
+msgstr "Rolle opdateret"
+
 msgid "Safari"
 msgstr "Safari"
 
@@ -2316,11 +2393,17 @@ msgstr "Søg"
 msgid "Search and run commands"
 msgstr "Søg og kør kommandoer"
 
+msgid "Search by name, email, or title"
+msgstr "Søg efter navn, e-mail eller titel"
+
 msgid "Search charts..."
 msgstr "Søg diagrammer..."
 
 msgid "Search emoji"
 msgstr "Søg emoji"
+
+msgid "Search users"
+msgstr "Søg brugere"
 
 msgid "Search-driven menu with grouped items and inline shortcuts. Wrap it in CommandDialog to surface as a Cmd+K palette."
 msgstr "Søgedrevet menu med grupperede elementer og inline-genveje. Pak den ind i CommandDialog for at vise den som en Cmd+K palette."
@@ -2650,6 +2733,33 @@ msgstr "Moms"
 msgid "Tax ID (VAT number)"
 msgstr "CVR-nummer"
 
+msgid "Team actions"
+msgstr "Teamhandlinger"
+
+msgid "Team created"
+msgstr "Team oprettet"
+
+msgid "Team deleted"
+msgstr "Team slettet"
+
+msgid "Team details"
+msgstr "Teamdetaljer"
+
+msgid "Team members"
+msgstr "Teammedlemmer"
+
+msgid "Team members updated successfully"
+msgstr "Teammedlemmer opdateret"
+
+msgid "Team updated"
+msgstr "Team opdateret"
+
+msgid "Teams"
+msgstr "Teams"
+
+msgid "Teams group users together so you can manage access and responsibilities."
+msgstr "Teams grupperer brugere sammen, så du kan administrere adgang og ansvar."
+
 msgid "Tell us a bit about yourself to get started."
 msgstr "Fortæl os lidt om dig selv for at komme i gang."
 
@@ -2830,6 +2940,9 @@ msgstr "Tillidscenter"
 msgid "Trust Center (opens in new window)"
 msgstr "Tillidscenter (åbner i nyt vindue)"
 
+msgid "Try a different search."
+msgstr "Prøv en anden søgning."
+
 msgid "Try adjusting your search or filters"
 msgstr "Prøv at justere din søgning eller filtre"
 
@@ -2884,11 +2997,17 @@ msgstr "Opdater betalingsmetode"
 msgid "Update the billing details associated with your subscription."
 msgstr "Opdater faktureringsoplysningerne tilknyttet dit abonnement."
 
+msgid "Update the team name or description."
+msgstr "Opdater teamnavn eller beskrivelse."
+
 msgid "Update your personal information and profile photo."
 msgstr "Opdater dine personlige oplysninger og profilbillede."
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
+
+msgid "Updated"
+msgstr "Opdateret"
 
 msgid "Updating..."
 msgstr "Opdaterer..."
@@ -3044,6 +3163,9 @@ msgstr "Vi opdagede et sikkerhedsproblem med dit loginforsøg. Prøv venligst ig
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "Vi opdagede mistænkelig aktivitet på din konto. Nogen kan have forsøgt at overtage din session."
 
+msgid "What is this team responsible for?"
+msgstr "Hvad er dette team ansvarligt for?"
+
 msgid "What's at the market this week"
 msgstr "Hvad er på markedet denne uge"
 
@@ -3147,7 +3269,7 @@ msgid "Your plan will be downgraded to {planName} at the end of your current bil
 msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende planfunktioner indtil da."
 
 msgid "Your professional title or role"
-msgstr ""
+msgstr "Din professionelle titel eller rolle"
 
 msgid "Your profile has been verified"
 msgstr ""

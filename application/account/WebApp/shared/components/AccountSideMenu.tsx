@@ -23,6 +23,7 @@ import {
   MonitorSmartphoneIcon,
   SlidersHorizontalIcon,
   UserIcon,
+  Users2Icon,
   UsersIcon
 } from "lucide-react";
 import { use } from "react";
@@ -136,6 +137,16 @@ export function AccountSideMenu() {
                       <UsersIcon />
                       <span>
                         <Trans>Users</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild={true} isActive={isActive("/account/teams", true)} tooltip={t`Teams`}>
+                    <RouterLink to="/account/teams">
+                      <Users2Icon />
+                      <span>
+                        <Trans>Teams</Trans>
                       </span>
                     </RouterLink>
                   </SidebarMenuButton>
