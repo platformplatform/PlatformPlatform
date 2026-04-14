@@ -2,6 +2,7 @@ using Account.Features.Authentication.Domain;
 using Account.Features.EmailAuthentication.Domain;
 using Account.Features.ExternalAuthentication.Domain;
 using Account.Features.Subscriptions.Domain;
+using Account.Features.Teams.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using SharedKernel.Authentication.TokenGeneration;
@@ -219,6 +220,15 @@ public sealed class SubscriptionUpgraded(
     string currency
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class TeamCreated(TeamId teamId)
+    : TelemetryEvent(("team_id", teamId));
+
+public sealed class TeamDeleted(TeamId teamId)
+    : TelemetryEvent(("team_id", teamId));
+
+public sealed class TeamUpdated(TeamId teamId)
+    : TelemetryEvent(("team_id", teamId));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
