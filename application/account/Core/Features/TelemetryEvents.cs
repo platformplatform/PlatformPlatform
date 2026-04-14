@@ -227,6 +227,15 @@ public sealed class TeamCreated(TeamId teamId)
 public sealed class TeamDeleted(TeamId teamId)
     : TelemetryEvent(("team_id", teamId));
 
+public sealed class TeamMemberAdded(TeamId teamId, UserId userId)
+    : TelemetryEvent(("team_id", teamId), ("user_id", userId));
+
+public sealed class TeamMemberRemoved(TeamId teamId, UserId userId)
+    : TelemetryEvent(("team_id", teamId), ("user_id", userId));
+
+public sealed class TeamMemberRoleChanged(TeamId teamId, UserId userId, TeamMemberRole fromRole, TeamMemberRole toRole)
+    : TelemetryEvent(("team_id", teamId), ("user_id", userId), ("from_role", fromRole), ("to_role", toRole));
+
 public sealed class TeamUpdated(TeamId teamId)
     : TelemetryEvent(("team_id", teamId));
 
