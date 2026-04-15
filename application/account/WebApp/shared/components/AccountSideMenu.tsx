@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   SidebarRail
 } from "@repo/ui/components/Sidebar";
+import { TeamsIcon } from "@repo/ui/icons/TeamsIcon";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
 import {
   Building2Icon,
@@ -23,7 +24,6 @@ import {
   MonitorSmartphoneIcon,
   SlidersHorizontalIcon,
   UserIcon,
-  Users2Icon,
   UsersIcon
 } from "lucide-react";
 import { use } from "react";
@@ -146,7 +146,7 @@ export function AccountSideMenu() {
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild={true} isActive={isActive("/account/teams", true)} tooltip={t`Teams`}>
                       <RouterLink to="/account/teams">
-                        <Users2Icon />
+                        <TeamsIcon />
                         <span>
                           <Trans>Teams</Trans>
                         </span>

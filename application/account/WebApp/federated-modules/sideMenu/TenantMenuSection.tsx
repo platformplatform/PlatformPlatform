@@ -5,15 +5,8 @@ import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { Button } from "@repo/ui/components/Button";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
-import {
-  ArrowRightLeftIcon,
-  ChevronDownIcon,
-  CircleUserIcon,
-  CreditCardIcon,
-  HomeIcon,
-  Users2Icon,
-  UsersIcon
-} from "lucide-react";
+import { TeamsIcon } from "@repo/ui/icons/TeamsIcon";
+import { ArrowRightLeftIcon, ChevronDownIcon, CircleUserIcon, CreditCardIcon, HomeIcon, UsersIcon } from "lucide-react";
 import { useState } from "react";
 
 import { sortTenants, type TenantInfo } from "../common/tenantUtils";
@@ -123,7 +116,7 @@ export function TenantMenuSection({
                   aria-label={t`Teams`}
                 >
                   <div className="flex size-6 shrink-0 items-center justify-center">
-                    <Users2Icon className="size-5 stroke-current" />
+                    <TeamsIcon className="size-5 stroke-current" />
                   </div>
                   <Trans>Teams</Trans>
                 </Button>

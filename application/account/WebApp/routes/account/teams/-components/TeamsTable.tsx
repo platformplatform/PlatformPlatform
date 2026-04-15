@@ -11,8 +11,9 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { TeamsIcon } from "@repo/ui/icons/TeamsIcon";
 import { useQueries } from "@tanstack/react-query";
-import { EllipsisVerticalIcon, PencilIcon, PlusIcon, Trash2Icon, Users2Icon } from "lucide-react";
+import { EllipsisVerticalIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { api, type Schemas } from "@/shared/lib/api/client";
 
@@ -64,7 +65,7 @@ export function TeamsTable({
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <Users2Icon />
+            <TeamsIcon />
           </EmptyMedia>
           <EmptyTitle>
             <Trans>No teams yet</Trans>
