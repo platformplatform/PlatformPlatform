@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using SharedKernel.Authentication;
 using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
 using SharedKernel.Integrations.Email;
 using SharedKernel.SinglePageApp;
@@ -31,7 +32,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     protected readonly TimeProvider TimeProvider;
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
+    protected readonly WebApplicationFactory<Program> WebApplicationFactory;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
 
     protected EndpointBaseTest()
@@ -97,7 +98,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
 
-        _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        WebApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
                 builder.ConfigureLogging(logging =>
                     {
@@ -125,18 +126,18 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
             }
         );
 
-        AnonymousHttpClient = _webApplicationFactory.CreateClient();
+        AnonymousHttpClient = WebApplicationFactory.CreateClient();
         AnonymousHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         var ownerUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Owner, DatabaseSeeder.Tenant1OwnerSession.Id);
         var ownerAccessToken = AccessTokenGenerator.Generate(ownerUserInfo);
-        AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedOwnerHttpClient = WebApplicationFactory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         var memberUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Member, DatabaseSeeder.Tenant1MemberSession.Id);
         var memberAccessToken = AccessTokenGenerator.Generate(memberUserInfo);
-        AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedMemberHttpClient = WebApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
@@ -182,10 +183,15 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         if (!disposing) return;
         Provider.Dispose();
         Connection.Close();
-        _webApplicationFactory.Dispose();
+        WebApplicationFactory.Dispose();
     }
 
     private static UserInfo CreateUserInfo(User user, SessionId sessionId)
+    {
+        return CreateUserInfo(user, sessionId, [new FeatureFlagKey("teams")]);
+    }
+
+    protected static UserInfo CreateUserInfo(User user, SessionId sessionId, FeatureFlagKey[] featureFlags)
     {
         return new UserInfo
         {
@@ -200,7 +206,8 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
             Title = user.Title,
             AvatarUrl = user.Avatar.Url,
             Locale = user.Locale,
-            IsInternalUser = user.IsInternalUser
+            IsInternalUser = user.IsInternalUser,
+            FeatureFlags = featureFlags
         };
     }
 }

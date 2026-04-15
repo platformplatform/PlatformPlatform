@@ -1,4 +1,5 @@
 using Account.Features.Teams.Domain;
+using Account.Features.Teams.Shared;
 using Account.Features.Users.Domain;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -24,6 +25,11 @@ public sealed class ChangeTeamMemberRoleHandler(
 {
     public async Task<Result> Handle(ChangeTeamMemberRoleCommand command, CancellationToken cancellationToken)
     {
+        if (!executionContext.UserInfo.IsFeatureFlagEnabled(TeamsFeatureFlag.Key))
+        {
+            return Result.NotFound("Teams feature is not enabled for this tenant.");
+        }
+
         if (executionContext.UserInfo.Role is not (nameof(UserRole.Owner) or nameof(UserRole.Admin)))
         {
             return Result.Forbidden("Only tenant owners and tenant admins can change team member roles.");

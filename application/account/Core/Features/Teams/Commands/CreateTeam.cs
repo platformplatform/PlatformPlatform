@@ -31,6 +31,11 @@ public sealed class CreateTeamHandler(ITeamRepository teamRepository, IExecution
 {
     public async Task<Result<TeamResponse>> Handle(CreateTeamCommand command, CancellationToken cancellationToken)
     {
+        if (!executionContext.UserInfo.IsFeatureFlagEnabled(TeamsFeatureFlag.Key))
+        {
+            return Result<TeamResponse>.NotFound("Teams feature is not enabled for this tenant.");
+        }
+
         if (executionContext.UserInfo.Role is not (nameof(UserRole.Owner) or nameof(UserRole.Admin)))
         {
             return Result<TeamResponse>.Forbidden("Only owners and admins can create teams.");

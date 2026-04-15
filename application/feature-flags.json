@@ -48,5 +48,13 @@
     "type": "user",
     "description": "Enables experimental UI components for users",
     "isAbTestEligible": true
+  },
+  {
+    "featureFlagKey": "teams",
+    "name": "Teams",
+    "type": "tenant",
+    "description": "Enables team management for tenants",
+    "adminLevel": "tenantOwner",
+    "configurableByTenant": true
   }
 ]

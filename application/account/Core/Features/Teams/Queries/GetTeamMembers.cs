@@ -1,4 +1,5 @@
 using Account.Features.Teams.Domain;
+using Account.Features.Teams.Shared;
 using Account.Features.Users.Domain;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -37,6 +38,11 @@ public sealed class GetTeamMembersHandler(
 {
     public async Task<Result<TeamMembersResponse>> Handle(GetTeamMembersQuery query, CancellationToken cancellationToken)
     {
+        if (!executionContext.UserInfo.IsFeatureFlagEnabled(TeamsFeatureFlag.Key))
+        {
+            return Result<TeamMembersResponse>.NotFound("Teams feature is not enabled for this tenant.");
+        }
+
         var team = await teamRepository.GetByIdAsync(query.TeamId, cancellationToken);
         if (team is null) return Result<TeamMembersResponse>.NotFound($"Team with id '{query.TeamId}' not found.");
 

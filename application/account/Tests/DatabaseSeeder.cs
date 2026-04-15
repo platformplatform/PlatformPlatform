@@ -16,6 +16,7 @@ public sealed class DatabaseSeeder
     public readonly FeatureFlag CustomBrandingFlag;
     public readonly FeatureFlag ExperimentalUiFlag;
     public readonly FeatureFlag SsoFlag;
+    public readonly FeatureFlag TeamsFlag;
     public readonly Tenant Tenant1;
     public readonly User Tenant1Member;
     public readonly Session Tenant1MemberSession;
@@ -63,6 +64,9 @@ public sealed class DatabaseSeeder
         ExperimentalUiFlag = FeatureFlag.Create(new FeatureFlagKey("experimental-ui"));
         ExperimentalUiFlag.Activate(now);
         accountDbContext.Set<FeatureFlag>().Add(ExperimentalUiFlag);
+
+        TeamsFlag = FeatureFlag.Create(new FeatureFlagKey("teams"));
+        accountDbContext.Set<FeatureFlag>().Add(TeamsFlag);
 
         accountDbContext.SaveChanges();
     }
