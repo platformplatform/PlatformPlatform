@@ -1,5 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { AccessDeniedError } from "@repo/infrastructure/auth/routeGuards";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -29,6 +31,7 @@ export const Route = createFileRoute("/account/teams/")({
 });
 
 export default function TeamsPage() {
+  const { enabled: isTeamsEnabled, isLoading: isFlagLoading } = useFeatureFlag("teams");
   const navigate = useNavigate({ from: Route.fullPath });
   const { teamId } = Route.useSearch();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -36,7 +39,11 @@ export default function TeamsPage() {
   const [teamToEditMembers, setTeamToEditMembers] = useState<Team | null>(null);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
 
-  const { data, isLoading } = api.useQuery("get", "/api/account/teams");
+  const { data, isLoading } = api.useQuery("get", "/api/account/teams", {}, { enabled: isTeamsEnabled });
+
+  if (!isFlagLoading && !isTeamsEnabled) {
+    throw new AccessDeniedError();
+  }
   const teams: Team[] = data?.teams ?? [];
   const selectedTeam = teamId ? (teams.find((team) => team.id === teamId) ?? null) : null;
 

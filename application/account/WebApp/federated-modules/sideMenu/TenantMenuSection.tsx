@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { Button } from "@repo/ui/components/Button";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import {
@@ -36,6 +37,7 @@ export function TenantMenuSection({
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
   const hasMultipleTenants = sortTenants(tenants).length > 1;
   const hasSubscription = userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+  const { enabled: isTeamsEnabled } = useFeatureFlag("teams");
   const hasTenantActions = hasMultipleTenants || canAccessAccountSettings || hasSubscription;
   const currentTenant = tenants.find((tenant) => tenant.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || "PlatformPlatform";
@@ -113,17 +115,19 @@ export function TenantMenuSection({
                 </div>
                 <Trans>Users</Trans>
               </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigateTo("/account/teams")}
-                className={menuItemClassName(pathname, "/account/teams", true)}
-                aria-label={t`Teams`}
-              >
-                <div className="flex size-6 shrink-0 items-center justify-center">
-                  <Users2Icon className="size-5 stroke-current" />
-                </div>
-                <Trans>Teams</Trans>
-              </Button>
+              {isTeamsEnabled && (
+                <Button
+                  variant="ghost"
+                  onClick={() => navigateTo("/account/teams")}
+                  className={menuItemClassName(pathname, "/account/teams", true)}
+                  aria-label={t`Teams`}
+                >
+                  <div className="flex size-6 shrink-0 items-center justify-center">
+                    <Users2Icon className="size-5 stroke-current" />
+                  </div>
+                  <Trans>Teams</Trans>
+                </Button>
+              )}
             </>
           )}
           {hasSubscription && (

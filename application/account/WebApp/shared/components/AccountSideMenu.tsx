@@ -46,6 +46,7 @@ export function AccountSideMenu() {
   const currentPath = normalizePath(router.state.location.pathname);
   const { navigateToMain } = useMainNavigation();
   const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
+  const { enabled: isTeamsEnabled } = useFeatureFlag("teams");
 
   const isActive = (target: string, matchPrefix = false) => {
     const normalized = normalizePath(target);
@@ -141,16 +142,18 @@ export function AccountSideMenu() {
                     </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild={true} isActive={isActive("/account/teams", true)} tooltip={t`Teams`}>
-                    <RouterLink to="/account/teams">
-                      <Users2Icon />
-                      <span>
-                        <Trans>Teams</Trans>
-                      </span>
-                    </RouterLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {isTeamsEnabled && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isActive("/account/teams", true)} tooltip={t`Teams`}>
+                      <RouterLink to="/account/teams">
+                        <Users2Icon />
+                        <span>
+                          <Trans>Teams</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 {showBilling && (
                   <SidebarMenuItem>
                     <SidebarMenuButton
