@@ -5,7 +5,7 @@ using SharedKernel.Authentication.BackOfficeIdentity;
 using SharedKernel.Endpoints;
 using SharedKernel.OpenApi;
 
-namespace Account.Api.Endpoints;
+namespace Account.Api.BackOffice;
 
 public sealed class BackOfficeEndpoints : IEndpoints
 {

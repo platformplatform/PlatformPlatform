@@ -22,6 +22,12 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     ///     This method is used when tenant context is not available (e.g., during signup token creation).
     /// </summary>
     Task<Subscription?> GetByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves all subscriptions for the given tenant ids without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries where tenant context is not established.
+    /// </summary>
+    Task<Subscription[]> GetByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken);
 }
 
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -55,5 +61,14 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     {
         return DbSet.Local.SingleOrDefault(s => s.TenantId == tenantId)
                ?? await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves all subscriptions for the given tenant ids without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries where tenant context is not established.
+    /// </summary>
+    public async Task<Subscription[]> GetByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().Where(s => tenantIds.AsEnumerable().Contains(s.TenantId)).ToArrayAsync(cancellationToken);
     }
 }

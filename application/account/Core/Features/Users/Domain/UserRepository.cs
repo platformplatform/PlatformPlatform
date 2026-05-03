@@ -44,6 +44,25 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetTenantUsers(CancellationToken cancellationToken);
 
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns total and 30-day active user counts for the given tenant without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries where tenant context is not established.
+    /// </summary>
+    Task<(int TotalUsers, int ActiveUsers)> GetUserCountsForTenantUnfilteredAsync(TenantId tenantId, DateTimeOffset activeSince, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Searches users belonging to a specific tenant without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries where tenant context is not established.
+    /// </summary>
+    Task<(User[] Users, int TotalItems, int TotalPages)> SearchTenantUsersUnfilteredAsync(
+        TenantId tenantId,
+        string? search,
+        UserRole? role,
+        int? pageOffset,
+        int pageSize,
+        CancellationToken cancellationToken
+    );
 }
 
 internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
@@ -260,6 +279,83 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
             .ToArrayAsync(cancellationToken);
     }
 
+    /// <summary>
+    ///     Returns total and 30-day active user counts for the given tenant without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries where tenant context is not established.
+    /// </summary>
+    public async Task<(int TotalUsers, int ActiveUsers)> GetUserCountsForTenantUnfilteredAsync(TenantId tenantId, DateTimeOffset activeSince, CancellationToken cancellationToken)
+    {
+        // SQLite EF cannot translate DateTimeOffset comparisons (text-stored); test path materializes LastSeenAt and counts in memory, bounded by tenant size.
+        if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            var lastSeen = await DbSet
+                .IgnoreQueryFilters([QueryFilterNames.Tenant])
+                .Where(u => u.TenantId == tenantId)
+                .Select(u => u.LastSeenAt)
+                .ToListAsync(cancellationToken);
+            return (lastSeen.Count, lastSeen.Count(t => t.HasValue && t.Value >= activeSince));
+        }
+
+        var counts = await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u => u.TenantId == tenantId)
+            .GroupBy(_ => 1)
+            .Select(g => new { Total = g.Count(), Active = g.Count(u => u.LastSeenAt >= activeSince) })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        return (counts?.Total ?? 0, counts?.Active ?? 0);
+    }
+
+    /// <summary>
+    ///     Searches users belonging to a specific tenant without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries where tenant context is not established.
+    /// </summary>
+    public async Task<(User[] Users, int TotalItems, int TotalPages)> SearchTenantUsersUnfilteredAsync(
+        TenantId tenantId,
+        string? search,
+        UserRole? role,
+        int? pageOffset,
+        int pageSize,
+        CancellationToken cancellationToken
+    )
+    {
+        var users = DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(u => u.TenantId == tenantId);
+
+        if (role is not null)
+        {
+            users = users.Where(u => u.Role == role);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            users = users.Where(u =>
+                u.Email.Contains(search) ||
+                (u.FirstName + " " + u.LastName).Contains(search) ||
+                (u.Title ?? "").Contains(search)
+            );
+        }
+
+        users = users
+            .OrderBy(u => u.FirstName == null ? 1 : 0)
+            .ThenBy(u => u.FirstName)
+            .ThenBy(u => u.LastName == null ? 1 : 0)
+            .ThenBy(u => u.LastName)
+            .ThenBy(u => u.Email);
+
+        var itemOffset = (pageOffset ?? 0) * pageSize;
+        var result = await users.Skip(itemOffset).Take(pageSize).ToArrayAsync(cancellationToken);
+
+        var totalItems = pageOffset == 0 && result.Length < pageSize
+            ? result.Length
+            : await users.CountAsync(cancellationToken);
+
+        var totalPages = (totalItems - 1) / pageSize + 1;
+        return (result, totalItems, totalPages);
+    }
+
     [UsedImplicitly]
     private sealed record UserSummaryResult(int TotalUsers, int ActiveUsers, int PendingUsers);
+
+    [UsedImplicitly]
+    private sealed record TenantUserCountResult(int TotalUsers, int ActiveUsers);
 }

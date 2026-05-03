@@ -1,4 +1,5 @@
 using Account.Database;
+using Account.Features.Subscriptions.Domain;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.ExecutionContext;
@@ -19,6 +20,8 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     This method should only be used in webhook processing where tenant context is not established.
     /// </summary>
     Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken);
+
+    Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan? plan, CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -42,5 +45,25 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     public async Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
+    }
+
+    public async Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan? plan, CancellationToken cancellationToken)
+    {
+        IQueryable<Tenant> tenants = DbSet;
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            // TenantId is a long, so an exact match on a parsable id is the only way to filter by id at the DB level.
+            // Partial id matches are not supported - operators search by tenant name for fuzzy matches.
+            var idMatch = long.TryParse(search, out var parsedId) ? new TenantId(parsedId) : null;
+            tenants = tenants.Where(t => t.Name.ToLower().Contains(search) || (idMatch != null && t.Id == idMatch));
+        }
+
+        if (plan is not null)
+        {
+            tenants = tenants.Where(t => t.Plan == plan);
+        }
+
+        return await tenants.ToArrayAsync(cancellationToken);
     }
 }

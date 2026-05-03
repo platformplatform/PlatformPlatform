@@ -90,11 +90,14 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
 
         using var scope = _webApplicationFactory.Services.CreateScope();
         scope.ServiceProvider.GetRequiredService<AccountDbContext>().Database.EnsureCreated();
+        DatabaseSeeder = ActivatorUtilities.CreateInstance<DatabaseSeeder>(scope.ServiceProvider);
 
         Environment.SetEnvironmentVariable("BypassAntiforgeryValidation", "true");
     }
 
     protected SqliteConnection Connection { get; }
+
+    protected DatabaseSeeder DatabaseSeeder { get; }
 
     public void Dispose()
     {
