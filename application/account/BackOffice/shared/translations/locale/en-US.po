@@ -13,26 +13,73 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: userCountsQuery.data.activeUsers
+#. placeholder {1}: userCountsQuery.data.totalUsers
+msgid "{0} active / {1} total"
+msgstr "{0} active / {1} total"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Account preview"
+msgstr "Account preview"
+
+msgid "Account sections"
+msgstr "Account sections"
+
 msgid "Accounts"
 msgstr "Accounts"
 
-msgid "Accounts (coming soon)"
-msgstr "Accounts (coming soon)"
+msgid "Active"
+msgstr "Active"
+
+msgid "Activity"
+msgstr "Activity"
 
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All"
+msgstr "All"
+
+msgid "Amount"
+msgstr "Amount"
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
+msgid "Any role"
+msgstr "Any role"
+
 msgid "Back Office"
 msgstr "Back Office"
+
+msgid "Back to accounts"
+msgstr "Back to accounts"
 
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
 
 msgid "Basis"
 msgstr "Basis"
+
+msgid "Billing & invoices"
+msgstr "Billing & invoices"
+
+msgid "Billing address"
+msgstr "Billing address"
+
+msgid "Cancellation"
+msgstr "Cancellation"
+
+msgid "Cancellation at period end"
+msgstr "Cancellation at period end"
+
+msgid "Cancelling"
+msgstr "Cancelling"
+
+msgid "Cancelling at period end"
+msgstr "Cancelling at period end"
 
 msgid "Change language"
 msgstr "Change language"
@@ -43,11 +90,29 @@ msgstr "Change theme"
 msgid "Change zoom level"
 msgstr "Change zoom level"
 
+msgid "Clear filters"
+msgstr "Clear filters"
+
+msgid "Clear search"
+msgstr "Clear search"
+
+msgid "Close account preview"
+msgstr "Close account preview"
+
 msgid "Coming soon"
 msgstr "Coming soon"
 
 msgid "Contact your administrator."
 msgstr "Contact your administrator."
+
+msgid "Country"
+msgstr "Country"
+
+msgid "Created"
+msgstr "Created"
+
+msgid "Credit note"
+msgstr "Credit note"
 
 msgid "Dark"
 msgstr "Dark"
@@ -55,8 +120,20 @@ msgstr "Dark"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Date"
+msgstr "Date"
+
 msgid "Default"
 msgstr "Default"
+
+msgid "Documents"
+msgstr "Documents"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Failed"
+msgstr "Failed"
 
 msgid "Feature flags"
 msgstr "Feature flags"
@@ -70,6 +147,9 @@ msgstr "Go to home"
 msgid "Hide details"
 msgstr "Hide details"
 
+msgid "Invoice"
+msgstr "Invoice"
+
 msgid "Language"
 msgstr "Language"
 
@@ -78,6 +158,12 @@ msgstr "Large"
 
 msgid "Larger"
 msgstr "Larger"
+
+msgid "Last seen"
+msgstr "Last seen"
+
+msgid "Lifetime value"
+msgstr "Lifetime value"
 
 msgid "Light"
 msgstr "Light"
@@ -112,17 +198,95 @@ msgstr "Manage accounts, view system data, see exceptions, and perform various t
 msgid "Member"
 msgstr "Member"
 
+msgid "MRR"
+msgstr "MRR"
+
+msgid "Name"
+msgstr "Name"
+
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Next"
+msgstr "Next"
+
+msgid "No accounts match your filters"
+msgstr "No accounts match your filters"
+
+msgid "No accounts yet"
+msgstr "No accounts yet"
+
+msgid "No activity recorded yet."
+msgstr "No activity recorded yet."
+
+msgid "No activity yet"
+msgstr "No activity yet"
 
 msgid "No back-office access"
 msgstr "No back-office access"
 
+msgid "No billing address"
+msgstr "No billing address"
+
+msgid "No billing address on file."
+msgstr "No billing address on file."
+
+msgid "No matching users"
+msgstr "No matching users"
+
+msgid "No owners"
+msgstr "No owners"
+
+msgid "No owners on this account."
+msgstr "No owners on this account."
+
+msgid "No payments"
+msgstr "No payments"
+
+msgid "No payments yet."
+msgstr "No payments yet."
+
+msgid "No users"
+msgstr "No users"
+
+msgid "No users match your filters."
+msgstr "No users match your filters."
+
+msgid "Open account"
+msgstr "Open account"
+
+msgid "Open credit note"
+msgstr "Open credit note"
+
+msgid "Open invoice"
+msgstr "Open invoice"
+
+msgid "Overview"
+msgstr "Overview"
+
 msgid "Owner"
 msgstr "Owner"
 
+msgid "Owners"
+msgstr "Owners"
+
 msgid "Page not found"
 msgstr "Page not found"
+
+msgid "Payment history"
+msgstr "Payment history"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Plan"
+msgstr "Plan"
+
+msgid "Plan & revenue"
+msgstr "Plan & revenue"
+
+msgid "Plan change"
+msgstr "Plan change"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -136,8 +300,38 @@ msgstr "Please try again or return to the home page."
 msgid "Premium"
 msgstr "Premium"
 
+msgid "Previous"
+msgstr "Previous"
+
+msgid "Refunded"
+msgstr "Refunded"
+
+msgid "Renewal"
+msgstr "Renewal"
+
+msgid "Role"
+msgstr "Role"
+
+msgid "Scheduled plan change"
+msgstr "Scheduled plan change"
+
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Search by name"
+msgstr "Search by name"
+
+msgid "Search by name or email"
+msgstr "Search by name or email"
+
+msgid "Search users"
+msgstr "Search users"
+
+msgid "Search, filter, and review tenant accounts."
+msgstr "Search, filter, and review tenant accounts."
 
 msgid "Show details"
 msgstr "Show details"
@@ -151,14 +345,33 @@ msgstr "Something went wrong"
 msgid "Standard"
 msgstr "Standard"
 
+msgid "Status"
+msgstr "Status"
+
+msgid "Succeeded"
+msgstr "Succeeded"
+
 msgid "Support"
 msgstr "Support"
 
 msgid "Support (coming soon)"
 msgstr "Support (coming soon)"
 
+msgid "Suspended"
+msgstr "Suspended"
+
+#. placeholder {0}: getSubscriptionPlanLabel(tenant.scheduledPlan)
+msgid "Switching to {0}"
+msgstr "Switching to {0}"
+
 msgid "System"
 msgstr "System"
+
+msgid "Tenant accounts will appear here as they are created."
+msgstr "Tenant accounts will appear here as they are created."
+
+msgid "Tenant users"
+msgstr "Tenant users"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
@@ -166,8 +379,14 @@ msgstr "The page you are looking for does not exist or was moved."
 msgid "Theme"
 msgstr "Theme"
 
+msgid "This account has no users."
+msgstr "This account has no users."
+
 msgid "Try again"
 msgstr "Try again"
+
+msgid "Try clearing the search or plan filter to see more results."
+msgstr "Try clearing the search or plan filter to see more results."
 
 msgid "User"
 msgstr "User"
@@ -177,6 +396,9 @@ msgstr "User menu"
 
 msgid "Users"
 msgstr "Users"
+
+msgid "Users (active / total)"
+msgstr "Users (active / total)"
 
 msgid "Users (coming soon)"
 msgstr "Users (coming soon)"

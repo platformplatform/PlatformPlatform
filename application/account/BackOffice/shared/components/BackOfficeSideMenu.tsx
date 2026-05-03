@@ -22,6 +22,7 @@ const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 export function BackOfficeSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
+  const isAccountsActive = currentPath === "/accounts" || currentPath.startsWith("/accounts/");
 
   return (
     <Sidebar collapsible="icon">
@@ -46,6 +47,16 @@ export function BackOfficeSideMenu() {
                     </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild={true} isActive={isAccountsActive} tooltip={t`Accounts`}>
+                    <RouterLink to="/accounts">
+                      <Building2Icon />
+                      <span>
+                        <Trans>Accounts</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -55,14 +66,6 @@ export function BackOfficeSideMenu() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Accounts (coming soon)`}>
-                    <Building2Icon />
-                    <span>
-                      <Trans>Accounts</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton disabled={true} tooltip={t`Users (coming soon)`}>
                     <UsersIcon />

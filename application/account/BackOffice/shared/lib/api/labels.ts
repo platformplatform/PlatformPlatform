@@ -1,6 +1,12 @@
 import { t } from "@lingui/core/macro";
 
-import { SubscriptionPlan, UserRole } from "@/shared/lib/api/client";
+import {
+  PaymentTransactionStatus,
+  PlannedSubscriptionChange,
+  SubscriptionPlan,
+  TenantState,
+  UserRole
+} from "@/shared/lib/api/client";
 
 export function getSubscriptionPlanLabel(plan: SubscriptionPlan): string {
   switch (plan) {
@@ -12,6 +18,43 @@ export function getSubscriptionPlanLabel(plan: SubscriptionPlan): string {
       return t`Premium`;
     default:
       return String(plan);
+  }
+}
+
+export function getPlannedChangeLabel(change: PlannedSubscriptionChange): string {
+  switch (change) {
+    case PlannedSubscriptionChange.Cancellation:
+      return t`Cancellation`;
+    case PlannedSubscriptionChange.ScheduledPlanChange:
+      return t`Scheduled plan change`;
+    default:
+      return String(change);
+  }
+}
+
+export function getTenantStateLabel(state: TenantState): string {
+  switch (state) {
+    case TenantState.Active:
+      return t`Active`;
+    case TenantState.Suspended:
+      return t`Suspended`;
+    default:
+      return String(state);
+  }
+}
+
+export function getPaymentStatusLabel(status: PaymentTransactionStatus): string {
+  switch (status) {
+    case PaymentTransactionStatus.Succeeded:
+      return t`Succeeded`;
+    case PaymentTransactionStatus.Failed:
+      return t`Failed`;
+    case PaymentTransactionStatus.Pending:
+      return t`Pending`;
+    case PaymentTransactionStatus.Refunded:
+      return t`Refunded`;
+    default:
+      return String(status);
   }
 }
 
