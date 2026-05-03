@@ -21,6 +21,7 @@ public sealed record TenantDetailResponse(
     string? Currency,
     DateTimeOffset? RenewalDate,
     DateTimeOffset? SubscribedSince,
+    bool HasEverSubscribed,
     BillingAddressResponse? BillingAddress,
     decimal? LifetimeValue,
     TenantState State,
@@ -58,6 +59,9 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             .Where(t => t.Status == PaymentTransactionStatus.Succeeded)
             .Sum(t => t.Amount);
 
+        var hasEverSubscribed = subscription?.PaymentTransactions
+            .Any(t => t.Status == PaymentTransactionStatus.Succeeded) == true;
+
         var billingAddress = subscription?.BillingInfo?.Address is { } address
             ? new BillingAddressResponse(address.Line1, address.Line2, address.PostalCode, address.City, address.State, address.Country)
             : null;
@@ -73,6 +77,7 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             subscription?.CurrentPriceCurrency,
             subscription?.CurrentPeriodEnd,
             subscription?.SubscribedSince,
+            hasEverSubscribed,
             billingAddress,
             lifetimeValue,
             tenant.State,

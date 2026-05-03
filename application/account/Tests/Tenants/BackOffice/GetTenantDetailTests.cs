@@ -81,6 +81,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         payload.BillingAddress.City.Should().Be("Springfield");
         payload.LogoUrl.Should().Be("https://example.com/logo.png");
         payload.SubscribedSince.Should().Be(subscribedSince);
+        payload.HasEverSubscribed.Should().BeTrue();
     }
 
     [Fact]
@@ -110,6 +111,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<TenantDetailResponse>();
         payload.Should().NotBeNull();
         payload.SubscribedSince.Should().BeNull();
+        payload.HasEverSubscribed.Should().BeFalse();
     }
 
     [Fact]
