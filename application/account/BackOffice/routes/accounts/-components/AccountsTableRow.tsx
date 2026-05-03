@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
+import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { getCountryFlagEmoji } from "@repo/ui/utils/countryFlag";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { CalendarClockIcon, XCircleIcon } from "lucide-react";
@@ -9,6 +10,7 @@ import type { components } from "@/shared/lib/api/client";
 
 import { PlannedSubscriptionChange } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
 
@@ -29,16 +31,19 @@ export function AccountsTableRow({
   return (
     <TableRow rowKey={tenant.id}>
       <TableCell>
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate font-medium text-foreground">{tenant.name}</span>
-          <span className="text-sm text-muted-foreground md:hidden">
-            {getSubscriptionPlanLabel(tenant.plan)} ·{" "}
-            {formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency)}
-          </span>
+        <div className="flex min-w-0 items-center gap-3">
+          <TenantLogo tenantName={tenant.name} size="md" />
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate font-medium text-foreground">{tenant.name}</span>
+            <span className="text-sm text-muted-foreground md:hidden">
+              {getSubscriptionPlanLabel(tenant.plan)} ·{" "}
+              {formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency)}
+            </span>
+          </div>
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <Badge variant="outline">{getSubscriptionPlanLabel(tenant.plan)}</Badge>
+        <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>{getSubscriptionPlanLabel(tenant.plan)}</Badge>
       </TableCell>
       <TableCell className="hidden tabular-nums md:table-cell">
         {formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency)}

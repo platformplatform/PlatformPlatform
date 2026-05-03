@@ -159,6 +159,9 @@ msgstr "Stor"
 msgid "Larger"
 msgstr "Større"
 
+msgid "Last invoice"
+msgstr ""
+
 msgid "Last seen"
 msgstr "Sidst set"
 
@@ -283,7 +286,7 @@ msgid "Plan"
 msgstr "Plan"
 
 msgid "Plan & revenue"
-msgstr "Plan og omsætning"
+msgstr "Abonnement og omsætning"
 
 msgid "Plan change"
 msgstr "Planændring"
@@ -360,6 +363,7 @@ msgstr "Support (kommer snart)"
 msgid "Suspended"
 msgstr "Suspenderet"
 
+#. placeholder {0}: getSubscriptionPlanLabel(scheduledPlan)
 #. placeholder {0}: getSubscriptionPlanLabel(tenant.scheduledPlan)
 msgid "Switching to {0}"
 msgstr "Skifter til {0}"

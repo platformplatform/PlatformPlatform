@@ -48,7 +48,7 @@ export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-3">
-      <div className="min-w-[14rem] flex-1">
+      <div className="max-w-[20rem] min-w-[14rem] flex-1">
         <InputGroup>
           <InputGroupAddon>
             <SearchIcon />
@@ -80,11 +80,11 @@ export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>
         value={plan ? [plan] : ["all"]}
         onValueChange={handlePlanChange}
       >
-        <ToggleGroupItem value="all">
+        <ToggleGroupItem value="all" className="min-w-[5rem] justify-center">
           <Trans>All</Trans>
         </ToggleGroupItem>
         {Object.values(SubscriptionPlan).map((value) => (
-          <ToggleGroupItem key={value} value={value}>
+          <ToggleGroupItem key={value} value={value} className="min-w-[5rem] justify-center">
             {getSubscriptionPlanLabel(value)}
           </ToggleGroupItem>
         ))}

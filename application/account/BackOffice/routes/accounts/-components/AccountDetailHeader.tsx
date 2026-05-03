@@ -13,6 +13,7 @@ import type { components } from "@/shared/lib/api/client";
 
 import { PlannedSubscriptionChange, TenantState } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 function formatAmount(amount: number | null, currency: string | null): string {
   if (amount === null || currency === null) {
@@ -72,7 +73,9 @@ export function AccountDetailHeader({
             <>
               <h1>{tenant.name}</h1>
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">{getSubscriptionPlanLabel(tenant.plan)}</Badge>
+                <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
+                  {getSubscriptionPlanLabel(tenant.plan)}
+                </Badge>
                 {tenant.state === TenantState.Suspended && (
                   <Badge variant="outline" className="border-destructive/30 text-destructive">
                     <Trans>Suspended</Trans>

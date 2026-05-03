@@ -13,3 +13,14 @@ export function getCountryFlagEmoji(countryCode: string | null | undefined): str
     upper.charCodeAt(1) + REGIONAL_INDICATOR_OFFSET
   );
 }
+
+export function getCountryName(countryCode: string | null | undefined, locale: string): string {
+  if (!countryCode || countryCode.length !== 2) {
+    return "";
+  }
+  const upper = countryCode.toUpperCase();
+  if (!/^[A-Z]{2}$/.test(upper)) {
+    return "";
+  }
+  return new Intl.DisplayNames([locale], { type: "region" }).of(upper) ?? upper;
+}

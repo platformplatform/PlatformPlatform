@@ -159,6 +159,9 @@ msgstr "Large"
 msgid "Larger"
 msgstr "Larger"
 
+msgid "Last invoice"
+msgstr "Last invoice"
+
 msgid "Last seen"
 msgstr "Last seen"
 
@@ -360,6 +363,7 @@ msgstr "Support (coming soon)"
 msgid "Suspended"
 msgstr "Suspended"
 
+#. placeholder {0}: getSubscriptionPlanLabel(scheduledPlan)
 #. placeholder {0}: getSubscriptionPlanLabel(tenant.scheduledPlan)
 msgid "Switching to {0}"
 msgstr "Switching to {0}"
