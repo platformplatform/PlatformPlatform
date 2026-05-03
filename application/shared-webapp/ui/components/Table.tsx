@@ -29,7 +29,7 @@ const INTERACTIVE_SELECTOR =
 
 function parseRowKey(value: string): RowKey {
   const numeric = Number(value);
-  return value !== "" && !Number.isNaN(numeric) && String(numeric) === value ? numeric : value;
+  return value !== "" && Number.isSafeInteger(numeric) && String(numeric) === value ? numeric : value;
 }
 
 function rowSelector(key: RowKey): string {
