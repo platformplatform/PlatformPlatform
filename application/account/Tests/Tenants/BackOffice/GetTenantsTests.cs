@@ -17,21 +17,13 @@ namespace Account.Tests.Tenants.BackOffice;
 
 public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
 {
-    private readonly TenantId _tenantA;
-    private readonly TenantId _tenantB;
-    private readonly TenantId _tenantC;
-
-    public GetTenantsTests()
-    {
-        _tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
-        _tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
-        _tenantC = SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
-    }
-
     [Fact]
     public async Task GetTenants_WhenCalled_ShouldReturnAllTenantsWithSummaryFields()
     {
         // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        var tenantC = SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -46,7 +38,7 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         payload.TotalCount.Should().Be(4);
         payload.Tenants.Should().HaveCount(4);
 
-        var beta = payload.Tenants.Single(t => t.Id == _tenantB);
+        var beta = payload.Tenants.Single(t => t.Id == tenantB);
         beta.Name.Should().Be("Beta Industries");
         beta.Plan.Should().Be(SubscriptionPlan.Premium);
         beta.MonthlyRecurringRevenue.Should().Be(199.00m);
@@ -54,7 +46,7 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         beta.Country.Should().Be("DE");
         beta.PlannedChange.Should().Be(PlannedSubscriptionChange.Cancellation);
 
-        var cyrus = payload.Tenants.Single(t => t.Id == _tenantC);
+        var cyrus = payload.Tenants.Single(t => t.Id == tenantC);
         cyrus.PlannedChange.Should().Be(PlannedSubscriptionChange.ScheduledPlanChange);
         cyrus.MonthlyRecurringRevenue.Should().BeNull();
     }
@@ -63,6 +55,9 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
     public async Task GetTenants_WhenSearchingByName_ShouldReturnMatchingTenants()
     {
         // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -74,31 +69,36 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
         payload.Should().NotBeNull();
         payload.TotalCount.Should().Be(1);
-        payload.Tenants.Single().Id.Should().Be(_tenantA);
+        payload.Tenants.Single().Id.Should().Be(tenantA);
     }
 
     [Fact]
     public async Task GetTenants_WhenSearchingByExactId_ShouldReturnMatchingTenant()
     {
         // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync($"/api/back-office/tenants?search={_tenantA.Value}");
+        var response = await client.GetAsync($"/api/back-office/tenants?search={tenantA.Value}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
         payload.Should().NotBeNull();
         payload.TotalCount.Should().Be(1);
-        payload.Tenants.Single().Id.Should().Be(_tenantA);
+        payload.Tenants.Single().Id.Should().Be(tenantA);
     }
 
     [Fact]
     public async Task GetTenants_WhenFilteringByPlan_ShouldReturnOnlyMatchingPlan()
     {
         // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -110,13 +110,16 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
         payload.Should().NotBeNull();
         payload.TotalCount.Should().Be(1);
-        payload.Tenants.Single().Id.Should().Be(_tenantB);
+        payload.Tenants.Single().Id.Should().Be(tenantB);
     }
 
     [Fact]
     public async Task GetTenants_WhenSortingByMonthlyRecurringRevenueDescending_ShouldReturnHighestFirst()
     {
         // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        var tenantC = SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -127,13 +130,16 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
         payload.Should().NotBeNull();
-        payload.Tenants.Select(t => t.Id).Should().ContainInOrder(_tenantB, _tenantA, _tenantC);
+        payload.Tenants.Select(t => t.Id).Should().ContainInOrder(tenantB, tenantA, tenantC);
     }
 
     [Fact]
     public async Task GetTenants_WhenSortingByCreatedAtAscending_ShouldReturnOldestFirst()
     {
         // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        var tenantC = SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -144,13 +150,14 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
         payload.Should().NotBeNull();
-        payload.Tenants.Select(t => t.Id).Should().ContainInOrder(_tenantA, _tenantB, _tenantC);
+        payload.Tenants.Select(t => t.Id).Should().ContainInOrder(tenantA, tenantB, tenantC);
     }
 
     [Fact]
     public async Task GetTenants_WhenPagingBeyondAvailable_ShouldReturnBadRequest()
     {
         // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -165,6 +172,9 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
     public async Task GetTenants_WhenPagingWithSize_ShouldReturnPagedSlice()
     {
         // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 

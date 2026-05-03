@@ -46,10 +46,11 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Returns total and 30-day active user counts for the given tenant without applying tenant query filters.
+    ///     Returns total, 30-day active, and pending (unconfirmed email) user counts for the given tenant without applying
+    ///     tenant query filters.
     ///     This method is used by back-office cross-tenant queries where tenant context is not established.
     /// </summary>
-    Task<(int TotalUsers, int ActiveUsers)> GetUserCountsForTenantUnfilteredAsync(TenantId tenantId, DateTimeOffset activeSince, CancellationToken cancellationToken);
+    Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserCountsForTenantUnfilteredAsync(TenantId tenantId, DateTimeOffset activeSince, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Searches users belonging to a specific tenant without applying tenant query filters.
@@ -280,30 +281,31 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Returns total and 30-day active user counts for the given tenant without applying tenant query filters.
+    ///     Returns total, 30-day active, and pending (unconfirmed email) user counts for the given tenant without applying
+    ///     tenant query filters.
     ///     This method is used by back-office cross-tenant queries where tenant context is not established.
     /// </summary>
-    public async Task<(int TotalUsers, int ActiveUsers)> GetUserCountsForTenantUnfilteredAsync(TenantId tenantId, DateTimeOffset activeSince, CancellationToken cancellationToken)
+    public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserCountsForTenantUnfilteredAsync(TenantId tenantId, DateTimeOffset activeSince, CancellationToken cancellationToken)
     {
-        // SQLite EF cannot translate DateTimeOffset comparisons (text-stored); test path materializes LastSeenAt and counts in memory, bounded by tenant size.
+        // SQLite EF cannot translate DateTimeOffset comparisons (text-stored); test path materializes the relevant columns and counts in memory, bounded by tenant size.
         if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
         {
-            var lastSeen = await DbSet
+            var users = await DbSet
                 .IgnoreQueryFilters([QueryFilterNames.Tenant])
                 .Where(u => u.TenantId == tenantId)
-                .Select(u => u.LastSeenAt)
+                .Select(u => new { u.LastSeenAt, u.EmailConfirmed })
                 .ToListAsync(cancellationToken);
-            return (lastSeen.Count, lastSeen.Count(t => t.HasValue && t.Value >= activeSince));
+            return (users.Count, users.Count(u => u.EmailConfirmed && u.LastSeenAt.HasValue && u.LastSeenAt.Value >= activeSince), users.Count(u => !u.EmailConfirmed));
         }
 
         var counts = await DbSet
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(u => u.TenantId == tenantId)
             .GroupBy(_ => 1)
-            .Select(g => new { Total = g.Count(), Active = g.Count(u => u.LastSeenAt >= activeSince) })
+            .Select(g => new { Total = g.Count(), Active = g.Count(u => u.EmailConfirmed && u.LastSeenAt >= activeSince), Pending = g.Count(u => !u.EmailConfirmed) })
             .SingleOrDefaultAsync(cancellationToken);
 
-        return (counts?.Total ?? 0, counts?.Active ?? 0);
+        return (counts?.Total ?? 0, counts?.Active ?? 0, counts?.Pending ?? 0);
     }
 
     /// <summary>
@@ -355,7 +357,4 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
 
     [UsedImplicitly]
     private sealed record UserSummaryResult(int TotalUsers, int ActiveUsers, int PendingUsers);
-
-    [UsedImplicitly]
-    private sealed record TenantUserCountResult(int TotalUsers, int ActiveUsers);
 }

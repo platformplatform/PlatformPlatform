@@ -40,6 +40,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public SubscriptionPlan? ScheduledPlan { get; private set; }
 
+    public decimal? ScheduledPriceAmount { get; private set; }
+
     public StripeCustomerId? StripeCustomerId { get; private set; }
 
     public StripeSubscriptionId? StripeSubscriptionId { get; private set; }
@@ -57,6 +59,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     public CancellationReason? CancellationReason { get; private set; }
 
     public string? CancellationFeedback { get; private set; }
+
+    public DateTimeOffset? SubscribedSince { get; private set; }
 
     public ImmutableArray<PaymentTransaction> PaymentTransactions { get; private set; }
 
@@ -81,14 +85,23 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         BillingInfo = billingInfo;
     }
 
-    public void SetStripeSubscription(StripeSubscriptionId? stripeSubscriptionId, SubscriptionPlan plan, decimal? currentPriceAmount, string? currentPriceCurrency, DateTimeOffset? currentPeriodEnd, PaymentMethod? paymentMethod)
+    public void SetStripeSubscription(StripeSubscriptionId? stripeSubscriptionId, SubscriptionPlan plan, decimal? currentPriceAmount, string? currentPriceCurrency, DateTimeOffset? currentPeriodEnd, PaymentMethod? paymentMethod, DateTimeOffset now)
     {
+        var previousPlan = Plan;
+
         StripeSubscriptionId = stripeSubscriptionId;
         Plan = plan;
         CurrentPriceAmount = currentPriceAmount;
         CurrentPriceCurrency = currentPriceCurrency;
         CurrentPeriodEnd = currentPeriodEnd;
         PaymentMethod = paymentMethod;
+
+        // Capture the start of a paid run only when transitioning from Basis (free) to a paid plan.
+        // Plan changes between paid plans (e.g., Standard <-> Premium) preserve the original SubscribedSince.
+        if (previousPlan == SubscriptionPlan.Basis && plan != SubscriptionPlan.Basis)
+        {
+            SubscribedSince = now;
+        }
     }
 
     public void SetCancellation(bool cancelAtPeriodEnd, CancellationReason? cancellationReason, string? cancellationFeedback)
@@ -98,9 +111,10 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         CancellationFeedback = cancellationFeedback;
     }
 
-    public void SetScheduledPlan(SubscriptionPlan? scheduledPlan)
+    public void SetScheduledPlan(SubscriptionPlan? scheduledPlan, decimal? scheduledPriceAmount)
     {
         ScheduledPlan = scheduledPlan;
+        ScheduledPriceAmount = scheduledPriceAmount;
     }
 
     public void SetPaymentTransactions(ImmutableArray<PaymentTransaction> paymentTransactions)
@@ -127,6 +141,7 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     {
         Plan = SubscriptionPlan.Basis;
         ScheduledPlan = null;
+        ScheduledPriceAmount = null;
         StripeSubscriptionId = null;
         CurrentPriceAmount = null;
         CurrentPriceCurrency = null;
@@ -135,6 +150,7 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         FirstPaymentFailedAt = null;
         CancellationReason = null;
         CancellationFeedback = null;
+        SubscribedSince = null;
     }
 
     public bool HasActiveStripeSubscription()

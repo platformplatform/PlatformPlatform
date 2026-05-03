@@ -15,7 +15,7 @@ namespace Account.Tests.Tenants.BackOffice;
 public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
 {
     [Fact]
-    public async Task GetTenantUserCounts_WhenCalled_ShouldReturnTotalAndActiveCounts()
+    public async Task GetTenantUserCounts_WhenCalled_ShouldReturnTotalActiveAndPendingCounts()
     {
         // Arrange
         var tenant = DatabaseSeeder.Tenant1;
@@ -23,6 +23,7 @@ public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
         SeedUser(tenant.Id, "active2@tenant-1.com", DateTimeOffset.UtcNow.AddDays(-15));
         SeedUser(tenant.Id, "inactive@tenant-1.com", DateTimeOffset.UtcNow.AddDays(-60));
         SeedUser(tenant.Id, "neverseen@tenant-1.com", null);
+        SeedUser(tenant.Id, "pending@tenant-1.com", null, false);
 
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
@@ -34,9 +35,31 @@ public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantUserCountsResponse>();
         payload.Should().NotBeNull();
-        // DatabaseSeeder seeds Tenant1 with two users (Owner, Member) plus our four; only the two seeded users have last_seen_at = null and the two recent ones above are active.
-        payload.TotalUsers.Should().Be(6);
+        // DatabaseSeeder seeds Tenant1 with two confirmed users (Owner, Member) without last_seen_at, plus our five users.
+        payload.TotalUsers.Should().Be(7);
         payload.ActiveUsers.Should().Be(2);
+        payload.PendingUsers.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetTenantUserCounts_WhenUserHasUnconfirmedEmail_ShouldCountAsPendingNotActive()
+    {
+        // Arrange
+        var tenant = DatabaseSeeder.Tenant1;
+        SeedUser(tenant.Id, "pending-recent@tenant-1.com", DateTimeOffset.UtcNow.AddDays(-1), false);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/user-counts");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantUserCountsResponse>();
+        payload.Should().NotBeNull();
+        payload.PendingUsers.Should().Be(1);
+        payload.ActiveUsers.Should().Be(0);
     }
 
     [Fact]
@@ -54,7 +77,7 @@ public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    private void SeedUser(TenantId tenantId, string email, DateTimeOffset? lastSeenAt)
+    private void SeedUser(TenantId tenantId, string email, DateTimeOffset? lastSeenAt, bool emailConfirmed = true)
     {
         Connection.Insert("users", [
                 ("tenant_id", tenantId.Value),
@@ -64,7 +87,7 @@ public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
                 ("last_seen_at", (object?)lastSeenAt ?? DBNull.Value),
                 ("email", email),
                 ("external_identities", "[]"),
-                ("email_confirmed", true),
+                ("email_confirmed", emailConfirmed),
                 ("first_name", null),
                 ("last_name", null),
                 ("title", null),

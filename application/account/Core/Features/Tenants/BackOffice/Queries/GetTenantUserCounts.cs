@@ -10,7 +10,7 @@ namespace Account.Features.Tenants.BackOffice.Queries;
 public sealed record GetTenantUserCountsQuery(TenantId Id) : IRequest<Result<TenantUserCountsResponse>>;
 
 [PublicAPI]
-public sealed record TenantUserCountsResponse(int TotalUsers, int ActiveUsers);
+public sealed record TenantUserCountsResponse(int TotalUsers, int ActiveUsers, int PendingUsers);
 
 public sealed class GetTenantUserCountsHandler(ITenantRepository tenantRepository, IUserRepository userRepository, TimeProvider timeProvider)
     : IRequestHandler<GetTenantUserCountsQuery, Result<TenantUserCountsResponse>>
@@ -26,7 +26,7 @@ public sealed class GetTenantUserCountsHandler(ITenantRepository tenantRepositor
         }
 
         var activeSince = timeProvider.GetUtcNow().AddDays(-ActiveWindowDays);
-        var (totalUsers, activeUsers) = await userRepository.GetUserCountsForTenantUnfilteredAsync(tenant.Id, activeSince, cancellationToken);
-        return new TenantUserCountsResponse(totalUsers, activeUsers);
+        var (totalUsers, activeUsers, pendingUsers) = await userRepository.GetUserCountsForTenantUnfilteredAsync(tenant.Id, activeSince, cancellationToken);
+        return new TenantUserCountsResponse(totalUsers, activeUsers, pendingUsers);
     }
 }

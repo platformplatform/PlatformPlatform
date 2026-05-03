@@ -22,6 +22,7 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.MapStronglyTypedNullableId<Subscription, StripeSubscriptionId, string>(s => s.StripeSubscriptionId);
 
         builder.Property(s => s.CurrentPriceAmount).HasPrecision(18, 2);
+        builder.Property(s => s.ScheduledPriceAmount).HasPrecision(18, 2);
 
         builder.Property(s => s.PaymentTransactions)
             .HasColumnType("jsonb")

@@ -112,7 +112,7 @@ public sealed class ProcessPendingStripeEvents(
         // Apply Stripe state to aggregate (after detection, before side effects)
         if (stripeState is not null)
         {
-            subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod);
+            subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod, now);
             tenant.UpdatePlan(stripeState.Plan);
         }
 
@@ -161,10 +161,10 @@ public sealed class ProcessPendingStripeEvents(
 
         if (downgradeScheduled)
         {
-            subscription.SetScheduledPlan(stripeState!.ScheduledPlan);
-            var daysUntilDowngrade = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
-            var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == subscription.ScheduledPlan!.Value).UnitAmount;
+            var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == stripeState!.ScheduledPlan!.Value).UnitAmount;
+            subscription.SetScheduledPlan(stripeState!.ScheduledPlan, scheduledPlanPrice);
+            var daysUntilDowngrade = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             events.CollectEvent(new SubscriptionDowngradeScheduled(subscription.Id, subscription.Plan, subscription.ScheduledPlan!.Value, daysUntilDowngrade, subscription.CurrentPriceAmount!.Value, scheduledPlanPrice - subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
         }
 
@@ -172,7 +172,7 @@ public sealed class ProcessPendingStripeEvents(
         {
             var previousScheduledPlan = subscription.ScheduledPlan;
             var daysSinceDowngradeScheduled = (int)(now - (subscription.ModifiedAt ?? subscription.CreatedAt)).TotalDays;
-            subscription.SetScheduledPlan(stripeState!.ScheduledPlan);
+            subscription.SetScheduledPlan(stripeState!.ScheduledPlan, null);
             var daysUntilDowngrade = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
             var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == previousScheduledPlan!.Value).UnitAmount;
@@ -181,7 +181,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (subscriptionDowngraded)
         {
-            subscription.SetScheduledPlan(stripeState!.ScheduledPlan);
+            subscription.SetScheduledPlan(stripeState!.ScheduledPlan, null);
             events.CollectEvent(new SubscriptionDowngraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value, subscription.CurrentPriceCurrency!));
         }
 

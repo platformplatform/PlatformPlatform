@@ -14,7 +14,7 @@ public sealed class BackOfficeEndpoints : IEndpoints
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         // BackOffice:Host is required (validated at startup via ValidateOnStart in
-        // ApiDependencyConfiguration.AddBackOfficeHostOptions). PP-1149 must keep that validation in place
+        // ApiDependencyConfiguration.AddBackOfficeHostOptions). The startup validation must stay in place
         // so a missing/blank value fails loudly rather than silently 404-ing back-office endpoints.
         var backOfficeHost = routes.ServiceProvider.GetRequiredService<IOptions<BackOfficeHostOptions>>().Value.Host;
 

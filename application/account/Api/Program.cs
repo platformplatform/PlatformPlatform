@@ -62,6 +62,10 @@ app.UseBackOfficeDevStaticProxy(backOfficeHostname);
 
 app.UseApiServices(); // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
 
+// Back-office Kestrel listens on its own port and bypasses AppGateway, so the avatar/logo routes
+// that AppGateway proxies on the user-facing host must be served here directly from blob storage.
+app.MapBackOfficeBlobProxy(backOfficeHostname);
+
 app.UseEmailStaticFiles("WebApp");
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)

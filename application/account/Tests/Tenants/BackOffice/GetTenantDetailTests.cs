@@ -27,8 +27,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("modified_at", null),
                 ("name", "Acme Corp"),
                 ("state", nameof(TenantState.Active)),
-                ("logo", """{"Url":"https://example.com/logo.png","Version":1}"""),
-                ("plan", nameof(SubscriptionPlan.Premium))
+                ("plan", nameof(SubscriptionPlan.Premium)),
+                ("logo", """{"Url":"https://example.com/logo.png","Version":1}""")
             ]
         );
 
@@ -36,6 +36,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         var transactions = ImmutableArray.Create(
             new PaymentTransaction(PaymentTransactionId.NewId(), 199.00m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null)
         );
+        var subscribedSince = DateTimeOffset.Parse("2025-02-01T00:00:00Z");
         Connection.Insert("subscriptions", [
                 ("tenant_id", tenantId.Value),
                 ("id", SubscriptionId.NewId().ToString()),
@@ -52,6 +53,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("first_payment_failed_at", null),
                 ("cancellation_reason", null),
                 ("cancellation_feedback", null),
+                ("subscribed_since", subscribedSince),
                 ("payment_transactions", JsonSerializer.Serialize(transactions.ToArray())),
                 ("payment_method", null),
                 ("billing_info", billingInfoJson)
@@ -78,6 +80,36 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         payload.BillingAddress.Country.Should().Be("US");
         payload.BillingAddress.City.Should().Be("Springfield");
         payload.LogoUrl.Should().Be("https://example.com/logo.png");
+        payload.SubscribedSince.Should().Be(subscribedSince);
+    }
+
+    [Fact]
+    public async Task GetTenantDetail_WhenSubscriptionMissing_ShouldReturnNullSubscribedSince()
+    {
+        // Arrange
+        var tenantId = TenantId.NewId();
+        Connection.Insert("tenants", [
+                ("id", tenantId.Value),
+                ("created_at", DateTimeOffset.UtcNow.AddDays(-5)),
+                ("modified_at", null),
+                ("name", "No Subscription Inc"),
+                ("state", nameof(TenantState.Active)),
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("logo", """{"Url":null,"Version":1}""")
+            ]
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenantId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantDetailResponse>();
+        payload.Should().NotBeNull();
+        payload.SubscribedSince.Should().BeNull();
     }
 
     [Fact]
