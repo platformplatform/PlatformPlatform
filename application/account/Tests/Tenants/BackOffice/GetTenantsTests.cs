@@ -103,7 +103,7 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync("/api/back-office/tenants?plan=Premium");
+        var response = await client.GetAsync("/api/back-office/tenants?plans=Premium");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -111,6 +111,27 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         payload.TotalCount.Should().Be(1);
         payload.Tenants.Single().Id.Should().Be(tenantB);
+    }
+
+    [Fact]
+    public async Task GetTenants_WhenFilteringByMultiplePlans_ShouldReturnAllMatchingPlans()
+    {
+        // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        SeedTenant("Cyrus Co", SubscriptionPlan.Basis, null, null, null, false, SubscriptionPlan.Standard, 10);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?plans=Standard&plans=Premium");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(2);
+        payload.Tenants.Select(t => t.Id).Should().BeEquivalentTo([tenantA, tenantB]);
     }
 
     [Fact]
@@ -192,6 +213,133 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetTenants_WhenFilteringByActiveStatus_ShouldReturnOnlyActivePaidTenants()
+    {
+        // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 50);
+        SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 40);
+        SeedTenant("Cyrus Co", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, SubscriptionPlan.Basis, 30);
+        SeedTenant("Delta Ltd", SubscriptionPlan.Basis, null, null, null, false, null, 20, true);
+        SeedTenant("Epsilon Inc", SubscriptionPlan.Basis, null, null, null, false, null, 10);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?statuses=Active");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(1);
+        payload.Tenants.Single().Id.Should().Be(tenantA);
+    }
+
+    [Fact]
+    public async Task GetTenants_WhenFilteringByDowngradingStatus_ShouldReturnOnlyTenantsWithScheduledPlanChange()
+    {
+        // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantC = SeedTenant("Cyrus Co", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, SubscriptionPlan.Basis, 20);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?statuses=Downgrading");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(1);
+        payload.Tenants.Single().Id.Should().Be(tenantC);
+    }
+
+    [Fact]
+    public async Task GetTenants_WhenFilteringByCancelingStatus_ShouldReturnOnlyTenantsWithCancellationScheduled()
+    {
+        // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 20);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?statuses=Canceling");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(1);
+        payload.Tenants.Single().Id.Should().Be(tenantB);
+    }
+
+    [Fact]
+    public async Task GetTenants_WhenFilteringByCanceledStatus_ShouldReturnOnlyDowngradedTenants()
+    {
+        // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        var tenantD = SeedTenant("Delta Ltd", SubscriptionPlan.Basis, null, null, null, false, null, 20, true);
+        SeedTenant("Epsilon Inc", SubscriptionPlan.Basis, null, null, null, false, null, 10);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?statuses=Canceled");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(1);
+        payload.Tenants.Single().Id.Should().Be(tenantD);
+    }
+
+    [Fact]
+    public async Task GetTenants_WhenFilteringByFreeStatus_ShouldReturnOnlyTenantsThatNeverSubscribed()
+    {
+        // Arrange
+        SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 30);
+        SeedTenant("Delta Ltd", SubscriptionPlan.Basis, null, null, null, false, null, 20, true);
+        var tenantE = SeedTenant("Epsilon Inc", SubscriptionPlan.Basis, null, null, null, false, null, 10);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?statuses=Free");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        // DatabaseSeeder.Tenant1 also has Free status (Basis plan, never subscribed).
+        payload.Tenants.Should().Contain(t => t.Id == tenantE);
+        payload.Tenants.Should().OnlyContain(t => t.Plan == SubscriptionPlan.Basis && !t.HasEverSubscribed);
+    }
+
+    [Fact]
+    public async Task GetTenants_WhenFilteringByMultipleStatuses_ShouldReturnTenantsMatchingAny()
+    {
+        // Arrange
+        var tenantA = SeedTenant("Acme Corp", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, null, 50);
+        var tenantB = SeedTenant("Beta Industries", SubscriptionPlan.Premium, 199.00m, "EUR", "DE", true, null, 40);
+        SeedTenant("Cyrus Co", SubscriptionPlan.Standard, 49.99m, "USD", "US", false, SubscriptionPlan.Basis, 30);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/tenants?statuses=Active&statuses=Canceling");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(2);
+        payload.Tenants.Select(t => t.Id).Should().BeEquivalentTo([tenantA, tenantB]);
+    }
+
+    [Fact]
     public async Task GetTenants_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
@@ -219,7 +367,7 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    private TenantId SeedTenant(string name, SubscriptionPlan plan, decimal? mrr, string? currency, string? country, bool cancelAtPeriodEnd, SubscriptionPlan? scheduledPlan, int createdMinutesAgo)
+    private TenantId SeedTenant(string name, SubscriptionPlan plan, decimal? mrr, string? currency, string? country, bool cancelAtPeriodEnd, SubscriptionPlan? scheduledPlan, int createdMinutesAgo, bool hasEverSubscribed = false)
     {
         var tenantId = TenantId.NewId();
 
@@ -238,6 +386,14 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
             ? null
             : JsonSerializer.Serialize(new BillingInfo(name, new BillingAddress(null, null, null, null, null, country), null, null));
 
+        var paymentTransactionsJson = hasEverSubscribed
+            ? JsonSerializer.Serialize(new[]
+                {
+                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null)
+                }
+            )
+            : "[]";
+
         Connection.Insert("subscriptions", [
                 ("tenant_id", tenantId.Value),
                 ("id", SubscriptionId.NewId().ToString()),
@@ -254,7 +410,7 @@ public sealed class GetTenantsTests : BackOfficeEndpointBaseTest
                 ("first_payment_failed_at", null),
                 ("cancellation_reason", null),
                 ("cancellation_feedback", null),
-                ("payment_transactions", "[]"),
+                ("payment_transactions", paymentTransactionsJson),
                 ("payment_method", null),
                 ("billing_info", billingInfoJson)
             ]

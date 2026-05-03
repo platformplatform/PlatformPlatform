@@ -11,7 +11,8 @@ namespace Account.Features.Tenants.BackOffice.Queries;
 [PublicAPI]
 public sealed record GetTenantsQuery(
     string? Search = null,
-    SubscriptionPlan? Plan = null,
+    SubscriptionPlan[]? Plans = null,
+    TenantStatusFilter[]? Statuses = null,
     SortableTenantProperties OrderBy = SortableTenantProperties.Name,
     SortOrder SortOrder = SortOrder.Ascending,
     int PageOffset = 0,
@@ -19,6 +20,10 @@ public sealed record GetTenantsQuery(
 ) : IRequest<Result<TenantsResponse>>
 {
     public string? Search { get; } = Search?.Trim().ToLower();
+
+    public SubscriptionPlan[] Plans { get; } = Plans ?? [];
+
+    public TenantStatusFilter[] Statuses { get; } = Statuses ?? [];
 }
 
 [PublicAPI]
@@ -50,6 +55,17 @@ public enum PlannedSubscriptionChange
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
+public enum TenantStatusFilter
+{
+    Active,
+    Downgrading,
+    Canceling,
+    Canceled,
+    Free
+}
+
+[PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SortableTenantProperties
 {
     Name,
@@ -66,6 +82,8 @@ public sealed class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery
     public GetTenantsQueryValidator()
     {
         RuleFor(x => x.Search).MaximumLength(100).WithMessage("Search must be no longer than 100 characters.");
+        RuleFor(x => x.Plans.Length).LessThanOrEqualTo(10).WithMessage("Plans filter must contain no more than 10 values.");
+        RuleFor(x => x.Statuses.Length).LessThanOrEqualTo(10).WithMessage("Statuses filter must contain no more than 10 values.");
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100).WithMessage("Page size must be between 1 and 100.");
         RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("Page offset must be greater than or equal to 0.");
     }
@@ -76,7 +94,7 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
 {
     public async Task<Result<TenantsResponse>> Handle(GetTenantsQuery query, CancellationToken cancellationToken)
     {
-        var tenants = await tenantRepository.SearchAllTenantsAsync(query.Search, query.Plan, cancellationToken);
+        var tenants = await tenantRepository.SearchAllTenantsAsync(query.Search, query.Plans, cancellationToken);
 
         var tenantIds = tenants.Select(t => t.Id).ToArray();
         var subscriptions = tenantIds.Length == 0
@@ -85,6 +103,11 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
         var subscriptionsByTenantId = subscriptions.ToDictionary(s => s.TenantId);
 
         var summaries = tenants.Select(tenant => MapTenantSummary(tenant, subscriptionsByTenantId.GetValueOrDefault(tenant.Id))).ToArray();
+
+        if (query.Statuses.Length > 0)
+        {
+            summaries = summaries.Where(s => query.Statuses.Contains(GetStatus(s))).ToArray();
+        }
 
         var ordered = (query.OrderBy, query.SortOrder) switch
         {
@@ -118,13 +141,26 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
 
     private static int StatusSortKey(TenantSummary summary)
     {
-        // Order: Active paid, Downgrading, Canceling, Basis. Stable secondary sort on Name handled by caller.
+        return GetStatus(summary) switch
+        {
+            TenantStatusFilter.Active => 0,
+            TenantStatusFilter.Downgrading => 1,
+            TenantStatusFilter.Canceling => 2,
+            TenantStatusFilter.Canceled => 3,
+            TenantStatusFilter.Free => 4,
+            _ => 5
+        };
+    }
+
+    private static TenantStatusFilter GetStatus(TenantSummary summary)
+    {
         return summary switch
         {
-            { PlannedChange: PlannedSubscriptionChange.Cancellation } => 2,
-            { PlannedChange: PlannedSubscriptionChange.ScheduledPlanChange } => 1,
-            { Plan: not SubscriptionPlan.Basis } => 0,
-            _ => 3
+            { PlannedChange: PlannedSubscriptionChange.Cancellation } => TenantStatusFilter.Canceling,
+            { PlannedChange: PlannedSubscriptionChange.ScheduledPlanChange } => TenantStatusFilter.Downgrading,
+            { Plan: not SubscriptionPlan.Basis } => TenantStatusFilter.Active,
+            { HasEverSubscribed: true } => TenantStatusFilter.Canceled,
+            _ => TenantStatusFilter.Free
         };
     }
 

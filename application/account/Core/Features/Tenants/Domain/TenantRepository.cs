@@ -21,7 +21,7 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     /// </summary>
     Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken);
 
-    Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan? plan, CancellationToken cancellationToken);
+    Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan[] plans, CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -47,7 +47,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
         return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public async Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan? plan, CancellationToken cancellationToken)
+    public async Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan[] plans, CancellationToken cancellationToken)
     {
         IQueryable<Tenant> tenants = DbSet;
 
@@ -59,9 +59,9 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
             tenants = tenants.Where(t => t.Name.ToLower().Contains(search) || (idMatch != null && t.Id == idMatch));
         }
 
-        if (plan is not null)
+        if (plans.Length > 0)
         {
-            tenants = tenants.Where(t => t.Plan == plan);
+            tenants = tenants.Where(t => plans.AsEnumerable().Contains(t.Plan));
         }
 
         return await tenants.ToArrayAsync(cancellationToken);
