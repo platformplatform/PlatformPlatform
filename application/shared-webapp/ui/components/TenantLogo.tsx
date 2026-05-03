@@ -1,7 +1,5 @@
 import type { ComponentProps } from "react";
 
-import { Building2Icon } from "lucide-react";
-
 import { cn } from "../utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./Avatar";
 
@@ -30,15 +28,30 @@ const sizeMap = {
   lg: "size-16"
 };
 
-export function TenantLogo({ logoUrl, tenantName: _, size = "md", className, ...props }: Readonly<TenantLogoProps>) {
-  const iconSize = size === "lg" ? "size-12" : size === "md" ? "size-7" : "size-5";
-  const iconPadding = "p-0.5";
+const fallbackTextSize = {
+  sm: "text-[0.625rem]",
+  md: "text-xs",
+  lg: "text-xl"
+};
 
+function getTenantInitials(tenantName: string): string {
+  const cleaned = tenantName.trim();
+  if (cleaned.length === 0) {
+    return "?";
+  }
+  const parts = cleaned.split(/\s+/);
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
+export function TenantLogo({ logoUrl, tenantName, size = "md", className, ...props }: Readonly<TenantLogoProps>) {
   return (
     <Avatar className={cn(sizeMap[size], "shrink-0 rounded-lg after:hidden", className)} {...props}>
       <AvatarImage src={logoUrl ?? undefined} className="rounded-lg object-contain" />
-      <AvatarFallback className={cn("rounded-lg bg-transparent", iconPadding)}>
-        <Building2Icon className={`${iconSize} text-muted-foreground`} />
+      <AvatarFallback className={cn("rounded-lg bg-muted font-medium text-muted-foreground", fallbackTextSize[size])}>
+        {getTenantInitials(tenantName)}
       </AvatarFallback>
     </Avatar>
   );

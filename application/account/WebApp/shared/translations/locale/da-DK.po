@@ -2929,6 +2929,9 @@ msgstr "Se brugere"
 msgid "Visitors"
 msgstr "Besøgende"
 
+msgid "Warning"
+msgstr "Advarsel"
+
 msgid "Warning alert"
 msgstr "Advarselsbesked"
 

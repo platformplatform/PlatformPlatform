@@ -2931,6 +2931,9 @@ msgstr "View users"
 msgid "Visitors"
 msgstr "Visitors"
 
+msgid "Warning"
+msgstr "Warning"
+
 msgid "Warning alert"
 msgstr "Warning alert"
 

@@ -5,7 +5,8 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "flex min-w-0 flex-col gap-6 overflow-hidden rounded-xl border bg-card py-6 text-card-foreground shadow-sm transition-colors active:bg-muted",
+        // Overflow-safety contract: min-w-0 + overflow-hidden + [&>*]:min-w-0 [&>*]:max-w-full [&_*]:break-words prevent flex/grid overflow paths.
+        "flex min-w-0 flex-col gap-6 overflow-hidden rounded-xl border bg-card py-6 text-card-foreground shadow-sm transition-colors active:bg-muted [&_*]:break-words [&>*]:max-w-full [&>*]:min-w-0",
         className
       )}
       {...props}
@@ -45,7 +46,7 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-content" className={cn("px-6", className)} {...props} />;
+  return <div data-slot="card-content" className={cn("min-w-0 px-6", className)} {...props} />;
 }
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
