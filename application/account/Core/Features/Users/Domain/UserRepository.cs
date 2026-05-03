@@ -1,4 +1,6 @@
 using Account.Database;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.BackOffice.Queries;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -61,6 +63,24 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
         string? search,
         UserRole? role,
         int? pageOffset,
+        int pageSize,
+        CancellationToken cancellationToken
+    );
+
+    /// <summary>
+    ///     Searches users across every tenant without applying tenant query filters. Search is required and matches
+    ///     user email, full name, or tenant name. The activity filter compares <see cref="User.LastSeenAt" /> to
+    ///     a sliding window relative to <paramref name="now" />. This method is used by the back-office cross-tenant
+    ///     Users search page where tenant context is not established.
+    /// </summary>
+    Task<(User[] Users, int TotalItems, int TotalPages)> SearchAllUsersUnfilteredAsync(
+        string search,
+        UserRole[] roles,
+        UserActivityFilter? activity,
+        DateTimeOffset now,
+        SortableBackOfficeUserProperties orderBy,
+        SortOrder sortOrder,
+        int pageOffset,
         int pageSize,
         CancellationToken cancellationToken
     );
@@ -353,6 +373,95 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
 
         var totalPages = (totalItems - 1) / pageSize + 1;
         return (result, totalItems, totalPages);
+    }
+
+    /// <summary>
+    ///     Searches users across every tenant without applying tenant query filters. Search is required and matches
+    ///     user email, full name, or tenant name. The activity filter compares <see cref="User.LastSeenAt" /> to
+    ///     a sliding window relative to <paramref name="now" />. This method is used by the back-office cross-tenant
+    ///     Users search page where tenant context is not established.
+    ///     Search and role filters run in the database. Activity filter, sort, and pagination run in memory because
+    ///     SQLite cannot translate DateTimeOffset comparisons in WHERE or ORDER BY clauses (the test database is
+    ///     SQLite). The Users page is search-only by design, so the candidate set after the search predicate is small.
+    /// </summary>
+    public async Task<(User[] Users, int TotalItems, int TotalPages)> SearchAllUsersUnfilteredAsync(
+        string search,
+        UserRole[] roles,
+        UserActivityFilter? activity,
+        DateTimeOffset now,
+        SortableBackOfficeUserProperties orderBy,
+        SortOrder sortOrder,
+        int pageOffset,
+        int pageSize,
+        CancellationToken cancellationToken
+    )
+    {
+        // Tenant name search is implemented as a separate lookup so we don't need an EF join. We then OR the resulting
+        // ids into the user predicate alongside email and full-name matches.
+        var matchingTenantIds = await accountDbContext.Set<Tenant>()
+            .IgnoreQueryFilters()
+            .Where(t => t.Name.ToLower().Contains(search))
+            .Select(t => t.Id)
+            .ToArrayAsync(cancellationToken);
+
+        var users = DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u =>
+                u.Email.Contains(search) ||
+                ((u.FirstName ?? "") + " " + (u.LastName ?? "")).ToLower().Contains(search) ||
+                matchingTenantIds.AsEnumerable().Contains(u.TenantId)
+            );
+
+        if (roles.Length > 0)
+        {
+            users = users.Where(u => roles.AsEnumerable().Contains(u.Role));
+        }
+
+        var candidates = await users.ToArrayAsync(cancellationToken);
+
+        if (activity is not null)
+        {
+            var oneDayAgo = now.AddDays(-1);
+            var sevenDaysAgo = now.AddDays(-7);
+            var thirtyDaysAgo = now.AddDays(-30);
+            candidates = activity switch
+            {
+                UserActivityFilter.ActiveLast24Hours => candidates.Where(u => u.LastSeenAt >= oneDayAgo).ToArray(),
+                UserActivityFilter.ActiveLast7Days => candidates.Where(u => u.LastSeenAt >= sevenDaysAgo).ToArray(),
+                UserActivityFilter.ActiveLast30Days => candidates.Where(u => u.LastSeenAt >= thirtyDaysAgo).ToArray(),
+                UserActivityFilter.InactiveOver30Days => candidates.Where(u => u.LastSeenAt is null || u.LastSeenAt < thirtyDaysAgo).ToArray(),
+                _ => candidates
+            };
+        }
+
+        IEnumerable<User> ordered = (orderBy, sortOrder) switch
+        {
+            (SortableBackOfficeUserProperties.Email, SortOrder.Ascending) => candidates.OrderBy(u => u.Email),
+            (SortableBackOfficeUserProperties.Email, _) => candidates.OrderByDescending(u => u.Email),
+            (SortableBackOfficeUserProperties.Role, SortOrder.Ascending) => candidates.OrderBy(u => u.Role).ThenBy(u => u.Email),
+            (SortableBackOfficeUserProperties.Role, _) => candidates.OrderByDescending(u => u.Role).ThenBy(u => u.Email),
+            (SortableBackOfficeUserProperties.LastSeenAt, SortOrder.Ascending) => candidates.OrderBy(u => u.LastSeenAt ?? DateTimeOffset.MinValue).ThenBy(u => u.Email),
+            (SortableBackOfficeUserProperties.LastSeenAt, _) => candidates.OrderByDescending(u => u.LastSeenAt ?? DateTimeOffset.MinValue).ThenBy(u => u.Email),
+            (SortableBackOfficeUserProperties.CreatedAt, SortOrder.Ascending) => candidates.OrderBy(u => u.CreatedAt),
+            (SortableBackOfficeUserProperties.CreatedAt, _) => candidates.OrderByDescending(u => u.CreatedAt),
+            (_, SortOrder.Descending) => candidates
+                .OrderBy(u => u.FirstName is null ? 0 : 1)
+                .ThenByDescending(u => u.FirstName)
+                .ThenBy(u => u.LastName is null ? 0 : 1)
+                .ThenByDescending(u => u.LastName)
+                .ThenBy(u => u.Email),
+            _ => candidates
+                .OrderBy(u => u.FirstName is null ? 1 : 0)
+                .ThenBy(u => u.FirstName)
+                .ThenBy(u => u.LastName is null ? 1 : 0)
+                .ThenBy(u => u.LastName)
+                .ThenBy(u => u.Email)
+        };
+
+        var totalItems = candidates.Length;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
+        var pageUsers = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
+        return (pageUsers, totalItems, totalPages);
     }
 
     [UsedImplicitly]

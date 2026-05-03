@@ -22,6 +22,13 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken);
 
     Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan[] plans, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Looks up tenant names for a set of tenant ids without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries that need to attach the tenant name
+    ///     to a list of records (users, sessions, ...) where tenant context is not established.
+    /// </summary>
+    Task<Dictionary<TenantId, string>> GetNamesByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -65,5 +72,20 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
         }
 
         return await tenants.ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Looks up tenant names for a set of tenant ids without applying tenant query filters.
+    ///     This method is used by back-office cross-tenant queries that need to attach the tenant name
+    ///     to a list of records (users, sessions, ...) where tenant context is not established.
+    /// </summary>
+    public async Task<Dictionary<TenantId, string>> GetNamesByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
+    {
+        if (ids.Length == 0) return new Dictionary<TenantId, string>();
+
+        return await DbSet
+            .IgnoreQueryFilters()
+            .Where(t => ids.AsEnumerable().Contains(t.Id))
+            .ToDictionaryAsync(t => t.Id, t => t.Name, cancellationToken);
     }
 }

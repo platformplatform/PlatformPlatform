@@ -37,6 +37,13 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     ///     This method should only be used during token refresh where tenant context comes from the token claims.
     /// </summary>
     Task<bool> TryRevokeForReplayUnfilteredAsync(SessionId sessionId, DateTimeOffset now, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the paged session history for a single user without applying tenant query filters. Used by the
+    ///     back-office User detail page where tenant context is not established. Includes both active and revoked
+    ///     sessions, ordered most-recent first.
+    /// </summary>
+    Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUserUnfilteredAsync(UserId userId, int pageOffset, int pageSize, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountDbContext accountDbContext, IServiceProvider serviceProvider)
@@ -115,6 +122,28 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
             .Where(s => userIds.AsEnumerable().Contains(s.UserId) && s.RevokedAt == null)
             .ToArrayAsync(cancellationToken);
         return sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+    }
+
+    /// <summary>
+    ///     Returns the paged session history for a single user without applying tenant query filters. Used by the
+    ///     back-office User detail page where tenant context is not established. Includes both active and revoked
+    ///     sessions, ordered most-recent first. SQLite cannot translate DateTimeOffset comparisons in ORDER BY, so
+    ///     sessions are materialized and ordered in memory; a single user has very few sessions so scale is not a
+    ///     concern.
+    /// </summary>
+    public async Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUserUnfilteredAsync(UserId userId, int pageOffset, int pageSize, CancellationToken cancellationToken)
+    {
+        var sessions = await DbSet
+            .IgnoreQueryFilters()
+            .Where(s => s.UserId == userId)
+            .ToArrayAsync(cancellationToken);
+
+        var ordered = sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+
+        var totalItems = ordered.Length;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
+        var page = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
+        return (page, totalItems, totalPages);
     }
 
     private async Task<DbConnection> OpenFallbackConnectionAsync(CancellationToken cancellationToken)

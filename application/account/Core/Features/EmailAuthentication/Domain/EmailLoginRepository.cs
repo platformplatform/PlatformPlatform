@@ -1,4 +1,5 @@
 using Account.Database;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.Persistence;
 
@@ -9,6 +10,13 @@ public interface IEmailLoginRepository : IAppendRepository<EmailLogin, EmailLogi
     void Update(EmailLogin aggregate);
 
     EmailLogin[] GetByEmail(string email);
+
+    /// <summary>
+    ///     Returns every email login for the given email address created at or after <paramref name="since" />.
+    ///     Used by the back-office login history endpoint to surface the full sign-in history (including failed
+    ///     and pending attempts), not just the active in-progress logins returned by <see cref="GetByEmail" />.
+    /// </summary>
+    Task<EmailLogin[]> GetByEmailSinceAsync(string email, DateTimeOffset since, CancellationToken cancellationToken);
 }
 
 public sealed class EmailLoginRepository(AccountDbContext accountDbContext)
@@ -20,5 +28,20 @@ public sealed class EmailLoginRepository(AccountDbContext accountDbContext)
             .Where(el => !el.Completed)
             .Where(el => el.Email == email.ToLowerInvariant())
             .ToArray();
+    }
+
+    /// <summary>
+    ///     Returns every email login for the given email address created at or after <paramref name="since" />.
+    ///     Used by the back-office login history endpoint to surface the full sign-in history (including failed
+    ///     and pending attempts), not just the active in-progress logins returned by <see cref="GetByEmail" />.
+    ///     SQLite cannot translate DateTimeOffset comparisons, so the time filter runs in memory; the email filter
+    ///     keeps the materialized set bounded.
+    /// </summary>
+    public async Task<EmailLogin[]> GetByEmailSinceAsync(string email, DateTimeOffset since, CancellationToken cancellationToken)
+    {
+        var logins = await DbSet
+            .Where(el => el.Email == email.ToLowerInvariant())
+            .ToArrayAsync(cancellationToken);
+        return logins.Where(el => el.CreatedAt >= since).ToArray();
     }
 }

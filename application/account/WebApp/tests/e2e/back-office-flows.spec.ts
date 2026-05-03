@@ -194,7 +194,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("button", { name: "Back to accounts" })).toBeVisible();
       await expect(main.getByText("MRR")).toBeVisible();
       await expect(main.getByText("Lifetime value")).toBeVisible();
-      await expect(main.getByText("Users", { exact: true })).toBeVisible();
+      await expect(main.getByRole("tab", { name: "Users" })).toBeVisible();
       await expect(main.getByRole("heading", { name: "Owners" })).toBeVisible();
     })();
 
