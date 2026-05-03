@@ -36,8 +36,8 @@ export function SidePaneUserList({
 
 function UserRowSkeleton() {
   return (
-    <div className="flex items-center gap-2.5">
-      <Skeleton className="size-8 shrink-0 rounded-full" />
+    <div className="flex items-center gap-3">
+      <Skeleton className="size-10 shrink-0 rounded-full" />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="text-sm leading-5">
           <Skeleton className="inline-block h-[0.875rem] w-32 align-middle" />
@@ -55,15 +55,16 @@ function UserRow({ user }: Readonly<{ user: TenantUserSummary }>) {
     user.firstName || user.lastName ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : user.email;
 
   return (
-    <div className="flex items-center gap-2.5">
-      <Avatar>
+    <div className="flex items-center gap-3">
+      <Avatar size="lg">
         <AvatarImage src={user.avatarUrl ?? undefined} alt="" />
         <AvatarFallback>
           {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
         </AvatarFallback>
       </Avatar>
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col leading-tight">
         <span className="truncate text-sm font-medium">{displayName}</span>
+        {user.title && <span className="truncate text-xs text-muted-foreground">{user.title}</span>}
         <span className="truncate text-xs text-muted-foreground">{user.email}</span>
       </div>
     </div>

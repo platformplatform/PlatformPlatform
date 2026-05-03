@@ -1,17 +1,20 @@
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
+import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui/components/SidePane";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
-import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
+import { getCountryFlagEmoji, getCountryName } from "@repo/ui/utils/countryFlag";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
 import { api } from "@/shared/lib/api/client";
-import { getCountryFlagEmoji } from "@repo/ui/utils/countryFlag";
+import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import { AccountSidePaneSections } from "./AccountSidePaneSections";
 
@@ -23,11 +26,11 @@ interface AccountSidePaneProps {
   onClose: () => void;
 }
 
-const DETAIL_DEBOUNCE_MS = 2000;
+const DETAIL_DEBOUNCE_MS = 200;
 
 export function AccountSidePane({ tenant, isOpen, onClose }: Readonly<AccountSidePaneProps>) {
   const navigate = useNavigate();
-  const formatDate = useFormatDate();
+  const { i18n } = useLingui();
 
   const tenantId = tenant?.id;
   const debouncedTenantId = useDebounce(tenantId, DETAIL_DEBOUNCE_MS);
@@ -57,17 +60,20 @@ export function AccountSidePane({ tenant, isOpen, onClose }: Readonly<AccountSid
       trackingKey={tenant?.id}
       aria-label={t`Account preview`}
     >
-      <SidePaneHeader className="h-auto py-3" closeButtonLabel={t`Close account preview`}>
+      <SidePaneHeader closeButtonLabel={t`Close account preview`} className="h-auto py-4">
         {tenant ? (
-          <div className="flex min-w-0 items-center gap-3 pr-10">
+          <div className="flex min-w-0 flex-1 translate-y-[0.875rem] items-center gap-3 pr-10">
             <TenantLogo logoUrl={detail?.logoUrl} tenantName={tenant.name} size="lg" />
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <span className="truncate font-semibold">{tenant.name}</span>
-              <span className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
-                <span>{formatDate(tenant.createdAt)}</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1 leading-tight">
+              <span className="min-w-0 truncate">{tenant.name}</span>
+              <span className="inline-flex items-center gap-2 text-xs font-normal text-muted-foreground">
+                <Badge className={`${getSubscriptionPlanBadgeClass(tenant.plan)}`}>
+                  {getSubscriptionPlanLabel(tenant.plan)}
+                </Badge>
                 {tenant.country && (
-                  <span aria-label={tenant.country} className="leading-none">
-                    {getCountryFlagEmoji(tenant.country)}
+                  <span className="inline-flex items-center gap-1">
+                    <span aria-hidden={true}>{getCountryFlagEmoji(tenant.country)}</span>
+                    <span className="truncate">{getCountryName(tenant.country, i18n.locale)}</span>
                   </span>
                 )}
               </span>
@@ -78,7 +84,7 @@ export function AccountSidePane({ tenant, isOpen, onClose }: Readonly<AccountSid
         )}
       </SidePaneHeader>
 
-      <SidePaneBody>
+      <SidePaneBody className="pt-7">
         {tenant && (
           <AccountSidePaneSections
             tenant={tenant}

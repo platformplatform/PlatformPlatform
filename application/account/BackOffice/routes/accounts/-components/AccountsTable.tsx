@@ -1,20 +1,19 @@
 import type { RowKey } from "@repo/ui/components/Table";
 
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { Table, TableBody } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 
-import type { components } from "@/shared/lib/api/client";
+import type { components, SortableTenantProperties } from "@/shared/lib/api/client";
 
-import { SortableTenantProperties, SortOrder } from "@/shared/lib/api/client";
+import { SortOrder } from "@/shared/lib/api/client";
 
+import { AccountsTableColumnHeaders } from "./AccountsTableColumnHeaders";
 import { AccountsTableRow } from "./AccountsTableRow";
-import { SortableTableHead } from "./SortableTableHead";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
 
@@ -63,9 +62,9 @@ export function AccountsTable({
   const handleActivate = useCallback(
     (key: RowKey) => {
       const tenant = tenants.find((entry) => entry.id === key);
-      onSelectTenant(selectedTenantId === key ? null : (tenant ?? null));
+      onSelectTenant(tenant ?? null);
     },
-    [onSelectTenant, selectedTenantId, tenants]
+    [onSelectTenant, tenants]
   );
 
   const handlePageChange = useCallback(
@@ -114,6 +113,7 @@ export function AccountsTable({
     <>
       <div className="flex-1 overflow-visible rounded-md bg-background sm:min-h-48 sm:overflow-auto">
         <Table
+          className="table-fixed"
           rowSize="spacious"
           aria-label={t`Accounts`}
           selectionMode="single"
@@ -124,45 +124,7 @@ export function AccountsTable({
           scrollToKey={selectedTenantId}
           stickyHeader={true}
         >
-          <TableHeader className="z-10 bg-inherit sm:sticky sm:top-0">
-            <TableRow>
-              <SortableTableHead
-                column={SortableTenantProperties.Name}
-                orderBy={orderBy}
-                sortOrder={sortOrder}
-                onSort={handleSort}
-              >
-                <Trans>Name</Trans>
-              </SortableTableHead>
-              <TableHead className="hidden md:table-cell">
-                <Trans>Plan</Trans>
-              </TableHead>
-              <SortableTableHead
-                column={SortableTenantProperties.MonthlyRecurringRevenue}
-                orderBy={orderBy}
-                sortOrder={sortOrder}
-                onSort={handleSort}
-                className="hidden md:table-cell"
-              >
-                <Trans>MRR</Trans>
-              </SortableTableHead>
-              <TableHead className="hidden lg:table-cell">
-                <Trans>Renewal</Trans>
-              </TableHead>
-              <TableHead className="hidden lg:table-cell">
-                <Trans>Country</Trans>
-              </TableHead>
-              <SortableTableHead
-                column={SortableTenantProperties.CreatedAt}
-                orderBy={orderBy}
-                sortOrder={sortOrder}
-                onSort={handleSort}
-                className="hidden xl:table-cell"
-              >
-                <Trans>Created</Trans>
-              </SortableTableHead>
-            </TableRow>
-          </TableHeader>
+          <AccountsTableColumnHeaders orderBy={orderBy} sortOrder={sortOrder} onSort={handleSort} />
           <TableBody>
             {tenants.map((tenant) => (
               <AccountsTableRow key={tenant.id} tenant={tenant} formatDate={formatDate} />

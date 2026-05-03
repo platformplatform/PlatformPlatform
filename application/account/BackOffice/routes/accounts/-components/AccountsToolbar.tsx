@@ -74,8 +74,6 @@ export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>
 
       <ToggleGroup
         variant="outline"
-        size="sm"
-        spacing={2}
         aria-label={t`Plan`}
         value={plan ? [plan] : ["all"]}
         onValueChange={handlePlanChange}
@@ -83,7 +81,7 @@ export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>
         <ToggleGroupItem value="all" className="min-w-[5rem] justify-center">
           <Trans>All</Trans>
         </ToggleGroupItem>
-        {Object.values(SubscriptionPlan).map((value) => (
+        {[SubscriptionPlan.Premium, SubscriptionPlan.Standard, SubscriptionPlan.Basis].map((value) => (
           <ToggleGroupItem key={value} value={value} className="min-w-[5rem] justify-center">
             {getSubscriptionPlanLabel(value)}
           </ToggleGroupItem>

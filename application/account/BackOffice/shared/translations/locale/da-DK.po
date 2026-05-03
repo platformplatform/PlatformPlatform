@@ -13,10 +13,20 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
-#. placeholder {0}: userCountsQuery.data.activeUsers
-#. placeholder {1}: userCountsQuery.data.totalUsers
-msgid "{0} active / {1} total"
-msgstr "{0} aktive / {1} i alt"
+msgid "{activationPercent}% activation"
+msgstr "{activationPercent}% aktivering"
+
+msgid "{activeUsers} active"
+msgstr "{activeUsers} aktive"
+
+msgid "{inactiveUsers} inactive"
+msgstr "{inactiveUsers} inaktive"
+
+msgid "{pendingUsers} pending"
+msgstr "{pendingUsers} afventer"
+
+msgid "<0>{totalUsers}</0> total"
+msgstr "<0>{totalUsers}</0> i alt"
 
 msgid "Account"
 msgstr "Konto"
@@ -24,17 +34,11 @@ msgstr "Konto"
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
 
-msgid "Account sections"
-msgstr "Kontosektioner"
-
 msgid "Accounts"
 msgstr "Konti"
 
 msgid "Active"
 msgstr "Aktiv"
-
-msgid "Activity"
-msgstr "Aktivitet"
 
 msgid "Admin"
 msgstr "Admin"
@@ -48,9 +52,6 @@ msgstr "Beløb"
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
-msgid "Any role"
-msgstr "Alle roller"
-
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -63,23 +64,17 @@ msgstr "BackOffice - Localhost"
 msgid "Basis"
 msgstr "Basis"
 
-msgid "Billing & invoices"
-msgstr "Fakturering og fakturaer"
-
 msgid "Billing address"
 msgstr "Faktureringsadresse"
 
-msgid "Cancellation"
-msgstr "Opsigelse"
+msgid "Canceled"
+msgstr "Opsagt"
 
-msgid "Cancellation at period end"
-msgstr "Opsigelse ved periodens slutning"
-
-msgid "Cancelling"
+msgid "Canceling"
 msgstr "Opsiges"
 
-msgid "Cancelling at period end"
-msgstr "Opsiges ved periodens slutning"
+msgid "Cancellation"
+msgstr "Opsigelse"
 
 msgid "Change language"
 msgstr "Skift sprog"
@@ -111,8 +106,15 @@ msgstr "Land"
 msgid "Created"
 msgstr "Oprettet"
 
+#. placeholder {0}: formatDate(tenant.createdAt)
+msgid "Created {0}"
+msgstr "Oprettet {0}"
+
 msgid "Credit note"
 msgstr "Kreditnota"
+
+msgid "Current plan"
+msgstr "Aktuelt abonnement"
 
 msgid "Dark"
 msgstr "Mørk"
@@ -126,8 +128,8 @@ msgstr "Dato"
 msgid "Default"
 msgstr "Standard"
 
-msgid "Documents"
-msgstr "Dokumenter"
+msgid "Downgrading"
+msgstr "Nedgraderer"
 
 msgid "Email"
 msgstr "E-mail"
@@ -140,6 +142,9 @@ msgstr "Feature flags"
 
 msgid "Feature flags (coming soon)"
 msgstr "Feature flags (kommer snart)"
+
+msgid "Free"
+msgstr "Gratis"
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
@@ -160,7 +165,7 @@ msgid "Larger"
 msgstr "Større"
 
 msgid "Last invoice"
-msgstr ""
+msgstr "Sidste faktura"
 
 msgid "Last seen"
 msgstr "Sidst set"
@@ -219,17 +224,8 @@ msgstr "Ingen konti matcher dine filtre"
 msgid "No accounts yet"
 msgstr "Ingen konti endnu"
 
-msgid "No activity recorded yet."
-msgstr "Ingen aktivitet registreret endnu."
-
-msgid "No activity yet"
-msgstr "Ingen aktivitet endnu"
-
 msgid "No back-office access"
 msgstr "Ingen adgang til Back Office"
-
-msgid "No billing address"
-msgstr "Ingen faktureringsadresse"
 
 msgid "No billing address on file."
 msgstr "Ingen faktureringsadresse registreret."
@@ -282,14 +278,14 @@ msgstr "Betalingshistorik"
 msgid "Pending"
 msgstr "Afventer"
 
+msgid "per month, billed monthly"
+msgstr "pr. måned, faktureres månedligt"
+
 msgid "Plan"
 msgstr "Plan"
 
 msgid "Plan & revenue"
 msgstr "Abonnement og omsætning"
-
-msgid "Plan change"
-msgstr "Planændring"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -311,6 +307,13 @@ msgstr "Refunderet"
 
 msgid "Renewal"
 msgstr "Fornyelse"
+
+msgid "Renewal date"
+msgstr "Fornyelsesdato"
+
+#. placeholder {0}: formatDate(tenant.renewalDate)
+msgid "Renews {0}"
+msgstr "Fornyes {0}"
 
 msgid "Role"
 msgstr "Rolle"
@@ -339,6 +342,10 @@ msgstr "Søg, filtrér og gennemgå tenant-konti."
 msgid "Show details"
 msgstr "Vis detaljer"
 
+#. placeholder {0}: formatDate(tenant.createdAt)
+msgid "Since {0}"
+msgstr "Siden {0}"
+
 msgid "Small"
 msgstr "Lille"
 
@@ -351,6 +358,9 @@ msgstr "Standard"
 msgid "Status"
 msgstr "Status"
 
+msgid "Subscribed since"
+msgstr "Abonneret siden"
+
 msgid "Succeeded"
 msgstr "Gennemført"
 
@@ -362,11 +372,6 @@ msgstr "Support (kommer snart)"
 
 msgid "Suspended"
 msgstr "Suspenderet"
-
-#. placeholder {0}: getSubscriptionPlanLabel(scheduledPlan)
-#. placeholder {0}: getSubscriptionPlanLabel(tenant.scheduledPlan)
-msgid "Switching to {0}"
-msgstr "Skifter til {0}"
 
 msgid "System"
 msgstr "System"
@@ -401,8 +406,8 @@ msgstr "Brugermenu"
 msgid "Users"
 msgstr "Brugere"
 
-msgid "Users (active / total)"
-msgstr "Brugere (aktive / i alt)"
+msgid "Users ({totalUsers})"
+msgstr "Brugere ({totalUsers})"
 
 msgid "Users (coming soon)"
 msgstr "Brugere (kommer snart)"

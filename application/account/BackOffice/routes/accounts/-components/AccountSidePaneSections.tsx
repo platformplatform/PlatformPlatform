@@ -1,18 +1,20 @@
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
+import { CalendarClockIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { api, UserRole } from "@/shared/lib/api/client";
-import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
-import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
+import { api, PlannedSubscriptionChange, UserRole } from "@/shared/lib/api/client";
+import { formatRelativeTime } from "@/shared/lib/relativeTime";
 
 import { SidePaneDivider, SidePaneSection } from "./SidePaneSection";
 import { SidePaneUserList } from "./SidePaneUserList";
+import { SidePaneUsersRow } from "./SidePaneUsersRow";
 import { SubscriptionStatusIndicator } from "./SubscriptionStatusIndicator";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
@@ -26,8 +28,8 @@ interface AccountSidePaneSectionsProps {
   detailReady: boolean;
 }
 
-function formatAmount(amount: number | null, currency: string | null): string {
-  if (amount === null || currency === null) {
+function formatAmount(amount: number | null | undefined, currency: string | null | undefined): string {
+  if (amount === null || amount === undefined || currency === null || currency === undefined) {
     return "-";
   }
   return formatCurrency(amount, currency);
@@ -41,6 +43,7 @@ export function AccountSidePaneSections({
   detailReady
 }: Readonly<AccountSidePaneSectionsProps>) {
   const formatDate = useFormatDate();
+  const { i18n } = useLingui();
 
   const userCountsQuery = api.useQuery(
     "get",
@@ -64,98 +67,81 @@ export function AccountSidePaneSections({
   );
 
   const lastInvoice = paymentHistoryQuery.data?.transactions[0] ?? null;
-  const hasEverHadSubscription = (paymentHistoryQuery.data?.totalCount ?? 0) > 0;
   const paymentHistoryLoading = !detailReady || paymentHistoryQuery.isLoading;
+  const subscribedSince = detail?.subscribedSince ?? null;
+
+  const isCanceling = tenant.plannedChange === PlannedSubscriptionChange.Cancellation;
+  const isDowngrading = tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange;
+  const newMrrAmount = isCanceling ? 0 : isDowngrading ? (detail?.scheduledPriceAmount ?? null) : null;
+  const showStrikedMrr = (isCanceling || isDowngrading) && newMrrAmount !== null;
 
   return (
     <div className="flex flex-col">
       <SidePaneDivider />
 
-      <SidePaneSection label={t`Plan & revenue`}>
+      <SidePaneSection
+        label={t`Plan & revenue`}
+        className="h-[12.875rem]"
+        trailing={
+          tenant.plannedChange === PlannedSubscriptionChange.Cancellation ? (
+            <Badge variant="destructive" className="gap-1">
+              <XCircleIcon className="size-3" />
+              <Trans>Canceling</Trans>
+            </Badge>
+          ) : tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange ? (
+            <Badge variant="warning" className="gap-1">
+              <CalendarClockIcon className="size-3" />
+              <Trans>Downgrading</Trans>
+            </Badge>
+          ) : undefined
+        }
+      >
         <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col gap-1">
-              <SubLabel>
-                <Trans>MRR</Trans>
-              </SubLabel>
-              <span className="text-sm tabular-nums">
-                {formatAmount(tenant.monthlyRecurringRevenue, tenant.currency)}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1 text-right">
-              <SubLabel>
-                <Trans>Lifetime value</Trans>
-              </SubLabel>
-              {detailLoading ? (
-                <Skeleton className="ml-auto h-4 w-24" />
-              ) : (
-                <span className="text-sm tabular-nums">
-                  {detail ? formatAmount(detail.lifetimeValue, detail.currency) : "-"}
+          <KpiRow
+            leftLabel={t`Renewal date`}
+            leftValue={tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
+            rightLabel={t`MRR`}
+            rightValue={
+              showStrikedMrr ? (
+                <span className="flex items-baseline justify-end gap-1">
+                  <span className="text-muted-foreground line-through">
+                    {formatAmount(tenant.monthlyRecurringRevenue, tenant.currency)}
+                  </span>
+                  <span aria-hidden={true} className="text-muted-foreground">
+                    →
+                  </span>
+                  <span>{formatAmount(newMrrAmount, tenant.currency)}</span>
                 </span>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col gap-1">
-              <SubLabel>
-                <Trans>Plan</Trans>
-              </SubLabel>
-              <Badge className={`w-fit ${getSubscriptionPlanBadgeClass(tenant.plan)}`}>
-                {getSubscriptionPlanLabel(tenant.plan)}
-              </Badge>
-            </div>
-            <div className="flex flex-col gap-1 text-right">
-              <SubLabel>
-                <Trans>Renewal</Trans>
-              </SubLabel>
-              <span className="text-sm tabular-nums">{tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}</span>
-            </div>
-          </div>
-
-          <SubscriptionStatusIndicator
-            plannedChange={tenant.plannedChange}
-            state={detail?.state}
-            scheduledPlan={detail?.scheduledPlan ?? null}
+              ) : (
+                formatAmount(tenant.monthlyRecurringRevenue, tenant.currency)
+              )
+            }
           />
 
-          {paymentHistoryLoading ? (
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1">
-                <Skeleton className="h-3 w-12" />
-                <Skeleton className="h-4 w-20" />
-              </div>
-              <div className="flex flex-col gap-1 text-right">
-                <Skeleton className="ml-auto h-3 w-16" />
-                <Skeleton className="ml-auto h-4 w-24" />
-              </div>
-            </div>
-          ) : (
-            hasEverHadSubscription && (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col gap-1">
-                  <SubLabel>
-                    <Trans>Amount</Trans>
-                  </SubLabel>
-                  <span className="text-sm tabular-nums">
-                    {lastInvoice ? formatCurrency(lastInvoice.amount, lastInvoice.currency) : "-"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1 text-right">
-                  <SubLabel>
-                    <Trans>Last invoice</Trans>
-                  </SubLabel>
-                  <span className="text-sm tabular-nums">{lastInvoice ? formatDate(lastInvoice.date) : "-"}</span>
-                </div>
-              </div>
-            )
-          )}
+          <KpiRow
+            leftLabel={t`Subscribed since`}
+            leftValue={subscribedSince ? formatDate(subscribedSince) : "-"}
+            leftLoading={detailLoading}
+            rightLabel={t`Lifetime value`}
+            rightValue={detail ? formatAmount(detail.lifetimeValue, detail.currency) : "-"}
+            rightLoading={detailLoading}
+          />
+
+          <KpiRow
+            leftLabel={t`Last invoice`}
+            leftValue={lastInvoice ? formatDate(lastInvoice.date) : "-"}
+            leftLoading={paymentHistoryLoading}
+            rightLabel={t`Amount`}
+            rightValue={formatAmount(tenant.monthlyRecurringRevenue, tenant.currency)}
+          />
+
+          <SubscriptionStatusIndicator state={detail?.state} />
         </div>
       </SidePaneSection>
 
       <SidePaneDivider />
 
-      <SidePaneSection label={t`Owners`}>
+      <SidePaneSection label={t`Owners`} className="min-h-[7.25rem]">
         <SidePaneUserList
           users={ownersQuery.data?.users ?? []}
           isLoading={!detailReady || ownersQuery.isLoading}
@@ -165,25 +151,62 @@ export function AccountSidePaneSections({
 
       <SidePaneDivider />
 
-      <SidePaneSection label={t`Users`}>
-        {!detailReady || userCountsQuery.isLoading ? (
-          <Skeleton className="h-4 w-24" />
-        ) : userCountsQuery.data ? (
-          <span className="text-sm tabular-nums">
-            <Trans>
-              {userCountsQuery.data.activeUsers} active / {userCountsQuery.data.totalUsers} total
-            </Trans>
-          </span>
-        ) : (
-          <span className="text-sm text-muted-foreground">-</span>
-        )}
+      <SidePaneSection label={t`Users`} className="min-h-[6.375rem]">
+        <SidePaneUsersRow
+          detailReady={detailReady}
+          userCounts={userCountsQuery.data}
+          isLoading={userCountsQuery.isLoading}
+        />
       </SidePaneSection>
+
+      <SidePaneDivider />
+
+      <SidePaneSection label={t`Created`}>
+        <span className="flex items-center justify-between gap-2 text-sm">
+          <span>{formatDate(tenant.createdAt)}</span>
+          <span className="text-muted-foreground">{formatRelativeTime(tenant.createdAt, i18n.locale)}</span>
+        </span>
+      </SidePaneSection>
+    </div>
+  );
+}
+
+interface KpiRowProps {
+  leftLabel: string;
+  leftValue: React.ReactNode;
+  leftLoading?: boolean;
+  rightLabel: string;
+  rightValue: React.ReactNode;
+  rightLoading?: boolean;
+}
+
+function KpiRow({ leftLabel, leftValue, leftLoading, rightLabel, rightValue, rightLoading }: Readonly<KpiRowProps>) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-col gap-1">
+        <SubLabel>{leftLabel}</SubLabel>
+        {leftLoading ? (
+          <Skeleton className="h-5 w-24" />
+        ) : (
+          <span className="block h-5 text-sm leading-5 tabular-nums">{leftValue}</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-1 text-right">
+        <SubLabel>{rightLabel}</SubLabel>
+        {rightLoading ? (
+          <Skeleton className="ml-auto h-5 w-24" />
+        ) : (
+          <span className="block h-5 text-sm leading-5 tabular-nums">{rightValue}</span>
+        )}
+      </div>
     </div>
   );
 }
 
 function SubLabel({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <span className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">{children}</span>
+    <span className="block h-4 text-[0.6875rem] leading-4 font-semibold tracking-wider text-muted-foreground uppercase">
+      {children}
+    </span>
   );
 }

@@ -24,14 +24,15 @@ export function AccountUserRow({
     <TableRow rowKey={user.id}>
       <TableCell>
         <div className="flex items-center gap-2">
-          <Avatar size="sm">
+          <Avatar size="lg">
             <AvatarImage src={user.avatarUrl ?? undefined} alt="" />
             <AvatarFallback>
               {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
             </AvatarFallback>
           </Avatar>
-          <div className="flex min-w-0 flex-col">
+          <div className="flex min-w-0 flex-col leading-tight">
             <span className="truncate text-sm font-medium">{displayName}</span>
+            {user.title && <span className="truncate text-xs text-muted-foreground">{user.title}</span>}
             <span className="truncate text-xs text-muted-foreground md:hidden">{user.email}</span>
           </div>
           {!user.emailConfirmed && (

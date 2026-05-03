@@ -1,12 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
-import { Field, FieldLabel } from "@repo/ui/components/Field";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@repo/ui/components/InputGroup";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
+import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -87,10 +86,14 @@ function UserFilters({
   role: UserRole | "";
   onRoleChange: (value: UserRole | "") => void;
 }>) {
+  const handleRoleChange = (values: string[]) => {
+    const next = values.find((value) => value !== "all");
+    onRoleChange((next as UserRole | undefined) ?? "");
+  };
+
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <Field className="min-w-[14rem] flex-1">
-        <FieldLabel>{t`Search users`}</FieldLabel>
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="max-w-[20rem] min-w-[14rem] flex-1">
         <InputGroup>
           <InputGroupAddon>
             <SearchIcon />
@@ -98,6 +101,7 @@ function UserFilters({
           <InputGroupInput
             type="text"
             role="searchbox"
+            aria-label={t`Search users`}
             placeholder={t`Search by name or email`}
             value={searchInput}
             onChange={(event) => onSearchChange(event.target.value)}
@@ -111,28 +115,23 @@ function UserFilters({
             </InputGroupAddon>
           )}
         </InputGroup>
-      </Field>
+      </div>
 
-      <Field className="flex flex-col">
-        <FieldLabel>
-          <Trans>Role</Trans>
-        </FieldLabel>
-        <Select<string> value={role} onValueChange={(value) => onRoleChange((value as UserRole | "") || "")}>
-          <SelectTrigger aria-label={t`Role`} className="min-w-[10rem]">
-            <SelectValue>{(value: string) => (value ? getUserRoleLabel(value as UserRole) : t`Any role`)}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">
-              <Trans>Any role</Trans>
-            </SelectItem>
-            {Object.values(UserRole).map((value) => (
-              <SelectItem key={value} value={value}>
-                {getUserRoleLabel(value)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
+      <ToggleGroup
+        variant="outline"
+        aria-label={t`Role`}
+        value={role ? [role] : ["all"]}
+        onValueChange={handleRoleChange}
+      >
+        <ToggleGroupItem value="all" className="min-w-[5rem] justify-center">
+          <Trans>All</Trans>
+        </ToggleGroupItem>
+        {[UserRole.Owner, UserRole.Admin, UserRole.Member].map((value) => (
+          <ToggleGroupItem key={value} value={value} className="min-w-[5rem] justify-center">
+            {getUserRoleLabel(value)}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
     </div>
   );
 }
@@ -168,9 +167,9 @@ function UserList({
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-border">
+    <div className="overflow-hidden rounded-lg border border-border bg-card">
       <Table rowSize="spacious" aria-label={t`Tenant users`}>
-        <TableHeader>
+        <TableHeader className="[&_tr]:bg-card">
           <TableRow>
             <TableHead>
               <Trans>Name</Trans>

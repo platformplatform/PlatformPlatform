@@ -13,10 +13,20 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#. placeholder {0}: userCountsQuery.data.activeUsers
-#. placeholder {1}: userCountsQuery.data.totalUsers
-msgid "{0} active / {1} total"
-msgstr "{0} active / {1} total"
+msgid "{activationPercent}% activation"
+msgstr "{activationPercent}% activation"
+
+msgid "{activeUsers} active"
+msgstr "{activeUsers} active"
+
+msgid "{inactiveUsers} inactive"
+msgstr "{inactiveUsers} inactive"
+
+msgid "{pendingUsers} pending"
+msgstr "{pendingUsers} pending"
+
+msgid "<0>{totalUsers}</0> total"
+msgstr "<0>{totalUsers}</0> total"
 
 msgid "Account"
 msgstr "Account"
@@ -24,17 +34,11 @@ msgstr "Account"
 msgid "Account preview"
 msgstr "Account preview"
 
-msgid "Account sections"
-msgstr "Account sections"
-
 msgid "Accounts"
 msgstr "Accounts"
 
 msgid "Active"
 msgstr "Active"
-
-msgid "Activity"
-msgstr "Activity"
 
 msgid "Admin"
 msgstr "Admin"
@@ -48,9 +52,6 @@ msgstr "Amount"
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
-msgid "Any role"
-msgstr "Any role"
-
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -63,23 +64,17 @@ msgstr "BackOffice - Localhost"
 msgid "Basis"
 msgstr "Basis"
 
-msgid "Billing & invoices"
-msgstr "Billing & invoices"
-
 msgid "Billing address"
 msgstr "Billing address"
 
+msgid "Canceled"
+msgstr "Canceled"
+
+msgid "Canceling"
+msgstr "Canceling"
+
 msgid "Cancellation"
 msgstr "Cancellation"
-
-msgid "Cancellation at period end"
-msgstr "Cancellation at period end"
-
-msgid "Cancelling"
-msgstr "Cancelling"
-
-msgid "Cancelling at period end"
-msgstr "Cancelling at period end"
 
 msgid "Change language"
 msgstr "Change language"
@@ -111,8 +106,15 @@ msgstr "Country"
 msgid "Created"
 msgstr "Created"
 
+#. placeholder {0}: formatDate(tenant.createdAt)
+msgid "Created {0}"
+msgstr "Created {0}"
+
 msgid "Credit note"
 msgstr "Credit note"
+
+msgid "Current plan"
+msgstr "Current plan"
 
 msgid "Dark"
 msgstr "Dark"
@@ -126,8 +128,8 @@ msgstr "Date"
 msgid "Default"
 msgstr "Default"
 
-msgid "Documents"
-msgstr "Documents"
+msgid "Downgrading"
+msgstr "Downgrading"
 
 msgid "Email"
 msgstr "Email"
@@ -140,6 +142,9 @@ msgstr "Feature flags"
 
 msgid "Feature flags (coming soon)"
 msgstr "Feature flags (coming soon)"
+
+msgid "Free"
+msgstr "Free"
 
 msgid "Go to home"
 msgstr "Go to home"
@@ -219,17 +224,8 @@ msgstr "No accounts match your filters"
 msgid "No accounts yet"
 msgstr "No accounts yet"
 
-msgid "No activity recorded yet."
-msgstr "No activity recorded yet."
-
-msgid "No activity yet"
-msgstr "No activity yet"
-
 msgid "No back-office access"
 msgstr "No back-office access"
-
-msgid "No billing address"
-msgstr "No billing address"
 
 msgid "No billing address on file."
 msgstr "No billing address on file."
@@ -282,14 +278,14 @@ msgstr "Payment history"
 msgid "Pending"
 msgstr "Pending"
 
+msgid "per month, billed monthly"
+msgstr "per month, billed monthly"
+
 msgid "Plan"
 msgstr "Plan"
 
 msgid "Plan & revenue"
 msgstr "Plan & revenue"
-
-msgid "Plan change"
-msgstr "Plan change"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -311,6 +307,13 @@ msgstr "Refunded"
 
 msgid "Renewal"
 msgstr "Renewal"
+
+msgid "Renewal date"
+msgstr "Renewal date"
+
+#. placeholder {0}: formatDate(tenant.renewalDate)
+msgid "Renews {0}"
+msgstr "Renews {0}"
 
 msgid "Role"
 msgstr "Role"
@@ -339,6 +342,10 @@ msgstr "Search, filter, and review tenant accounts."
 msgid "Show details"
 msgstr "Show details"
 
+#. placeholder {0}: formatDate(tenant.createdAt)
+msgid "Since {0}"
+msgstr "Since {0}"
+
 msgid "Small"
 msgstr "Small"
 
@@ -351,6 +358,9 @@ msgstr "Standard"
 msgid "Status"
 msgstr "Status"
 
+msgid "Subscribed since"
+msgstr "Subscribed since"
+
 msgid "Succeeded"
 msgstr "Succeeded"
 
@@ -362,11 +372,6 @@ msgstr "Support (coming soon)"
 
 msgid "Suspended"
 msgstr "Suspended"
-
-#. placeholder {0}: getSubscriptionPlanLabel(scheduledPlan)
-#. placeholder {0}: getSubscriptionPlanLabel(tenant.scheduledPlan)
-msgid "Switching to {0}"
-msgstr "Switching to {0}"
 
 msgid "System"
 msgstr "System"
@@ -401,8 +406,8 @@ msgstr "User menu"
 msgid "Users"
 msgstr "Users"
 
-msgid "Users (active / total)"
-msgstr "Users (active / total)"
+msgid "Users ({totalUsers})"
+msgstr "Users ({totalUsers})"
 
 msgid "Users (coming soon)"
 msgstr "Users (coming soon)"

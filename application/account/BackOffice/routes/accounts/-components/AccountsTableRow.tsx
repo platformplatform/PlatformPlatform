@@ -4,11 +4,11 @@ import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { getCountryFlagEmoji } from "@repo/ui/utils/countryFlag";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { CalendarClockIcon, XCircleIcon } from "lucide-react";
+import { CalendarClockIcon, CheckCircle2Icon, MinusCircleIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { PlannedSubscriptionChange } from "@/shared/lib/api/client";
+import { PlannedSubscriptionChange, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
@@ -32,26 +32,48 @@ export function AccountsTableRow({
     <TableRow rowKey={tenant.id}>
       <TableCell>
         <div className="flex min-w-0 items-center gap-3">
-          <TenantLogo tenantName={tenant.name} size="md" />
-          <div className="flex min-w-0 flex-col gap-0.5">
+          <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.name} size="md" className="size-10" />
+          <div className="flex min-w-0 flex-col gap-1">
             <span className="truncate font-medium text-foreground">{tenant.name}</span>
-            <span className="text-sm text-muted-foreground md:hidden">
-              {getSubscriptionPlanLabel(tenant.plan)} ·{" "}
-              {formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency)}
-            </span>
+            <div className="hidden md:flex lg:hidden">
+              <Badge className={`w-fit ${getSubscriptionPlanBadgeClass(tenant.plan)}`}>
+                {getSubscriptionPlanLabel(tenant.plan)}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between gap-2 md:hidden">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
+                  {getSubscriptionPlanLabel(tenant.plan)}
+                </Badge>
+                <StatusBadge tenant={tenant} />
+              </div>
+              <div className="shrink-0 text-right text-sm text-muted-foreground tabular-nums">
+                <MrrCell tenant={tenant} align="end" />
+              </div>
+            </div>
           </div>
         </div>
       </TableCell>
-      <TableCell className="hidden md:table-cell">
+      <TableCell className="hidden lg:table-cell">
         <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>{getSubscriptionPlanLabel(tenant.plan)}</Badge>
       </TableCell>
       <TableCell className="hidden tabular-nums md:table-cell">
-        {formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency)}
+        <MrrCell tenant={tenant} />
       </TableCell>
       <TableCell className="hidden lg:table-cell">
-        <RenewalCell renewalDate={tenant.renewalDate} plannedChange={tenant.plannedChange} formatDate={formatDate} />
+        {tenant.renewalDate ? formatDate(tenant.renewalDate) : <span className="text-muted-foreground">-</span>}
       </TableCell>
-      <TableCell className="hidden lg:table-cell">
+      <TableCell className="hidden md:table-cell">
+        <div className="flex flex-col gap-1">
+          <StatusBadge tenant={tenant} />
+          {tenant.renewalDate && (
+            <span className="text-xs text-muted-foreground tabular-nums lg:hidden">
+              {formatDate(tenant.renewalDate)}
+            </span>
+          )}
+        </div>
+      </TableCell>
+      <TableCell className="hidden xl:table-cell">
         {tenant.country ? (
           <span className="flex items-center gap-1.5">
             <span aria-hidden={true}>{getCountryFlagEmoji(tenant.country)}</span>
@@ -66,33 +88,65 @@ export function AccountsTableRow({
   );
 }
 
-function RenewalCell({
-  renewalDate,
-  plannedChange,
-  formatDate
-}: Readonly<{
-  renewalDate: string | null;
-  plannedChange: PlannedSubscriptionChange | null;
-  formatDate: (value: string | null | undefined) => string;
-}>) {
-  if (!renewalDate) {
-    return <span className="text-muted-foreground">-</span>;
+function MrrCell({ tenant, align = "start" }: Readonly<{ tenant: TenantSummary; align?: "start" | "end" }>) {
+  const currentAmount = formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency);
+  const isCanceling = tenant.plannedChange === PlannedSubscriptionChange.Cancellation;
+  const isDowngrading = tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange;
+  const newAmount =
+    isCanceling && tenant.currency !== null
+      ? formatCurrency(0, tenant.currency)
+      : isDowngrading && tenant.scheduledPriceAmount !== null && tenant.currency !== null
+        ? formatCurrency(tenant.scheduledPriceAmount, tenant.currency)
+        : null;
+
+  if (newAmount === null) {
+    return <span>{currentAmount}</span>;
+  }
+
+  return (
+    <div className={`flex flex-col leading-tight ${align === "end" ? "items-end" : ""}`}>
+      <span className="text-xs text-muted-foreground line-through">{currentAmount}</span>
+      <span>{newAmount}</span>
+    </div>
+  );
+}
+
+function StatusBadge({ tenant }: Readonly<{ tenant: TenantSummary }>) {
+  if (tenant.plannedChange === PlannedSubscriptionChange.Cancellation) {
+    return (
+      <Badge variant="destructive" className="gap-1">
+        <XCircleIcon className="size-3" />
+        <Trans>Canceling</Trans>
+      </Badge>
+    );
+  }
+  if (tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange) {
+    return (
+      <Badge variant="warning" className="gap-1">
+        <CalendarClockIcon className="size-3" />
+        <Trans>Downgrading</Trans>
+      </Badge>
+    );
+  }
+  if (tenant.plan !== SubscriptionPlan.Basis) {
+    return (
+      <Badge variant="outline" className="gap-1 border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
+        <CheckCircle2Icon className="size-3" />
+        <Trans>Active</Trans>
+      </Badge>
+    );
+  }
+  if (tenant.hasEverSubscribed) {
+    return (
+      <Badge variant="outline" className="gap-1 text-muted-foreground">
+        <MinusCircleIcon className="size-3" />
+        <Trans>Canceled</Trans>
+      </Badge>
+    );
   }
   return (
-    <div className="flex items-center gap-2">
-      <span>{formatDate(renewalDate)}</span>
-      {plannedChange === PlannedSubscriptionChange.Cancellation && (
-        <Badge variant="outline" className="gap-1 border-destructive/30 text-destructive">
-          <XCircleIcon className="size-3" />
-          <Trans>Cancelling</Trans>
-        </Badge>
-      )}
-      {plannedChange === PlannedSubscriptionChange.ScheduledPlanChange && (
-        <Badge variant="outline" className="gap-1">
-          <CalendarClockIcon className="size-3" />
-          <Trans>Plan change</Trans>
-        </Badge>
-      )}
-    </div>
+    <Badge variant="outline" className="text-muted-foreground">
+      <Trans>Free</Trans>
+    </Badge>
   );
 }
