@@ -8,16 +8,7 @@ const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
 const BASE_URL = getBaseUrl();
 
 test.describe("@smoke", () => {
-  /**
-   * Verifies the local-dev back-office authentication round trip:
-   * an unauthenticated browser request to a back-office API endpoint
-   * triggers a redirect to the MockEasyAuth impersonation page; selecting an
-   * identity sets the DevEasyAuth cookie; and a follow-up request to
-   * `/api/back-office/me` returns the impersonated identity's claims. Also
-   * verifies that the back-office host serves the BackOffice SPA shell.
-   * Production validation (real Easy Auth) is a manual deploy-time check, not
-   * covered by this CI suite.
-   */
+  // Verifies MockEasyAuth redirect, DevEasyAuth cookie, identity claims, and SPA shell on the back-office host.
   test("should redirect unauthenticated user to mock easy auth and return identity claims after impersonation", async ({
     browser
   }) => {
@@ -84,18 +75,7 @@ test.describe("@smoke", () => {
 });
 
 test.describe("@smoke", () => {
-  /**
-   * Verifies host-scoped isolation: back-office endpoints are only served on
-   * the back-office host (RequireHost predicate produces 404 elsewhere), and
-   * an authenticated account session does not authorize back-office requests.
-   * BackOfficeIdentity is a separate authentication scheme and ignores the
-   * account session cookie even if present. Account endpoints intentionally do
-   * NOT declare RequireHost post-split (AppGateway and ACA internal ingress are
-   * the trust boundaries), but the account session cookie is host-scoped to the
-   * user-facing host so requests on the back-office host return 401. The
-   * user-facing host continues to serve account endpoints with normal 401
-   * behavior when unauthenticated.
-   */
+  // Verifies back-office endpoints are host-scoped and that account session cookies cannot authorize back-office requests.
   test("should isolate back-office endpoints to the back-office host and reject account-authenticated requests", async ({
     ownerPage
   }) => {
@@ -164,5 +144,70 @@ test.describe("@smoke", () => {
 
     await accountAuthenticatedContext.dispose();
     await anonymousApiContext.dispose();
+  });
+});
+
+test.describe("@smoke", () => {
+  // Verifies accounts table, side pane, detail KPI cards, and Users tab render correctly.
+  test("should render accounts list, open side pane, and navigate to detail page with tabs", async ({
+    ownerPage,
+    browser
+  }) => {
+    createTestContext(ownerPage);
+
+    const backOfficeContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
+    const page = await backOfficeContext.newPage();
+    createTestContext(page);
+
+    await step("Log in as Admin via MockEasyAuth & verify redirect to accounts list")(async () => {
+      await page.goto(`${BACK_OFFICE_BASE_URL}/accounts`);
+
+      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
+      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
+      await page.getByRole("button", { name: "Log in" }).click();
+
+      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/accounts`);
+    })();
+
+    await step("Load accounts page & verify table renders with Name and Status columns and at least one row")(
+      async () => {
+        await expect(page.getByRole("table", { name: "Accounts" })).toBeVisible();
+        await expect(page.getByRole("columnheader", { name: "Name" })).toBeVisible();
+        await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
+        await expect(page.getByRole("row").nth(1)).toBeVisible();
+      }
+    )();
+
+    await step("Click first account row & verify side pane opens with Plan & revenue and Owners sections")(async () => {
+      await page.getByRole("row").nth(1).click();
+
+      await expect(page.getByRole("region", { name: "Account preview" })).toBeVisible();
+      await expect(page.getByText("Plan & revenue")).toBeVisible();
+      await expect(page.getByText("Owners")).toBeVisible();
+    })();
+
+    await step("Open account detail & verify KPI cards and Owners heading on Overview tab")(async () => {
+      await page.getByRole("button", { name: "Open account" }).click();
+
+      const main = page.getByRole("main");
+
+      await expect(page.getByRole("link", { name: "Back to accounts" })).toBeVisible();
+      await expect(main.getByText("MRR")).toBeVisible();
+      await expect(main.getByText("Lifetime value")).toBeVisible();
+      await expect(main.getByText("Users", { exact: true })).toBeVisible();
+      await expect(main.getByRole("heading", { name: "Owners" })).toBeVisible();
+    })();
+
+    await step("Switch to Users tab & verify user list renders")(async () => {
+      const main = page.getByRole("main");
+
+      await main.getByRole("tab", { name: "Users" }).click();
+
+      const usersPanel = main.getByRole("tabpanel", { name: "Users" });
+      await expect(usersPanel).toBeVisible();
+      await expect(usersPanel.getByRole("row").nth(1)).toBeVisible();
+    })();
+
+    await backOfficeContext.close();
   });
 });
