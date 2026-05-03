@@ -17,6 +17,7 @@ import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import { AccountSidePaneSections } from "./AccountSidePaneSections";
+import { TenantStatusBadge } from "./TenantStatusBadge";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
 
@@ -70,6 +71,11 @@ export function AccountSidePane({ tenant, isOpen, onClose }: Readonly<AccountSid
                 <Badge className={`${getSubscriptionPlanBadgeClass(tenant.plan)}`}>
                   {getSubscriptionPlanLabel(tenant.plan)}
                 </Badge>
+                <TenantStatusBadge
+                  plan={tenant.plan}
+                  plannedChange={tenant.plannedChange}
+                  hasEverSubscribed={tenant.hasEverSubscribed}
+                />
                 {tenant.country && (
                   <span className="inline-flex items-center gap-1">
                     <span aria-hidden={true}>{getCountryFlagEmoji(tenant.country)}</span>

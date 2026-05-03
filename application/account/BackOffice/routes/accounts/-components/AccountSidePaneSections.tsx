@@ -1,11 +1,8 @@
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
-import { Trans } from "@lingui/react/macro";
-import { Badge } from "@repo/ui/components/Badge";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { CalendarClockIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -79,23 +76,7 @@ export function AccountSidePaneSections({
     <div className="flex flex-col">
       <SidePaneDivider />
 
-      <SidePaneSection
-        label={t`Plan & revenue`}
-        className="h-[12.875rem]"
-        trailing={
-          tenant.plannedChange === PlannedSubscriptionChange.Cancellation ? (
-            <Badge variant="destructive" className="gap-1">
-              <XCircleIcon className="size-3" />
-              <Trans>Canceling</Trans>
-            </Badge>
-          ) : tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange ? (
-            <Badge variant="warning" className="gap-1">
-              <CalendarClockIcon className="size-3" />
-              <Trans>Downgrading</Trans>
-            </Badge>
-          ) : undefined
-        }
-      >
+      <SidePaneSection label={t`Plan & revenue`} className="h-[12.875rem]">
         <div className="flex flex-col gap-3">
           <KpiRow
             leftLabel={t`Renewal date`}

@@ -43,9 +43,6 @@ msgstr "Active"
 msgid "Admin"
 msgstr "Admin"
 
-msgid "All"
-msgstr "All"
-
 msgid "Amount"
 msgstr "Amount"
 
@@ -239,11 +236,17 @@ msgstr "No owners"
 msgid "No owners on this account."
 msgstr "No owners on this account."
 
+msgid "No paid plan yet."
+msgstr "No paid plan yet."
+
 msgid "No payments"
 msgstr "No payments"
 
 msgid "No payments yet."
 msgstr "No payments yet."
+
+msgid "No plan"
+msgstr "No plan"
 
 msgid "No users"
 msgstr "No users"
@@ -361,6 +364,9 @@ msgstr "Status"
 msgid "Subscribed since"
 msgstr "Subscribed since"
 
+msgid "Subscription canceled"
+msgstr "Subscription canceled"
+
 msgid "Succeeded"
 msgstr "Succeeded"
 
@@ -391,11 +397,14 @@ msgstr "Theme"
 msgid "This account has no users."
 msgstr "This account has no users."
 
+msgid "This account previously had a paid subscription that ended."
+msgstr "This account previously had a paid subscription that ended."
+
 msgid "Try again"
 msgstr "Try again"
 
-msgid "Try clearing the search or plan filter to see more results."
-msgstr "Try clearing the search or plan filter to see more results."
+msgid "Try clearing the search or filters to see more results."
+msgstr "Try clearing the search or filters to see more results."
 
 msgid "User"
 msgstr "User"

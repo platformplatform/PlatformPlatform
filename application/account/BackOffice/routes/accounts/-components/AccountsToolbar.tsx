@@ -7,15 +7,16 @@ import { useNavigate } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { SubscriptionPlan } from "@/shared/lib/api/client";
+import { SubscriptionPlan, TenantStatusFilter } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 interface AccountsToolbarProps {
   search: string | undefined;
-  plan: SubscriptionPlan | undefined;
+  plans: SubscriptionPlan[];
+  statuses: TenantStatusFilter[];
 }
 
-export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>) {
+export function AccountsToolbar({ search, plans, statuses }: Readonly<AccountsToolbarProps>) {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(search ?? "");
   const debouncedSearch = useDebounce(searchInput, 500);
@@ -34,13 +35,25 @@ export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>
     setSearchInput(search ?? "");
   }, [search]);
 
-  const handlePlanChange = (values: string[]) => {
-    const next = values.find((value) => value !== "all") as SubscriptionPlan | undefined;
+  const handlePlansChange = (values: string[]) => {
+    const next = values as SubscriptionPlan[];
     navigate({
       to: "/accounts",
       search: (previous) => ({
         ...previous,
-        plan: next,
+        plans: next.length === 0 ? undefined : next,
+        pageOffset: undefined
+      })
+    });
+  };
+
+  const handleStatusesChange = (values: string[]) => {
+    const next = values as TenantStatusFilter[];
+    navigate({
+      to: "/accounts",
+      search: (previous) => ({
+        ...previous,
+        statuses: next.length === 0 ? undefined : next,
         pageOffset: undefined
       })
     });
@@ -75,17 +88,39 @@ export function AccountsToolbar({ search, plan }: Readonly<AccountsToolbarProps>
       <ToggleGroup
         variant="outline"
         aria-label={t`Plan`}
-        value={plan ? [plan] : ["all"]}
-        onValueChange={handlePlanChange}
+        multiple={true}
+        value={plans}
+        onValueChange={handlePlansChange}
       >
-        <ToggleGroupItem value="all" className="min-w-[5rem] justify-center">
-          <Trans>All</Trans>
-        </ToggleGroupItem>
         {[SubscriptionPlan.Premium, SubscriptionPlan.Standard, SubscriptionPlan.Basis].map((value) => (
           <ToggleGroupItem key={value} value={value} className="min-w-[5rem] justify-center">
             {getSubscriptionPlanLabel(value)}
           </ToggleGroupItem>
         ))}
+      </ToggleGroup>
+
+      <ToggleGroup
+        variant="outline"
+        aria-label={t`Status`}
+        multiple={true}
+        value={statuses}
+        onValueChange={handleStatusesChange}
+      >
+        <ToggleGroupItem value={TenantStatusFilter.Active} className="min-w-[5rem] justify-center">
+          <Trans>Active</Trans>
+        </ToggleGroupItem>
+        <ToggleGroupItem value={TenantStatusFilter.Downgrading} className="min-w-[5rem] justify-center">
+          <Trans>Downgrading</Trans>
+        </ToggleGroupItem>
+        <ToggleGroupItem value={TenantStatusFilter.Canceling} className="min-w-[5rem] justify-center">
+          <Trans>Canceling</Trans>
+        </ToggleGroupItem>
+        <ToggleGroupItem value={TenantStatusFilter.Canceled} className="min-w-[5rem] justify-center">
+          <Trans>Canceled</Trans>
+        </ToggleGroupItem>
+        <ToggleGroupItem value={TenantStatusFilter.Free} className="min-w-[5rem] justify-center">
+          <Trans>Free</Trans>
+        </ToggleGroupItem>
       </ToggleGroup>
     </div>
   );

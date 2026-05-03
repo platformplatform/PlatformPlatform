@@ -27,13 +27,13 @@ interface AccountUsersTabProps {
 
 export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
   const [searchInput, setSearchInput] = useState("");
-  const [role, setRole] = useState<UserRole | "">("");
+  const [roles, setRoles] = useState<UserRole[]>([]);
   const [pageOffset, setPageOffset] = useState(0);
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
     setPageOffset(0);
-  }, [debouncedSearch, role]);
+  }, [debouncedSearch, roles]);
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -43,7 +43,6 @@ export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
         path: { id: tenantId },
         query: {
           Search: debouncedSearch || undefined,
-          Role: role || undefined,
           PageOffset: pageOffset || undefined
         }
       }
@@ -51,14 +50,15 @@ export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
     { placeholderData: keepPreviousData }
   );
 
-  const users = data?.users ?? [];
+  const allUsers = data?.users ?? [];
+  const users = roles.length === 0 ? allUsers : allUsers.filter((user) => roles.includes(user.role));
   const totalPages = data?.totalPages ?? 0;
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
-  const hasFilters = Boolean(debouncedSearch || role);
+  const hasFilters = Boolean(debouncedSearch) || roles.length > 0;
 
   return (
     <div className="flex flex-col gap-4">
-      <UserFilters searchInput={searchInput} onSearchChange={setSearchInput} role={role} onRoleChange={setRole} />
+      <UserFilters searchInput={searchInput} onSearchChange={setSearchInput} roles={roles} onRolesChange={setRoles} />
       <UserList users={users} isLoading={isLoading} hasFilters={hasFilters} />
       {totalPages > 1 && (
         <TablePagination
@@ -78,17 +78,16 @@ export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
 function UserFilters({
   searchInput,
   onSearchChange,
-  role,
-  onRoleChange
+  roles,
+  onRolesChange
 }: Readonly<{
   searchInput: string;
   onSearchChange: (value: string) => void;
-  role: UserRole | "";
-  onRoleChange: (value: UserRole | "") => void;
+  roles: UserRole[];
+  onRolesChange: (value: UserRole[]) => void;
 }>) {
-  const handleRoleChange = (values: string[]) => {
-    const next = values.find((value) => value !== "all");
-    onRoleChange((next as UserRole | undefined) ?? "");
+  const handleRolesChange = (values: string[]) => {
+    onRolesChange(values as UserRole[]);
   };
 
   return (
@@ -120,12 +119,10 @@ function UserFilters({
       <ToggleGroup
         variant="outline"
         aria-label={t`Role`}
-        value={role ? [role] : ["all"]}
-        onValueChange={handleRoleChange}
+        multiple={true}
+        value={roles}
+        onValueChange={handleRolesChange}
       >
-        <ToggleGroupItem value="all" className="min-w-[5rem] justify-center">
-          <Trans>All</Trans>
-        </ToggleGroupItem>
         {[UserRole.Owner, UserRole.Admin, UserRole.Member].map((value) => (
           <ToggleGroupItem key={value} value={value} className="min-w-[5rem] justify-center">
             {getUserRoleLabel(value)}

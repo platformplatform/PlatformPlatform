@@ -1,16 +1,16 @@
-import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { getCountryFlagEmoji } from "@repo/ui/utils/countryFlag";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { CalendarClockIcon, CheckCircle2Icon, MinusCircleIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { PlannedSubscriptionChange, SubscriptionPlan } from "@/shared/lib/api/client";
+import { PlannedSubscriptionChange } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
+
+import { TenantStatusBadge } from "./TenantStatusBadge";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
 
@@ -45,7 +45,11 @@ export function AccountsTableRow({
                 <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
                   {getSubscriptionPlanLabel(tenant.plan)}
                 </Badge>
-                <StatusBadge tenant={tenant} />
+                <TenantStatusBadge
+                  plan={tenant.plan}
+                  plannedChange={tenant.plannedChange}
+                  hasEverSubscribed={tenant.hasEverSubscribed}
+                />
               </div>
               <div className="shrink-0 text-right text-sm text-muted-foreground tabular-nums">
                 <MrrCell tenant={tenant} align="end" />
@@ -65,7 +69,11 @@ export function AccountsTableRow({
       </TableCell>
       <TableCell className="hidden md:table-cell">
         <div className="flex flex-col gap-1">
-          <StatusBadge tenant={tenant} />
+          <TenantStatusBadge
+            plan={tenant.plan}
+            plannedChange={tenant.plannedChange}
+            hasEverSubscribed={tenant.hasEverSubscribed}
+          />
           {tenant.renewalDate && (
             <span className="text-xs text-muted-foreground tabular-nums lg:hidden">
               {formatDate(tenant.renewalDate)}
@@ -108,45 +116,5 @@ function MrrCell({ tenant, align = "start" }: Readonly<{ tenant: TenantSummary; 
       <span className="text-xs text-muted-foreground line-through">{currentAmount}</span>
       <span>{newAmount}</span>
     </div>
-  );
-}
-
-function StatusBadge({ tenant }: Readonly<{ tenant: TenantSummary }>) {
-  if (tenant.plannedChange === PlannedSubscriptionChange.Cancellation) {
-    return (
-      <Badge variant="destructive" className="gap-1">
-        <XCircleIcon className="size-3" />
-        <Trans>Canceling</Trans>
-      </Badge>
-    );
-  }
-  if (tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange) {
-    return (
-      <Badge variant="warning" className="gap-1">
-        <CalendarClockIcon className="size-3" />
-        <Trans>Downgrading</Trans>
-      </Badge>
-    );
-  }
-  if (tenant.plan !== SubscriptionPlan.Basis) {
-    return (
-      <Badge variant="outline" className="gap-1 border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
-        <CheckCircle2Icon className="size-3" />
-        <Trans>Active</Trans>
-      </Badge>
-    );
-  }
-  if (tenant.hasEverSubscribed) {
-    return (
-      <Badge variant="outline" className="gap-1 text-muted-foreground">
-        <MinusCircleIcon className="size-3" />
-        <Trans>Canceled</Trans>
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant="outline" className="text-muted-foreground">
-      <Trans>Free</Trans>
-    </Badge>
   );
 }

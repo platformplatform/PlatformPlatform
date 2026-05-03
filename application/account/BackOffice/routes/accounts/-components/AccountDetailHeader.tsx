@@ -8,13 +8,15 @@ import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getCountryFlagEmoji, getCountryName } from "@repo/ui/utils/countryFlag";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, CalendarClockIcon, XCircleIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { TenantState } from "@/shared/lib/api/client";
+import { PlannedSubscriptionChange, TenantState } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel, getTenantStateLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
+
+import { TenantStatusBadge } from "./TenantStatusBadge";
 
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
 
@@ -34,6 +36,7 @@ export function AccountDetailHeader({ tenant, isLoading }: Readonly<AccountDetai
           variant="ghost"
           size="sm"
           className="-ml-2 gap-1.5"
+          nativeButton={false}
           render={<Link to="/accounts" aria-label={t`Back to accounts`} />}
         >
           <ArrowLeftIcon className="size-4" />
@@ -56,18 +59,12 @@ export function AccountDetailHeader({ tenant, isLoading }: Readonly<AccountDetai
                 <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
                   {getSubscriptionPlanLabel(tenant.plan)}
                 </Badge>
-                <TenantStatePill state={tenant.state} />
-                {tenant.cancelAtPeriodEnd ? (
-                  <Badge variant="destructive" className="gap-1">
-                    <XCircleIcon className="size-3" />
-                    <Trans>Canceling</Trans>
-                  </Badge>
-                ) : tenant.scheduledPlan !== null ? (
-                  <Badge variant="warning" className="gap-1">
-                    <CalendarClockIcon className="size-3" />
-                    <Trans>Downgrading</Trans>
-                  </Badge>
-                ) : null}
+                {tenant.state !== TenantState.Active && <TenantStatePill state={tenant.state} />}
+                <TenantStatusBadge
+                  plan={tenant.plan}
+                  plannedChange={derivePlannedChange(tenant)}
+                  hasEverSubscribed={tenant.hasEverSubscribed}
+                />
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 {tenant.billingAddress?.country && (
@@ -88,13 +85,19 @@ export function AccountDetailHeader({ tenant, isLoading }: Readonly<AccountDetai
   );
 }
 
+function derivePlannedChange(tenant: TenantDetailResponse): PlannedSubscriptionChange | null {
+  if (tenant.cancelAtPeriodEnd) {
+    return PlannedSubscriptionChange.Cancellation;
+  }
+  if (tenant.scheduledPlan !== null) {
+    return PlannedSubscriptionChange.ScheduledPlanChange;
+  }
+  return null;
+}
+
 function TenantStatePill({ state }: Readonly<{ state: TenantState }>) {
-  const variantClass =
-    state === TenantState.Active
-      ? "border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
-      : "border-destructive/30 text-destructive";
   return (
-    <Badge variant="outline" className={variantClass}>
+    <Badge variant="outline" className="border-destructive/30 text-destructive">
       {getTenantStateLabel(state)}
     </Badge>
   );

@@ -43,9 +43,6 @@ msgstr "Aktiv"
 msgid "Admin"
 msgstr "Admin"
 
-msgid "All"
-msgstr "Alle"
-
 msgid "Amount"
 msgstr "Beløb"
 
@@ -239,11 +236,17 @@ msgstr "Ingen ejere"
 msgid "No owners on this account."
 msgstr "Ingen ejere på denne konto."
 
+msgid "No paid plan yet."
+msgstr "Intet betalt abonnement endnu."
+
 msgid "No payments"
 msgstr "Ingen betalinger"
 
 msgid "No payments yet."
 msgstr "Ingen betalinger endnu."
+
+msgid "No plan"
+msgstr "Intet abonnement"
 
 msgid "No users"
 msgstr "Ingen brugere"
@@ -361,6 +364,9 @@ msgstr "Status"
 msgid "Subscribed since"
 msgstr "Abonneret siden"
 
+msgid "Subscription canceled"
+msgstr "Abonnement opsagt"
+
 msgid "Succeeded"
 msgstr "Gennemført"
 
@@ -391,11 +397,14 @@ msgstr "Tema"
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
 
+msgid "This account previously had a paid subscription that ended."
+msgstr "Denne konto havde tidligere et betalt abonnement, der sluttede."
+
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Try clearing the search or plan filter to see more results."
-msgstr "Prøv at rydde søgningen eller planfilteret for at se flere resultater."
+msgid "Try clearing the search or filters to see more results."
+msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
 
 msgid "User"
 msgstr "Bruger"

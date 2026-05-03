@@ -13,7 +13,13 @@ import { z } from "zod";
 import type { components } from "@/shared/lib/api/client";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
-import { api, SortableTenantProperties, SortOrder, SubscriptionPlan } from "@/shared/lib/api/client";
+import {
+  api,
+  SortableTenantProperties,
+  SortOrder,
+  SubscriptionPlan,
+  TenantStatusFilter
+} from "@/shared/lib/api/client";
 
 import { AccountSidePane } from "./-components/AccountSidePane";
 import { AccountsTable } from "./-components/AccountsTable";
@@ -23,7 +29,8 @@ type TenantSummary = components["schemas"]["TenantSummary"];
 
 const accountsSearchSchema = z.object({
   search: z.string().optional(),
-  plan: z.nativeEnum(SubscriptionPlan).optional(),
+  plans: z.array(z.nativeEnum(SubscriptionPlan)).max(10).optional(),
+  statuses: z.array(z.nativeEnum(TenantStatusFilter)).max(10).optional(),
   orderBy: z.nativeEnum(SortableTenantProperties).optional(),
   sortOrder: z.nativeEnum(SortOrder).optional(),
   pageOffset: z.number().int().nonnegative().optional()
@@ -36,7 +43,7 @@ export const Route = createFileRoute("/accounts/")({
 });
 
 function AccountsListPage() {
-  const { search, plan, orderBy, sortOrder, pageOffset } = Route.useSearch();
+  const { search, plans, statuses, orderBy, sortOrder, pageOffset } = Route.useSearch();
   const navigate = useNavigate();
   const [previewTenant, setPreviewTenant] = useState<TenantSummary | null>(null);
 
@@ -47,7 +54,8 @@ function AccountsListPage() {
       params: {
         query: {
           Search: search,
-          Plan: plan,
+          Plans: plans,
+          Statuses: statuses,
           OrderBy: orderBy,
           SortOrder: sortOrder,
           PageOffset: pageOffset
@@ -64,7 +72,7 @@ function AccountsListPage() {
   const handleClosePane = useCallback(() => setPreviewTenant(null), []);
 
   const tenants = data?.tenants ?? [];
-  const hasFilters = Boolean(search || plan);
+  const hasFilters = Boolean(search) || (plans?.length ?? 0) > 0 || (statuses?.length ?? 0) > 0;
   const showEmpty = !isLoading && tenants.length === 0;
 
   return (
@@ -83,7 +91,7 @@ function AccountsListPage() {
             ) : undefined
           }
         >
-          <AccountsToolbar search={search} plan={plan} />
+          <AccountsToolbar search={search} plans={plans ?? []} statuses={statuses ?? []} />
 
           {showEmpty ? (
             <Empty>
@@ -96,7 +104,7 @@ function AccountsListPage() {
                 </EmptyTitle>
                 <EmptyDescription>
                   {hasFilters ? (
-                    <Trans>Try clearing the search or plan filter to see more results.</Trans>
+                    <Trans>Try clearing the search or filters to see more results.</Trans>
                   ) : (
                     <Trans>Tenant accounts will appear here as they are created.</Trans>
                   )}
