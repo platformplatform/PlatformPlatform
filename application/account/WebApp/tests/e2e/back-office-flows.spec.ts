@@ -236,28 +236,34 @@ test.describe("@smoke", () => {
 
     // === DASHBOARD ===
 
-    await step("Navigate to dashboard & verify KPI cards and Trends controls are visible")(async () => {
-      await page.goto(`${BACK_OFFICE_BASE_URL}/`);
+    await step("Navigate to dashboard & verify KPI tiles, chart cards, list cards, and period toggle are visible")(
+      async () => {
+        await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
-      await expect(page.getByText("Total tenants")).toBeVisible();
-      await expect(page.getByText("Total users")).toBeVisible();
-      await expect(page.getByText("Monthly recurring revenue")).toBeVisible();
-      await expect(page.getByText("Active sessions")).toBeVisible();
-      await expect(page.getByText("New tenants")).toBeVisible();
-      await expect(page.getByText("New users")).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
-      await expect(page.getByRole("heading", { name: "Trends" })).toBeVisible();
-      await expect(page.getByRole("combobox", { name: "Metric" })).toBeVisible();
+        await expect(page.getByText("Total tenants")).toBeVisible();
+        await expect(page.getByText("Blended MRR")).toBeVisible();
+        await expect(page.getByText("Users active")).toBeVisible();
+        await expect(page.getByText("Active sessions")).toBeVisible();
 
+        await expect(page.getByRole("heading", { name: "MRR trend" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Plan distribution" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Tenant growth" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "User logins / day" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Recent signups" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Recent Stripe events" })).toBeVisible();
+
+        const periodGroup = page.getByRole("group", { name: "Period" });
+        await expect(periodGroup.getByRole("button", { name: "7d" })).toBeVisible();
+        await expect(periodGroup.getByRole("button", { name: "30d" })).toBeVisible();
+        await expect(periodGroup.getByRole("button", { name: "90d" })).toBeVisible();
+      }
+    )();
+
+    await step("Switch period to 7d & verify 7d button reflects pressed state")(async () => {
       const periodGroup = page.getByRole("group", { name: "Period" });
-      await expect(periodGroup.getByRole("button", { name: "7 days" })).toBeVisible();
-      await expect(periodGroup.getByRole("button", { name: "30 days" })).toBeVisible();
-      await expect(periodGroup.getByRole("button", { name: "90 days" })).toBeVisible();
-    })();
-
-    await step("Switch period to 7 days & verify 7 days button reflects pressed state")(async () => {
-      const periodGroup = page.getByRole("group", { name: "Period" });
-      const sevenDaysButton = periodGroup.getByRole("button", { name: "7 days" });
+      const sevenDaysButton = periodGroup.getByRole("button", { name: "7d" });
 
       await sevenDaysButton.click();
 

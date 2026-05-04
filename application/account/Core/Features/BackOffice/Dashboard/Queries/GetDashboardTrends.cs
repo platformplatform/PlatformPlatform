@@ -55,7 +55,7 @@ public sealed class GetDashboardTrendsHandler(
 {
     public async Task<Result<BackOfficeDashboardTrendsResponse>> Handle(GetDashboardTrendsQuery query, CancellationToken cancellationToken)
     {
-        var days = PeriodDays(query.Period);
+        var days = DashboardTrendPeriods.GetDays(query.Period);
         var now = timeProvider.GetUtcNow();
         var today = DateOnly.FromDateTime(now.UtcDateTime);
         var startDate = today.AddDays(-(days - 1));
@@ -105,8 +105,11 @@ public sealed class GetDashboardTrendsHandler(
             .GroupBy(timestamp => DateOnly.FromDateTime(timestamp.UtcDateTime))
             .ToDictionary(group => group.Key, group => group.LongCount());
     }
+}
 
-    private static int PeriodDays(DashboardTrendPeriod period)
+public static class DashboardTrendPeriods
+{
+    public static int GetDays(DashboardTrendPeriod period)
     {
         return period switch
         {

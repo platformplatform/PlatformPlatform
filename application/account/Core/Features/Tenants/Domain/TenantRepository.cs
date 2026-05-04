@@ -48,6 +48,12 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
     /// </summary>
     Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the <paramref name="limit" /> most recently created tenants without applying tenant query filters.
+    ///     Used by the back-office dashboard "Recent signups" list.
+    /// </summary>
+    Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -139,5 +145,17 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     public async Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Returns the <paramref name="limit" /> most recently created tenants without applying tenant query filters.
+    ///     Used by the back-office dashboard "Recent signups" list.
+    ///     SQLite cannot translate DateTimeOffset comparisons, so the order-by runs in memory; the limit keeps the
+    ///     materialized set small.
+    /// </summary>
+    public async Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken)
+    {
+        var tenants = await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
+        return tenants.OrderByDescending(t => t.CreatedAt).Take(limit).ToArray();
     }
 }

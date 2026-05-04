@@ -6,6 +6,7 @@ import { Card } from "@repo/ui/components/Card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
+import { getCountryFlagEmoji, getCountryName } from "@repo/ui/utils/countryFlag";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { Link } from "@tanstack/react-router";
 import { Building2Icon, ChevronRightIcon } from "lucide-react";
@@ -14,7 +15,6 @@ import type { components } from "@/shared/lib/api/client";
 
 import { TenantStatusBadge } from "@/routes/accounts/-components/TenantStatusBadge";
 import { getSubscriptionPlanLabel, getUserRoleLabel } from "@/shared/lib/api/labels";
-import { getCountryFlagEmoji, getCountryName } from "@/shared/lib/countryFlag";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import { UserSectionHeader } from "./UserSectionHeader";

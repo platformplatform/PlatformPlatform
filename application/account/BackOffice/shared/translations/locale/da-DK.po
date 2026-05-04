@@ -21,11 +21,14 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 
-#. placeholder {0}: data.activeTenants
-#. placeholder {1}: data.trialTenants
-#. placeholder {2}: data.canceledTenants
-msgid "{0} active · {1} trial · {2} canceled"
-msgstr "{0} aktive · {1} prøveperiode · {2} opsagt"
+#. placeholder {0}: formatCurrency(blended, currency)
+msgid "{0} blended"
+msgstr "{0} samlet"
+
+#. placeholder {0}: formatCurrency(blended, currency)
+#. placeholder {1}: formatDelta(deltaPercent)
+msgid "{0} blended · {1} over period"
+msgstr "{0} samlet · {1} for perioden"
 
 msgid "{activationPercent}% activation"
 msgstr "{activationPercent}% aktivering"
@@ -48,8 +51,21 @@ msgstr "{pendingUsers} afventer"
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# medlemskab} other {# medlemskaber}}"
 
+msgid "{total} new signups"
+msgstr "{total} nye tilmeldinger"
+
+msgid "{total} tenants"
+msgstr "{total} tenants"
+
+msgid "{total} total · avg {average}/day"
+msgstr "{total} i alt · gns. {average}/dag"
+
 msgid "/ month"
 msgstr "/ måned"
+
+#. placeholder {0}: data.newTenantsInPeriod
+msgid "+{0} new in last {periodDays} days"
+msgstr "+{0} nye sidste {periodDays} dage"
 
 msgid "<0>{totalUsers}</0> total"
 msgstr "<0>{totalUsers}</0> i alt"
@@ -60,11 +76,17 @@ msgstr "24t"
 msgid "30 days"
 msgstr "30 dage"
 
+msgid "30d"
+msgstr "30d"
+
 msgid "7 days"
 msgstr "7 dage"
 
-msgid "90 days"
-msgstr "90 dage"
+msgid "7d"
+msgstr "7d"
+
+msgid "90d"
+msgstr "90d"
 
 msgid "Account"
 msgstr "Konto"
@@ -111,11 +133,17 @@ msgstr "Tilbage til brugere"
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
 
+msgid "BackOffice overview · {today}"
+msgstr "BackOffice oversigt · {today}"
+
 msgid "Basis"
 msgstr "Basis"
 
 msgid "Billing address"
 msgstr "Faktureringsadresse"
+
+msgid "Blended MRR"
+msgstr "Samlet MRR"
 
 msgid "Browser"
 msgstr "Browser"
@@ -191,6 +219,9 @@ msgstr "Computer"
 msgid "Device"
 msgstr "Enhed"
 
+msgid "Downgraded"
+msgstr "Nedgraderet"
+
 msgid "Downgrading"
 msgstr "Nedgraderer"
 
@@ -248,6 +279,9 @@ msgstr "Stor"
 msgid "Larger"
 msgstr "Større"
 
+msgid "Last {periodDays} days"
+msgstr "Sidste {periodDays} dage"
+
 msgid "Last 24 hours"
 msgstr "Sidste 24 timer"
 
@@ -294,9 +328,6 @@ msgstr "Log ud"
 msgid "Logging in..."
 msgstr "Logger ind..."
 
-msgid "Login activity"
-msgstr "Login-aktivitet"
-
 msgid "Login history"
 msgstr "Login-historik"
 
@@ -306,29 +337,23 @@ msgstr "Logo"
 msgid "Main navigation"
 msgstr "Hovednavigation"
 
-msgid "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
-msgstr "Administrer konti, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
-
 msgid "Member"
 msgstr "Medlem"
 
 msgid "Method"
 msgstr "Metode"
 
-msgid "Metric"
-msgstr "Metrik"
-
 msgid "Mobile"
 msgstr "Mobil"
-
-msgid "Monthly recurring revenue"
-msgstr "Månedlig tilbagevendende omsætning"
 
 msgid "Most recent activity"
 msgstr "Seneste aktivitet"
 
 msgid "MRR"
 msgstr "MRR"
+
+msgid "MRR trend"
+msgstr "MRR-tendens"
 
 msgid "Name"
 msgstr "Navn"
@@ -339,11 +364,8 @@ msgstr "Navigation"
 msgid "Never logged in"
 msgstr "Aldrig logget ind"
 
-msgid "New tenants"
-msgstr "Nye tenants"
-
-msgid "New users"
-msgstr "Nye brugere"
+msgid "New tenants will appear here as they sign up."
+msgstr "Nye tenants vises her, når de tilmelder sig."
 
 msgid "Next"
 msgstr "Næste"
@@ -402,6 +424,12 @@ msgstr "Ingen betalinger endnu."
 msgid "No plan"
 msgstr "Intet abonnement"
 
+msgid "No recent signups"
+msgstr "Ingen nylige tilmeldinger"
+
+msgid "No recent Stripe events"
+msgstr "Ingen nylige Stripe-hændelser"
+
 msgid "No sessions"
 msgstr "Ingen sessioner"
 
@@ -450,6 +478,9 @@ msgstr "Siden blev ikke fundet"
 msgid "Page views"
 msgstr "Sidevisninger"
 
+msgid "Payment failed"
+msgstr "Betaling mislykkedes"
+
 msgid "Payment history"
 msgstr "Betalingshistorik"
 
@@ -468,6 +499,9 @@ msgstr "Plan"
 msgid "Plan & revenue"
 msgstr "Abonnement og omsætning"
 
+msgid "Plan distribution"
+msgstr "Plan-fordeling"
+
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -485,6 +519,12 @@ msgstr "Forrige"
 
 msgid "Recent active and historical sessions"
 msgstr "Nylige aktive og historiske sessioner"
+
+msgid "Recent signups"
+msgstr "Nylige tilmeldinger"
+
+msgid "Recent Stripe events"
+msgstr "Nylige Stripe-hændelser"
 
 msgid "Refunded"
 msgstr "Refunderet"
@@ -557,11 +597,17 @@ msgstr "Standard"
 msgid "Status"
 msgstr "Status"
 
+msgid "Subscribed"
+msgstr "Tilmeldt"
+
 msgid "Subscribed since"
 msgstr "Abonneret siden"
 
 msgid "Subscription canceled"
 msgstr "Abonnement opsagt"
+
+msgid "Subscriptions, upgrades, and cancellations will appear here."
+msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
 
 msgid "Succeeded"
 msgstr "Gennemført"
@@ -587,8 +633,14 @@ msgstr "Tenant"
 msgid "Tenant accounts will appear here as they are created."
 msgstr "Tenant-konti vises her, efterhånden som de oprettes."
 
+msgid "Tenant growth"
+msgstr "Tenant-vækst"
+
 msgid "Tenant users"
 msgstr "Tenant-brugere"
+
+msgid "tenants"
+msgstr "tenants"
 
 msgid "Tenants"
 msgstr "Tenants"
@@ -614,12 +666,6 @@ msgstr "Denne bruger er ikke medlem af nogen tenant."
 msgid "Total tenants"
 msgstr "Tenants i alt"
 
-msgid "Total users"
-msgstr "Brugere i alt"
-
-msgid "Trends"
-msgstr "Tendenser"
-
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
 
@@ -635,11 +681,17 @@ msgstr "Skriv for at søge"
 msgid "Unknown"
 msgstr "Ukendt"
 
+msgid "Upgraded"
+msgstr "Opgraderet"
+
 msgid "User"
 msgstr "Bruger"
 
 msgid "User detail"
 msgstr "Brugerdetalje"
+
+msgid "User logins / day"
+msgstr "Brugerlogins / dag"
 
 msgid "User menu"
 msgstr "Brugermenu"
@@ -650,14 +702,20 @@ msgstr "Brugere"
 msgid "Users ({totalUsers})"
 msgstr "Brugere ({totalUsers})"
 
+msgid "Users active"
+msgstr "Aktive brugere"
+
+msgid "View all"
+msgstr "Vis alle"
+
+msgid "vs prior period"
+msgstr "mod forrige periode"
+
 msgid "Wait list"
 msgstr "Venteliste"
 
 msgid "Wait list (coming soon)"
 msgstr "Venteliste (kommer snart)"
-
-msgid "Welcome to the Back Office"
-msgstr "Velkommen til Back Office"
 
 msgid "When"
 msgstr "Hvornår"

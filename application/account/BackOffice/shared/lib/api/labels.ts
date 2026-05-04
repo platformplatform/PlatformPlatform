@@ -5,6 +5,7 @@ import {
   LoginMethod,
   PaymentTransactionStatus,
   PlannedSubscriptionChange,
+  StripeEventType,
   SubscriptionPlan,
   TenantState,
   UserRole
@@ -96,5 +97,22 @@ export function getLoginMethodLabel(method: LoginMethod): string {
       return t`Google`;
     default:
       return String(method);
+  }
+}
+
+export function getStripeEventTypeLabel(type: StripeEventType): string {
+  switch (type) {
+    case StripeEventType.Subscribed:
+      return t`Subscribed`;
+    case StripeEventType.Upgraded:
+      return t`Upgraded`;
+    case StripeEventType.Downgraded:
+      return t`Downgraded`;
+    case StripeEventType.Canceled:
+      return t`Canceled`;
+    case StripeEventType.PaymentFailed:
+      return t`Payment failed`;
+    default:
+      return String(type);
   }
 }

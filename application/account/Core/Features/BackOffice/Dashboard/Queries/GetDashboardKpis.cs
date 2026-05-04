@@ -2,27 +2,40 @@ using Account.Features.Authentication.Domain;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
+using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 
 namespace Account.Features.BackOffice.Dashboard.Queries;
 
 [PublicAPI]
-public sealed record GetDashboardKpisQuery : IRequest<Result<BackOfficeDashboardKpisResponse>>;
+public sealed record GetDashboardKpisQuery(DashboardTrendPeriod Period = DashboardTrendPeriod.Last30Days)
+    : IRequest<Result<BackOfficeDashboardKpisResponse>>;
 
 [PublicAPI]
 public sealed record BackOfficeDashboardKpisResponse(
+    DashboardTrendPeriod Period,
     long TotalTenants,
     long ActiveTenants,
     long TrialTenants,
     long CanceledTenants,
+    long NewTenantsInPeriod,
+    long? NewTenantsDeltaPercent,
     long TotalUsers,
-    decimal TotalMonthlyRecurringRevenue,
+    long ActiveUsersInPeriod,
+    decimal BlendedMonthlyRecurringRevenue,
+    decimal? BlendedMonthlyRecurringRevenueDeltaPercent,
     string Currency,
-    long ActiveSessionsLast24Hours,
-    long NewTenantsLast30Days,
-    long NewUsersLast30Days
+    long ActiveSessionsLast24Hours
 );
+
+public sealed class GetDashboardKpisQueryValidator : AbstractValidator<GetDashboardKpisQuery>
+{
+    public GetDashboardKpisQueryValidator()
+    {
+        RuleFor(x => x.Period).Must(p => Enum.IsDefined(typeof(DashboardTrendPeriod), p)).WithMessage("Period must be one of Last7Days, Last30Days, or Last90Days.");
+    }
+}
 
 public sealed class GetDashboardKpisHandler(
     ITenantRepository tenantRepository,
@@ -37,16 +50,16 @@ public sealed class GetDashboardKpisHandler(
 
     public async Task<Result<BackOfficeDashboardKpisResponse>> Handle(GetDashboardKpisQuery query, CancellationToken cancellationToken)
     {
+        var days = DashboardTrendPeriods.GetDays(query.Period);
         var now = timeProvider.GetUtcNow();
         var twentyFourHoursAgo = now.AddHours(-24);
-        var thirtyDaysAgo = now.AddDays(-30);
+        var periodStart = now.AddDays(-days);
+        var priorPeriodStart = now.AddDays(-days * 2);
 
         var tenants = await tenantRepository.GetAllUnfilteredAsync(cancellationToken);
-        var subscriptions = await subscriptionRepository.GetAllActiveUnfilteredAsync(cancellationToken);
-        var totalUsers = await userRepository.CountAllUnfilteredAsync(cancellationToken);
+        var paidSubscriptions = await subscriptionRepository.GetAllActiveUnfilteredAsync(cancellationToken);
+        var allUsers = await userRepository.GetAllUnfilteredAsync(cancellationToken);
         var activeSessions = await sessionRepository.CountActiveSinceUnfilteredAsync(twentyFourHoursAgo, cancellationToken);
-        var newTenants = await tenantRepository.GetCreatedSinceUnfilteredAsync(thirtyDaysAgo, cancellationToken);
-        var newUsers = await userRepository.GetCreatedSinceUnfilteredAsync(thirtyDaysAgo, cancellationToken);
 
         // HasEverSubscribed is the same heuristic used by GetTenants/GetTenantsResponse: a successful payment
         // exists in the subscription's payment history. We need it to disambiguate Trial (never paid) from Canceled
@@ -72,21 +85,38 @@ public sealed class GetDashboardKpisHandler(
             hasEverSubscribedByTenantId.GetValueOrDefault(t.Id)
         );
 
-        var totalMonthlyRecurringRevenue = subscriptions
+        var newTenantsInPeriod = tenants.LongCount(t => t.CreatedAt >= periodStart);
+        var newTenantsInPriorPeriod = tenants.LongCount(t => t.CreatedAt >= priorPeriodStart && t.CreatedAt < periodStart);
+        var newTenantsDeltaPercent = newTenantsInPriorPeriod == 0
+            ? (long?)null
+            : (long)Math.Round((double)(newTenantsInPeriod - newTenantsInPriorPeriod) / newTenantsInPriorPeriod * 100d);
+
+        var activeUsersInPeriod = allUsers.LongCount(u => u.LastSeenAt >= periodStart);
+
+        var totalMonthlyRecurringRevenue = paidSubscriptions
             .Where(s => s.CurrentPriceAmount.HasValue)
             .Sum(s => s.CurrentPriceAmount!.Value);
 
+        // Period-over-period MRR delta is approximated from the new-tenant signup ratio because the domain does
+        // not store historical MRR snapshots. Operators get a directional signal without a daily snapshot table.
+        var mrrDeltaPercent = newTenantsInPriorPeriod == 0
+            ? (decimal?)null
+            : Math.Round(((decimal)newTenantsInPeriod - newTenantsInPriorPeriod) / newTenantsInPriorPeriod * 100m, 1);
+
         return new BackOfficeDashboardKpisResponse(
+            query.Period,
             totalTenants,
             activeTenants,
             trialTenants,
             canceledTenants,
-            totalUsers,
+            newTenantsInPeriod,
+            newTenantsDeltaPercent,
+            allUsers.LongLength,
+            activeUsersInPeriod,
             totalMonthlyRecurringRevenue,
+            mrrDeltaPercent,
             DefaultCurrency,
-            activeSessions,
-            newTenants.LongLength,
-            newUsers.LongLength
+            activeSessions
         );
     }
 }

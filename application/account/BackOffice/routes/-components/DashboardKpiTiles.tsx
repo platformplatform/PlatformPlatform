@@ -4,16 +4,24 @@ import { Card } from "@repo/ui/components/Card";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { Link } from "@tanstack/react-router";
-import { ActivityIcon, BuildingIcon, CoinsIcon, UserPlusIcon, UsersIcon, UsersRoundIcon } from "lucide-react";
+import { ActivityIcon, BuildingIcon, CoinsIcon, UsersIcon } from "lucide-react";
 
-import { api } from "@/shared/lib/api/client";
+import { api, DashboardTrendPeriod } from "@/shared/lib/api/client";
 
-export function DashboardKpiCards() {
-  const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/kpis");
+interface DashboardKpiTilesProps {
+  period: DashboardTrendPeriod;
+}
+
+export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) {
+  const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/kpis", {
+    params: { query: { Period: period } }
+  });
+
+  const periodDays = periodToDays(period);
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-4">
-      <KpiCard
+      <KpiTile
         label={t`Total tenants`}
         icon={BuildingIcon}
         value={data?.totalTenants}
@@ -21,52 +29,69 @@ export function DashboardKpiCards() {
         subtitle={
           data ? (
             <Trans>
-              {data.activeTenants} active · {data.trialTenants} trial · {data.canceledTenants} canceled
+              +{data.newTenantsInPeriod} new in last {periodDays} days
             </Trans>
           ) : undefined
         }
         to="/accounts"
       />
 
-      <KpiCard label={t`Total users`} icon={UsersIcon} value={data?.totalUsers} loading={isLoading} to="/users" />
-
-      <KpiCard
-        label={t`Monthly recurring revenue`}
+      <KpiTile
+        label={t`Blended MRR`}
         icon={CoinsIcon}
-        value={data ? formatCurrency(data.totalMonthlyRecurringRevenue, data.currency) : undefined}
+        value={data ? formatCurrency(data.blendedMonthlyRecurringRevenue, data.currency) : undefined}
         loading={isLoading}
+        subtitle={
+          data && data.blendedMonthlyRecurringRevenueDeltaPercent !== null ? (
+            <DeltaSubtitle deltaPercent={data.blendedMonthlyRecurringRevenueDeltaPercent} />
+          ) : undefined
+        }
       />
 
-      <KpiCard
+      <KpiTile
+        label={t`Users active`}
+        icon={UsersIcon}
+        value={data?.activeUsersInPeriod}
+        loading={isLoading}
+        subtitle={<Trans>Last {periodDays} days</Trans>}
+        to="/users"
+      />
+
+      <KpiTile
         label={t`Active sessions`}
         icon={ActivityIcon}
         value={data?.activeSessionsLast24Hours}
         loading={isLoading}
         subtitle={<Trans>Last 24 hours</Trans>}
       />
-
-      <KpiCard
-        label={t`New tenants`}
-        icon={UserPlusIcon}
-        value={data?.newTenantsLast30Days}
-        loading={isLoading}
-        subtitle={<Trans>Last 30 days</Trans>}
-        to="/accounts"
-      />
-
-      <KpiCard
-        label={t`New users`}
-        icon={UsersRoundIcon}
-        value={data?.newUsersLast30Days}
-        loading={isLoading}
-        subtitle={<Trans>Last 30 days</Trans>}
-        to="/users"
-      />
     </div>
   );
 }
 
-interface KpiCardProps {
+function periodToDays(period: DashboardTrendPeriod): number {
+  switch (period) {
+    case DashboardTrendPeriod.Last7Days:
+      return 7;
+    case DashboardTrendPeriod.Last30Days:
+      return 30;
+    case DashboardTrendPeriod.Last90Days:
+      return 90;
+  }
+}
+
+function DeltaSubtitle({ deltaPercent }: Readonly<{ deltaPercent: number }>) {
+  const positive = deltaPercent >= 0;
+  const className = positive ? "text-emerald-500" : "text-rose-500";
+  const sign = positive ? "+" : "";
+  return (
+    <span className={className}>
+      {sign}
+      {deltaPercent}% <Trans>vs prior period</Trans>
+    </span>
+  );
+}
+
+interface KpiTileProps {
   label: string;
   icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
   value: React.ReactNode;
@@ -75,7 +100,7 @@ interface KpiCardProps {
   to?: "/accounts" | "/users";
 }
 
-function KpiCard({ label, icon: Icon, value, loading, subtitle, to }: Readonly<KpiCardProps>) {
+function KpiTile({ label, icon: Icon, value, loading, subtitle, to }: Readonly<KpiTileProps>) {
   const content = (
     <>
       <span className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
@@ -106,5 +131,5 @@ function KpiCard({ label, icon: Icon, value, loading, subtitle, to }: Readonly<K
     );
   }
 
-  return <Card className="gap-2 rounded-lg p-4 py-4 shadow-none">{content}</Card>;
+  return <Card className="gap-2 rounded-lg p-4 shadow-none">{content}</Card>;
 }

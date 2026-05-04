@@ -21,11 +21,14 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 
-#. placeholder {0}: data.activeTenants
-#. placeholder {1}: data.trialTenants
-#. placeholder {2}: data.canceledTenants
-msgid "{0} active · {1} trial · {2} canceled"
-msgstr "{0} active · {1} trial · {2} canceled"
+#. placeholder {0}: formatCurrency(blended, currency)
+msgid "{0} blended"
+msgstr "{0} blended"
+
+#. placeholder {0}: formatCurrency(blended, currency)
+#. placeholder {1}: formatDelta(deltaPercent)
+msgid "{0} blended · {1} over period"
+msgstr "{0} blended · {1} over period"
 
 msgid "{activationPercent}% activation"
 msgstr "{activationPercent}% activation"
@@ -48,8 +51,21 @@ msgstr "{pendingUsers} pending"
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# membership} other {# memberships}}"
 
+msgid "{total} new signups"
+msgstr "{total} new signups"
+
+msgid "{total} tenants"
+msgstr "{total} tenants"
+
+msgid "{total} total · avg {average}/day"
+msgstr "{total} total · avg {average}/day"
+
 msgid "/ month"
 msgstr "/ month"
+
+#. placeholder {0}: data.newTenantsInPeriod
+msgid "+{0} new in last {periodDays} days"
+msgstr "+{0} new in last {periodDays} days"
 
 msgid "<0>{totalUsers}</0> total"
 msgstr "<0>{totalUsers}</0> total"
@@ -60,11 +76,17 @@ msgstr "24h"
 msgid "30 days"
 msgstr "30 days"
 
+msgid "30d"
+msgstr "30d"
+
 msgid "7 days"
 msgstr "7 days"
 
-msgid "90 days"
-msgstr "90 days"
+msgid "7d"
+msgstr "7d"
+
+msgid "90d"
+msgstr "90d"
 
 msgid "Account"
 msgstr "Account"
@@ -111,11 +133,17 @@ msgstr "Back to users"
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
 
+msgid "BackOffice overview · {today}"
+msgstr "BackOffice overview · {today}"
+
 msgid "Basis"
 msgstr "Basis"
 
 msgid "Billing address"
 msgstr "Billing address"
+
+msgid "Blended MRR"
+msgstr "Blended MRR"
 
 msgid "Browser"
 msgstr "Browser"
@@ -191,6 +219,9 @@ msgstr "Desktop"
 msgid "Device"
 msgstr "Device"
 
+msgid "Downgraded"
+msgstr "Downgraded"
+
 msgid "Downgrading"
 msgstr "Downgrading"
 
@@ -248,6 +279,9 @@ msgstr "Large"
 msgid "Larger"
 msgstr "Larger"
 
+msgid "Last {periodDays} days"
+msgstr "Last {periodDays} days"
+
 msgid "Last 24 hours"
 msgstr "Last 24 hours"
 
@@ -294,9 +328,6 @@ msgstr "Log out"
 msgid "Logging in..."
 msgstr "Logging in..."
 
-msgid "Login activity"
-msgstr "Login activity"
-
 msgid "Login history"
 msgstr "Login history"
 
@@ -306,29 +337,23 @@ msgstr "Logo"
 msgid "Main navigation"
 msgstr "Main navigation"
 
-msgid "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
-msgstr "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
-
 msgid "Member"
 msgstr "Member"
 
 msgid "Method"
 msgstr "Method"
 
-msgid "Metric"
-msgstr "Metric"
-
 msgid "Mobile"
 msgstr "Mobile"
-
-msgid "Monthly recurring revenue"
-msgstr "Monthly recurring revenue"
 
 msgid "Most recent activity"
 msgstr "Most recent activity"
 
 msgid "MRR"
 msgstr "MRR"
+
+msgid "MRR trend"
+msgstr "MRR trend"
 
 msgid "Name"
 msgstr "Name"
@@ -339,11 +364,8 @@ msgstr "Navigation"
 msgid "Never logged in"
 msgstr "Never logged in"
 
-msgid "New tenants"
-msgstr "New tenants"
-
-msgid "New users"
-msgstr "New users"
+msgid "New tenants will appear here as they sign up."
+msgstr "New tenants will appear here as they sign up."
 
 msgid "Next"
 msgstr "Next"
@@ -402,6 +424,12 @@ msgstr "No payments yet."
 msgid "No plan"
 msgstr "No plan"
 
+msgid "No recent signups"
+msgstr "No recent signups"
+
+msgid "No recent Stripe events"
+msgstr "No recent Stripe events"
+
 msgid "No sessions"
 msgstr "No sessions"
 
@@ -450,6 +478,9 @@ msgstr "Page not found"
 msgid "Page views"
 msgstr "Page views"
 
+msgid "Payment failed"
+msgstr "Payment failed"
+
 msgid "Payment history"
 msgstr "Payment history"
 
@@ -468,6 +499,9 @@ msgstr "Plan"
 msgid "Plan & revenue"
 msgstr "Plan & revenue"
 
+msgid "Plan distribution"
+msgstr "Plan distribution"
+
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -485,6 +519,12 @@ msgstr "Previous"
 
 msgid "Recent active and historical sessions"
 msgstr "Recent active and historical sessions"
+
+msgid "Recent signups"
+msgstr "Recent signups"
+
+msgid "Recent Stripe events"
+msgstr "Recent Stripe events"
 
 msgid "Refunded"
 msgstr "Refunded"
@@ -557,11 +597,17 @@ msgstr "Standard"
 msgid "Status"
 msgstr "Status"
 
+msgid "Subscribed"
+msgstr "Subscribed"
+
 msgid "Subscribed since"
 msgstr "Subscribed since"
 
 msgid "Subscription canceled"
 msgstr "Subscription canceled"
+
+msgid "Subscriptions, upgrades, and cancellations will appear here."
+msgstr "Subscriptions, upgrades, and cancellations will appear here."
 
 msgid "Succeeded"
 msgstr "Succeeded"
@@ -587,8 +633,14 @@ msgstr "Tenant"
 msgid "Tenant accounts will appear here as they are created."
 msgstr "Tenant accounts will appear here as they are created."
 
+msgid "Tenant growth"
+msgstr "Tenant growth"
+
 msgid "Tenant users"
 msgstr "Tenant users"
+
+msgid "tenants"
+msgstr "tenants"
 
 msgid "Tenants"
 msgstr "Tenants"
@@ -614,12 +666,6 @@ msgstr "This user is not a member of any tenant."
 msgid "Total tenants"
 msgstr "Total tenants"
 
-msgid "Total users"
-msgstr "Total users"
-
-msgid "Trends"
-msgstr "Trends"
-
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Try a different search term or clear the role and activity filters."
 
@@ -635,11 +681,17 @@ msgstr "Type to search"
 msgid "Unknown"
 msgstr "Unknown"
 
+msgid "Upgraded"
+msgstr "Upgraded"
+
 msgid "User"
 msgstr "User"
 
 msgid "User detail"
 msgstr "User detail"
+
+msgid "User logins / day"
+msgstr "User logins / day"
 
 msgid "User menu"
 msgstr "User menu"
@@ -650,14 +702,20 @@ msgstr "Users"
 msgid "Users ({totalUsers})"
 msgstr "Users ({totalUsers})"
 
+msgid "Users active"
+msgstr "Users active"
+
+msgid "View all"
+msgstr "View all"
+
+msgid "vs prior period"
+msgstr "vs prior period"
+
 msgid "Wait list"
 msgstr "Wait list"
 
 msgid "Wait list (coming soon)"
 msgstr "Wait list (coming soon)"
-
-msgid "Welcome to the Back Office"
-msgstr "Welcome to the Back Office"
 
 msgid "When"
 msgstr "When"

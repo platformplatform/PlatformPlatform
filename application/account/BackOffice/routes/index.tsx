@@ -17,13 +17,7 @@ function DashboardPage() {
     <SidebarProvider>
       <BackOfficeSideMenu />
       <SidebarInset>
-        <AppLayout
-          variant="center"
-          maxWidth="64rem"
-          browserTitle={t`Dashboard`}
-          title={t`Welcome to the Back Office`}
-          subtitle={t`Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams.`}
-        >
+        <AppLayout variant="center" maxWidth="80rem" browserTitle={t`Dashboard`}>
           <DashboardSections />
         </AppLayout>
       </SidebarInset>

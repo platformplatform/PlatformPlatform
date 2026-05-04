@@ -29,5 +29,21 @@ public sealed class DashboardEndpoints : IEndpoints
         group.MapGet("/trends", async Task<ApiResult<BackOfficeDashboardTrendsResponse>> ([AsParameters] GetDashboardTrendsQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<BackOfficeDashboardTrendsResponse>();
+
+        group.MapGet("/mrr-trend", async Task<ApiResult<BackOfficeDashboardMrrTrendResponse>> ([AsParameters] GetDashboardMrrTrendQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardMrrTrendResponse>();
+
+        group.MapGet("/plan-distribution", async Task<ApiResult<BackOfficeDashboardPlanDistributionResponse>> ([AsParameters] GetDashboardPlanDistributionQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardPlanDistributionResponse>();
+
+        group.MapGet("/recent-signups", async Task<ApiResult<BackOfficeDashboardRecentSignupsResponse>> ([AsParameters] GetDashboardRecentSignupsQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardRecentSignupsResponse>();
+
+        group.MapGet("/recent-stripe-events", async Task<ApiResult<BackOfficeDashboardRecentStripeEventsResponse>> ([AsParameters] GetDashboardRecentStripeEventsQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardRecentStripeEventsResponse>();
     }
 }

@@ -50,8 +50,9 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         // Trial = state Active && plan Basis && never paid. DatabaseSeeder Tenant1 also matches this definition.
         payload.TrialTenants.Should().Be(2);
         payload.CanceledTenants.Should().Be(1);
-        payload.TotalMonthlyRecurringRevenue.Should().Be(49.99m);
+        payload.BlendedMonthlyRecurringRevenue.Should().Be(49.99m);
         payload.Currency.Should().Be("DKK");
+        payload.Period.Should().Be(DashboardTrendPeriod.Last30Days);
     }
 
     [Fact]
@@ -86,9 +87,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         payload.ActiveSessionsLast24Hours.Should().Be(4);
         // First tenant created 10 days ago plus DatabaseSeeder's Tenant1 created at test setup (well within 30 days);
         // the second tenant was seeded 40 days ago which falls outside the window.
-        payload.NewTenantsLast30Days.Should().Be(2);
-        // First tenant's user (5 days ago) plus DatabaseSeeder's two Tenant1 users (created on test setup).
-        payload.NewUsersLast30Days.Should().Be(3);
+        payload.NewTenantsInPeriod.Should().Be(2);
     }
 
     [Fact]

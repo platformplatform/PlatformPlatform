@@ -86,16 +86,18 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     );
 
     /// <summary>
-    ///     Counts every user across all tenants without applying tenant query filters.
-    ///     Used by the back-office dashboard KPI snapshot for the total user count across all tenants.
-    /// </summary>
-    Task<long> CountAllUnfilteredAsync(CancellationToken cancellationToken);
-
-    /// <summary>
     ///     Returns every user created at or after <paramref name="since" /> across all tenants without applying tenant
     ///     query filters. Used by the back-office dashboard to compute new-user trend buckets across all tenants.
     /// </summary>
     Task<User[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every non-deleted user across all tenants without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot to compute period-active users (last_seen_at within
+    ///     the selected period) across all tenants. SQLite cannot translate DateTimeOffset comparisons in WHERE,
+    ///     so the time filter runs in memory; the user count is bounded by the dashboard's audience.
+    /// </summary>
+    Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
@@ -477,15 +479,6 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Counts every user across all tenants without applying tenant query filters.
-    ///     Used by the back-office dashboard KPI snapshot for the total user count across all tenants.
-    /// </summary>
-    public async Task<long> CountAllUnfilteredAsync(CancellationToken cancellationToken)
-    {
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).LongCountAsync(cancellationToken);
-    }
-
-    /// <summary>
     ///     Returns every user created at or after <paramref name="since" /> across all tenants without applying tenant
     ///     query filters. Used by the back-office dashboard to compute new-user trend buckets across all tenants.
     ///     SQLite cannot translate DateTimeOffset comparisons in WHERE, so the time filter runs in memory; the
@@ -495,6 +488,17 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     {
         var users = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return users.Where(u => u.CreatedAt >= since).ToArray();
+    }
+
+    /// <summary>
+    ///     Returns every non-deleted user across all tenants without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot to compute period-active users (last_seen_at within
+    ///     the selected period) across all tenants. SQLite cannot translate DateTimeOffset comparisons in WHERE,
+    ///     so the time filter runs in memory; the user count is bounded by the dashboard's audience.
+    /// </summary>
+    public async Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
     }
 
     [UsedImplicitly]
