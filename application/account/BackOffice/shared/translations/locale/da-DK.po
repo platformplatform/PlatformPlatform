@@ -13,20 +13,49 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{0, plural, one {# time siden} other {# timer siden}}"
+
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
+
 msgid "{activationPercent}% activation"
 msgstr "{activationPercent}% aktivering"
 
 msgid "{activeUsers} active"
 msgstr "{activeUsers} aktive"
 
+msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
+msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
+
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inaktive"
+
+msgid "{membershipCount, plural, one {# membership} other {# memberships}}"
+msgstr "{membershipCount, plural, one {# medlemskab} other {# medlemskaber}}"
 
 msgid "{pendingUsers} pending"
 msgstr "{pendingUsers} afventer"
 
+msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
+msgstr "{tenantCount, plural, one {# medlemskab} other {# medlemskaber}}"
+
+msgid "/ month"
+msgstr "/ måned"
+
 msgid "<0>{totalUsers}</0> total"
 msgstr "<0>{totalUsers}</0> i alt"
+
+msgid "24h"
+msgstr "24t"
+
+msgid "30 days"
+msgstr "30 dage"
+
+msgid "7 days"
+msgstr "7 dage"
 
 msgid "Account"
 msgstr "Konto"
@@ -40,8 +69,14 @@ msgstr "Konti"
 msgid "Active"
 msgstr "Aktiv"
 
+msgid "Activity"
+msgstr "Aktivitet"
+
 msgid "Admin"
 msgstr "Admin"
+
+msgid "All-time"
+msgstr "Samlet"
 
 msgid "Amount"
 msgstr "Beløb"
@@ -49,11 +84,17 @@ msgstr "Beløb"
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
+msgid "App Insights · Telemetry"
+msgstr "App Insights · Telemetri"
+
 msgid "Back Office"
 msgstr "Back Office"
 
 msgid "Back to accounts"
 msgstr "Tilbage til konti"
+
+msgid "Back to users"
+msgstr "Tilbage til brugere"
 
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
@@ -63,6 +104,9 @@ msgstr "Basis"
 
 msgid "Billing address"
 msgstr "Faktureringsadresse"
+
+msgid "Browser"
+msgstr "Browser"
 
 msgid "Canceled"
 msgstr "Opsagt"
@@ -104,6 +148,7 @@ msgid "Created"
 msgstr "Oprettet"
 
 #. placeholder {0}: formatDate(tenant.createdAt)
+#. placeholder {0}: formatDate(user.createdAt)
 msgid "Created {0}"
 msgstr "Oprettet {0}"
 
@@ -112,6 +157,9 @@ msgstr "Kreditnota"
 
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
+
+msgid "Custom events"
+msgstr "Brugerdefinerede hændelser"
 
 msgid "Dark"
 msgstr "Mørk"
@@ -125,11 +173,26 @@ msgstr "Dato"
 msgid "Default"
 msgstr "Standard"
 
+msgid "Desktop"
+msgstr "Computer"
+
+msgid "Device"
+msgstr "Enhed"
+
 msgid "Downgrading"
 msgstr "Nedgraderer"
 
 msgid "Email"
 msgstr "E-mail"
+
+msgid "Email confirmed"
+msgstr "E-mail bekræftet"
+
+msgid "Email pending"
+msgstr "E-mail afventer"
+
+msgid "Exceptions"
+msgstr "Fejl"
 
 msgid "Failed"
 msgstr "Mislykket"
@@ -146,11 +209,23 @@ msgstr "Gratis"
 msgid "Go to home"
 msgstr "Gå til forsiden"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Hide details"
 msgstr "Skjul detaljer"
 
+msgid "Inactive"
+msgstr "Inaktive"
+
 msgid "Invoice"
 msgstr "Faktura"
+
+msgid "IP address"
+msgstr "IP-adresse"
+
+msgid "Just now"
+msgstr "Lige nu"
 
 msgid "Language"
 msgstr "Sprog"
@@ -161,17 +236,30 @@ msgstr "Stor"
 msgid "Larger"
 msgstr "Større"
 
+msgid "Last 30 days"
+msgstr "Sidste 30 dage"
+
 msgid "Last invoice"
 msgstr "Sidste faktura"
 
+msgid "Last log-in"
+msgstr "Seneste login"
+
 msgid "Last seen"
 msgstr "Sidst set"
+
+#. placeholder {0}: formatDate(user.lastSeenAt)
+msgid "Last seen {0}"
+msgstr "Sidst set {0}"
 
 msgid "Lifetime value"
 msgstr "Livstidsværdi"
 
 msgid "Light"
 msgstr "Lys"
+
+msgid "Live data from Application Insights, scoped to this user"
+msgstr "Live-data fra Application Insights, afgrænset til denne bruger"
 
 msgid "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
 msgstr "Login til lokal udvikling. Produktion bruger Azure Container Apps' indbyggede Entra ID-godkendelse."
@@ -191,6 +279,9 @@ msgstr "Log ud"
 msgid "Logging in..."
 msgstr "Logger ind..."
 
+msgid "Login history"
+msgstr "Login-historik"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -203,6 +294,15 @@ msgstr "Administrer konti, se systemdata, se undtagelser og udfør forskellige o
 msgid "Member"
 msgstr "Medlem"
 
+msgid "Method"
+msgstr "Metode"
+
+msgid "Mobile"
+msgstr "Mobil"
+
+msgid "Most recent activity"
+msgstr "Seneste aktivitet"
+
 msgid "MRR"
 msgstr "MRR"
 
@@ -211,6 +311,9 @@ msgstr "Navn"
 
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Never logged in"
+msgstr "Aldrig logget ind"
 
 msgid "Next"
 msgstr "Næste"
@@ -227,6 +330,21 @@ msgstr "Ingen adgang til Back Office"
 msgid "No billing address on file."
 msgstr "Ingen faktureringsadresse registreret."
 
+msgid "No custom events"
+msgstr "Ingen brugerdefinerede hændelser"
+
+msgid "No custom events recorded for this user yet."
+msgstr "Ingen brugerdefinerede hændelser registreret for denne bruger endnu."
+
+msgid "No exceptions"
+msgstr "Ingen fejl"
+
+msgid "No exceptions recorded for this user yet."
+msgstr "Ingen fejl registreret for denne bruger endnu."
+
+msgid "No login history"
+msgstr "Ingen login-historik"
+
 msgid "No matching users"
 msgstr "Ingen matchende brugere"
 
@@ -235,6 +353,12 @@ msgstr "Ingen ejere"
 
 msgid "No owners on this account."
 msgstr "Ingen ejere på denne konto."
+
+msgid "No page views"
+msgstr "Ingen sidevisninger"
+
+msgid "No page views recorded for this user yet."
+msgstr "Ingen sidevisninger registreret for denne bruger endnu."
 
 msgid "No paid plan yet."
 msgstr "Intet betalt abonnement endnu."
@@ -248,11 +372,26 @@ msgstr "Ingen betalinger endnu."
 msgid "No plan"
 msgstr "Intet abonnement"
 
+msgid "No sessions"
+msgstr "Ingen sessioner"
+
+msgid "No sign-in attempts in the last 30 days."
+msgstr "Ingen login-forsøg de seneste 30 dage."
+
+msgid "No tenant memberships"
+msgstr "Ingen tenant-medlemskaber"
+
 msgid "No users"
 msgstr "Ingen brugere"
 
 msgid "No users match your filters."
 msgstr "Ingen brugere matcher dine filtre."
+
+msgid "No users match your search"
+msgstr "Ingen brugere matcher din søgning"
+
+msgid "One-time password"
+msgstr "Engangskode"
 
 msgid "Open account"
 msgstr "Åbn konto"
@@ -262,6 +401,9 @@ msgstr "Åbn kreditnota"
 
 msgid "Open invoice"
 msgstr "Åbn faktura"
+
+msgid "Outcome"
+msgstr "Resultat"
 
 msgid "Overview"
 msgstr "Overblik"
@@ -274,6 +416,9 @@ msgstr "Ejere"
 
 msgid "Page not found"
 msgstr "Siden blev ikke fundet"
+
+msgid "Page views"
+msgstr "Sidevisninger"
 
 msgid "Payment history"
 msgstr "Betalingshistorik"
@@ -305,6 +450,9 @@ msgstr "Premium"
 msgid "Previous"
 msgstr "Forrige"
 
+msgid "Recent active and historical sessions"
+msgstr "Nylige aktive og historiske sessioner"
+
 msgid "Refunded"
 msgstr "Refunderet"
 
@@ -318,6 +466,9 @@ msgstr "Fornyelsesdato"
 msgid "Renews {0}"
 msgstr "Fornyes {0}"
 
+msgid "Revoked"
+msgstr "Tilbagekaldt"
+
 msgid "Role"
 msgstr "Rolle"
 
@@ -330,17 +481,29 @@ msgstr "Skærmbilleder af dashboard-projektet i desktop- og mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
+msgid "Search by email, name, or tenant"
+msgstr "Søg på e-mail, navn eller tenant"
+
 msgid "Search by name"
 msgstr "Søg efter navn"
 
 msgid "Search by name or email"
 msgstr "Søg efter navn eller e-mail"
 
+msgid "Search by user email, first or last name, or tenant name. At least 2 characters."
+msgstr "Søg på e-mail, fornavn eller efternavn, eller tenant-navn. Mindst 2 tegn."
+
 msgid "Search users"
 msgstr "Søg brugere"
 
+msgid "Search users by email, name, or tenant."
+msgstr "Søg brugere på e-mail, navn eller tenant."
+
 msgid "Search, filter, and review tenant accounts."
 msgstr "Søg, filtrér og gennemgå tenant-konti."
+
+msgid "Sessions"
+msgstr "Sessioner"
 
 msgid "Show details"
 msgstr "Vis detaljer"
@@ -382,11 +545,20 @@ msgstr "Suspenderet"
 msgid "System"
 msgstr "System"
 
+msgid "Tablet"
+msgstr "Tablet"
+
+msgid "Tenant"
+msgstr "Tenant"
+
 msgid "Tenant accounts will appear here as they are created."
 msgstr "Tenant-konti vises her, efterhånden som de oprettes."
 
 msgid "Tenant users"
 msgstr "Tenant-brugere"
+
+msgid "Tenants"
+msgstr "Tenants"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
@@ -400,14 +572,32 @@ msgstr "Denne konto har ingen brugere."
 msgid "This account previously had a paid subscription that ended."
 msgstr "Denne konto havde tidligere et betalt abonnement, der sluttede."
 
+msgid "This user has no recorded sessions."
+msgstr "Denne bruger har ingen registrerede sessioner."
+
+msgid "This user is not a member of any tenant."
+msgstr "Denne bruger er ikke medlem af nogen tenant."
+
+msgid "Try a different search term or clear the role and activity filters."
+msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
+
 msgid "Try again"
 msgstr "Prøv igen"
 
 msgid "Try clearing the search or filters to see more results."
 msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
 
+msgid "Type to search"
+msgstr "Skriv for at søge"
+
+msgid "Unknown"
+msgstr "Ukendt"
+
 msgid "User"
 msgstr "Bruger"
+
+msgid "User detail"
+msgstr "Brugerdetalje"
 
 msgid "User menu"
 msgstr "Brugermenu"
@@ -418,9 +608,6 @@ msgstr "Brugere"
 msgid "Users ({totalUsers})"
 msgstr "Brugere ({totalUsers})"
 
-msgid "Users (coming soon)"
-msgstr "Brugere (kommer snart)"
-
 msgid "Wait list"
 msgstr "Venteliste"
 
@@ -429,6 +616,12 @@ msgstr "Venteliste (kommer snart)"
 
 msgid "Welcome to the Back Office"
 msgstr "Velkommen til Back Office"
+
+msgid "When"
+msgstr "Hvornår"
+
+msgid "Yesterday"
+msgstr "I går"
 
 msgid "Your account is not in the required group."
 msgstr "Din konto er ikke i den krævede gruppe."

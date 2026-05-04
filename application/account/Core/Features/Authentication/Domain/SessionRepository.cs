@@ -44,6 +44,13 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     ///     sessions, ordered most-recent first.
     /// </summary>
     Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUserUnfilteredAsync(UserId userId, int pageOffset, int pageSize, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the paged session history for any of the supplied user ids without applying tenant query filters.
+    ///     Used by the back-office User detail page to surface sessions across every user record sharing the same email
+    ///     across tenants. Includes active and revoked sessions, ordered most-recent first.
+    /// </summary>
+    Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUsersUnfilteredAsync(UserId[] userIds, int pageOffset, int pageSize, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountDbContext accountDbContext, IServiceProvider serviceProvider)
@@ -136,6 +143,29 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
         var sessions = await DbSet
             .IgnoreQueryFilters()
             .Where(s => s.UserId == userId)
+            .ToArrayAsync(cancellationToken);
+
+        var ordered = sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+
+        var totalItems = ordered.Length;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
+        var page = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
+        return (page, totalItems, totalPages);
+    }
+
+    /// <summary>
+    ///     Returns the paged session history for any of the supplied user ids without applying tenant query filters.
+    ///     Used by the back-office User detail page to surface sessions across every user record sharing the same email
+    ///     across tenants. SQLite cannot translate DateTimeOffset comparisons in ORDER BY, so sessions are materialized
+    ///     and ordered in memory; the cross-tenant set for one person is small enough that scale is not a concern.
+    /// </summary>
+    public async Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUsersUnfilteredAsync(UserId[] userIds, int pageOffset, int pageSize, CancellationToken cancellationToken)
+    {
+        if (userIds.Length == 0) return ([], 0, 0);
+
+        var sessions = await DbSet
+            .IgnoreQueryFilters()
+            .Where(s => userIds.AsEnumerable().Contains(s.UserId))
             .ToArrayAsync(cancellationToken);
 
         var ordered = sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();

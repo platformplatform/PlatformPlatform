@@ -61,6 +61,13 @@ public sealed class GetBackOfficeUserDetailTests : BackOfficeEndpointBaseTest
         payload.TenantMemberships.Should().HaveCount(2);
         payload.TenantMemberships.Should().Contain(m => m.TenantName == DatabaseSeeder.Tenant1.Name);
         payload.TenantMemberships.Should().Contain(m => m.TenantName == "Other Tenant" && m.Role == UserRole.Owner);
+        payload.TenantMemberships.Should().OnlyContain(m => m.Plan == SubscriptionPlan.Basis);
+        payload.TenantMemberships.Should().OnlyContain(m => m.PlannedChange == null);
+        payload.TenantMemberships.Should().OnlyContain(m => m.HasEverSubscribed == false);
+        payload.TenantMemberships.Should().OnlyContain(m => m.MonthlyRecurringRevenue == null);
+        payload.TenantMemberships.Should().OnlyContain(m => m.Currency == null);
+        payload.TenantMemberships.Should().OnlyContain(m => m.Country == null);
+        payload.TenantMemberships.Should().OnlyContain(m => m.TenantLogoUrl == null);
     }
 
     [Fact]

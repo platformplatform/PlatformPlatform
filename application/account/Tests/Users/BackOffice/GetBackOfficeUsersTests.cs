@@ -209,6 +209,40 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetBackOfficeUsers_ShouldPopulateTenantStatusFields()
+    {
+        // Arrange
+        var basisTenant = SeedTenant("Basis Plan Co");
+        var standardTenant = SeedTenant("Standard Plan Co", SubscriptionPlan.Standard);
+        SeedUser(basisTenant, "basis-user@example.com", "Basis", "User", UserRole.Owner, true);
+        SeedUser(standardTenant, "standard-user@example.com", "Standard", "User", UserRole.Owner, true);
+        // Standard plan tenant has a successful payment, so HasEverSubscribed should be true. Basis-plan tenant has no
+        // subscription row at all, mirroring the "free / never paid" case.
+        SeedSubscriptionWithSucceededPayment(standardTenant);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var basisResponse = await client.GetAsync("/api/back-office/users?search=basis-user");
+        var standardResponse = await client.GetAsync("/api/back-office/users?search=standard-user");
+
+        // Assert
+        var basisPayload = await basisResponse.Content.ReadFromJsonAsync<BackOfficeUsersResponse>();
+        basisPayload.Should().NotBeNull();
+        var basisRow = basisPayload.Users.Single();
+        basisRow.TenantPlan.Should().Be(SubscriptionPlan.Basis);
+        basisRow.TenantPlannedChange.Should().BeNull();
+        basisRow.TenantHasEverSubscribed.Should().BeFalse();
+
+        var standardPayload = await standardResponse.Content.ReadFromJsonAsync<BackOfficeUsersResponse>();
+        standardPayload.Should().NotBeNull();
+        var standardRow = standardPayload.Users.Single();
+        standardRow.TenantPlan.Should().Be(SubscriptionPlan.Standard);
+        standardRow.TenantPlannedChange.Should().BeNull();
+        standardRow.TenantHasEverSubscribed.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task GetBackOfficeUsers_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
@@ -236,7 +270,7 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    private TenantId SeedTenant(string name)
+    private TenantId SeedTenant(string name, SubscriptionPlan plan = SubscriptionPlan.Basis)
     {
         var tenantId = TenantId.NewId();
 
@@ -246,12 +280,43 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
                 ("modified_at", null),
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
-                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("plan", plan.ToString()),
                 ("logo", """{"Url":null,"Version":0}""")
             ]
         );
 
         return tenantId;
+    }
+
+    private void SeedSubscriptionWithSucceededPayment(TenantId tenantId)
+    {
+        var paymentTransactionsJson = JsonSerializer.Serialize(new[]
+            {
+                new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null)
+            }
+        );
+
+        Connection.Insert("subscriptions", [
+                ("tenant_id", tenantId.Value),
+                ("id", SubscriptionId.NewId().ToString()),
+                ("created_at", DateTimeOffset.UtcNow.AddDays(-30)),
+                ("modified_at", null),
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("scheduled_plan", null),
+                ("stripe_customer_id", "cus_test"),
+                ("stripe_subscription_id", "sub_test"),
+                ("current_price_amount", 49.99m),
+                ("current_price_currency", "USD"),
+                ("current_period_end", DateTimeOffset.UtcNow.AddDays(30)),
+                ("cancel_at_period_end", false),
+                ("first_payment_failed_at", null),
+                ("cancellation_reason", null),
+                ("cancellation_feedback", null),
+                ("payment_transactions", paymentTransactionsJson),
+                ("payment_method", null),
+                ("billing_info", null)
+            ]
+        );
     }
 
     private void SeedUser(TenantId tenantId, string email, string? firstName, string? lastName, UserRole role, bool emailConfirmed, DateTimeOffset? lastSeenAt = null)

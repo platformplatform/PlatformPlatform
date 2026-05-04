@@ -1,8 +1,12 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Account.Features.Authentication.Domain;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
 using Account.Features.Users.BackOffice.Queries;
+using Account.Features.Users.Domain;
 using Account.Tests.BackOffice;
 using FluentAssertions;
 using SharedKernel.Authentication.BackOfficeIdentity;
@@ -36,6 +40,36 @@ public sealed class GetBackOfficeUserSessionsTests : BackOfficeEndpointBaseTest
         // DatabaseSeeder seeds Tenant1OwnerSession, plus the two we just added.
         payload.TotalCount.Should().Be(3);
         payload.Sessions.Should().Contain(s => s.RevokedAt != null);
+        payload.Sessions.Should().OnlyContain(s => s.TenantId == DatabaseSeeder.Tenant1.Id);
+        payload.Sessions.Should().OnlyContain(s => s.TenantName == DatabaseSeeder.Tenant1.Name);
+        payload.Sessions.Should().OnlyContain(s => s.TenantLogoUrl == null);
+    }
+
+    [Fact]
+    public async Task GetBackOfficeUserSessions_WhenUserBelongsToMultipleTenants_ShouldReturnSessionsAcrossAllTenants()
+    {
+        // Arrange
+        var sharedEmail = "shared-sessions@example.com";
+        var primaryUserId = SeedUser(DatabaseSeeder.Tenant1.Id, sharedEmail, UserRole.Member);
+        var otherTenantId = SeedTenant("Other Sessions Tenant");
+        var siblingUserId = SeedUser(otherTenantId, sharedEmail, UserRole.Owner);
+        SeedSession(DatabaseSeeder.Tenant1.Id, primaryUserId, false);
+        SeedSession(otherTenantId, siblingUserId, false);
+        SeedSession(otherTenantId, siblingUserId, true);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/users/{primaryUserId}/sessions");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeUserSessionsResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(3);
+        payload.Sessions.Should().Contain(s => s.TenantId == DatabaseSeeder.Tenant1.Id);
+        payload.Sessions.Should().Contain(s => s.TenantId == otherTenantId);
+        payload.Sessions.Should().Contain(s => s.TenantName == "Other Sessions Tenant");
     }
 
     [Fact]
@@ -79,6 +113,44 @@ public sealed class GetBackOfficeUserSessionsTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    private TenantId SeedTenant(string name)
+    {
+        var tenantId = TenantId.NewId();
+        Connection.Insert("tenants", [
+                ("id", tenantId.Value),
+                ("created_at", DateTimeOffset.UtcNow.AddDays(-30)),
+                ("modified_at", null),
+                ("name", name),
+                ("state", nameof(TenantState.Active)),
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+        return tenantId;
+    }
+
+    private UserId SeedUser(TenantId tenantId, string email, UserRole role)
+    {
+        var userId = UserId.NewId();
+        Connection.Insert("users", [
+                ("tenant_id", tenantId.Value),
+                ("id", userId.ToString()),
+                ("created_at", DateTimeOffset.UtcNow.AddDays(-30)),
+                ("modified_at", null),
+                ("email", email),
+                ("external_identities", "[]"),
+                ("email_confirmed", true),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("role", role.ToString()),
+                ("locale", "en-US"),
+                ("avatar", JsonSerializer.Serialize(new Avatar()))
+            ]
+        );
+        return userId;
     }
 
     private void SeedSession(TenantId tenantId, UserId userId, bool isRevoked)

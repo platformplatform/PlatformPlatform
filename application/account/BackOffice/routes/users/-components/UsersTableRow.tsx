@@ -1,0 +1,65 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
+import { Badge } from "@repo/ui/components/Badge";
+import { TableCell, TableRow } from "@repo/ui/components/Table";
+
+import type { components } from "@/shared/lib/api/client";
+
+import { TenantStatusBadge } from "@/routes/accounts/-components/TenantStatusBadge";
+import { SmartDateTime } from "@/shared/components/SmartDateTime";
+import { getUserRoleLabel } from "@/shared/lib/api/labels";
+
+import { getUserDisplayName, getUserInitials } from "./userDisplay";
+
+type BackOfficeUserSummary = components["schemas"]["BackOfficeUserSummary"];
+
+export function UsersTableRow({
+  user,
+  formatDate
+}: Readonly<{
+  user: BackOfficeUserSummary;
+  formatDate: (value: string | null | undefined, includeTime?: boolean) => string;
+}>) {
+  const displayName = getUserDisplayName(user.firstName, user.lastName, user.email);
+  const initials = getUserInitials(user.firstName, user.lastName, user.email);
+
+  return (
+    <TableRow rowKey={user.id}>
+      <TableCell>
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar size="default" className="size-10">
+            {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={displayName} />}
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate font-medium text-foreground">{displayName}</span>
+            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm">{user.tenantName}</span>
+          <TenantStatusBadge
+            plan={user.tenantPlan}
+            plannedChange={user.tenantPlannedChange}
+            hasEverSubscribed={user.tenantHasEverSubscribed}
+          />
+        </div>
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {user.lastSeenAt ? (
+          <div className="flex flex-col leading-tight">
+            <SmartDateTime date={user.lastSeenAt} />
+            <span className="text-xs text-muted-foreground">{formatDate(user.lastSeenAt, true)}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
+      </TableCell>
+      <TableCell className="hidden xl:table-cell">{formatDate(user.createdAt)}</TableCell>
+    </TableRow>
+  );
+}

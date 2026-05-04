@@ -1,4 +1,5 @@
 using Account.Features.Authentication.Domain;
+using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
@@ -21,6 +22,9 @@ public sealed record BackOfficeUserSessionsResponse(int TotalCount, int PageSize
 [PublicAPI]
 public sealed record BackOfficeUserSession(
     SessionId Id,
+    TenantId TenantId,
+    string TenantName,
+    string? TenantLogoUrl,
     LoginMethod LoginMethod,
     DeviceType DeviceType,
     string UserAgent,
@@ -41,7 +45,7 @@ public sealed class GetBackOfficeUserSessionsQueryValidator : AbstractValidator<
     }
 }
 
-public sealed class GetBackOfficeUserSessionsHandler(IUserRepository userRepository, ISessionRepository sessionRepository)
+public sealed class GetBackOfficeUserSessionsHandler(IUserRepository userRepository, ISessionRepository sessionRepository, ITenantRepository tenantRepository)
     : IRequestHandler<GetBackOfficeUserSessionsQuery, Result<BackOfficeUserSessionsResponse>>
 {
     public async Task<Result<BackOfficeUserSessionsResponse>> Handle(GetBackOfficeUserSessionsQuery query, CancellationToken cancellationToken)
@@ -52,8 +56,14 @@ public sealed class GetBackOfficeUserSessionsHandler(IUserRepository userReposit
             return Result<BackOfficeUserSessionsResponse>.NotFound($"User with id '{query.Id}' was not found.");
         }
 
-        var (sessions, totalCount, totalPages) = await sessionRepository.GetSessionsForUserUnfilteredAsync(
-            user.Id,
+        // The Sessions list aggregates activity across every user record sharing this email (one record per tenant),
+        // so we look up all sibling user ids and ask for their sessions together. The lookup always includes the
+        // queried user record itself, so its sessions are naturally part of the result.
+        var membershipUsers = await userRepository.GetUsersByEmailUnfilteredAsync(user.Email, cancellationToken);
+        var userIds = membershipUsers.Select(u => u.Id).ToArray();
+
+        var (sessions, totalCount, totalPages) = await sessionRepository.GetSessionsForUsersUnfilteredAsync(
+            userIds,
             query.PageOffset,
             query.PageSize,
             cancellationToken
@@ -64,18 +74,29 @@ public sealed class GetBackOfficeUserSessionsHandler(IUserRepository userReposit
             return Result<BackOfficeUserSessionsResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
         }
 
-        var summaries = sessions.Select(s => new BackOfficeUserSession(
-                s.Id,
-                s.LoginMethod,
-                s.DeviceType,
-                s.UserAgent,
-                s.IpAddress,
-                s.CreatedAt,
-                s.ModifiedAt,
-                s.RevokedAt,
-                s.RevokedReason,
-                s.ExpiresAt
-            )
+        var tenantIds = sessions.Select(s => s.TenantId).Distinct().ToArray();
+        var tenants = await tenantRepository.GetByIdsUnfilteredAsync(tenantIds, cancellationToken);
+        var tenantsById = tenants.ToDictionary(t => t.Id);
+
+        var summaries = sessions.Select(s =>
+            {
+                var tenant = tenantsById.GetValueOrDefault(s.TenantId);
+                return new BackOfficeUserSession(
+                    s.Id,
+                    s.TenantId,
+                    tenant?.Name ?? string.Empty,
+                    tenant?.Logo.Url,
+                    s.LoginMethod,
+                    s.DeviceType,
+                    s.UserAgent,
+                    s.IpAddress,
+                    s.CreatedAt,
+                    s.ModifiedAt,
+                    s.RevokedAt,
+                    s.RevokedReason,
+                    s.ExpiresAt
+                );
+            }
         ).ToArray();
 
         return new BackOfficeUserSessionsResponse(totalCount, query.PageSize, totalPages, query.PageOffset, summaries);

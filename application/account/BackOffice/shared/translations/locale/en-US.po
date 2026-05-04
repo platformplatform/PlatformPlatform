@@ -13,20 +13,49 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
+
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
+
 msgid "{activationPercent}% activation"
 msgstr "{activationPercent}% activation"
 
 msgid "{activeUsers} active"
 msgstr "{activeUsers} active"
 
+msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
+msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
+
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inactive"
+
+msgid "{membershipCount, plural, one {# membership} other {# memberships}}"
+msgstr "{membershipCount, plural, one {# membership} other {# memberships}}"
 
 msgid "{pendingUsers} pending"
 msgstr "{pendingUsers} pending"
 
+msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
+msgstr "{tenantCount, plural, one {# membership} other {# memberships}}"
+
+msgid "/ month"
+msgstr "/ month"
+
 msgid "<0>{totalUsers}</0> total"
 msgstr "<0>{totalUsers}</0> total"
+
+msgid "24h"
+msgstr "24h"
+
+msgid "30 days"
+msgstr "30 days"
+
+msgid "7 days"
+msgstr "7 days"
 
 msgid "Account"
 msgstr "Account"
@@ -40,8 +69,14 @@ msgstr "Accounts"
 msgid "Active"
 msgstr "Active"
 
+msgid "Activity"
+msgstr "Activity"
+
 msgid "Admin"
 msgstr "Admin"
+
+msgid "All-time"
+msgstr "All-time"
 
 msgid "Amount"
 msgstr "Amount"
@@ -49,11 +84,17 @@ msgstr "Amount"
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
+msgid "App Insights · Telemetry"
+msgstr "App Insights · Telemetry"
+
 msgid "Back Office"
 msgstr "Back Office"
 
 msgid "Back to accounts"
 msgstr "Back to accounts"
+
+msgid "Back to users"
+msgstr "Back to users"
 
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
@@ -63,6 +104,9 @@ msgstr "Basis"
 
 msgid "Billing address"
 msgstr "Billing address"
+
+msgid "Browser"
+msgstr "Browser"
 
 msgid "Canceled"
 msgstr "Canceled"
@@ -104,6 +148,7 @@ msgid "Created"
 msgstr "Created"
 
 #. placeholder {0}: formatDate(tenant.createdAt)
+#. placeholder {0}: formatDate(user.createdAt)
 msgid "Created {0}"
 msgstr "Created {0}"
 
@@ -112,6 +157,9 @@ msgstr "Credit note"
 
 msgid "Current plan"
 msgstr "Current plan"
+
+msgid "Custom events"
+msgstr "Custom events"
 
 msgid "Dark"
 msgstr "Dark"
@@ -125,11 +173,26 @@ msgstr "Date"
 msgid "Default"
 msgstr "Default"
 
+msgid "Desktop"
+msgstr "Desktop"
+
+msgid "Device"
+msgstr "Device"
+
 msgid "Downgrading"
 msgstr "Downgrading"
 
 msgid "Email"
 msgstr "Email"
+
+msgid "Email confirmed"
+msgstr "Email confirmed"
+
+msgid "Email pending"
+msgstr "Email pending"
+
+msgid "Exceptions"
+msgstr "Exceptions"
 
 msgid "Failed"
 msgstr "Failed"
@@ -146,11 +209,23 @@ msgstr "Free"
 msgid "Go to home"
 msgstr "Go to home"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Hide details"
 msgstr "Hide details"
 
+msgid "Inactive"
+msgstr "Inactive"
+
 msgid "Invoice"
 msgstr "Invoice"
+
+msgid "IP address"
+msgstr "IP address"
+
+msgid "Just now"
+msgstr "Just now"
 
 msgid "Language"
 msgstr "Language"
@@ -161,17 +236,30 @@ msgstr "Large"
 msgid "Larger"
 msgstr "Larger"
 
+msgid "Last 30 days"
+msgstr "Last 30 days"
+
 msgid "Last invoice"
 msgstr "Last invoice"
 
+msgid "Last log-in"
+msgstr "Last log-in"
+
 msgid "Last seen"
 msgstr "Last seen"
+
+#. placeholder {0}: formatDate(user.lastSeenAt)
+msgid "Last seen {0}"
+msgstr "Last seen {0}"
 
 msgid "Lifetime value"
 msgstr "Lifetime value"
 
 msgid "Light"
 msgstr "Light"
+
+msgid "Live data from Application Insights, scoped to this user"
+msgstr "Live data from Application Insights, scoped to this user"
 
 msgid "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
 msgstr "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
@@ -191,6 +279,9 @@ msgstr "Log out"
 msgid "Logging in..."
 msgstr "Logging in..."
 
+msgid "Login history"
+msgstr "Login history"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -203,6 +294,15 @@ msgstr "Manage accounts, view system data, see exceptions, and perform various t
 msgid "Member"
 msgstr "Member"
 
+msgid "Method"
+msgstr "Method"
+
+msgid "Mobile"
+msgstr "Mobile"
+
+msgid "Most recent activity"
+msgstr "Most recent activity"
+
 msgid "MRR"
 msgstr "MRR"
 
@@ -211,6 +311,9 @@ msgstr "Name"
 
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Never logged in"
+msgstr "Never logged in"
 
 msgid "Next"
 msgstr "Next"
@@ -227,6 +330,21 @@ msgstr "No back-office access"
 msgid "No billing address on file."
 msgstr "No billing address on file."
 
+msgid "No custom events"
+msgstr "No custom events"
+
+msgid "No custom events recorded for this user yet."
+msgstr "No custom events recorded for this user yet."
+
+msgid "No exceptions"
+msgstr "No exceptions"
+
+msgid "No exceptions recorded for this user yet."
+msgstr "No exceptions recorded for this user yet."
+
+msgid "No login history"
+msgstr "No login history"
+
 msgid "No matching users"
 msgstr "No matching users"
 
@@ -235,6 +353,12 @@ msgstr "No owners"
 
 msgid "No owners on this account."
 msgstr "No owners on this account."
+
+msgid "No page views"
+msgstr "No page views"
+
+msgid "No page views recorded for this user yet."
+msgstr "No page views recorded for this user yet."
 
 msgid "No paid plan yet."
 msgstr "No paid plan yet."
@@ -248,11 +372,26 @@ msgstr "No payments yet."
 msgid "No plan"
 msgstr "No plan"
 
+msgid "No sessions"
+msgstr "No sessions"
+
+msgid "No sign-in attempts in the last 30 days."
+msgstr "No sign-in attempts in the last 30 days."
+
+msgid "No tenant memberships"
+msgstr "No tenant memberships"
+
 msgid "No users"
 msgstr "No users"
 
 msgid "No users match your filters."
 msgstr "No users match your filters."
+
+msgid "No users match your search"
+msgstr "No users match your search"
+
+msgid "One-time password"
+msgstr "One-time password"
 
 msgid "Open account"
 msgstr "Open account"
@@ -262,6 +401,9 @@ msgstr "Open credit note"
 
 msgid "Open invoice"
 msgstr "Open invoice"
+
+msgid "Outcome"
+msgstr "Outcome"
 
 msgid "Overview"
 msgstr "Overview"
@@ -274,6 +416,9 @@ msgstr "Owners"
 
 msgid "Page not found"
 msgstr "Page not found"
+
+msgid "Page views"
+msgstr "Page views"
 
 msgid "Payment history"
 msgstr "Payment history"
@@ -305,6 +450,9 @@ msgstr "Premium"
 msgid "Previous"
 msgstr "Previous"
 
+msgid "Recent active and historical sessions"
+msgstr "Recent active and historical sessions"
+
 msgid "Refunded"
 msgstr "Refunded"
 
@@ -318,6 +466,9 @@ msgstr "Renewal date"
 msgid "Renews {0}"
 msgstr "Renews {0}"
 
+msgid "Revoked"
+msgstr "Revoked"
+
 msgid "Role"
 msgstr "Role"
 
@@ -330,17 +481,29 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 msgid "Search"
 msgstr "Search"
 
+msgid "Search by email, name, or tenant"
+msgstr "Search by email, name, or tenant"
+
 msgid "Search by name"
 msgstr "Search by name"
 
 msgid "Search by name or email"
 msgstr "Search by name or email"
 
+msgid "Search by user email, first or last name, or tenant name. At least 2 characters."
+msgstr "Search by user email, first or last name, or tenant name. At least 2 characters."
+
 msgid "Search users"
 msgstr "Search users"
 
+msgid "Search users by email, name, or tenant."
+msgstr "Search users by email, name, or tenant."
+
 msgid "Search, filter, and review tenant accounts."
 msgstr "Search, filter, and review tenant accounts."
+
+msgid "Sessions"
+msgstr "Sessions"
 
 msgid "Show details"
 msgstr "Show details"
@@ -382,11 +545,20 @@ msgstr "Suspended"
 msgid "System"
 msgstr "System"
 
+msgid "Tablet"
+msgstr "Tablet"
+
+msgid "Tenant"
+msgstr "Tenant"
+
 msgid "Tenant accounts will appear here as they are created."
 msgstr "Tenant accounts will appear here as they are created."
 
 msgid "Tenant users"
 msgstr "Tenant users"
+
+msgid "Tenants"
+msgstr "Tenants"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
@@ -400,14 +572,32 @@ msgstr "This account has no users."
 msgid "This account previously had a paid subscription that ended."
 msgstr "This account previously had a paid subscription that ended."
 
+msgid "This user has no recorded sessions."
+msgstr "This user has no recorded sessions."
+
+msgid "This user is not a member of any tenant."
+msgstr "This user is not a member of any tenant."
+
+msgid "Try a different search term or clear the role and activity filters."
+msgstr "Try a different search term or clear the role and activity filters."
+
 msgid "Try again"
 msgstr "Try again"
 
 msgid "Try clearing the search or filters to see more results."
 msgstr "Try clearing the search or filters to see more results."
 
+msgid "Type to search"
+msgstr "Type to search"
+
+msgid "Unknown"
+msgstr "Unknown"
+
 msgid "User"
 msgstr "User"
+
+msgid "User detail"
+msgstr "User detail"
 
 msgid "User menu"
 msgstr "User menu"
@@ -418,9 +608,6 @@ msgstr "Users"
 msgid "Users ({totalUsers})"
 msgstr "Users ({totalUsers})"
 
-msgid "Users (coming soon)"
-msgstr "Users (coming soon)"
-
 msgid "Wait list"
 msgstr "Wait list"
 
@@ -429,6 +616,12 @@ msgstr "Wait list (coming soon)"
 
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"
+
+msgid "When"
+msgstr "When"
+
+msgid "Yesterday"
+msgstr "Yesterday"
 
 msgid "Your account is not in the required group."
 msgstr "Your account is not in the required group."

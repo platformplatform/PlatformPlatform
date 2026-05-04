@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { getInitials } from "@repo/utils/string/getInitials";
+import { Link } from "@tanstack/react-router";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -55,7 +56,11 @@ function UserRow({ user }: Readonly<{ user: TenantUserSummary }>) {
     user.firstName || user.lastName ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : user.email;
 
   return (
-    <div className="flex items-center gap-3">
+    <Link
+      to="/users/$userId"
+      params={{ userId: user.id }}
+      className="-mx-2 flex items-center gap-3 rounded-md px-2 py-1 hover:bg-accent active:bg-accent"
+    >
       <Avatar size="lg">
         <AvatarImage src={user.avatarUrl ?? undefined} alt="" />
         <AvatarFallback>
@@ -67,6 +72,6 @@ function UserRow({ user }: Readonly<{ user: TenantUserSummary }>) {
         {user.title && <span className="truncate text-xs text-muted-foreground">{user.title}</span>}
         <span className="truncate text-xs text-muted-foreground">{user.email}</span>
       </div>
-    </div>
+    </Link>
   );
 }

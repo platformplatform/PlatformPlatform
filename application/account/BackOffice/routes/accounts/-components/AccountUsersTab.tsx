@@ -1,3 +1,5 @@
+import type { RowKey } from "@repo/ui/components/Table";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
@@ -9,8 +11,9 @@ import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { keepPreviousData } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -139,6 +142,15 @@ function UserList({
   hasFilters
 }: Readonly<{ users: TenantUserSummary[]; isLoading: boolean; hasFilters: boolean }>) {
   const formatDate = useFormatDate();
+  const navigate = useNavigate();
+  const handleActivate = useCallback(
+    (key: RowKey) => {
+      const user = users.find((entry) => entry.id === key);
+      if (!user) return;
+      navigate({ to: "/users/$userId", params: { userId: user.id } });
+    },
+    [navigate, users]
+  );
 
   if (isLoading && users.length === 0) {
     return (
@@ -152,7 +164,7 @@ function UserList({
 
   if (users.length === 0) {
     return (
-      <Empty className="border">
+      <Empty className="border bg-card">
         <EmptyHeader>
           <EmptyTitle>{hasFilters ? <Trans>No matching users</Trans> : <Trans>No users</Trans>}</EmptyTitle>
           <EmptyDescription>
@@ -165,7 +177,7 @@ function UserList({
 
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <Table rowSize="spacious" aria-label={t`Tenant users`}>
+      <Table rowSize="spacious" aria-label={t`Tenant users`} selectionMode="single" onActivate={handleActivate}>
         <TableHeader className="[&_tr]:bg-card">
           <TableRow>
             <TableHead>

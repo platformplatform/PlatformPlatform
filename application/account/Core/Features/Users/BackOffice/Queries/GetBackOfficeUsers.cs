@@ -1,3 +1,5 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.BackOffice.Queries;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using FluentValidation;
@@ -32,6 +34,9 @@ public sealed record BackOfficeUserSummary(
     UserId Id,
     TenantId TenantId,
     string TenantName,
+    SubscriptionPlan TenantPlan,
+    PlannedSubscriptionChange? TenantPlannedChange,
+    bool TenantHasEverSubscribed,
     string Email,
     string? FirstName,
     string? LastName,
@@ -70,16 +75,19 @@ public sealed class GetBackOfficeUsersQueryValidator : AbstractValidator<GetBack
     {
         // Users page is search-only by design - the table has millions of rows. The frontend renders a "Type to search"
         // empty state until the operator types at least 2 characters, so the API enforces the same minimum.
-        RuleFor(x => x.Search).NotEmpty().WithMessage("Search must be between 2 and 100 characters.");
-        RuleFor(x => x.Search).MinimumLength(2).MaximumLength(100).WithMessage("Search must be between 2 and 100 characters.");
+        RuleFor(x => x.Search).Must(s => !string.IsNullOrEmpty(s) && s.Length is >= 2 and <= 100).WithMessage("Search must be between 2 and 100 characters.");
         RuleFor(x => x.Roles.Length).LessThanOrEqualTo(10).WithMessage("Roles filter must contain no more than 10 values.");
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100).WithMessage("Page size must be between 1 and 100.");
         RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("Page offset must be greater than or equal to 0.");
     }
 }
 
-public sealed class GetBackOfficeUsersHandler(IUserRepository userRepository, ITenantRepository tenantRepository, TimeProvider timeProvider)
-    : IRequestHandler<GetBackOfficeUsersQuery, Result<BackOfficeUsersResponse>>
+public sealed class GetBackOfficeUsersHandler(
+    IUserRepository userRepository,
+    ITenantRepository tenantRepository,
+    ISubscriptionRepository subscriptionRepository,
+    TimeProvider timeProvider
+) : IRequestHandler<GetBackOfficeUsersQuery, Result<BackOfficeUsersResponse>>
 {
     public async Task<Result<BackOfficeUsersResponse>> Handle(GetBackOfficeUsersQuery query, CancellationToken cancellationToken)
     {
@@ -96,27 +104,46 @@ public sealed class GetBackOfficeUsersHandler(IUserRepository userRepository, IT
         );
 
         var tenantIds = users.Select(u => u.TenantId).Distinct().ToArray();
-        var tenantNames = await tenantRepository.GetNamesByIdsUnfilteredAsync(tenantIds, cancellationToken);
+        var tenants = await tenantRepository.GetByIdsUnfilteredAsync(tenantIds, cancellationToken);
+        var tenantsById = tenants.ToDictionary(t => t.Id);
+        var subscriptions = await subscriptionRepository.GetByTenantIdsUnfilteredAsync(tenantIds, cancellationToken);
+        var subscriptionsByTenantId = subscriptions.ToDictionary(s => s.TenantId);
 
         if (query.PageOffset > 0 && query.PageOffset >= totalPages)
         {
             return Result<BackOfficeUsersResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
         }
 
-        var summaries = users.Select(u => new BackOfficeUserSummary(
-                u.Id,
-                u.TenantId,
-                tenantNames.GetValueOrDefault(u.TenantId, string.Empty),
-                u.Email,
-                u.FirstName,
-                u.LastName,
-                u.Title,
-                u.Role,
-                u.EmailConfirmed,
-                u.CreatedAt,
-                u.LastSeenAt,
-                u.Avatar.Url
-            )
+        var summaries = users.Select(u =>
+            {
+                var tenant = tenantsById.GetValueOrDefault(u.TenantId);
+                var subscription = subscriptionsByTenantId.GetValueOrDefault(u.TenantId);
+                var plannedChange = subscription switch
+                {
+                    { CancelAtPeriodEnd: true } => PlannedSubscriptionChange.Cancellation,
+                    { ScheduledPlan: not null } => PlannedSubscriptionChange.ScheduledPlanChange,
+                    _ => (PlannedSubscriptionChange?)null
+                };
+                var hasEverSubscribed = subscription?.PaymentTransactions
+                    .Any(transaction => transaction.Status == PaymentTransactionStatus.Succeeded) == true;
+                return new BackOfficeUserSummary(
+                    u.Id,
+                    u.TenantId,
+                    tenant?.Name ?? string.Empty,
+                    tenant?.Plan ?? SubscriptionPlan.Basis,
+                    plannedChange,
+                    hasEverSubscribed,
+                    u.Email,
+                    u.FirstName,
+                    u.LastName,
+                    u.Title,
+                    u.Role,
+                    u.EmailConfirmed,
+                    u.CreatedAt,
+                    u.LastSeenAt,
+                    u.Avatar.Url
+                );
+            }
         ).ToArray();
 
         return new BackOfficeUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, summaries);

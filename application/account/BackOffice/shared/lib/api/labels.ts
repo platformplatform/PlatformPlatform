@@ -1,6 +1,8 @@
 import { t } from "@lingui/core/macro";
 
 import {
+  DeviceType,
+  LoginMethod,
   PaymentTransactionStatus,
   PlannedSubscriptionChange,
   SubscriptionPlan,
@@ -68,5 +70,31 @@ export function getUserRoleLabel(role: UserRole): string {
       return t`Member`;
     default:
       return String(role);
+  }
+}
+
+export function getDeviceTypeLabel(deviceType: DeviceType): string {
+  switch (deviceType) {
+    case DeviceType.Desktop:
+      return t`Desktop`;
+    case DeviceType.Mobile:
+      return t`Mobile`;
+    case DeviceType.Tablet:
+      return t`Tablet`;
+    case DeviceType.Unknown:
+      return t`Unknown`;
+    default:
+      return String(deviceType);
+  }
+}
+
+export function getLoginMethodLabel(method: LoginMethod): string {
+  switch (method) {
+    case LoginMethod.OneTimePassword:
+      return t`One-time password`;
+    case LoginMethod.Google:
+      return t`Google`;
+    default:
+      return String(method);
   }
 }

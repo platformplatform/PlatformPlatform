@@ -23,6 +23,7 @@ export function BackOfficeSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
   const isAccountsActive = currentPath === "/accounts" || currentPath.startsWith("/accounts/");
+  const isUsersActive = currentPath === "/users" || currentPath.startsWith("/users/");
 
   return (
     <Sidebar collapsible="icon">
@@ -57,6 +58,16 @@ export function BackOfficeSideMenu() {
                     </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild={true} isActive={isUsersActive} tooltip={t`Users`}>
+                    <RouterLink to="/users">
+                      <UsersIcon />
+                      <span>
+                        <Trans>Users</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -66,14 +77,6 @@ export function BackOfficeSideMenu() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Users (coming soon)`}>
-                    <UsersIcon />
-                    <span>
-                      <Trans>Users</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton disabled={true} tooltip={t`Feature flags (coming soon)`}>
                     <FlagIcon />
