@@ -56,30 +56,28 @@ export function AccountBillingTab({ tenantId }: Readonly<AccountBillingTabProps>
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="flex min-h-0 flex-1 overflow-hidden rounded-lg border border-border bg-card">
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <Table rowSize="compact" aria-label={t`Payment history`} stickyHeader={true}>
-              <TableHeader className="[&_tr]:bg-card">
-                <TableRow>
-                  <TableHead>
-                    <Trans>Date</Trans>
-                  </TableHead>
-                  <TableHead>
-                    <Trans>Amount</Trans>
-                  </TableHead>
-                  <TableHead>
-                    <Trans>Status</Trans>
-                  </TableHead>
-                  <TableHead className="text-right" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <AccountPaymentRow key={transaction.id} transaction={transaction} formatDate={formatDate} />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+        <div className="flex min-h-0 flex-1 overflow-y-auto">
+          <Table rowSize="compact" aria-label={t`Payment history`} stickyHeader={true}>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                  <Trans>Date</Trans>
+                </TableHead>
+                <TableHead>
+                  <Trans>Amount</Trans>
+                </TableHead>
+                <TableHead>
+                  <Trans>Status</Trans>
+                </TableHead>
+                <TableHead className="text-right" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transactions.map((transaction) => (
+                <AccountPaymentRow key={transaction.id} transaction={transaction} formatDate={formatDate} />
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 

@@ -42,36 +42,34 @@ export function UserLoginHistorySection({ userId }: Readonly<UserLoginHistorySec
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
-          <Table rowSize="compact" aria-label={t`Login history`}>
-            <TableHeader className="[&_tr]:bg-card">
-              <TableRow>
-                <TableHead>
-                  <Trans>When</Trans>
-                </TableHead>
-                <TableHead>
-                  <Trans>Method</Trans>
-                </TableHead>
-                <TableHead>
-                  <Trans>Outcome</Trans>
-                </TableHead>
+        <Table rowSize="compact" aria-label={t`Login history`}>
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Trans>When</Trans>
+              </TableHead>
+              <TableHead>
+                <Trans>Method</Trans>
+              </TableHead>
+              <TableHead>
+                <Trans>Outcome</Trans>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.entries.map((entry, index) => (
+              <TableRow key={`${entry.kind}-${entry.occurredAt}-${index}`}>
+                <TableCell>
+                  <SmartDateTime date={entry.occurredAt} />
+                </TableCell>
+                <TableCell>{getLoginMethodLabel(entry.method)}</TableCell>
+                <TableCell>
+                  <OutcomeBadge outcome={entry.outcome} failureReason={entry.failureReason} />
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.entries.map((entry, index) => (
-                <TableRow key={`${entry.kind}-${entry.occurredAt}-${index}`}>
-                  <TableCell>
-                    <SmartDateTime date={entry.occurredAt} />
-                  </TableCell>
-                  <TableCell>{getLoginMethodLabel(entry.method)}</TableCell>
-                  <TableCell>
-                    <OutcomeBadge outcome={entry.outcome} failureReason={entry.failureReason} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </section>
   );

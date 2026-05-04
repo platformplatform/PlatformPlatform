@@ -176,30 +176,28 @@ function UserList({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <Table rowSize="spacious" aria-label={t`Account users`} selectionMode="single" onActivate={handleActivate}>
-        <TableHeader className="[&_tr]:bg-card">
-          <TableRow>
-            <TableHead>
-              <Trans>Name</Trans>
-            </TableHead>
-            <TableHead className="hidden md:table-cell">
-              <Trans>Email</Trans>
-            </TableHead>
-            <TableHead className="hidden lg:table-cell">
-              <Trans>Role</Trans>
-            </TableHead>
-            <TableHead className="hidden lg:table-cell">
-              <Trans>Last seen</Trans>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <AccountUserRow key={user.id} user={user} formatDate={formatDate} />
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Table rowSize="spacious" aria-label={t`Account users`} selectionMode="single" onActivate={handleActivate}>
+      <TableHeader>
+        <TableRow>
+          <TableHead>
+            <Trans>Name</Trans>
+          </TableHead>
+          <TableHead className="hidden md:table-cell">
+            <Trans>Email</Trans>
+          </TableHead>
+          <TableHead className="hidden lg:table-cell">
+            <Trans>Role</Trans>
+          </TableHead>
+          <TableHead className="hidden lg:table-cell">
+            <Trans>Last seen</Trans>
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <AccountUserRow key={user.id} user={user} formatDate={formatDate} />
+        ))}
+      </TableBody>
+    </Table>
   );
 }

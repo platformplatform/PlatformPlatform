@@ -62,7 +62,7 @@ export function UsersTable({ users, isLoading, totalPages, currentPageOffset }: 
 
   return (
     <>
-      <div className="flex-1 overflow-visible rounded-md bg-background sm:min-h-48 sm:overflow-auto">
+      <div className="flex-1 overflow-visible sm:min-h-48 sm:overflow-auto">
         <Table
           className="table-fixed"
           rowSize="spacious"
