@@ -211,3 +211,96 @@ test.describe("@smoke", () => {
     await backOfficeContext.close();
   });
 });
+
+test.describe("@smoke", () => {
+  // Covers dashboard KPI cards, trends section, global users search, and user detail page.
+  test("should render dashboard KPI cards, trends section, and navigate users list to user detail", async ({
+    ownerPage,
+    browser
+  }) => {
+    createTestContext(ownerPage);
+
+    const backOfficeContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
+    const page = await backOfficeContext.newPage();
+    createTestContext(page);
+
+    await step("Log in as Admin via MockEasyAuth & verify redirect to dashboard")(async () => {
+      await page.goto(`${BACK_OFFICE_BASE_URL}/`);
+
+      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
+      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
+      await page.getByRole("button", { name: "Log in" }).click();
+
+      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/`);
+    })();
+
+    // === DASHBOARD ===
+
+    await step("Navigate to dashboard & verify KPI cards and Trends controls are visible")(async () => {
+      await page.goto(`${BACK_OFFICE_BASE_URL}/`);
+
+      await expect(page.getByText("Total tenants")).toBeVisible();
+      await expect(page.getByText("Total users")).toBeVisible();
+      await expect(page.getByText("Monthly recurring revenue")).toBeVisible();
+      await expect(page.getByText("Active sessions")).toBeVisible();
+      await expect(page.getByText("New tenants")).toBeVisible();
+      await expect(page.getByText("New users")).toBeVisible();
+
+      await expect(page.getByRole("heading", { name: "Trends" })).toBeVisible();
+      await expect(page.getByRole("combobox", { name: "Metric" })).toBeVisible();
+
+      const periodGroup = page.getByRole("group", { name: "Period" });
+      await expect(periodGroup.getByRole("button", { name: "7 days" })).toBeVisible();
+      await expect(periodGroup.getByRole("button", { name: "30 days" })).toBeVisible();
+      await expect(periodGroup.getByRole("button", { name: "90 days" })).toBeVisible();
+    })();
+
+    await step("Switch period to 7 days & verify 7 days button reflects pressed state")(async () => {
+      const periodGroup = page.getByRole("group", { name: "Period" });
+      const sevenDaysButton = periodGroup.getByRole("button", { name: "7 days" });
+
+      await sevenDaysButton.click();
+
+      await expect(sevenDaysButton).toHaveAttribute("aria-pressed", "true");
+    })();
+
+    // === USERS LIST ===
+
+    await step("Navigate to users list & verify search prompt is shown before typing")(async () => {
+      await page.goto(`${BACK_OFFICE_BASE_URL}/users`);
+
+      await expect(page.getByText("Type to search")).toBeVisible();
+      await expect(page.getByRole("searchbox", { name: "Search" })).toBeVisible();
+    })();
+
+    await step("Search for e2e owner first name & verify results table with at least one row")(async () => {
+      await page.getByRole("searchbox", { name: "Search" }).fill("testowner");
+
+      await expect(page.getByRole("table", { name: "Users" })).toBeVisible();
+      await expect(page.getByRole("columnheader", { name: "User" })).toBeVisible();
+      await expect(page.getByRole("row").nth(1)).toBeVisible();
+    })();
+
+    await step("Click first user row & verify navigation to user detail page with display name and KPI cards")(
+      async () => {
+        await page.getByRole("row").nth(1).click();
+
+        await expect(page.getByRole("heading", { level: 1 })).toContainText("TestOwner");
+        await expect(page.getByText("Last log-in")).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Tenants" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Login history" })).toBeVisible();
+      }
+    )();
+
+    await step("Click Page views tab & verify telemetry section renders all three tabs")(async () => {
+      await page.getByRole("tab", { name: "Page views" }).click();
+
+      await expect(page.getByRole("tab", { name: "Exceptions" })).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Page views" })).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Custom events" })).toBeVisible();
+    })();
+
+    await backOfficeContext.close();
+  });
+});
