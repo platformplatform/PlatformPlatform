@@ -76,7 +76,7 @@ function KpiCard({
   children: ReactNode;
 }>) {
   return (
-    <Card className="gap-2 rounded-lg p-4 py-4 shadow-none">
+    <Card className="gap-2 rounded-lg p-4 shadow-none">
       <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{label}</span>
       {loading ? (
         <>
