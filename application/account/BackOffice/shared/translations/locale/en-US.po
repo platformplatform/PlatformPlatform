@@ -21,6 +21,12 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 
+#. placeholder {0}: data.activeTenants
+#. placeholder {1}: data.trialTenants
+#. placeholder {2}: data.canceledTenants
+msgid "{0} active · {1} trial · {2} canceled"
+msgstr "{0} active · {1} trial · {2} canceled"
+
 msgid "{activationPercent}% activation"
 msgstr "{activationPercent}% activation"
 
@@ -57,6 +63,9 @@ msgstr "30 days"
 msgid "7 days"
 msgstr "7 days"
 
+msgid "90 days"
+msgstr "90 days"
+
 msgid "Account"
 msgstr "Account"
 
@@ -68,6 +77,9 @@ msgstr "Accounts"
 
 msgid "Active"
 msgstr "Active"
+
+msgid "Active sessions"
+msgstr "Active sessions"
 
 msgid "Activity"
 msgstr "Activity"
@@ -236,6 +248,9 @@ msgstr "Large"
 msgid "Larger"
 msgstr "Larger"
 
+msgid "Last 24 hours"
+msgstr "Last 24 hours"
+
 msgid "Last 30 days"
 msgstr "Last 30 days"
 
@@ -279,6 +294,9 @@ msgstr "Log out"
 msgid "Logging in..."
 msgstr "Logging in..."
 
+msgid "Login activity"
+msgstr "Login activity"
+
 msgid "Login history"
 msgstr "Login history"
 
@@ -297,8 +315,14 @@ msgstr "Member"
 msgid "Method"
 msgstr "Method"
 
+msgid "Metric"
+msgstr "Metric"
+
 msgid "Mobile"
 msgstr "Mobile"
+
+msgid "Monthly recurring revenue"
+msgstr "Monthly recurring revenue"
 
 msgid "Most recent activity"
 msgstr "Most recent activity"
@@ -314,6 +338,12 @@ msgstr "Navigation"
 
 msgid "Never logged in"
 msgstr "Never logged in"
+
+msgid "New tenants"
+msgstr "New tenants"
+
+msgid "New users"
+msgstr "New users"
 
 msgid "Next"
 msgstr "Next"
@@ -428,6 +458,9 @@ msgstr "Pending"
 
 msgid "per month, billed monthly"
 msgstr "per month, billed monthly"
+
+msgid "Period"
+msgstr "Period"
 
 msgid "Plan"
 msgstr "Plan"
@@ -577,6 +610,15 @@ msgstr "This user has no recorded sessions."
 
 msgid "This user is not a member of any tenant."
 msgstr "This user is not a member of any tenant."
+
+msgid "Total tenants"
+msgstr "Total tenants"
+
+msgid "Total users"
+msgstr "Total users"
+
+msgid "Trends"
+msgstr "Trends"
 
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Try a different search term or clear the role and activity filters."

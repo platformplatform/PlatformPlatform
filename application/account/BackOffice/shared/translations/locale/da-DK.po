@@ -21,6 +21,12 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 
+#. placeholder {0}: data.activeTenants
+#. placeholder {1}: data.trialTenants
+#. placeholder {2}: data.canceledTenants
+msgid "{0} active · {1} trial · {2} canceled"
+msgstr "{0} aktive · {1} prøveperiode · {2} opsagt"
+
 msgid "{activationPercent}% activation"
 msgstr "{activationPercent}% aktivering"
 
@@ -57,6 +63,9 @@ msgstr "30 dage"
 msgid "7 days"
 msgstr "7 dage"
 
+msgid "90 days"
+msgstr "90 dage"
+
 msgid "Account"
 msgstr "Konto"
 
@@ -68,6 +77,9 @@ msgstr "Konti"
 
 msgid "Active"
 msgstr "Aktiv"
+
+msgid "Active sessions"
+msgstr "Aktive sessioner"
 
 msgid "Activity"
 msgstr "Aktivitet"
@@ -236,6 +248,9 @@ msgstr "Stor"
 msgid "Larger"
 msgstr "Større"
 
+msgid "Last 24 hours"
+msgstr "Sidste 24 timer"
+
 msgid "Last 30 days"
 msgstr "Sidste 30 dage"
 
@@ -279,6 +294,9 @@ msgstr "Log ud"
 msgid "Logging in..."
 msgstr "Logger ind..."
 
+msgid "Login activity"
+msgstr "Login-aktivitet"
+
 msgid "Login history"
 msgstr "Login-historik"
 
@@ -297,8 +315,14 @@ msgstr "Medlem"
 msgid "Method"
 msgstr "Metode"
 
+msgid "Metric"
+msgstr "Metrik"
+
 msgid "Mobile"
 msgstr "Mobil"
+
+msgid "Monthly recurring revenue"
+msgstr "Månedlig tilbagevendende omsætning"
 
 msgid "Most recent activity"
 msgstr "Seneste aktivitet"
@@ -314,6 +338,12 @@ msgstr "Navigation"
 
 msgid "Never logged in"
 msgstr "Aldrig logget ind"
+
+msgid "New tenants"
+msgstr "Nye tenants"
+
+msgid "New users"
+msgstr "Nye brugere"
 
 msgid "Next"
 msgstr "Næste"
@@ -428,6 +458,9 @@ msgstr "Afventer"
 
 msgid "per month, billed monthly"
 msgstr "pr. måned, faktureres månedligt"
+
+msgid "Period"
+msgstr "Periode"
 
 msgid "Plan"
 msgstr "Plan"
@@ -577,6 +610,15 @@ msgstr "Denne bruger har ingen registrerede sessioner."
 
 msgid "This user is not a member of any tenant."
 msgstr "Denne bruger er ikke medlem af nogen tenant."
+
+msgid "Total tenants"
+msgstr "Tenants i alt"
+
+msgid "Total users"
+msgstr "Brugere i alt"
+
+msgid "Trends"
+msgstr "Tendenser"
 
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
