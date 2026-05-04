@@ -53,10 +53,10 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("first_payment_failed_at", null),
                 ("cancellation_reason", null),
                 ("cancellation_feedback", null),
-                ("subscribed_since", subscribedSince),
                 ("payment_transactions", JsonSerializer.Serialize(transactions.ToArray())),
                 ("payment_method", null),
-                ("billing_info", billingInfoJson)
+                ("billing_info", billingInfoJson),
+                ("subscribed_since", subscribedSince)
             ]
         );
 

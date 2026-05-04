@@ -28,6 +28,12 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     ///     This method is used by back-office cross-tenant queries where tenant context is not established.
     /// </summary>
     Task<Subscription[]> GetByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves every subscription on a paid plan (Plan != Basis) without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot to compute total monthly recurring revenue across all tenants.
+    /// </summary>
+    Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -70,5 +76,14 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     public async Task<Subscription[]> GetByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().Where(s => tenantIds.AsEnumerable().Contains(s.TenantId)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves every subscription on a paid plan (Plan != Basis) without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot to compute total monthly recurring revenue across all tenants.
+    /// </summary>
+    public async Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().Where(s => s.Plan != SubscriptionPlan.Basis).ToArrayAsync(cancellationToken);
     }
 }

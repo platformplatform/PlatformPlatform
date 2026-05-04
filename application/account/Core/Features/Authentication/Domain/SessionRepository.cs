@@ -51,6 +51,13 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     ///     across tenants. Includes active and revoked sessions, ordered most-recent first.
     /// </summary>
     Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUsersUnfilteredAsync(UserId[] userIds, int pageOffset, int pageSize, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Counts active (not revoked) sessions created at or after <paramref name="since" /> across all tenants
+    ///     without applying tenant query filters. Used by the back-office dashboard KPI snapshot for active sessions
+    ///     in the last 24 hours.
+    /// </summary>
+    Task<long> CountActiveSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountDbContext accountDbContext, IServiceProvider serviceProvider)
@@ -174,6 +181,22 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
         var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
         var page = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
         return (page, totalItems, totalPages);
+    }
+
+    /// <summary>
+    ///     Counts active (not revoked) sessions created at or after <paramref name="since" /> across all tenants
+    ///     without applying tenant query filters. Used by the back-office dashboard KPI snapshot for active sessions
+    ///     in the last 24 hours. SQLite cannot translate DateTimeOffset comparisons in WHERE, so sessions are
+    ///     materialized and filtered in memory; the bounded 24-hour window keeps the set small.
+    /// </summary>
+    public async Task<long> CountActiveSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken)
+    {
+        var sessions = await DbSet
+            .IgnoreQueryFilters()
+            .Where(s => s.RevokedAt == null)
+            .Select(s => new { s.CreatedAt })
+            .ToArrayAsync(cancellationToken);
+        return sessions.LongCount(s => s.CreatedAt >= since);
     }
 
     private async Task<DbConnection> OpenFallbackConnectionAsync(CancellationToken cancellationToken)

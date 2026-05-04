@@ -84,6 +84,18 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
         int pageSize,
         CancellationToken cancellationToken
     );
+
+    /// <summary>
+    ///     Counts every user across all tenants without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot for the total user count across all tenants.
+    /// </summary>
+    Task<long> CountAllUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every user created at or after <paramref name="since" /> across all tenants without applying tenant
+    ///     query filters. Used by the back-office dashboard to compute new-user trend buckets across all tenants.
+    /// </summary>
+    Task<User[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
@@ -277,7 +289,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
             ? result.Length // If the first page returns fewer items than page size, skip querying the total count
             : await users.CountAsync(cancellationToken);
 
-        var totalPages = (totalItems - 1) / pageSize.Value + 1;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize.Value + 1;
         return (result, totalItems, totalPages);
     }
 
@@ -371,7 +383,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
             ? result.Length
             : await users.CountAsync(cancellationToken);
 
-        var totalPages = (totalItems - 1) / pageSize + 1;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
         return (result, totalItems, totalPages);
     }
 
@@ -462,6 +474,27 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
         var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
         var pageUsers = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
         return (pageUsers, totalItems, totalPages);
+    }
+
+    /// <summary>
+    ///     Counts every user across all tenants without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot for the total user count across all tenants.
+    /// </summary>
+    public async Task<long> CountAllUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).LongCountAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Returns every user created at or after <paramref name="since" /> across all tenants without applying tenant
+    ///     query filters. Used by the back-office dashboard to compute new-user trend buckets across all tenants.
+    ///     SQLite cannot translate DateTimeOffset comparisons in WHERE, so the time filter runs in memory; the
+    ///     dashboard period is bounded (max 90 days) so the materialized set stays small.
+    /// </summary>
+    public async Task<User[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken)
+    {
+        var users = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return users.Where(u => u.CreatedAt >= since).ToArray();
     }
 
     [UsedImplicitly]

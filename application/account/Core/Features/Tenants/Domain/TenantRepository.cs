@@ -36,6 +36,18 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     tenant context is not established.
     /// </summary>
     Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every tenant created at or after <paramref name="since" /> without applying tenant query filters.
+    ///     Used by the back-office dashboard to compute new-tenant trend buckets across all tenants.
+    /// </summary>
+    Task<Tenant[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every tenant without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
+    /// </summary>
+    Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -106,5 +118,26 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
         if (ids.Length == 0) return [];
 
         return await DbSet.IgnoreQueryFilters().Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Returns every tenant created at or after <paramref name="since" /> without applying tenant query filters.
+    ///     Used by the back-office dashboard to compute new-tenant trend buckets across all tenants.
+    ///     SQLite cannot translate DateTimeOffset comparisons in WHERE, so the time filter runs in memory; the
+    ///     dashboard period is bounded (max 90 days) so the materialized set stays small.
+    /// </summary>
+    public async Task<Tenant[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken)
+    {
+        var tenants = await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
+        return tenants.Where(t => t.CreatedAt >= since).ToArray();
+    }
+
+    /// <summary>
+    ///     Returns every tenant without applying tenant query filters.
+    ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
+    /// </summary>
+    public async Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
     }
 }
