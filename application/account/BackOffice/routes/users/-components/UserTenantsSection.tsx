@@ -32,7 +32,7 @@ export function UserTenantsSection({ user }: Readonly<UserTenantsSectionProps>) 
     <section className="flex flex-col gap-3">
       <UserSectionHeader
         icon={Building2Icon}
-        title={<Trans>Tenants</Trans>}
+        title={<Trans>Accounts</Trans>}
         description={
           user
             ? plural(membershipCount, {
@@ -48,10 +48,10 @@ export function UserTenantsSection({ user }: Readonly<UserTenantsSectionProps>) 
         <Empty className="border bg-card">
           <EmptyHeader>
             <EmptyTitle>
-              <Trans>No tenant memberships</Trans>
+              <Trans>No account memberships</Trans>
             </EmptyTitle>
             <EmptyDescription>
-              <Trans>This user is not a member of any tenant.</Trans>
+              <Trans>This user is not a member of any account.</Trans>
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

@@ -77,7 +77,7 @@ export function UsersTable({ users, isLoading, totalPages, currentPageOffset }: 
                 <Trans>User</Trans>
               </TableHead>
               <TableHead className="hidden md:table-cell">
-                <Trans>Tenant</Trans>
+                <Trans>Account</Trans>
               </TableHead>
               <TableHead className="hidden lg:table-cell">
                 <Trans>Role</Trans>

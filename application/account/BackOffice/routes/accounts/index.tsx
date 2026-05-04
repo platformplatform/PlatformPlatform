@@ -84,7 +84,7 @@ function AccountsListPage() {
           maxWidth="64rem"
           browserTitle={t`Accounts`}
           title={t`Accounts`}
-          subtitle={t`Search, filter, and review tenant accounts.`}
+          subtitle={t`Search, filter, and review accounts.`}
           sidePane={
             previewTenant ? (
               <AccountSidePane tenant={previewTenant} isOpen={previewTenant !== null} onClose={handleClosePane} />
@@ -106,7 +106,7 @@ function AccountsListPage() {
                   {hasFilters ? (
                     <Trans>Try clearing the search or filters to see more results.</Trans>
                   ) : (
-                    <Trans>Tenant accounts will appear here as they are created.</Trans>
+                    <Trans>Accounts will appear here as they are created.</Trans>
                   )}
                 </EmptyDescription>
               </EmptyHeader>

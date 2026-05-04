@@ -33,7 +33,7 @@ export function DashboardTenantGrowthCard({ period }: Readonly<DashboardTenantGr
 
   return (
     <DashboardCardShell
-      title={<Trans>Tenant growth</Trans>}
+      title={<Trans>Account growth</Trans>}
       subtitle={
         data ? (
           <Trans>

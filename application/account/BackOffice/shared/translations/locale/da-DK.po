@@ -51,11 +51,11 @@ msgstr "{pendingUsers} afventer"
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# medlemskab} other {# medlemskaber}}"
 
+msgid "{total} accounts"
+msgstr "{total} konti"
+
 msgid "{total} new signups · {priorTotal} prior period"
 msgstr "{total} nye tilmeldinger · {priorTotal} forrige periode"
-
-msgid "{total} tenants"
-msgstr "{total} tenants"
 
 msgid "{total} total · avg {average}/day"
 msgstr "{total} i alt · gns. {average}/dag"
@@ -91,11 +91,23 @@ msgstr "90d"
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account growth"
+msgstr "Kontovækst"
+
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
 
+msgid "Account users"
+msgstr "Kontobrugere"
+
+msgid "accounts"
+msgstr "konti"
+
 msgid "Accounts"
 msgstr "Konti"
+
+msgid "Accounts will appear here as they are created."
+msgstr "Konti vises her, når de oprettes."
 
 msgid "Active"
 msgstr "Aktiv"
@@ -367,11 +379,14 @@ msgstr "Navigation"
 msgid "Never logged in"
 msgstr "Aldrig logget ind"
 
-msgid "New tenants will appear here as they sign up."
-msgstr "Nye tenants vises her, når de tilmelder sig."
+msgid "New accounts will appear here as they sign up."
+msgstr "Nye konti vises her, når de tilmelder sig."
 
 msgid "Next"
 msgstr "Næste"
+
+msgid "No account memberships"
+msgstr "Ingen kontomedlemskaber"
 
 msgid "No accounts match your filters"
 msgstr "Ingen konti matcher dine filtre"
@@ -438,9 +453,6 @@ msgstr "Ingen sessioner"
 
 msgid "No sign-in attempts in the last 30 days."
 msgstr "Ingen login-forsøg de seneste 30 dage."
-
-msgid "No tenant memberships"
-msgstr "Ingen tenant-medlemskaber"
 
 msgid "No users"
 msgstr "Ingen brugere"
@@ -560,8 +572,8 @@ msgstr "Skærmbilleder af dashboard-projektet i desktop- og mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
-msgid "Search by email, name, or tenant"
-msgstr "Søg på e-mail, navn eller tenant"
+msgid "Search by email, name, or account"
+msgstr "Søg på e-mail, navn eller konto"
 
 msgid "Search by name"
 msgstr "Søg efter navn"
@@ -569,17 +581,17 @@ msgstr "Søg efter navn"
 msgid "Search by name or email"
 msgstr "Søg efter navn eller e-mail"
 
-msgid "Search by user email, first or last name, or tenant name. At least 2 characters."
-msgstr "Søg på e-mail, fornavn eller efternavn, eller tenant-navn. Mindst 2 tegn."
+msgid "Search by user email, first or last name, or account name. At least 2 characters."
+msgstr "Søg på brugerens e-mail, for- eller efternavn, eller kontonavn. Mindst 2 tegn."
 
 msgid "Search users"
 msgstr "Søg brugere"
 
-msgid "Search users by email, name, or tenant."
-msgstr "Søg brugere på e-mail, navn eller tenant."
+msgid "Search users by email, name, or account."
+msgstr "Søg brugere på e-mail, navn eller konto."
 
-msgid "Search, filter, and review tenant accounts."
-msgstr "Søg, filtrér og gennemgå tenant-konti."
+msgid "Search, filter, and review accounts."
+msgstr "Søg, filtrér og gennemse konti."
 
 msgid "Sessions"
 msgstr "Sessioner"
@@ -633,24 +645,6 @@ msgstr "System"
 msgid "Tablet"
 msgstr "Tablet"
 
-msgid "Tenant"
-msgstr "Tenant"
-
-msgid "Tenant accounts will appear here as they are created."
-msgstr "Tenant-konti vises her, efterhånden som de oprettes."
-
-msgid "Tenant growth"
-msgstr "Tenant-vækst"
-
-msgid "Tenant users"
-msgstr "Tenant-brugere"
-
-msgid "tenants"
-msgstr "tenants"
-
-msgid "Tenants"
-msgstr "Tenants"
-
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 
@@ -666,11 +660,11 @@ msgstr "Denne konto havde tidligere et betalt abonnement, der sluttede."
 msgid "This user has no recorded sessions."
 msgstr "Denne bruger har ingen registrerede sessioner."
 
-msgid "This user is not a member of any tenant."
-msgstr "Denne bruger er ikke medlem af nogen tenant."
+msgid "This user is not a member of any account."
+msgstr "Denne bruger er ikke medlem af nogen konto."
 
-msgid "Total tenants"
-msgstr "Tenants i alt"
+msgid "Total accounts"
+msgstr "Konti i alt"
 
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."

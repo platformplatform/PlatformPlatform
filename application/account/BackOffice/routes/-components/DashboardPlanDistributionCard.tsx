@@ -26,7 +26,7 @@ export function DashboardPlanDistributionCard() {
   return (
     <DashboardCardShell
       title={<Trans>Plan distribution</Trans>}
-      subtitle={data ? <Trans>{total} tenants</Trans> : undefined}
+      subtitle={data ? <Trans>{total} accounts</Trans> : undefined}
     >
       {isLoading ? (
         <Skeleton className="h-[14rem] w-full" />
@@ -61,7 +61,7 @@ export function DashboardPlanDistributionCard() {
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-semibold tabular-nums">{total}</span>
               <span className="text-xs text-muted-foreground">
-                <Trans>tenants</Trans>
+                <Trans>accounts</Trans>
               </span>
             </div>
           </div>

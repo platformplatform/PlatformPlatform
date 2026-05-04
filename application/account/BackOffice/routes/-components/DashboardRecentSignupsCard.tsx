@@ -46,7 +46,7 @@ export function DashboardRecentSignupsCard() {
               <Trans>No recent signups</Trans>
             </EmptyTitle>
             <EmptyDescription>
-              <Trans>New tenants will appear here as they sign up.</Trans>
+              <Trans>New accounts will appear here as they sign up.</Trans>
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

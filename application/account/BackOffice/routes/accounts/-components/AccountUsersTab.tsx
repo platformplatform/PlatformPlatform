@@ -70,7 +70,7 @@ export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
           onPageChange={(page) => setPageOffset(page - 1)}
           previousLabel={t`Previous`}
           nextLabel={t`Next`}
-          trackingTitle="Tenant users"
+          trackingTitle="Account users"
           className="w-full"
         />
       )}
@@ -177,7 +177,7 @@ function UserList({
 
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-card">
-      <Table rowSize="spacious" aria-label={t`Tenant users`} selectionMode="single" onActivate={handleActivate}>
+      <Table rowSize="spacious" aria-label={t`Account users`} selectionMode="single" onActivate={handleActivate}>
         <TableHeader className="[&_tr]:bg-card">
           <TableRow>
             <TableHead>

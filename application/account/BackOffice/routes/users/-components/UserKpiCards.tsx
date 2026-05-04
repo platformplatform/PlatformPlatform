@@ -37,7 +37,7 @@ export function UserKpiCards({ user, userId, isLoading }: Readonly<UserKpiCardsP
       </KpiCard>
 
       <KpiCard
-        label={t`Tenants`}
+        label={t`Accounts`}
         loading={isLoading}
         subtitle={
           user

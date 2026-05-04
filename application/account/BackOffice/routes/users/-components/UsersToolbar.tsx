@@ -72,7 +72,7 @@ export function UsersToolbar({ search, roles, activity }: Readonly<UsersToolbarP
             type="text"
             role="searchbox"
             aria-label={t`Search`}
-            placeholder={t`Search by email, name, or tenant`}
+            placeholder={t`Search by email, name, or account`}
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
             onKeyDown={(event) => event.key === "Escape" && searchInput && setSearchInput("")}

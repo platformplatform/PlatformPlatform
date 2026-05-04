@@ -22,7 +22,7 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-4">
       <KpiTile
-        label={t`Total tenants`}
+        label={t`Total accounts`}
         icon={BuildingIcon}
         value={data?.totalTenants}
         loading={isLoading}

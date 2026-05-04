@@ -63,7 +63,7 @@ function UsersSearchPage() {
           maxWidth="64rem"
           browserTitle={t`Users`}
           title={t`Users`}
-          subtitle={t`Search users by email, name, or tenant.`}
+          subtitle={t`Search users by email, name, or account.`}
         >
           <UsersToolbar search={search} roles={roles ?? []} activity={activity} />
 
@@ -77,7 +77,7 @@ function UsersSearchPage() {
                   <Trans>Type to search</Trans>
                 </EmptyTitle>
                 <EmptyDescription>
-                  <Trans>Search by user email, first or last name, or tenant name. At least 2 characters.</Trans>
+                  <Trans>Search by user email, first or last name, or account name. At least 2 characters.</Trans>
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

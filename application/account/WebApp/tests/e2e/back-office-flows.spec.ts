@@ -242,14 +242,14 @@ test.describe("@smoke", () => {
 
         await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
-        await expect(page.getByText("Total tenants")).toBeVisible();
+        await expect(page.getByText("Total accounts")).toBeVisible();
         await expect(page.getByText("Blended MRR")).toBeVisible();
         await expect(page.getByText("Users active")).toBeVisible();
         await expect(page.getByText("Active sessions")).toBeVisible();
 
         await expect(page.getByRole("heading", { name: "MRR trend" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "Plan distribution" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Tenant growth" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Account growth" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "User logins / day" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "Recent signups" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "Recent Stripe events" })).toBeVisible();
@@ -293,7 +293,7 @@ test.describe("@smoke", () => {
 
         await expect(page.getByRole("heading", { level: 1 })).toContainText("TestOwner");
         await expect(page.getByText("Last log-in")).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Tenants" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Accounts" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "Login history" })).toBeVisible();
       }

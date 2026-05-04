@@ -52,7 +52,7 @@ export function UserSessionsSection({ userId }: Readonly<UserSessionsSectionProp
                   <Trans>Last seen</Trans>
                 </TableHead>
                 <TableHead>
-                  <Trans>Tenant</Trans>
+                  <Trans>Account</Trans>
                 </TableHead>
                 <TableHead>
                   <Trans>Browser</Trans>
