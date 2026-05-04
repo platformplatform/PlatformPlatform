@@ -1,6 +1,6 @@
 import { Trans } from "@lingui/react/macro";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "@repo/ui/components/Chart";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
@@ -34,7 +34,7 @@ export function DashboardPlanDistributionCard() {
         <div className="flex flex-row items-center gap-4">
           <div className="relative h-[14rem] w-[14rem] shrink-0">
             <ResponsiveContainer width={224} height={224}>
-              <PieChart>
+              <PieChart accessibilityLayer={true}>
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "var(--popover)",

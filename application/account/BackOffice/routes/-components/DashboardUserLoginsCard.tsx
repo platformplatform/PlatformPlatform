@@ -1,8 +1,18 @@
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "@repo/ui/components/Chart";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Area, AreaChart, CartesianGrid, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
@@ -46,7 +56,7 @@ export function DashboardUserLoginsCard({ period }: Readonly<DashboardUserLogins
         <Skeleton className="h-[14rem] w-full" />
       ) : (
         <ResponsiveContainer width="100%" height={224}>
-          <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
+          <AreaChart accessibilityLayer={true} data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
             <defs>
               <linearGradient id="dashboard-user-logins-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.8} />

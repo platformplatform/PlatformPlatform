@@ -1,8 +1,17 @@
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from "@repo/ui/components/Chart";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
@@ -46,7 +55,7 @@ export function DashboardTenantGrowthCard({ period }: Readonly<DashboardTenantGr
         <Skeleton className="h-[14rem] w-full" />
       ) : (
         <ResponsiveContainer width="100%" height={224}>
-          <BarChart data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
+          <BarChart accessibilityLayer={true} data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.5} />
             <XAxis
               dataKey="date"
