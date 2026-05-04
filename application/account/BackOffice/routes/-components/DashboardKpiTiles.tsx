@@ -1,9 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card } from "@repo/ui/components/Card";
+import { LinkCard } from "@repo/ui/components/LinkCard";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { Link } from "@tanstack/react-router";
 import { ActivityIcon, BuildingIcon, CoinsIcon, UsersIcon } from "lucide-react";
 
 import { api, DashboardTrendPeriod } from "@/shared/lib/api/client";
@@ -123,11 +123,9 @@ function KpiTile({ label, icon: Icon, value, loading, subtitle, to }: Readonly<K
 
   if (to) {
     return (
-      <Card className="gap-2 rounded-lg p-0 shadow-none transition-colors hover:bg-accent">
-        <Link to={to} className="flex flex-col gap-2 rounded-lg p-4">
-          {content}
-        </Link>
-      </Card>
+      <LinkCard to={to} className="gap-2 rounded-lg p-4 shadow-none">
+        {content}
+      </LinkCard>
     );
   }
 
