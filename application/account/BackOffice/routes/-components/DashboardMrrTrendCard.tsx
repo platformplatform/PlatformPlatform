@@ -1,8 +1,9 @@
+import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
@@ -21,6 +22,12 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
   });
 
   const points = data?.points ?? [];
+  const priorPoints = data?.priorPoints ?? [];
+  const chartData = points.map((point, index) => ({
+    date: point.date,
+    current: point.monthlyRecurringRevenue,
+    prior: priorPoints[index]?.monthlyRecurringRevenue ?? 0
+  }));
   const currency = data?.currency ?? "DKK";
   const dateFormatter = new Intl.DateTimeFormat(i18n.locale, { month: "short", day: "numeric" });
   const compactNumberFormatter = new Intl.NumberFormat(i18n.locale, { notation: "compact", maximumFractionDigits: 1 });
@@ -46,7 +53,7 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
         <Skeleton className="h-[14rem] w-full" />
       ) : (
         <ResponsiveContainer width="100%" height={224}>
-          <AreaChart data={points} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
             <defs>
               <linearGradient id="dashboard-mrr-trend-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
@@ -74,7 +81,7 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
             <Tooltip
               cursor={false}
               labelFormatter={(value) => dateFormatter.format(new Date(value as string))}
-              formatter={(value) => [formatCurrency(Number(value), currency), "MRR"]}
+              formatter={(value, name) => [formatCurrency(Number(value), currency), name]}
               contentStyle={{
                 backgroundColor: "var(--popover)",
                 borderColor: "var(--border)",
@@ -82,8 +89,20 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
                 color: "var(--popover-foreground)"
               }}
             />
+            <Legend wrapperStyle={{ fontSize: "0.75rem" }} iconType="line" />
+            <Line
+              dataKey="prior"
+              name={t`Prior period`}
+              type="monotone"
+              stroke="var(--muted-foreground)"
+              strokeOpacity={0.6}
+              strokeDasharray="4 3"
+              strokeWidth={1.5}
+              dot={false}
+            />
             <Area
-              dataKey="monthlyRecurringRevenue"
+              dataKey="current"
+              name={t`Current period`}
               type="monotone"
               fill="url(#dashboard-mrr-trend-fill)"
               stroke="var(--chart-1)"

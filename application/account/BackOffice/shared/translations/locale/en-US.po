@@ -51,8 +51,8 @@ msgstr "{pendingUsers} pending"
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# membership} other {# memberships}}"
 
-msgid "{total} new signups"
-msgstr "{total} new signups"
+msgid "{total} new signups · {priorTotal} prior period"
+msgstr "{total} new signups · {priorTotal} prior period"
 
 msgid "{total} tenants"
 msgstr "{total} tenants"
@@ -194,6 +194,9 @@ msgstr "Created {0}"
 
 msgid "Credit note"
 msgstr "Credit note"
+
+msgid "Current period"
+msgstr "Current period"
 
 msgid "Current plan"
 msgstr "Current plan"
@@ -516,6 +519,9 @@ msgstr "Premium"
 
 msgid "Previous"
 msgstr "Previous"
+
+msgid "Prior period"
+msgstr "Prior period"
 
 msgid "Recent active and historical sessions"
 msgstr "Recent active and historical sessions"

@@ -47,6 +47,10 @@ public sealed class GetDashboardTrendsTests : BackOfficeEndpointBaseTest
         payload.Points.Single(p => p.Date == today).Value.Should().Be(2);
         payload.Points.Single(p => p.Date == today.AddDays(-1)).Value.Should().Be(1);
         payload.Points.Single(p => p.Date == today.AddDays(-3)).Value.Should().Be(1);
+        // Prior period covers the 7 days immediately before the current window — same length, all dates strictly older.
+        payload.PriorPoints.Should().HaveCount(7);
+        payload.PriorPoints.Should().OnlyContain(p => p.Date < payload.Points[0].Date);
+        payload.PriorPoints.Should().OnlyContain(p => p.Value == 0);
     }
 
     [Fact]

@@ -31,7 +31,12 @@ public enum DashboardTrendPeriod
 }
 
 [PublicAPI]
-public sealed record BackOfficeDashboardTrendsResponse(DashboardTrendMetric Metric, DashboardTrendPeriod Period, BackOfficeDashboardTrendPoint[] Points);
+public sealed record BackOfficeDashboardTrendsResponse(
+    DashboardTrendMetric Metric,
+    DashboardTrendPeriod Period,
+    BackOfficeDashboardTrendPoint[] Points,
+    BackOfficeDashboardTrendPoint[] PriorPoints
+);
 
 [PublicAPI]
 public sealed record BackOfficeDashboardTrendPoint(DateOnly Date, long Value);
@@ -59,7 +64,9 @@ public sealed class GetDashboardTrendsHandler(
         var now = timeProvider.GetUtcNow();
         var today = DateOnly.FromDateTime(now.UtcDateTime);
         var startDate = today.AddDays(-(days - 1));
-        var since = new DateTimeOffset(startDate.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        var priorStartDate = startDate.AddDays(-days);
+        // Pull the prior window in the same query so the chart can render a comparison overlay without a second round-trip.
+        var since = new DateTimeOffset(priorStartDate.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
 
         var counts = query.Metric switch
         {
@@ -70,13 +77,16 @@ public sealed class GetDashboardTrendsHandler(
         };
 
         var points = new BackOfficeDashboardTrendPoint[days];
+        var priorPoints = new BackOfficeDashboardTrendPoint[days];
         for (var index = 0; index < days; index++)
         {
-            var date = startDate.AddDays(index);
-            points[index] = new BackOfficeDashboardTrendPoint(date, counts.GetValueOrDefault(date));
+            var currentDate = startDate.AddDays(index);
+            var priorDate = priorStartDate.AddDays(index);
+            points[index] = new BackOfficeDashboardTrendPoint(currentDate, counts.GetValueOrDefault(currentDate));
+            priorPoints[index] = new BackOfficeDashboardTrendPoint(priorDate, counts.GetValueOrDefault(priorDate));
         }
 
-        return new BackOfficeDashboardTrendsResponse(query.Metric, query.Period, points);
+        return new BackOfficeDashboardTrendsResponse(query.Metric, query.Period, points, priorPoints);
     }
 
     private async Task<Dictionary<DateOnly, long>> CountNewTenantsPerDay(DateTimeOffset since, CancellationToken cancellationToken)

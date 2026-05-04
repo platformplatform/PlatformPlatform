@@ -39,6 +39,9 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
         // the subscription and remain at zero.
         payload.Points.Count(p => p.MonthlyRecurringRevenue == 49.99m).Should().BeGreaterOrEqualTo(4);
         payload.Points.Should().Contain(p => p.MonthlyRecurringRevenue == 0m);
+        // Prior period covers the 7 days before the current window — the subscription did not exist yet, so MRR is zero.
+        payload.PriorPoints.Should().HaveCount(7);
+        payload.PriorPoints.Should().OnlyContain(p => p.MonthlyRecurringRevenue == 0m);
     }
 
     [Fact]

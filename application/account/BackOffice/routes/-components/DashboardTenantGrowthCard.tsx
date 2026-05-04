@@ -1,7 +1,8 @@
+import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
@@ -20,19 +21,32 @@ export function DashboardTenantGrowthCard({ period }: Readonly<DashboardTenantGr
   });
 
   const points = data?.points ?? [];
+  const priorPoints = data?.priorPoints ?? [];
+  const chartData = points.map((point, index) => ({
+    date: point.date,
+    current: point.value,
+    prior: priorPoints[index]?.value ?? 0
+  }));
   const total = points.reduce((acc, p) => acc + p.value, 0);
+  const priorTotal = priorPoints.reduce((acc, p) => acc + p.value, 0);
   const dateFormatter = new Intl.DateTimeFormat(i18n.locale, { month: "short", day: "numeric" });
 
   return (
     <DashboardCardShell
       title={<Trans>Tenant growth</Trans>}
-      subtitle={data ? <Trans>{total} new signups</Trans> : undefined}
+      subtitle={
+        data ? (
+          <Trans>
+            {total} new signups · {priorTotal} prior period
+          </Trans>
+        ) : undefined
+      }
     >
       {isLoading ? (
         <Skeleton className="h-[14rem] w-full" />
       ) : (
         <ResponsiveContainer width="100%" height={224}>
-          <BarChart data={points} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
+          <BarChart data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.5} />
             <XAxis
               dataKey="date"
@@ -61,7 +75,15 @@ export function DashboardTenantGrowthCard({ period }: Readonly<DashboardTenantGr
                 color: "var(--popover-foreground)"
               }}
             />
-            <Bar dataKey="value" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+            <Legend wrapperStyle={{ fontSize: "0.75rem" }} iconType="circle" />
+            <Bar
+              dataKey="prior"
+              name={t`Prior period`}
+              fill="var(--muted-foreground)"
+              fillOpacity={0.3}
+              radius={[4, 4, 0, 0]}
+            />
+            <Bar dataKey="current" name={t`Current period`} fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}

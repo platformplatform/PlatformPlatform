@@ -1,7 +1,8 @@
+import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
@@ -20,6 +21,12 @@ export function DashboardUserLoginsCard({ period }: Readonly<DashboardUserLogins
   });
 
   const points = data?.points ?? [];
+  const priorPoints = data?.priorPoints ?? [];
+  const chartData = points.map((point, index) => ({
+    date: point.date,
+    current: point.value,
+    prior: priorPoints[index]?.value ?? 0
+  }));
   const total = points.reduce((acc, p) => acc + p.value, 0);
   const average = points.length === 0 ? 0 : Math.round(total / points.length);
   const dateFormatter = new Intl.DateTimeFormat(i18n.locale, { month: "short", day: "numeric" });
@@ -39,7 +46,7 @@ export function DashboardUserLoginsCard({ period }: Readonly<DashboardUserLogins
         <Skeleton className="h-[14rem] w-full" />
       ) : (
         <ResponsiveContainer width="100%" height={224}>
-          <AreaChart data={points} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 12, bottom: 0 }}>
             <defs>
               <linearGradient id="dashboard-user-logins-fill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.8} />
@@ -74,8 +81,20 @@ export function DashboardUserLoginsCard({ period }: Readonly<DashboardUserLogins
                 color: "var(--popover-foreground)"
               }}
             />
+            <Legend wrapperStyle={{ fontSize: "0.75rem" }} iconType="line" />
+            <Line
+              dataKey="prior"
+              name={t`Prior period`}
+              type="monotone"
+              stroke="var(--muted-foreground)"
+              strokeOpacity={0.6}
+              strokeDasharray="4 3"
+              strokeWidth={1.5}
+              dot={false}
+            />
             <Area
-              dataKey="value"
+              dataKey="current"
+              name={t`Current period`}
               type="monotone"
               fill="url(#dashboard-user-logins-fill)"
               stroke="var(--chart-3)"

@@ -51,8 +51,8 @@ msgstr "{pendingUsers} afventer"
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# medlemskab} other {# medlemskaber}}"
 
-msgid "{total} new signups"
-msgstr "{total} nye tilmeldinger"
+msgid "{total} new signups · {priorTotal} prior period"
+msgstr "{total} nye tilmeldinger · {priorTotal} forrige periode"
 
 msgid "{total} tenants"
 msgstr "{total} tenants"
@@ -194,6 +194,9 @@ msgstr "Oprettet {0}"
 
 msgid "Credit note"
 msgstr "Kreditnota"
+
+msgid "Current period"
+msgstr "Aktuel periode"
 
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
@@ -516,6 +519,9 @@ msgstr "Premium"
 
 msgid "Previous"
 msgstr "Forrige"
+
+msgid "Prior period"
+msgstr "Forrige periode"
 
 msgid "Recent active and historical sessions"
 msgstr "Nylige aktive og historiske sessioner"
