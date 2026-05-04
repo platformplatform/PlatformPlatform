@@ -29,6 +29,7 @@ import { useState } from "react";
 
 import { CommandPreview } from "./CommandPreview";
 import { KbdPreview } from "./KbdPreview";
+import { LinkCardPreview } from "./LinkCardPreview";
 import { NavigationMenuPreview } from "./NavigationMenuPreview";
 
 export function NavigationPreview() {
@@ -178,6 +179,7 @@ export function NavigationPreview() {
           </ContextMenuContent>
         </ContextMenu>
       </div>
+      <LinkCardPreview />
       <NavigationMenuPreview />
       <CommandPreview />
       <KbdPreview />

@@ -1,8 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import { LinkCard } from "@repo/ui/components/LinkCard";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 import { api, UserStatus } from "@/shared/lib/api/client";
 
@@ -22,11 +23,7 @@ export default function Home() {
       subtitle={t`A quick summary of your account activity.`}
     >
       <div className="grid w-full grid-cols-1 gap-4 pt-8 md:grid-cols-2 lg:grid-cols-3">
-        <Link
-          to="/account/users"
-          className="flex flex-col justify-between rounded-xl bg-card p-6 outline-ring transition-[background-color] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-          aria-label={t`View users`}
-        >
+        <LinkCard to="/account/users" aria-label={t`View users`} className="justify-between">
           <div>
             <div className="text-sm font-medium text-foreground">
               <Trans>Total users</Trans>
@@ -36,16 +33,16 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-4 text-2xl font-semibold text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
-        </Link>
-        <Link
+        </LinkCard>
+        <LinkCard
           to="/account/users"
           search={{
             userStatus: UserStatus.Active,
             startDate: getDateDaysAgo(30),
             endDate: getTodayIsoDate()
           }}
-          className="flex flex-col justify-between rounded-xl bg-card p-6 outline-ring transition-[background-color] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={t`View active users`}
+          className="justify-between"
         >
           <div>
             <div className="text-sm font-medium text-foreground">
@@ -56,12 +53,12 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-4 text-2xl font-semibold text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
-        </Link>
-        <Link
+        </LinkCard>
+        <LinkCard
           to="/account/users"
           search={{ userStatus: UserStatus.Pending }}
-          className="flex flex-col justify-between rounded-xl bg-card p-6 outline-ring transition-[background-color] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={t`View invited users`}
+          className="justify-between"
         >
           <div>
             <div className="text-sm font-medium text-foreground">
@@ -72,7 +69,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-4 text-2xl font-semibold text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
-        </Link>
+        </LinkCard>
       </div>
     </AppLayout>
   );

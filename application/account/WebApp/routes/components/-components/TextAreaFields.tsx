@@ -32,7 +32,7 @@ export function TextAreaFields({
         tooltip={tooltip ? tooltips.textAreaFixed : undefined}
         name={`textarea-fixed-${suffix}`}
         placeholder={placeholders ? t`Street address` : undefined}
-        defaultValue={hasValues ? t`1 Infinite Loop\nCupertino, CA 95014` : undefined}
+        defaultValue={hasValues ? t`123 Example Street\nAnytown, AA 12345` : undefined}
         lines={2}
         resizable={false}
         disabled={disabled}
