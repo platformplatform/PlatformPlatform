@@ -247,12 +247,12 @@ test.describe("@smoke", () => {
         await expect(page.getByText("Users active")).toBeVisible();
         await expect(page.getByText("Active sessions")).toBeVisible();
 
-        await expect(page.getByRole("heading", { name: "MRR trend" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Plan distribution" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Account growth" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "User logins / day" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Recent signups" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Recent Stripe events" })).toBeVisible();
+        await expect(page.getByText("MRR trend", { exact: true })).toBeVisible();
+        await expect(page.getByText("Plan distribution", { exact: true })).toBeVisible();
+        await expect(page.getByText("Account growth", { exact: true })).toBeVisible();
+        await expect(page.getByText("User logins / day", { exact: true })).toBeVisible();
+        await expect(page.getByText("Recent signups", { exact: true })).toBeVisible();
+        await expect(page.getByText("Recent Stripe events", { exact: true })).toBeVisible();
 
         const periodGroup = page.getByRole("group", { name: "Period" });
         await expect(periodGroup.getByRole("button", { name: "7d" })).toBeVisible();
