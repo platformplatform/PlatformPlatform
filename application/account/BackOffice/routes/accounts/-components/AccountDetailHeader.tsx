@@ -16,22 +16,24 @@ import { PlannedSubscriptionChange, TenantState } from "@/shared/lib/api/client"
 import { getSubscriptionPlanLabel, getTenantStateLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
+import { SyncWithStripeButton } from "./SyncWithStripeButton";
 import { TenantStatusBadge } from "./TenantStatusBadge";
 
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
 
 interface AccountDetailHeaderProps {
   tenant: TenantDetailResponse | undefined;
+  tenantId: string;
   isLoading: boolean;
 }
 
-export function AccountDetailHeader({ tenant, isLoading }: Readonly<AccountDetailHeaderProps>) {
+export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<AccountDetailHeaderProps>) {
   const formatDate = useFormatDate();
   const { i18n } = useLingui();
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
+      <div className="flex items-center justify-between gap-2">
         <Button
           variant="ghost"
           size="sm"
@@ -42,6 +44,7 @@ export function AccountDetailHeader({ tenant, isLoading }: Readonly<AccountDetai
           <ArrowLeftIcon className="size-4" />
           <Trans>Accounts</Trans>
         </Button>
+        <SyncWithStripeButton tenantId={tenantId} />
       </div>
 
       <div className="flex flex-wrap items-center gap-4">

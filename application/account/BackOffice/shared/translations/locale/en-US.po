@@ -94,6 +94,11 @@ msgstr "Account"
 msgid "Account growth"
 msgstr "Account growth"
 
+#. placeholder {0}: result.driftDiscrepancyCount
+#. placeholder {1}: formatDate(result.syncedAt)
+msgid "Account has {0} drift discrepancies. Last synced at {1}."
+msgstr "Account has {0} drift discrepancies. Last synced at {1}."
+
 msgid "Account preview"
 msgstr "Account preview"
 
@@ -132,6 +137,11 @@ msgstr "An unexpected error occurred while processing your request."
 
 msgid "App Insights · Telemetry"
 msgstr "App Insights · Telemetry"
+
+#. placeholder {0}: result.billingEventsAppended
+#. placeholder {1}: formatDate(result.syncedAt)
+msgid "Appended {0} new billing events. Last synced at {1}."
+msgstr "Appended {0} new billing events. Last synced at {1}."
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
 msgstr "Authoritative log of subscription, payment, and billing transitions across all accounts."
@@ -201,6 +211,9 @@ msgstr "Clear filters"
 
 msgid "Clear search"
 msgstr "Clear search"
+
+msgid "Close"
+msgstr "Close"
 
 msgid "Close account preview"
 msgstr "Close account preview"
@@ -457,6 +470,9 @@ msgstr "No login history"
 msgid "No matching users"
 msgstr "No matching users"
 
+msgid "No new billing events were appended. Account state matches Stripe."
+msgstr "No new billing events were appended. Account state matches Stripe."
+
 msgid "No owners"
 msgstr "No owners"
 
@@ -486,6 +502,9 @@ msgstr "No recent signups"
 
 msgid "No recent Stripe events"
 msgstr "No recent Stripe events"
+
+msgid "No result available."
+msgstr "No result available."
 
 msgid "No sessions"
 msgstr "No sessions"
@@ -704,6 +723,18 @@ msgstr "Support (coming soon)"
 
 msgid "Suspended"
 msgstr "Suspended"
+
+msgid "Sync complete"
+msgstr "Sync complete"
+
+msgid "Sync complete with drift detected"
+msgstr "Sync complete with drift detected"
+
+msgid "Sync with Stripe"
+msgstr "Sync with Stripe"
+
+msgid "Syncing..."
+msgstr "Syncing..."
 
 msgid "System"
 msgstr "System"

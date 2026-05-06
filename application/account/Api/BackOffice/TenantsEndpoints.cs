@@ -1,3 +1,4 @@
+using Account.Features.Tenants.BackOffice.Commands;
 using Account.Features.Tenants.BackOffice.Queries;
 using Microsoft.Extensions.Options;
 using SharedKernel.ApiResults;
@@ -46,5 +47,9 @@ public sealed class TenantsEndpoints : IEndpoints
         group.MapGet("/{id}/payment-history", async Task<ApiResult<TenantPaymentHistoryResponse>> (TenantId id, [AsParameters] GetTenantPaymentHistoryQuery query, IMediator mediator)
             => await mediator.Send(query with { Id = id })
         ).Produces<TenantPaymentHistoryResponse>();
+
+        group.MapPost("/{id}/sync-with-stripe", async Task<ApiResult<SyncTenantWithStripeResponse>> (TenantId id, IMediator mediator)
+            => await mediator.Send(new SyncTenantWithStripeCommand { TenantId = id })
+        ).Produces<SyncTenantWithStripeResponse>();
     }
 }

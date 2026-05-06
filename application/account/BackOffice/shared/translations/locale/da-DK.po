@@ -94,6 +94,11 @@ msgstr "Konto"
 msgid "Account growth"
 msgstr "Kontovækst"
 
+#. placeholder {0}: result.driftDiscrepancyCount
+#. placeholder {1}: formatDate(result.syncedAt)
+msgid "Account has {0} drift discrepancies. Last synced at {1}."
+msgstr "Kontoen har {0} afvigelser. Senest synkroniseret {1}."
+
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
 
@@ -132,6 +137,11 @@ msgstr "Der opstod en uventet fejl ved behandlingen."
 
 msgid "App Insights · Telemetry"
 msgstr "App Insights · Telemetri"
+
+#. placeholder {0}: result.billingEventsAppended
+#. placeholder {1}: formatDate(result.syncedAt)
+msgid "Appended {0} new billing events. Last synced at {1}."
+msgstr "Tilføjede {0} nye faktureringshændelser. Senest synkroniseret {1}."
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
 msgstr "Autoritativ log over abonnements-, betalings- og faktureringsændringer på tværs af alle konti."
@@ -201,6 +211,9 @@ msgstr "Ryd filtre"
 
 msgid "Clear search"
 msgstr "Ryd søgning"
+
+msgid "Close"
+msgstr "Luk"
 
 msgid "Close account preview"
 msgstr "Luk kontoforhåndsvisning"
@@ -457,6 +470,9 @@ msgstr "Ingen login-historik"
 msgid "No matching users"
 msgstr "Ingen matchende brugere"
 
+msgid "No new billing events were appended. Account state matches Stripe."
+msgstr "Ingen nye faktureringshændelser blev tilføjet. Kontotilstand matcher Stripe."
+
 msgid "No owners"
 msgstr "Ingen ejere"
 
@@ -486,6 +502,9 @@ msgstr "Ingen nylige tilmeldinger"
 
 msgid "No recent Stripe events"
 msgstr "Ingen nylige Stripe-hændelser"
+
+msgid "No result available."
+msgstr "Intet resultat tilgængeligt."
 
 msgid "No sessions"
 msgstr "Ingen sessioner"
@@ -704,6 +723,18 @@ msgstr "Support (kommer snart)"
 
 msgid "Suspended"
 msgstr "Suspenderet"
+
+msgid "Sync complete"
+msgstr "Synkronisering færdig"
+
+msgid "Sync complete with drift detected"
+msgstr "Synkronisering færdig med afvigelser fundet"
+
+msgid "Sync with Stripe"
+msgstr "Synkroniser med Stripe"
+
+msgid "Syncing..."
+msgstr "Synkroniserer..."
 
 msgid "System"
 msgstr "System"

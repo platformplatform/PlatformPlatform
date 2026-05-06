@@ -40,7 +40,7 @@ function AccountDetailPage() {
       <SidebarInset>
         <AppLayout variant="center" maxWidth="64rem" browserTitle={tenant?.name ?? t`Account`}>
           <div className="flex flex-col gap-6">
-            <AccountDetailHeader tenant={tenant} isLoading={tenantQuery.isLoading} />
+            <AccountDetailHeader tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
             <AccountKpiCards tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
             <Tabs defaultValue="overview">
               <TabsList>

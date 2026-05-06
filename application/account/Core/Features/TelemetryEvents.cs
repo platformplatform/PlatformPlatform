@@ -214,6 +214,9 @@ public sealed class TenantLogoUpdated(string contentType, long size)
 public sealed class TenantSwitched(TenantId fromTenantId, TenantId toTenantId, UserId userId)
     : TelemetryEvent(("from_tenant_id", fromTenantId), ("to_tenant_id", toTenantId), ("user_id", userId));
 
+public sealed class TenantSyncedWithStripe(SubscriptionId subscriptionId, int billingEventsAppended)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("billing_events_appended", billingEventsAppended));
+
 public sealed class TenantUpdated
     : TelemetryEvent;
 

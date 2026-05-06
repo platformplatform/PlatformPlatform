@@ -27,7 +27,12 @@ public sealed class ProcessPendingStripeEvents(
     ILogger<ProcessPendingStripeEvents> logger
 )
 {
-    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        return ExecuteAsync(stripeCustomerId, false, cancellationToken);
+    }
+
+    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, CancellationToken cancellationToken)
     {
         // Pessimistic lock serializes concurrent webhook processing for the same customer
         var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
@@ -46,7 +51,8 @@ public sealed class ProcessPendingStripeEvents(
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
         var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
-        if (pendingEvents.Length > 0)
+        // forceSync runs the Stripe sync even with no pending events (used by the BackOffice "Sync with Stripe" admin action)
+        if (pendingEvents.Length > 0 || forceSync)
         {
             await SyncStateFromStripe(tenant, subscription, cancellationToken);
 
