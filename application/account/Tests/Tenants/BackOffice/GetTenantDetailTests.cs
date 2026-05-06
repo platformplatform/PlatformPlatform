@@ -34,7 +34,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
 
         var billingInfoJson = JsonSerializer.Serialize(new BillingInfo("Acme Corp", new BillingAddress("123 Main St", null, "12345", "Springfield", "IL", "US"), null, null));
         var transactions = ImmutableArray.Create(
-            new PaymentTransaction(PaymentTransactionId.NewId(), 199.00m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null)
+            new PaymentTransaction(PaymentTransactionId.NewId(), 199.00m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium)
         );
         var subscribedSince = DateTimeOffset.Parse("2025-02-01T00:00:00Z");
         Connection.Insert("subscriptions", [

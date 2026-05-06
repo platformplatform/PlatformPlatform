@@ -64,6 +64,9 @@ export function AccountBillingTab({ tenantId }: Readonly<AccountBillingTabProps>
                   <Trans>Date</Trans>
                 </TableHead>
                 <TableHead>
+                  <Trans>Plan</Trans>
+                </TableHead>
+                <TableHead>
                   <Trans>Amount</Trans>
                 </TableHead>
                 <TableHead>

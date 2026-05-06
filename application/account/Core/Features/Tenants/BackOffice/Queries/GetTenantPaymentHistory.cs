@@ -26,7 +26,8 @@ public sealed record TenantPaymentTransaction(
     DateTimeOffset Date,
     string? FailureReason,
     string? InvoiceUrl,
-    string? CreditNoteUrl
+    string? CreditNoteUrl,
+    SubscriptionPlan? Plan
 );
 
 public sealed class GetTenantPaymentHistoryQueryValidator : AbstractValidator<GetTenantPaymentHistoryQuery>
@@ -62,7 +63,7 @@ public sealed class GetTenantPaymentHistoryHandler(ITenantRepository tenantRepos
         var paged = transactions
             .Skip(query.PageOffset * query.PageSize)
             .Take(query.PageSize)
-            .Select(t => new TenantPaymentTransaction(t.Id, t.Amount, t.Currency, t.Status, t.Date, t.FailureReason, t.InvoiceUrl, t.CreditNoteUrl))
+            .Select(t => new TenantPaymentTransaction(t.Id, t.Amount, t.Currency, t.Status, t.Date, t.FailureReason, t.InvoiceUrl, t.CreditNoteUrl, t.Plan))
             .ToArray();
 
         return new TenantPaymentHistoryResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);

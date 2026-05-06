@@ -91,7 +91,7 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
     {
         var paymentTransactions = JsonSerializer.Serialize(new[]
             {
-                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, "DKK", PaymentTransactionStatus.Succeeded, subscribedSince, null, null, null)
+                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, "DKK", PaymentTransactionStatus.Succeeded, subscribedSince, null, null, null, SubscriptionPlan.Standard)
             }
         );
 

@@ -57,7 +57,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 now,
                 null,
                 MockInvoiceUrl,
-                null
+                null,
+                SubscriptionPlan.Standard
             )
         };
 
@@ -258,7 +259,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         return Task.FromResult<PaymentTransaction[]?>(
             [
-                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null)
+                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
             ]
         );
     }

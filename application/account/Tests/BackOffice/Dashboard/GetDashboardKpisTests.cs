@@ -139,7 +139,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         var paymentTransactionsJson = hasSucceededPayment
             ? JsonSerializer.Serialize(new[]
                 {
-                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null)
+                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
                 }
             )
             : "[]";

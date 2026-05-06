@@ -9,7 +9,7 @@ import { ExternalLinkIcon } from "lucide-react";
 import type { components } from "@/shared/lib/api/client";
 
 import { PaymentTransactionStatus } from "@/shared/lib/api/client";
-import { getPaymentStatusLabel } from "@/shared/lib/api/labels";
+import { getPaymentStatusLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 type PaymentTransaction = components["schemas"]["TenantPaymentTransaction"];
 
@@ -23,6 +23,13 @@ export function AccountPaymentRow({
   return (
     <TableRow rowKey={transaction.id}>
       <TableCell>{formatDate(transaction.date)}</TableCell>
+      <TableCell>
+        {transaction.plan != null ? (
+          <Badge variant="secondary">{getSubscriptionPlanLabel(transaction.plan)}</Badge>
+        ) : (
+          <span className="text-muted-foreground">—</span>
+        )}
+      </TableCell>
       <TableCell className="tabular-nums">{formatCurrency(transaction.amount, transaction.currency)}</TableCell>
       <TableCell>
         <PaymentStatusBadge status={transaction.status} failureReason={transaction.failureReason} />

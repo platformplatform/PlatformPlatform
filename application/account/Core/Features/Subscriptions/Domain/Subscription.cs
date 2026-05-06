@@ -184,5 +184,6 @@ public sealed record PaymentTransaction(
     DateTimeOffset Date,
     string? FailureReason,
     string? InvoiceUrl,
-    string? CreditNoteUrl
+    string? CreditNoteUrl,
+    SubscriptionPlan? Plan = null
 );

@@ -972,7 +972,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         {
             var invoiceService = new InvoiceService();
             var invoices = await invoiceService.ListAsync(
-                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
+                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment", "data.lines.data.pricing"] },
                 GetRequestOptions(), cancellationToken
             );
 
@@ -992,11 +992,15 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             );
             var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
 
+            // Build a priceId → SubscriptionPlan lookup once (per Stripe customer sync) so the per-invoice loop is allocation-free.
+            var planByPriceId = await BuildPlanByPriceIdAsync(cancellationToken);
+
             return invoices.Data.Select(invoice =>
                 {
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
                     var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
+                    var plan = ResolvePlanForInvoice(invoice, planByPriceId);
 
                     return new PaymentTransaction(
                         PaymentTransactionId.NewId(),
@@ -1006,7 +1010,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                         invoice.Created,
                         invoice.Status == "uncollectible" ? "Payment failed." : null,
                         invoice.InvoicePdf,
-                        creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+                        creditNotesByInvoiceId.GetValueOrDefault(invoice.Id),
+                        plan
                     );
                 }
             ).ToArray();
@@ -1021,6 +1026,42 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             logger.LogError(ex, "Timeout syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
+    }
+
+    /// <summary>
+    ///     Resolves a Stripe invoice's first line-item priceId to its <see cref="SubscriptionPlan" /> via the supplied
+    ///     lookup table. Returns <c>null</c> when the line item has no priceId (e.g., manual line items or archived
+    ///     prices not in the catalog) — historical data should not crash the sync just because a price was retired.
+    ///     Public to support unit testing of the priceId-extraction path against a constructed <see cref="Invoice" />.
+    /// </summary>
+    public static SubscriptionPlan? ResolvePlanForInvoice(Invoice invoice, IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId)
+    {
+        var priceId = invoice.Lines?.Data?.FirstOrDefault()?.Pricing?.PriceDetails?.Price;
+        return priceId is not null && planByPriceId.TryGetValue(priceId, out var plan) ? plan : null;
+    }
+
+    /// <summary>
+    ///     Reverse of <see cref="GetPriceIdAsync" />: resolves a Stripe priceId (the only field reliably present on
+    ///     historical invoice line items) back to its <see cref="SubscriptionPlan" /> via the cached price catalog.
+    ///     Unknown / archived priceIds resolve to <c>null</c> rather than throwing — historical data should not crash
+    ///     the sync just because a price was retired.
+    /// </summary>
+    private async Task<Dictionary<string, SubscriptionPlan>> BuildPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (!memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) || cached is null)
+        {
+            return new Dictionary<string, SubscriptionPlan>();
+        }
+
+        var lookup = new Dictionary<string, SubscriptionPlan>(cached.Count);
+        foreach (var (lookupKey, price) in cached)
+        {
+            lookup[price.Id] = ParseLookupKey(lookupKey);
+        }
+
+        return lookup;
     }
 
     private async Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
