@@ -56,7 +56,10 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("payment_transactions", JsonSerializer.Serialize(transactions.ToArray())),
                 ("payment_method", null),
                 ("billing_info", billingInfoJson),
-                ("subscribed_since", subscribedSince)
+                ("subscribed_since", subscribedSince),
+                ("has_drift_detected", false),
+                ("drift_checked_at", null),
+                ("drift_discrepancies", "[]")
             ]
         );
 

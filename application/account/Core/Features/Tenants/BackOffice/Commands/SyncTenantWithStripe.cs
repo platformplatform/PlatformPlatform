@@ -52,12 +52,16 @@ public sealed class SyncTenantWithStripeHandler(
         var afterEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
         var billingEventsAppended = afterEvents.Length - beforeEvents.Length;
 
-        // Drift fields are stubbed until PP-1204 lands. The shape is wired now so the frontend dialog can render
-        // forward-compatible content; once drift detection is in place these values reflect the actual state.
+        // Reload the subscription so drift fields reflect the just-completed sync. ExecuteAsync runs in its own
+        // transaction and the previously-fetched aggregate is detached, so we read the freshly persisted state.
+        var refreshedSubscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(command.TenantId, cancellationToken);
+        var hasDriftDetected = refreshedSubscription?.HasDriftDetected ?? false;
+        var driftDiscrepancyCount = refreshedSubscription?.DriftDiscrepancies.Length ?? 0;
+
         var response = new SyncTenantWithStripeResponse(
             billingEventsAppended,
-            false,
-            0,
+            hasDriftDetected,
+            driftDiscrepancyCount,
             timeProvider.GetUtcNow()
         );
 

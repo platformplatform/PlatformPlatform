@@ -45,5 +45,18 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
                 v => v == null ? null : JsonSerializer.Serialize(v, JsonSerializerOptions),
                 v => v == null ? null : JsonSerializer.Deserialize<BillingInfo>(v, JsonSerializerOptions)
             );
+
+        builder.Property(s => s.DriftDiscrepancies)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
+                v => JsonSerializer.Deserialize<ImmutableArray<DriftDiscrepancy>>(v, JsonSerializerOptions)
+            )
+            .Metadata.SetValueComparer(new ValueComparer<ImmutableArray<DriftDiscrepancy>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c
+                )
+            );
     }
 }

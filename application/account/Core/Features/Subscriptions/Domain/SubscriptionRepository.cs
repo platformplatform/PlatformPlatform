@@ -34,6 +34,12 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     ///     Used by the back-office dashboard KPI snapshot to compute total monthly recurring revenue across all tenants.
     /// </summary>
     Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Counts subscriptions where billing drift has been detected and not yet acknowledged. Bypasses the
+    ///     tenant query filter because the back-office is cross-tenant by design.
+    /// </summary>
+    Task<int> CountWithDriftDetectedUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -85,5 +91,10 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     public async Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().Where(s => s.Plan != SubscriptionPlan.Basis).ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<int> CountWithDriftDetectedUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().CountAsync(s => s.HasDriftDetected, cancellationToken);
     }
 }

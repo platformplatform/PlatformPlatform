@@ -36,6 +36,9 @@ msgstr "{activationPercent}% activation"
 msgid "{activeUsers} active"
 msgstr "{activeUsers} active"
 
+msgid "{count} accounts have billing drift detected."
+msgstr "{count} accounts have billing drift detected."
+
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
 
@@ -801,6 +804,9 @@ msgstr "Users ({totalUsers})"
 
 msgid "Users active"
 msgstr "Users active"
+
+msgid "View accounts"
+msgstr "View accounts"
 
 msgid "View all"
 msgstr "View all"

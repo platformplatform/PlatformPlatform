@@ -29,7 +29,10 @@ public sealed record TenantDetailResponse(
     DateTimeOffset? SuspendedAt,
     string? LogoUrl,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? ModifiedAt
+    DateTimeOffset? ModifiedAt,
+    bool HasDriftDetected,
+    DateTimeOffset? DriftCheckedAt,
+    DriftDiscrepancy[] DriftDiscrepancies
 );
 
 [PublicAPI]
@@ -85,7 +88,10 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             tenant.SuspendedAt,
             tenant.Logo.Url,
             tenant.CreatedAt,
-            tenant.ModifiedAt
+            tenant.ModifiedAt,
+            subscription?.HasDriftDetected ?? false,
+            subscription?.DriftCheckedAt,
+            subscription?.DriftDiscrepancies.ToArray() ?? []
         );
     }
 }

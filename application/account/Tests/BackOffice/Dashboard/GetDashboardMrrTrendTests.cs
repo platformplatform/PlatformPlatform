@@ -115,7 +115,10 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
                 ("payment_method", null),
                 ("billing_info", null),
                 ("subscribed_since", subscribedSince),
-                ("scheduled_price_amount", null)
+                ("scheduled_price_amount", null),
+                ("has_drift_detected", false),
+                ("drift_checked_at", null),
+                ("drift_discrepancies", "[]")
             ]
         );
     }

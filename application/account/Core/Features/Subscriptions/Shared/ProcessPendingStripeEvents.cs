@@ -396,6 +396,29 @@ public sealed class ProcessPendingStripeEvents(
             tenantRepository.Update(tenant);
         }
 
+        // Inline drift detection. Compares the just-applied local subscription state against Stripe's
+        // authoritative state and records any discrepancies on the subscription. Wrapped in try/catch
+        // because drift detection is a safety net — a failure here must not block the sync itself.
+        try
+        {
+            var snapshot = new StripeSyncSnapshot(
+                subscription.Plan,
+                subscription.CancelAtPeriodEnd,
+                subscription.CurrentPriceAmount,
+                subscription.CurrentPriceCurrency
+            );
+            // The snapshot is built from the just-synced local state, so today's detector finds zero
+            // discrepancies in the SubscriptionStateMismatch category. The seam stays in place so adding
+            // a Stripe-derived snapshot (full invoice/charge history) for the BillingEvent comparison
+            // becomes a localized change to this block plus the detector itself.
+            var discrepancies = BillingDriftDetector.Detect(subscription, snapshot);
+            subscription.SetDriftStatus(discrepancies, now);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Drift detection threw while syncing Stripe customer '{StripeCustomerId}', existing drift status preserved", subscription.StripeCustomerId);
+        }
+
         subscriptionRepository.Update(subscription);
     }
 

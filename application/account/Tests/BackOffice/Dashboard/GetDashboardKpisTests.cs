@@ -162,7 +162,10 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
                 ("cancellation_feedback", null),
                 ("payment_transactions", paymentTransactionsJson),
                 ("payment_method", null),
-                ("billing_info", null)
+                ("billing_info", null),
+                ("has_drift_detected", false),
+                ("drift_checked_at", null),
+                ("drift_discrepancies", "[]")
             ]
         );
     }

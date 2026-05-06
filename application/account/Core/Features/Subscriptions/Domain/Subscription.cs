@@ -34,6 +34,7 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         TenantId = tenantId;
         Plan = SubscriptionPlan.Basis;
         PaymentTransactions = ImmutableArray<PaymentTransaction>.Empty;
+        DriftDiscrepancies = ImmutableArray<DriftDiscrepancy>.Empty;
     }
 
     public SubscriptionPlan Plan { get; private set; }
@@ -67,6 +68,12 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     public PaymentMethod? PaymentMethod { get; private set; }
 
     public BillingInfo? BillingInfo { get; private set; }
+
+    public bool HasDriftDetected { get; private set; }
+
+    public DateTimeOffset? DriftCheckedAt { get; private set; }
+
+    public ImmutableArray<DriftDiscrepancy> DriftDiscrepancies { get; private set; }
 
     public TenantId TenantId { get; }
 
@@ -157,6 +164,20 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     {
         return StripeSubscriptionId is not null && Plan != SubscriptionPlan.Basis && !CancelAtPeriodEnd;
     }
+
+    public void SetDriftStatus(ImmutableArray<DriftDiscrepancy> discrepancies, DateTimeOffset checkedAt)
+    {
+        DriftDiscrepancies = discrepancies;
+        HasDriftDetected = !discrepancies.IsDefaultOrEmpty;
+        DriftCheckedAt = checkedAt;
+    }
+
+    public void AcknowledgeDrift(DateTimeOffset acknowledgedAt)
+    {
+        // Manual override clears the flag but preserves the discrepancy list for audit.
+        HasDriftDetected = false;
+        DriftCheckedAt = acknowledgedAt;
+    }
 }
 
 [PublicAPI]
@@ -187,3 +208,29 @@ public sealed record PaymentTransaction(
     string? CreditNoteUrl,
     SubscriptionPlan? Plan = null
 );
+
+[PublicAPI]
+public sealed record DriftDiscrepancy(
+    DriftDiscrepancyKind Kind,
+    string Description,
+    DriftSeverity Severity,
+    BillingEventType? ExpectedEventType = null,
+    string? ExpectedValue = null,
+    string? ActualValue = null
+);
+
+[PublicAPI]
+public enum DriftDiscrepancyKind
+{
+    MissingEvent,
+    ExtraEvent,
+    FieldDisagree,
+    SubscriptionStateMismatch
+}
+
+[PublicAPI]
+public enum DriftSeverity
+{
+    Warning,
+    Critical
+}
