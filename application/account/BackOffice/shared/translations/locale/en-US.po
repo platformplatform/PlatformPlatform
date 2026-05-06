@@ -129,6 +129,9 @@ msgstr "Activity"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All event types"
+msgstr "All event types"
+
 msgid "All-time"
 msgstr "All-time"
 
@@ -167,11 +170,17 @@ msgstr "BackOffice overview · {today}"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Billing"
+msgstr "Billing"
+
 msgid "Billing address"
 msgstr "Billing address"
 
 msgid "Billing events"
 msgstr "Billing events"
+
+msgid "Billing history"
+msgstr "Billing history"
 
 msgid "Billing info added"
 msgstr "Billing info added"
@@ -291,9 +300,6 @@ msgstr "Email pending"
 
 msgid "Event"
 msgstr "Event"
-
-msgid "Event type"
-msgstr "Event type"
 
 msgid "Exceptions"
 msgstr "Exceptions"
@@ -449,6 +455,9 @@ msgstr "No back-office access"
 msgid "No billing address on file."
 msgstr "No billing address on file."
 
+msgid "No billing events"
+msgstr "No billing events"
+
 msgid "No billing events match your filters"
 msgstr "No billing events match your filters"
 
@@ -466,6 +475,12 @@ msgstr "No exceptions"
 
 msgid "No exceptions recorded for this user yet."
 msgstr "No exceptions recorded for this user yet."
+
+msgid "No invoices"
+msgstr "No invoices"
+
+msgid "No invoices yet."
+msgstr "No invoices yet."
 
 msgid "No login history"
 msgstr "No login history"
@@ -490,12 +505,6 @@ msgstr "No page views recorded for this user yet."
 
 msgid "No paid plan yet."
 msgstr "No paid plan yet."
-
-msgid "No payments"
-msgstr "No payments"
-
-msgid "No payments yet."
-msgstr "No payments yet."
 
 msgid "No plan"
 msgstr "No plan"
@@ -559,9 +568,6 @@ msgstr "Page views"
 
 msgid "Payment failed"
 msgstr "Payment failed"
-
-msgid "Payment history"
-msgstr "Payment history"
 
 msgid "Payment method updated"
 msgstr "Payment method updated"
@@ -711,6 +717,9 @@ msgstr "Subscription canceled"
 
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 msgstr "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
+
+msgid "Subscription, payment, and billing transitions will appear here."
+msgstr "Subscription, payment, and billing transitions will appear here."
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Subscriptions, upgrades, and cancellations will appear here."

@@ -1,0 +1,97 @@
+import {
+  ArrowDownRightIcon,
+  ArrowUpRightIcon,
+  CalendarClockIcon,
+  CircleAlertIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+  CreditCardIcon,
+  PauseCircleIcon,
+  RefreshCwIcon,
+  ReplyIcon,
+  RotateCcwIcon,
+  WalletIcon
+} from "lucide-react";
+
+import { BillingEventType } from "@/shared/lib/api/client";
+
+export interface BillingEventVariant {
+  className: string;
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
+}
+
+/**
+ * Centralised badge styling for the BillingEventType enum. Used by the dashboard "Recent Stripe events"
+ * card and the /billing-events table so the colour and icon are consistent everywhere a billing event is
+ * surfaced.
+ */
+export const BILLING_EVENT_VARIANT: Record<BillingEventType, BillingEventVariant> = {
+  [BillingEventType.SubscriptionCreated]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: CircleCheckIcon
+  },
+  [BillingEventType.SubscriptionRenewed]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: RefreshCwIcon
+  },
+  [BillingEventType.SubscriptionUpgraded]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: ArrowUpRightIcon
+  },
+  [BillingEventType.SubscriptionDowngradeScheduled]: {
+    className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    icon: CalendarClockIcon
+  },
+  [BillingEventType.SubscriptionDowngradeCancelled]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: RotateCcwIcon
+  },
+  [BillingEventType.SubscriptionDowngraded]: {
+    className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    icon: ArrowDownRightIcon
+  },
+  [BillingEventType.SubscriptionCancelled]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleXIcon
+  },
+  [BillingEventType.SubscriptionReactivated]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: ReplyIcon
+  },
+  [BillingEventType.SubscriptionExpired]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleXIcon
+  },
+  [BillingEventType.SubscriptionImmediatelyCancelled]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleXIcon
+  },
+  [BillingEventType.SubscriptionSuspended]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: PauseCircleIcon
+  },
+  [BillingEventType.PaymentFailed]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleAlertIcon
+  },
+  [BillingEventType.PaymentRecovered]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: CircleCheckIcon
+  },
+  [BillingEventType.PaymentRefunded]: {
+    className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    icon: ArrowDownRightIcon
+  },
+  [BillingEventType.BillingInfoAdded]: {
+    className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    icon: WalletIcon
+  },
+  [BillingEventType.BillingInfoUpdated]: {
+    className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    icon: WalletIcon
+  },
+  [BillingEventType.PaymentMethodUpdated]: {
+    className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    icon: CreditCardIcon
+  }
+};

@@ -52,7 +52,7 @@ export function UsersTableRow({
       <TableCell className="hidden lg:table-cell">
         {user.lastSeenAt ? (
           <div className="flex flex-col leading-tight">
-            <SmartDateTime date={user.lastSeenAt} />
+            <SmartDateTime date={user.lastSeenAt} withTime={true} />
             <span className="text-xs text-muted-foreground">{formatDate(user.lastSeenAt, true)}</span>
           </div>
         ) : (

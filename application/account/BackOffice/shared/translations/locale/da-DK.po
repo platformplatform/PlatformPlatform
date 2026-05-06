@@ -129,6 +129,9 @@ msgstr "Aktivitet"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All event types"
+msgstr ""
+
 msgid "All-time"
 msgstr "Samlet"
 
@@ -167,11 +170,17 @@ msgstr "BackOffice oversigt · {today}"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Billing"
+msgstr "Fakturering"
+
 msgid "Billing address"
 msgstr "Faktureringsadresse"
 
 msgid "Billing events"
 msgstr "Faktureringshændelser"
+
+msgid "Billing history"
+msgstr "Faktureringshistorik"
 
 msgid "Billing info added"
 msgstr "Faktureringsoplysninger tilføjet"
@@ -291,9 +300,6 @@ msgstr "E-mail afventer"
 
 msgid "Event"
 msgstr "Hændelse"
-
-msgid "Event type"
-msgstr "Hændelsestype"
 
 msgid "Exceptions"
 msgstr "Fejl"
@@ -449,6 +455,9 @@ msgstr "Ingen adgang til Back Office"
 msgid "No billing address on file."
 msgstr "Ingen faktureringsadresse registreret."
 
+msgid "No billing events"
+msgstr ""
+
 msgid "No billing events match your filters"
 msgstr "Ingen faktureringshændelser matcher dine filtre"
 
@@ -466,6 +475,12 @@ msgstr "Ingen fejl"
 
 msgid "No exceptions recorded for this user yet."
 msgstr "Ingen fejl registreret for denne bruger endnu."
+
+msgid "No invoices"
+msgstr "Ingen fakturaer"
+
+msgid "No invoices yet."
+msgstr "Ingen fakturaer endnu."
 
 msgid "No login history"
 msgstr "Ingen login-historik"
@@ -490,12 +505,6 @@ msgstr "Ingen sidevisninger registreret for denne bruger endnu."
 
 msgid "No paid plan yet."
 msgstr "Intet betalt abonnement endnu."
-
-msgid "No payments"
-msgstr "Ingen betalinger"
-
-msgid "No payments yet."
-msgstr "Ingen betalinger endnu."
 
 msgid "No plan"
 msgstr "Intet abonnement"
@@ -559,9 +568,6 @@ msgstr "Sidevisninger"
 
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
-
-msgid "Payment history"
-msgstr "Betalingshistorik"
 
 msgid "Payment method updated"
 msgstr "Betalingsmetode opdateret"
@@ -711,6 +717,9 @@ msgstr "Abonnement opsagt"
 
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 msgstr "Abonnements-, betalings- og faktureringsændringer vises her, når Stripe-webhooks behandles."
+
+msgid "Subscription, payment, and billing transitions will appear here."
+msgstr ""
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."

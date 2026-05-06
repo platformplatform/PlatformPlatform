@@ -1,10 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@repo/ui/components/InputGroup";
-import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
+import { MultiSelect } from "@repo/ui/components/MultiSelect";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useNavigate } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { SortableBillingEventProperties } from "@/shared/lib/api/client";
 
@@ -16,15 +16,26 @@ interface BillingEventsToolbarProps {
   eventTypes: BillingEventType[];
 }
 
-// Curated subset of the 17 BillingEventType values surfaced as quick-filter chips. The remaining values
-// (BillingInfo*, PaymentMethodUpdated, etc.) are still returned by the API and visible in the table; they
-// just aren't first-class quick filters because operators rarely scope to those alone.
-const QUICK_FILTER_TYPES = [
+// Order matches the BillingEventType enum so the dropdown reads in the same lifecycle order operators
+// see in our domain log (creation → renewal → upgrade → downgrade → cancellation → payment).
+const ALL_EVENT_TYPES: BillingEventType[] = [
   BillingEventType.SubscriptionCreated,
+  BillingEventType.SubscriptionRenewed,
   BillingEventType.SubscriptionUpgraded,
+  BillingEventType.SubscriptionDowngradeScheduled,
+  BillingEventType.SubscriptionDowngradeCancelled,
   BillingEventType.SubscriptionDowngraded,
   BillingEventType.SubscriptionCancelled,
-  BillingEventType.PaymentFailed
+  BillingEventType.SubscriptionReactivated,
+  BillingEventType.SubscriptionExpired,
+  BillingEventType.SubscriptionImmediatelyCancelled,
+  BillingEventType.SubscriptionSuspended,
+  BillingEventType.PaymentFailed,
+  BillingEventType.PaymentRecovered,
+  BillingEventType.PaymentRefunded,
+  BillingEventType.BillingInfoAdded,
+  BillingEventType.BillingInfoUpdated,
+  BillingEventType.PaymentMethodUpdated
 ];
 
 export function BillingEventsToolbar({ search, eventTypes }: Readonly<BillingEventsToolbarProps>) {
@@ -51,6 +62,11 @@ export function BillingEventsToolbar({ search, eventTypes }: Readonly<BillingEve
   useEffect(() => {
     setSearchInput(search ?? "");
   }, [search]);
+
+  const eventTypeItems = useMemo(
+    () => ALL_EVENT_TYPES.map((value) => ({ id: value, label: getBillingEventTypeLabel(value) })),
+    []
+  );
 
   const handleEventTypesChange = (values: string[]) => {
     const next = values as BillingEventType[];
@@ -92,19 +108,15 @@ export function BillingEventsToolbar({ search, eventTypes }: Readonly<BillingEve
         </InputGroup>
       </div>
 
-      <ToggleGroup
-        variant="outline"
-        aria-label={t`Event type`}
-        multiple={true}
-        value={eventTypes}
-        onValueChange={handleEventTypesChange}
-      >
-        {QUICK_FILTER_TYPES.map((value) => (
-          <ToggleGroupItem key={value} value={value} className="min-w-[5rem] justify-center">
-            {getBillingEventTypeLabel(value)}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <div className="min-w-[12rem]">
+        <MultiSelect
+          name="event-types"
+          placeholder={t`All event types`}
+          items={eventTypeItems}
+          value={eventTypes}
+          onChange={handleEventTypesChange}
+        />
+      </div>
     </div>
   );
 }

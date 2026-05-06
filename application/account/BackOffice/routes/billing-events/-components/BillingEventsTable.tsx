@@ -72,6 +72,13 @@ export function BillingEventsTable({
     [navigate, orderBy, sortOrder]
   );
 
+  const handleRowClick = useCallback(
+    (tenantId: string) => {
+      navigate({ to: "/accounts/$tenantId", params: { tenantId } });
+    },
+    [navigate]
+  );
+
   if (isLoading && billingEvents.length === 0) {
     return (
       <div className="flex flex-1 flex-col gap-2 p-2">
@@ -91,7 +98,7 @@ export function BillingEventsTable({
           <BillingEventsTableColumnHeaders orderBy={orderBy} sortOrder={sortOrder} onSort={handleSort} />
           <TableBody>
             {billingEvents.map((event) => (
-              <BillingEventsTableRow key={event.id} event={event} formatDate={formatDate} />
+              <BillingEventsTableRow key={event.id} event={event} formatDate={formatDate} onRowClick={handleRowClick} />
             ))}
           </TableBody>
         </Table>

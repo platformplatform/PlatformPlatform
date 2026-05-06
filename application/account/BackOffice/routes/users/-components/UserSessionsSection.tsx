@@ -76,7 +76,7 @@ export function UserSessionsSection({ userId }: Readonly<UserSessionsSectionProp
               return (
                 <TableRow key={session.id}>
                   <TableCell>
-                    <SmartDateTime date={session.lastActiveAt ?? session.createdAt} />
+                    <SmartDateTime date={session.lastActiveAt ?? session.createdAt} withTime={true} />
                   </TableCell>
                   <TableCell>
                     <div className="flex min-w-0 items-center gap-2">

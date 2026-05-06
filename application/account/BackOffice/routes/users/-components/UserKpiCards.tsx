@@ -57,7 +57,7 @@ export function UserKpiCards({ user, userId, isLoading }: Readonly<UserKpiCardsP
         subtitle={user?.lastSeenAt ? <Trans>Most recent activity</Trans> : <Trans>Never logged in</Trans>}
       >
         <span className="text-base font-semibold">
-          {user?.lastSeenAt ? <SmartDateTime date={user.lastSeenAt} /> : "-"}
+          {user?.lastSeenAt ? <SmartDateTime date={user.lastSeenAt} withTime={true} /> : "-"}
         </span>
       </KpiCard>
     </div>

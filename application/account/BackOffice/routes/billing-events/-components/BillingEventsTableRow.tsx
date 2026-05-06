@@ -7,26 +7,36 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import type { components } from "@/shared/lib/api/client";
 
 import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
 type BillingEventSummary = components["schemas"]["BillingEventSummary"];
 
 export function BillingEventsTableRow({
   event,
-  formatDate
+  formatDate,
+  onRowClick
 }: Readonly<{
   event: BillingEventSummary;
   formatDate: (value: string | null | undefined) => string;
+  onRowClick: (tenantId: string) => void;
 }>) {
+  const variant = BILLING_EVENT_VARIANT[event.eventType];
+  const Icon = variant.icon;
+  const isNegativeAmount = event.amountDelta != null && event.amountDelta < 0;
+
   return (
-    <TableRow rowKey={event.id}>
+    <TableRow rowKey={event.id} onClick={() => onRowClick(String(event.tenantId))} className="cursor-pointer">
       <TableCell>
         <div className="flex min-w-0 items-center gap-3">
-          <TenantLogo logoUrl={event.tenantLogoUrl} tenantName={event.tenantName} size="sm" className="size-8" />
+          <TenantLogo logoUrl={event.tenantLogoUrl} tenantName={event.tenantName} size="md" className="size-10" />
           <span className="truncate font-medium text-foreground">{event.tenantName}</span>
         </div>
       </TableCell>
       <TableCell>
-        <Badge variant="outline">{getBillingEventTypeLabel(event.eventType)}</Badge>
+        <Badge variant="outline" className={`gap-1 text-xs ${variant.className}`}>
+          <Icon className="size-3" aria-hidden={true} />
+          {getBillingEventTypeLabel(event.eventType)}
+        </Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">
         {event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan ? (
@@ -39,7 +49,9 @@ export function BillingEventsTableRow({
           <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className="hidden tabular-nums md:table-cell">
+      <TableCell
+        className={`hidden whitespace-nowrap tabular-nums md:table-cell ${isNegativeAmount ? "text-rose-500" : ""}`}
+      >
         {event.amountDelta != null && event.currency ? (
           formatCurrency(event.amountDelta, event.currency)
         ) : (
@@ -56,7 +68,9 @@ export function BillingEventsTableRow({
           <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className="text-sm text-muted-foreground tabular-nums">{formatDate(event.occurredAt)}</TableCell>
+      <TableCell className="text-sm whitespace-nowrap text-muted-foreground tabular-nums">
+        {formatDate(event.occurredAt)}
+      </TableCell>
     </TableRow>
   );
 }

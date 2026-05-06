@@ -14,6 +14,7 @@ public sealed record GetBackOfficeBillingEventsQuery(
     BillingEventType[]? EventTypes = null,
     DateTimeOffset? OccurredFrom = null,
     DateTimeOffset? OccurredTo = null,
+    TenantId? TenantId = null,
     SortableBillingEventProperties OrderBy = SortableBillingEventProperties.OccurredAt,
     SortOrder SortOrder = SortOrder.Descending,
     int PageOffset = 0,
@@ -75,6 +76,11 @@ public sealed class GetBackOfficeBillingEventsHandler(
     public async Task<Result<BillingEventsResponse>> Handle(GetBackOfficeBillingEventsQuery query, CancellationToken cancellationToken)
     {
         var billingEvents = await billingEventRepository.SearchAllUnfilteredAsync(query.EventTypes, query.OccurredFrom, query.OccurredTo, cancellationToken);
+
+        if (query.TenantId is not null)
+        {
+            billingEvents = billingEvents.Where(e => e.TenantId == query.TenantId).ToArray();
+        }
 
         var tenantIds = billingEvents.Select(e => e.TenantId).Distinct().ToArray();
         var tenants = tenantIds.Length == 0

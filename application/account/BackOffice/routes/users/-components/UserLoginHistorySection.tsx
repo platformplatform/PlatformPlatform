@@ -60,7 +60,7 @@ export function UserLoginHistorySection({ userId }: Readonly<UserLoginHistorySec
             {data.entries.map((entry, index) => (
               <TableRow key={`${entry.kind}-${entry.occurredAt}-${index}`}>
                 <TableCell>
-                  <SmartDateTime date={entry.occurredAt} />
+                  <SmartDateTime date={entry.occurredAt} withTime={true} />
                 </TableCell>
                 <TableCell>{getLoginMethodLabel(entry.method)}</TableCell>
                 <TableCell>

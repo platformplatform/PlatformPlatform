@@ -4,7 +4,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/Tabs";
 import { createFileRoute } from "@tanstack/react-router";
-import { LayoutGridIcon, UsersIcon } from "lucide-react";
+import { LayoutGridIcon, ReceiptIcon, UsersIcon } from "lucide-react";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
 import { api } from "@/shared/lib/api/client";
@@ -52,6 +52,10 @@ function AccountDetailPage() {
                   <UsersIcon className="size-4" />
                   {totalUsers === undefined ? <Trans>Users</Trans> : <Trans>Users ({totalUsers})</Trans>}
                 </TabsTrigger>
+                <TabsTrigger value="billing">
+                  <ReceiptIcon className="size-4" />
+                  <Trans>Billing</Trans>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="overview" className="flex flex-col gap-6">
                 <AccountOverviewTab tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
@@ -60,12 +64,15 @@ function AccountDetailPage() {
                     <AccountCurrentPlanCard tenant={tenant} isLoading={tenantQuery.isLoading} />
                   </div>
                   <div className="lg:col-span-3">
-                    <AccountBillingTab tenantId={tenantId} />
+                    <AccountBillingTab tenantId={tenantId} variant="compact" />
                   </div>
                 </div>
               </TabsContent>
               <TabsContent value="users">
                 <AccountUsersTab tenantId={tenantId} />
+              </TabsContent>
+              <TabsContent value="billing">
+                <AccountBillingTab tenantId={tenantId} variant="full" />
               </TabsContent>
             </Tabs>
           </div>

@@ -59,7 +59,7 @@ export function DashboardRecentSignupsCard() {
                 params={{ tenantId: String(signup.tenantId) }}
                 className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent active:bg-accent"
               >
-                <TenantLogo logoUrl={signup.tenantLogoUrl} tenantName={signup.name} size="sm" />
+                <TenantLogo logoUrl={signup.tenantLogoUrl} tenantName={signup.name} size="md" className="size-10" />
                 <div className="flex flex-1 flex-col">
                   <span className="text-sm font-medium">{signup.name}</span>
                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
