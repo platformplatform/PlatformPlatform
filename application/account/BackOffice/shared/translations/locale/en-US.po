@@ -476,11 +476,8 @@ msgstr "No exceptions"
 msgid "No exceptions recorded for this user yet."
 msgstr "No exceptions recorded for this user yet."
 
-msgid "No invoices"
-msgstr "No invoices"
-
-msgid "No invoices yet."
-msgstr "No invoices yet."
+msgid "No invoices, refunds, or credit notes yet."
+msgstr "No invoices, refunds, or credit notes yet."
 
 msgid "No login history"
 msgstr "No login history"
@@ -523,6 +520,9 @@ msgstr "No sessions"
 
 msgid "No sign-in attempts in the last 30 days."
 msgstr "No sign-in attempts in the last 30 days."
+
+msgid "No transactions"
+msgstr "No transactions"
 
 msgid "No users"
 msgstr "No users"
@@ -819,6 +819,12 @@ msgstr "View accounts"
 
 msgid "View all"
 msgstr "View all"
+
+msgid "View all {totalEvents} events"
+msgstr "View all {totalEvents} events"
+
+msgid "View all {totalTransactions} transactions"
+msgstr "View all {totalTransactions} transactions"
 
 msgid "vs prior period"
 msgstr "vs prior period"

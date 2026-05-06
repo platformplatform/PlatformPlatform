@@ -74,7 +74,7 @@ export function BillingEventsTable({
 
   const handleRowClick = useCallback(
     (tenantId: string) => {
-      navigate({ to: "/accounts/$tenantId", params: { tenantId } });
+      navigate({ to: "/accounts/$tenantId", params: { tenantId }, search: { tab: "billing" } });
     },
     [navigate]
   );

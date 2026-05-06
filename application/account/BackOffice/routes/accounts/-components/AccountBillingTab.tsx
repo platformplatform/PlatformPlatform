@@ -1,11 +1,13 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Button } from "@repo/ui/components/Button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { keepPreviousData } from "@tanstack/react-query";
+import { ArrowRightIcon } from "lucide-react";
 import { useState } from "react";
 
 import { api } from "@/shared/lib/api/client";
@@ -20,9 +22,11 @@ interface AccountBillingTabProps {
    * `full` — Billing tab: full pageable list of events and invoices.
    */
   variant?: "compact" | "full";
+  /** Click handler for the "View all" links rendered in compact mode. */
+  onViewAll?: () => void;
 }
 
-export function AccountBillingTab({ tenantId, variant = "compact" }: Readonly<AccountBillingTabProps>) {
+export function AccountBillingTab({ tenantId, variant = "compact", onViewAll }: Readonly<AccountBillingTabProps>) {
   const formatDate = useFormatDate();
   const [pageOffset, setPageOffset] = useState(0);
 
@@ -56,24 +60,28 @@ export function AccountBillingTab({ tenantId, variant = "compact" }: Readonly<Ac
   const totalPages = data?.totalPages ?? 0;
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
   const billingEvents = eventsQuery.data?.billingEvents ?? [];
+  const totalEvents = eventsQuery.data?.totalCount ?? 0;
+  const totalTransactions = data?.totalCount ?? 0;
 
   return (
     <section className="flex h-full flex-col gap-6">
       <div className="flex flex-col">
-        <h4 className="mb-3">
-          <Trans>Billing events</Trans>
-        </h4>
-        <AccountBillingHistorySection
-          events={billingEvents}
-          isLoading={eventsQuery.isLoading}
-          maxItems={eventsMaxItems}
-        />
-      </div>
-
-      <div className="flex min-h-0 flex-1 flex-col">
-        <h4 className="mb-3">
-          <Trans>Billing history</Trans>
-        </h4>
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <h4>
+            <Trans>Billing history</Trans>
+          </h4>
+          {isCompact && onViewAll && totalTransactions > 0 && (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={onViewAll}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Trans>View all {totalTransactions} transactions</Trans>
+              <ArrowRightIcon className="size-3.5" aria-hidden={true} />
+            </Button>
+          )}
+        </div>
         {isLoading && transactions.length === 0 ? (
           <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-2">
             {Array.from({ length: isCompact ? 1 : 5 }).map((_, index) => (
@@ -84,15 +92,15 @@ export function AccountBillingTab({ tenantId, variant = "compact" }: Readonly<Ac
           <Empty className="border bg-card">
             <EmptyHeader>
               <EmptyTitle>
-                <Trans>No invoices</Trans>
+                <Trans>No transactions</Trans>
               </EmptyTitle>
               <EmptyDescription>
-                <Trans>No invoices yet.</Trans>
+                <Trans>No invoices, refunds, or credit notes yet.</Trans>
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (
-          <div className="flex min-h-0 flex-1 overflow-y-auto">
+          <div className="flex flex-col">
             <Table rowSize="compact" aria-label={t`Billing history`} stickyHeader={true}>
               <TableHeader>
                 <TableRow>
@@ -133,6 +141,30 @@ export function AccountBillingTab({ tenantId, variant = "compact" }: Readonly<Ac
             />
           </div>
         )}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="mb-3 flex items-baseline justify-between gap-3">
+          <h4>
+            <Trans>Billing events</Trans>
+          </h4>
+          {isCompact && onViewAll && totalEvents > 0 && (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={onViewAll}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Trans>View all {totalEvents} events</Trans>
+              <ArrowRightIcon className="size-3.5" aria-hidden={true} />
+            </Button>
+          )}
+        </div>
+        <AccountBillingHistorySection
+          events={billingEvents}
+          isLoading={eventsQuery.isLoading}
+          maxItems={eventsMaxItems}
+        />
       </div>
     </section>
   );

@@ -67,6 +67,7 @@ export function DashboardRecentStripeEventsCard() {
                 <Link
                   to="/accounts/$tenantId"
                   params={{ tenantId: String(event.tenantId) }}
+                  search={{ tab: "billing" }}
                   className="-mx-2 grid grid-cols-[auto_minmax(0,9rem)_auto_minmax(0,1fr)_auto_auto] items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent active:bg-accent"
                 >
                   <TenantLogo

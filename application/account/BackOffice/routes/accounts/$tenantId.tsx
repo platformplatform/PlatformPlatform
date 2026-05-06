@@ -3,8 +3,10 @@ import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/Tabs";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { LayoutGridIcon, ReceiptIcon, UsersIcon } from "lucide-react";
+import { useCallback } from "react";
+import { z } from "zod";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
 import { api } from "@/shared/lib/api/client";
@@ -16,13 +18,34 @@ import { AccountKpiCards } from "./-components/AccountKpiCards";
 import { AccountOverviewTab } from "./-components/AccountOverviewTab";
 import { AccountUsersTab } from "./-components/AccountUsersTab";
 
+type AccountDetailTab = "overview" | "users" | "billing";
+
+const accountDetailSearchSchema = z.object({
+  tab: z.enum(["overview", "users", "billing"]).optional()
+});
+
 export const Route = createFileRoute("/accounts/$tenantId")({
   staticData: { trackingTitle: "Account detail" },
+  validateSearch: accountDetailSearchSchema,
   component: AccountDetailPage
 });
 
 function AccountDetailPage() {
   const { tenantId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const activeTab = tab ?? "overview";
+
+  const setActiveTab = useCallback(
+    (value: string) => {
+      const next = value as AccountDetailTab;
+      navigate({
+        search: { tab: next === "overview" ? undefined : next },
+        replace: true
+      });
+    },
+    [navigate]
+  );
 
   const tenantQuery = api.useQuery("get", "/api/back-office/tenants/{id}", {
     params: { path: { id: tenantId } }
@@ -42,7 +65,7 @@ function AccountDetailPage() {
           <div className="flex flex-col gap-6">
             <AccountDetailHeader tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
             <AccountKpiCards tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
-            <Tabs defaultValue="overview">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList>
                 <TabsTrigger value="overview">
                   <LayoutGridIcon className="size-4" />
@@ -64,7 +87,11 @@ function AccountDetailPage() {
                     <AccountCurrentPlanCard tenant={tenant} isLoading={tenantQuery.isLoading} />
                   </div>
                   <div className="lg:col-span-3">
-                    <AccountBillingTab tenantId={tenantId} variant="compact" />
+                    <AccountBillingTab
+                      tenantId={tenantId}
+                      variant="compact"
+                      onViewAll={() => setActiveTab("billing")}
+                    />
                   </div>
                 </div>
               </TabsContent>
