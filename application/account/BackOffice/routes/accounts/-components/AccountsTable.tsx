@@ -72,7 +72,11 @@ export function AccountsTable({
       navigate({
         to: "/accounts",
         search: (previous) => ({
-          ...previous,
+          search: previous.search,
+          plans: previous.plans,
+          statuses: previous.statuses,
+          orderBy: previous.orderBy as SortableTenantProperties | undefined,
+          sortOrder: previous.sortOrder,
           pageOffset: page === 1 ? undefined : page - 1
         })
       });
@@ -87,7 +91,9 @@ export function AccountsTable({
       navigate({
         to: "/accounts",
         search: (previous) => ({
-          ...previous,
+          search: previous.search,
+          plans: previous.plans,
+          statuses: previous.statuses,
           orderBy: column,
           sortOrder: nextOrder === SortOrder.Ascending ? undefined : nextOrder,
           pageOffset: undefined

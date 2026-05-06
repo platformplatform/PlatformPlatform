@@ -133,6 +133,9 @@ msgstr "Der opstod en uventet fejl ved behandlingen."
 msgid "App Insights · Telemetry"
 msgstr "App Insights · Telemetri"
 
+msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
+msgstr "Autoritativ log over abonnements-, betalings- og faktureringsændringer på tværs af alle konti."
+
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -153,6 +156,9 @@ msgstr "Basis"
 
 msgid "Billing address"
 msgstr "Faktureringsadresse"
+
+msgid "Billing events"
+msgstr "Faktureringshændelser"
 
 msgid "Billing info added"
 msgstr "Faktureringsoplysninger tilføjet"
@@ -266,6 +272,12 @@ msgstr "E-mail bekræftet"
 
 msgid "Email pending"
 msgstr "E-mail afventer"
+
+msgid "Event"
+msgstr "Hændelse"
+
+msgid "Event type"
+msgstr "Hændelsestype"
 
 msgid "Exceptions"
 msgstr "Fejl"
@@ -421,6 +433,12 @@ msgstr "Ingen adgang til Back Office"
 msgid "No billing address on file."
 msgstr "Ingen faktureringsadresse registreret."
 
+msgid "No billing events match your filters"
+msgstr "Ingen faktureringshændelser matcher dine filtre"
+
+msgid "No billing events yet"
+msgstr "Ingen faktureringshændelser endnu"
+
 msgid "No custom events"
 msgstr "Ingen brugerdefinerede hændelser"
 
@@ -483,6 +501,9 @@ msgstr "Ingen brugere matcher dine filtre."
 
 msgid "No users match your search"
 msgstr "Ingen brugere matcher din søgning"
+
+msgid "Occurred"
+msgstr "Tidspunkt"
 
 msgid "One-time password"
 msgstr "Engangskode"
@@ -547,6 +568,9 @@ msgstr "Abonnement og omsætning"
 msgid "Plan distribution"
 msgstr "Plan-fordeling"
 
+msgid "Plan transition"
+msgstr "Abonnementsændring"
+
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -608,6 +632,9 @@ msgstr "Skærmbilleder af dashboard-projektet i desktop- og mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
+msgid "Search by account name"
+msgstr "Søg efter kontonavn"
+
 msgid "Search by email, name, or account"
 msgstr "Søg på e-mail, navn eller konto"
 
@@ -659,6 +686,9 @@ msgstr "Abonneret siden"
 
 msgid "Subscription canceled"
 msgstr "Abonnement opsagt"
+
+msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
+msgstr "Abonnements-, betalings- og faktureringsændringer vises her, når Stripe-webhooks behandles."
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."

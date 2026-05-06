@@ -7,6 +7,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import type { SortableTenantProperties } from "@/shared/lib/api/client";
+
 import { SubscriptionPlan, TenantStatusFilter } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
@@ -27,7 +29,14 @@ export function AccountsToolbar({ search, plans, statuses }: Readonly<AccountsTo
     }
     navigate({
       to: "/accounts",
-      search: (previous) => ({ ...previous, search: debouncedSearch || undefined, pageOffset: undefined })
+      search: (previous) => ({
+        plans: previous.plans,
+        statuses: previous.statuses,
+        orderBy: previous.orderBy as SortableTenantProperties | undefined,
+        sortOrder: previous.sortOrder,
+        search: debouncedSearch || undefined,
+        pageOffset: undefined
+      })
     });
   }, [debouncedSearch, navigate, search]);
 
@@ -40,7 +49,10 @@ export function AccountsToolbar({ search, plans, statuses }: Readonly<AccountsTo
     navigate({
       to: "/accounts",
       search: (previous) => ({
-        ...previous,
+        search: previous.search,
+        statuses: previous.statuses,
+        orderBy: previous.orderBy as SortableTenantProperties | undefined,
+        sortOrder: previous.sortOrder,
         plans: next.length === 0 ? undefined : next,
         pageOffset: undefined
       })
@@ -52,7 +64,10 @@ export function AccountsToolbar({ search, plans, statuses }: Readonly<AccountsTo
     navigate({
       to: "/accounts",
       search: (previous) => ({
-        ...previous,
+        search: previous.search,
+        plans: previous.plans,
+        orderBy: previous.orderBy as SortableTenantProperties | undefined,
+        sortOrder: previous.sortOrder,
         statuses: next.length === 0 ? undefined : next,
         pageOffset: undefined
       })

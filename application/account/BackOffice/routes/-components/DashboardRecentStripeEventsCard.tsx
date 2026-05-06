@@ -110,7 +110,10 @@ export function DashboardRecentStripeEventsCard() {
     <DashboardCardShell
       title={<Trans>Recent Stripe events</Trans>}
       action={
-        <Link to="/accounts" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/billing-events"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
           <Trans>View all</Trans>
           <ArrowRightIcon className="size-3.5" aria-hidden="true" />
         </Link>

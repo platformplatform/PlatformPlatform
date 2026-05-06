@@ -13,7 +13,7 @@ import {
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { Building2Icon, FlagIcon, HomeIcon, LifeBuoyIcon, ListIcon, UsersIcon } from "lucide-react";
+import { Building2Icon, FlagIcon, HomeIcon, LifeBuoyIcon, ListIcon, UsersIcon, ZapIcon } from "lucide-react";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
@@ -24,6 +24,7 @@ export function BackOfficeSideMenu() {
   const currentPath = normalizePath(router.state.location.pathname);
   const isAccountsActive = currentPath === "/accounts" || currentPath.startsWith("/accounts/");
   const isUsersActive = currentPath === "/users" || currentPath.startsWith("/users/");
+  const isBillingEventsActive = currentPath === "/billing-events" || currentPath.startsWith("/billing-events/");
 
   return (
     <Sidebar collapsible="icon">
@@ -64,6 +65,16 @@ export function BackOfficeSideMenu() {
                       <UsersIcon />
                       <span>
                         <Trans>Users</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild={true} isActive={isBillingEventsActive} tooltip={t`Billing events`}>
+                    <RouterLink to="/billing-events">
+                      <ZapIcon />
+                      <span>
+                        <Trans>Billing events</Trans>
                       </span>
                     </RouterLink>
                   </SidebarMenuButton>

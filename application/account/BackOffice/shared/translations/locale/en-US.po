@@ -133,6 +133,9 @@ msgstr "An unexpected error occurred while processing your request."
 msgid "App Insights · Telemetry"
 msgstr "App Insights · Telemetry"
 
+msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
+msgstr "Authoritative log of subscription, payment, and billing transitions across all accounts."
+
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -153,6 +156,9 @@ msgstr "Basis"
 
 msgid "Billing address"
 msgstr "Billing address"
+
+msgid "Billing events"
+msgstr "Billing events"
 
 msgid "Billing info added"
 msgstr "Billing info added"
@@ -266,6 +272,12 @@ msgstr "Email confirmed"
 
 msgid "Email pending"
 msgstr "Email pending"
+
+msgid "Event"
+msgstr "Event"
+
+msgid "Event type"
+msgstr "Event type"
 
 msgid "Exceptions"
 msgstr "Exceptions"
@@ -421,6 +433,12 @@ msgstr "No back-office access"
 msgid "No billing address on file."
 msgstr "No billing address on file."
 
+msgid "No billing events match your filters"
+msgstr "No billing events match your filters"
+
+msgid "No billing events yet"
+msgstr "No billing events yet"
+
 msgid "No custom events"
 msgstr "No custom events"
 
@@ -483,6 +501,9 @@ msgstr "No users match your filters."
 
 msgid "No users match your search"
 msgstr "No users match your search"
+
+msgid "Occurred"
+msgstr "Occurred"
 
 msgid "One-time password"
 msgstr "One-time password"
@@ -547,6 +568,9 @@ msgstr "Plan & revenue"
 msgid "Plan distribution"
 msgstr "Plan distribution"
 
+msgid "Plan transition"
+msgstr "Plan transition"
+
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -608,6 +632,9 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 msgid "Search"
 msgstr "Search"
 
+msgid "Search by account name"
+msgstr "Search by account name"
+
 msgid "Search by email, name, or account"
 msgstr "Search by email, name, or account"
 
@@ -659,6 +686,9 @@ msgstr "Subscribed since"
 
 msgid "Subscription canceled"
 msgstr "Subscription canceled"
+
+msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
+msgstr "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Subscriptions, upgrades, and cancellations will appear here."
