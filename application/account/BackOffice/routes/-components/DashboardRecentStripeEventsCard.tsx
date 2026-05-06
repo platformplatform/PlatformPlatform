@@ -9,29 +9,94 @@ import {
   ArrowDownRightIcon,
   ArrowRightIcon,
   ArrowUpRightIcon,
+  CalendarClockIcon,
   CircleAlertIcon,
   CircleCheckIcon,
   CircleXIcon,
+  CreditCardIcon,
+  PauseCircleIcon,
+  RefreshCwIcon,
+  ReplyIcon,
+  RotateCcwIcon,
+  WalletIcon,
   ZapIcon
 } from "lucide-react";
 
-import type { StripeEventType } from "@/shared/lib/api/client";
-
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
-import { api } from "@/shared/lib/api/client";
-import { getStripeEventTypeLabel } from "@/shared/lib/api/labels";
+import { api, BillingEventType } from "@/shared/lib/api/client";
+import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 import { DashboardCardShell } from "./DashboardCardShell";
 
 const EVENT_VARIANT: Record<
-  StripeEventType,
+  BillingEventType,
   { className: string; icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }> }
 > = {
-  Subscribed: { className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", icon: CircleCheckIcon },
-  Upgraded: { className: "bg-sky-500/10 text-sky-500 border-sky-500/20", icon: ArrowUpRightIcon },
-  Downgraded: { className: "bg-amber-500/10 text-amber-500 border-amber-500/20", icon: ArrowDownRightIcon },
-  Canceled: { className: "bg-rose-500/10 text-rose-500 border-rose-500/20", icon: CircleXIcon },
-  PaymentFailed: { className: "bg-rose-500/10 text-rose-500 border-rose-500/20", icon: CircleAlertIcon }
+  [BillingEventType.SubscriptionCreated]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: CircleCheckIcon
+  },
+  [BillingEventType.SubscriptionRenewed]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: RefreshCwIcon
+  },
+  [BillingEventType.SubscriptionUpgraded]: {
+    className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    icon: ArrowUpRightIcon
+  },
+  [BillingEventType.SubscriptionDowngradeScheduled]: {
+    className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    icon: CalendarClockIcon
+  },
+  [BillingEventType.SubscriptionDowngradeCancelled]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: RotateCcwIcon
+  },
+  [BillingEventType.SubscriptionDowngraded]: {
+    className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    icon: ArrowDownRightIcon
+  },
+  [BillingEventType.SubscriptionCancelled]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleXIcon
+  },
+  [BillingEventType.SubscriptionReactivated]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: ReplyIcon
+  },
+  [BillingEventType.SubscriptionExpired]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleXIcon
+  },
+  [BillingEventType.SubscriptionImmediatelyCancelled]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleXIcon
+  },
+  [BillingEventType.SubscriptionSuspended]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: PauseCircleIcon
+  },
+  [BillingEventType.PaymentFailed]: {
+    className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+    icon: CircleAlertIcon
+  },
+  [BillingEventType.PaymentRecovered]: {
+    className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    icon: CircleCheckIcon
+  },
+  [BillingEventType.PaymentRefunded]: {
+    className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    icon: ArrowDownRightIcon
+  },
+  [BillingEventType.BillingInfoAdded]: { className: "bg-sky-500/10 text-sky-500 border-sky-500/20", icon: WalletIcon },
+  [BillingEventType.BillingInfoUpdated]: {
+    className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    icon: WalletIcon
+  },
+  [BillingEventType.PaymentMethodUpdated]: {
+    className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
+    icon: CreditCardIcon
+  }
 };
 
 export function DashboardRecentStripeEventsCard() {
@@ -87,12 +152,20 @@ export function DashboardRecentStripeEventsCard() {
                     <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Badge variant="outline" className={`gap-1 text-xs ${variant.className}`}>
                         <Icon className="size-3" aria-hidden="true" />
-                        {getStripeEventTypeLabel(event.type)}
+                        {getBillingEventTypeLabel(event.type)}
                       </Badge>
-                      {event.amount !== null && event.currency && (
+                      {event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan && (
                         <>
                           <span aria-hidden="true">·</span>
-                          <span>{formatCurrency(event.amount, event.currency)}</span>
+                          <span>
+                            {getSubscriptionPlanLabel(event.fromPlan)} → {getSubscriptionPlanLabel(event.toPlan)}
+                          </span>
+                        </>
+                      )}
+                      {event.amountDelta != null && event.currency && (
+                        <>
+                          <span aria-hidden="true">·</span>
+                          <span>{formatCurrency(event.amountDelta, event.currency)}</span>
                         </>
                       )}
                     </span>

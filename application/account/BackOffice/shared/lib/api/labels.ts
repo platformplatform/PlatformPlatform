@@ -1,11 +1,11 @@
 import { t } from "@lingui/core/macro";
 
 import {
+  BillingEventType,
   DeviceType,
   LoginMethod,
   PaymentTransactionStatus,
   PlannedSubscriptionChange,
-  StripeEventType,
   SubscriptionPlan,
   TenantState,
   UserRole
@@ -100,18 +100,42 @@ export function getLoginMethodLabel(method: LoginMethod): string {
   }
 }
 
-export function getStripeEventTypeLabel(type: StripeEventType): string {
+export function getBillingEventTypeLabel(type: BillingEventType): string {
   switch (type) {
-    case StripeEventType.Subscribed:
+    case BillingEventType.SubscriptionCreated:
       return t`Subscribed`;
-    case StripeEventType.Upgraded:
+    case BillingEventType.SubscriptionRenewed:
+      return t`Renewed`;
+    case BillingEventType.SubscriptionUpgraded:
       return t`Upgraded`;
-    case StripeEventType.Downgraded:
+    case BillingEventType.SubscriptionDowngradeScheduled:
+      return t`Downgrade scheduled`;
+    case BillingEventType.SubscriptionDowngradeCancelled:
+      return t`Downgrade cancelled`;
+    case BillingEventType.SubscriptionDowngraded:
       return t`Downgraded`;
-    case StripeEventType.Canceled:
-      return t`Canceled`;
-    case StripeEventType.PaymentFailed:
+    case BillingEventType.SubscriptionCancelled:
+      return t`Cancelled`;
+    case BillingEventType.SubscriptionReactivated:
+      return t`Reactivated`;
+    case BillingEventType.SubscriptionExpired:
+      return t`Expired`;
+    case BillingEventType.SubscriptionImmediatelyCancelled:
+      return t`Cancelled immediately`;
+    case BillingEventType.SubscriptionSuspended:
+      return t`Suspended`;
+    case BillingEventType.PaymentFailed:
       return t`Payment failed`;
+    case BillingEventType.PaymentRecovered:
+      return t`Payment recovered`;
+    case BillingEventType.PaymentRefunded:
+      return t`Payment refunded`;
+    case BillingEventType.BillingInfoAdded:
+      return t`Billing info added`;
+    case BillingEventType.BillingInfoUpdated:
+      return t`Billing info updated`;
+    case BillingEventType.PaymentMethodUpdated:
+      return t`Payment method updated`;
     default:
       return String(type);
   }

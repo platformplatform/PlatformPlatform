@@ -154,6 +154,12 @@ msgstr "Basis"
 msgid "Billing address"
 msgstr "Billing address"
 
+msgid "Billing info added"
+msgstr "Billing info added"
+
+msgid "Billing info updated"
+msgstr "Billing info updated"
+
 msgid "Blended MRR"
 msgstr "Blended MRR"
 
@@ -168,6 +174,12 @@ msgstr "Canceling"
 
 msgid "Cancellation"
 msgstr "Cancellation"
+
+msgid "Cancelled"
+msgstr "Cancelled"
+
+msgid "Cancelled immediately"
+msgstr "Cancelled immediately"
 
 msgid "Change language"
 msgstr "Change language"
@@ -234,6 +246,12 @@ msgstr "Desktop"
 msgid "Device"
 msgstr "Device"
 
+msgid "Downgrade cancelled"
+msgstr "Downgrade cancelled"
+
+msgid "Downgrade scheduled"
+msgstr "Downgrade scheduled"
+
 msgid "Downgraded"
 msgstr "Downgraded"
 
@@ -251,6 +269,9 @@ msgstr "Email pending"
 
 msgid "Exceptions"
 msgstr "Exceptions"
+
+msgid "Expired"
+msgstr "Expired"
 
 msgid "Failed"
 msgstr "Failed"
@@ -499,6 +520,15 @@ msgstr "Payment failed"
 msgid "Payment history"
 msgstr "Payment history"
 
+msgid "Payment method updated"
+msgstr "Payment method updated"
+
+msgid "Payment recovered"
+msgstr "Payment recovered"
+
+msgid "Payment refunded"
+msgstr "Payment refunded"
+
 msgid "Pending"
 msgstr "Pending"
 
@@ -535,6 +565,9 @@ msgstr "Previous"
 msgid "Prior period"
 msgstr "Prior period"
 
+msgid "Reactivated"
+msgstr "Reactivated"
+
 msgid "Recent active and historical sessions"
 msgstr "Recent active and historical sessions"
 
@@ -552,6 +585,9 @@ msgstr "Renewal"
 
 msgid "Renewal date"
 msgstr "Renewal date"
+
+msgid "Renewed"
+msgstr "Renewed"
 
 #. placeholder {0}: formatDate(tenant.renewalDate)
 msgid "Renews {0}"

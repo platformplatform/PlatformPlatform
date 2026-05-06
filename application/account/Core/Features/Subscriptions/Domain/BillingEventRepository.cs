@@ -21,6 +21,15 @@ public interface IBillingEventRepository : IAppendRepository<BillingEvent, Billi
     ///     because the back-office is cross-tenant by design.
     /// </summary>
     Task<BillingEvent[]> GetRecentUnfilteredAsync(int limit, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns all billing events matching the optional event-type filter, across all tenants.
+    ///     Bypasses the tenant query filter because the back-office is cross-tenant by design. Date-range
+    ///     filtering is applied in memory because SQLite (used in tests) cannot translate DateTimeOffset
+    ///     comparisons to SQL; the materialized set stays small in practice because event-type filtering
+    ///     happens at the database level and dashboard windows are bounded.
+    /// </summary>
+    Task<BillingEvent[]> SearchAllUnfilteredAsync(BillingEventType[] eventTypes, DateTimeOffset? occurredFrom, DateTimeOffset? occurredTo, CancellationToken cancellationToken);
 }
 
 public sealed class BillingEventRepository(AccountDbContext accountDbContext)
@@ -36,10 +45,33 @@ public sealed class BillingEventRepository(AccountDbContext accountDbContext)
 
     public async Task<BillingEvent[]> GetRecentUnfilteredAsync(int limit, CancellationToken cancellationToken)
     {
-        return await DbSet
-            .IgnoreQueryFilters([QueryFilterNames.Tenant])
-            .OrderByDescending(e => e.OccurredAt)
-            .Take(limit)
-            .ToArrayAsync(cancellationToken);
+        // SQLite (used in tests) cannot translate DateTimeOffset comparisons in ORDER BY, so the sort runs
+        // in memory. The materialized set is bounded by the dashboard's small request limit (max 50 rows).
+        var events = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return events.OrderByDescending(e => e.OccurredAt).Take(limit).ToArray();
+    }
+
+    public async Task<BillingEvent[]> SearchAllUnfilteredAsync(BillingEventType[] eventTypes, DateTimeOffset? occurredFrom, DateTimeOffset? occurredTo, CancellationToken cancellationToken)
+    {
+        var queryable = DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]);
+
+        if (eventTypes.Length > 0)
+        {
+            queryable = queryable.Where(e => eventTypes.AsEnumerable().Contains(e.EventType));
+        }
+
+        var events = await queryable.ToArrayAsync(cancellationToken);
+
+        if (occurredFrom.HasValue)
+        {
+            events = events.Where(e => e.OccurredAt >= occurredFrom.Value).ToArray();
+        }
+
+        if (occurredTo.HasValue)
+        {
+            events = events.Where(e => e.OccurredAt <= occurredTo.Value).ToArray();
+        }
+
+        return events;
     }
 }

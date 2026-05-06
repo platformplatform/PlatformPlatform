@@ -154,6 +154,12 @@ msgstr "Basis"
 msgid "Billing address"
 msgstr "Faktureringsadresse"
 
+msgid "Billing info added"
+msgstr "Faktureringsoplysninger tilføjet"
+
+msgid "Billing info updated"
+msgstr "Faktureringsoplysninger opdateret"
+
 msgid "Blended MRR"
 msgstr "Samlet MRR"
 
@@ -168,6 +174,12 @@ msgstr "Opsiges"
 
 msgid "Cancellation"
 msgstr "Opsigelse"
+
+msgid "Cancelled"
+msgstr "Annulleret"
+
+msgid "Cancelled immediately"
+msgstr "Annulleret med det samme"
 
 msgid "Change language"
 msgstr "Skift sprog"
@@ -234,6 +246,12 @@ msgstr "Computer"
 msgid "Device"
 msgstr "Enhed"
 
+msgid "Downgrade cancelled"
+msgstr "Nedgradering annulleret"
+
+msgid "Downgrade scheduled"
+msgstr "Nedgradering planlagt"
+
 msgid "Downgraded"
 msgstr "Nedgraderet"
 
@@ -251,6 +269,9 @@ msgstr "E-mail afventer"
 
 msgid "Exceptions"
 msgstr "Fejl"
+
+msgid "Expired"
+msgstr "Udløbet"
 
 msgid "Failed"
 msgstr "Mislykket"
@@ -499,6 +520,15 @@ msgstr "Betaling mislykkedes"
 msgid "Payment history"
 msgstr "Betalingshistorik"
 
+msgid "Payment method updated"
+msgstr "Betalingsmetode opdateret"
+
+msgid "Payment recovered"
+msgstr "Betaling gendannet"
+
+msgid "Payment refunded"
+msgstr "Betaling refunderet"
+
 msgid "Pending"
 msgstr "Afventer"
 
@@ -535,6 +565,9 @@ msgstr "Forrige"
 msgid "Prior period"
 msgstr "Forrige periode"
 
+msgid "Reactivated"
+msgstr "Genaktiveret"
+
 msgid "Recent active and historical sessions"
 msgstr "Nylige aktive og historiske sessioner"
 
@@ -552,6 +585,9 @@ msgstr "Fornyelse"
 
 msgid "Renewal date"
 msgstr "Fornyelsesdato"
+
+msgid "Renewed"
+msgstr "Fornyet"
 
 #. placeholder {0}: formatDate(tenant.renewalDate)
 msgid "Renews {0}"
