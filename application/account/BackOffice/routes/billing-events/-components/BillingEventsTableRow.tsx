@@ -40,8 +40,12 @@ export function BillingEventsTableRow({
       </TableCell>
       <TableCell className="hidden md:table-cell">
         {event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan ? (
-          <span className="text-sm text-muted-foreground">
-            {getSubscriptionPlanLabel(event.fromPlan)} → {getSubscriptionPlanLabel(event.toPlan)}
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan)}</Badge>
+            <span aria-hidden={true} className="text-muted-foreground">
+              →
+            </span>
+            <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan)}</Badge>
           </span>
         ) : event.toPlan != null ? (
           <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan)}</Badge>

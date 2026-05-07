@@ -53,7 +53,7 @@ export function SyncWithStripeButton({ tenantId }: Readonly<SyncWithStripeButton
         isPending={syncMutation.isPending}
         aria-label={t`Sync with Stripe`}
       >
-        <RefreshCwIcon className="size-4" />
+        {!syncMutation.isPending && <RefreshCwIcon className="size-4" />}
         {syncMutation.isPending ? <Trans>Syncing...</Trans> : <Trans>Sync with Stripe</Trans>}
       </Button>
 
@@ -93,7 +93,7 @@ export function SyncWithStripeButton({ tenantId }: Readonly<SyncWithStripeButton
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction>
+            <AlertDialogAction onClick={() => setIsResultOpen(false)}>
               <Trans>Close</Trans>
             </AlertDialogAction>
           </AlertDialogFooter>

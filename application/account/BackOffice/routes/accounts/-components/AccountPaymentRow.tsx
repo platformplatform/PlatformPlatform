@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { ExternalLinkIcon } from "lucide-react";
+import { DownloadIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -15,32 +17,60 @@ type PaymentTransaction = components["schemas"]["TenantPaymentTransaction"];
 
 export function AccountPaymentRow({
   transaction,
-  formatDate
+  renderDate,
+  showTaxBreakdown,
+  showPlan = true
 }: Readonly<{
   transaction: PaymentTransaction;
-  formatDate: (value: string | null | undefined) => string;
+  renderDate: (value: string | null | undefined) => ReactNode;
+  showTaxBreakdown?: boolean;
+  showPlan?: boolean;
 }>) {
+  // Refunded rows show the amounts struck through — money came in, then went back out.
+  const isRefunded = transaction.status === PaymentTransactionStatus.Refunded;
+  const refundedClass = isRefunded ? "text-muted-foreground line-through" : "";
   return (
     <TableRow rowKey={transaction.id}>
-      <TableCell>{formatDate(transaction.date)}</TableCell>
-      <TableCell>
-        {transaction.plan != null ? (
-          <Badge variant="secondary">{getSubscriptionPlanLabel(transaction.plan)}</Badge>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-      </TableCell>
-      <TableCell className="tabular-nums">{formatCurrency(transaction.amount, transaction.currency)}</TableCell>
+      <TableCell>{renderDate(transaction.date)}</TableCell>
+      {showPlan && (
+        <TableCell className="hidden md:table-cell">
+          {transaction.plan != null ? (
+            <Badge variant="secondary">{getSubscriptionPlanLabel(transaction.plan)}</Badge>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+        </TableCell>
+      )}
+      {showTaxBreakdown ? (
+        <>
+          <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${refundedClass}`}>
+            {formatCurrency(transaction.amountExcludingTax, transaction.currency)}
+          </TableCell>
+          <TableCell
+            className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${isRefunded ? "line-through" : ""}`}
+          >
+            {formatCurrency(transaction.taxAmount, transaction.currency)}
+          </TableCell>
+          <TableCell className={`text-right whitespace-nowrap tabular-nums ${refundedClass}`}>
+            {formatCurrency(transaction.amount, transaction.currency)}
+          </TableCell>
+        </>
+      ) : (
+        <TableCell className={`tabular-nums ${refundedClass}`}>
+          {formatCurrency(transaction.amount, transaction.currency)}
+        </TableCell>
+      )}
       <TableCell>
         <PaymentStatusBadge status={transaction.status} failureReason={transaction.failureReason} />
       </TableCell>
       <TableCell className="text-right">
-        <div className="flex justify-end gap-2">
+        <div className="flex items-center justify-end gap-2">
           {transaction.invoiceUrl && (
             <Button
-              size="sm"
-              variant="outline"
-              className="gap-1"
+              size="xs"
+              variant="default"
+              nativeButton={false}
+              className="gap-1 max-sm:w-fit"
               render={
                 <a
                   href={transaction.invoiceUrl}
@@ -50,15 +80,18 @@ export function AccountPaymentRow({
                 />
               }
             >
-              <ExternalLinkIcon className="size-3" />
-              <Trans>Invoice</Trans>
+              <DownloadIcon className="size-3" />
+              <span className="hidden md:inline">
+                <Trans>Invoice</Trans>
+              </span>
             </Button>
           )}
           {transaction.creditNoteUrl && (
             <Button
-              size="sm"
-              variant="outline"
-              className="gap-1"
+              size="xs"
+              variant="default"
+              nativeButton={false}
+              className="gap-1 max-sm:w-fit"
               render={
                 <a
                   href={transaction.creditNoteUrl}
@@ -68,8 +101,10 @@ export function AccountPaymentRow({
                 />
               }
             >
-              <ExternalLinkIcon className="size-3" />
-              <Trans>Credit note</Trans>
+              <DownloadIcon className="size-3" />
+              <span className="hidden md:inline">
+                <Trans>Credit note</Trans>
+              </span>
             </Button>
           )}
         </div>

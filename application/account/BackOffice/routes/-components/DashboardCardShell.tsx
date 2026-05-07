@@ -11,7 +11,7 @@ interface DashboardCardShellProps {
 
 export function DashboardCardShell({ title, subtitle, action, children }: Readonly<DashboardCardShellProps>) {
   return (
-    <Card>
+    <Card className="h-full pb-4">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {subtitle && <CardDescription>{subtitle}</CardDescription>}

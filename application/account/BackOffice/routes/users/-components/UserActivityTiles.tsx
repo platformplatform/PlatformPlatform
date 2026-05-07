@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card } from "@repo/ui/components/Card";
+import { LinkCard } from "@repo/ui/components/LinkCard";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 
 import type { components } from "@/shared/lib/api/client";
@@ -12,13 +13,13 @@ import { api } from "@/shared/lib/api/client";
 
 type BackOfficeUserDetailResponse = components["schemas"]["BackOfficeUserDetailResponse"];
 
-interface UserKpiCardsProps {
+interface UserActivityTilesProps {
   user: BackOfficeUserDetailResponse | undefined;
   userId: string;
   isLoading: boolean;
 }
 
-export function UserKpiCards({ user, userId, isLoading }: Readonly<UserKpiCardsProps>) {
+export function UserActivityTiles({ user, userId, isLoading }: Readonly<UserActivityTilesProps>) {
   const sessionsQuery = api.useQuery("get", "/api/back-office/users/{id}/sessions", {
     params: { path: { id: userId } }
   });
@@ -28,15 +29,7 @@ export function UserKpiCards({ user, userId, isLoading }: Readonly<UserKpiCardsP
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-4">
-      <KpiCard
-        label={t`Sessions`}
-        loading={sessionsLoading}
-        subtitle={totalSessions !== undefined ? <Trans>All-time</Trans> : undefined}
-      >
-        <span className="text-2xl font-semibold tabular-nums">{totalSessions !== undefined ? totalSessions : "-"}</span>
-      </KpiCard>
-
-      <KpiCard
+      <ActivityTile
         label={t`Accounts`}
         loading={isLoading}
         subtitle={
@@ -47,36 +40,54 @@ export function UserKpiCards({ user, userId, isLoading }: Readonly<UserKpiCardsP
               })
             : undefined
         }
+        linkTo={user ? "overview" : undefined}
+        userId={userId}
       >
         <span className="text-2xl font-semibold tabular-nums">{user ? tenantCount : "-"}</span>
-      </KpiCard>
+      </ActivityTile>
 
-      <KpiCard
+      <ActivityTile
         label={t`Last log-in`}
         loading={isLoading}
         subtitle={user?.lastSeenAt ? <Trans>Most recent activity</Trans> : <Trans>Never logged in</Trans>}
+        linkTo={user?.lastSeenAt ? "logins" : undefined}
+        userId={userId}
       >
         <span className="text-base font-semibold">
           {user?.lastSeenAt ? <SmartDateTime date={user.lastSeenAt} withTime={true} /> : "-"}
         </span>
-      </KpiCard>
+      </ActivityTile>
+
+      <ActivityTile
+        label={t`Sessions`}
+        loading={sessionsLoading}
+        subtitle={totalSessions !== undefined ? <Trans>All-time</Trans> : undefined}
+        linkTo={totalSessions !== undefined && totalSessions > 0 ? "sessions" : undefined}
+        userId={userId}
+      >
+        <span className="text-2xl font-semibold tabular-nums">{totalSessions !== undefined ? totalSessions : "-"}</span>
+      </ActivityTile>
     </div>
   );
 }
 
-function KpiCard({
+function ActivityTile({
   label,
   loading,
   subtitle,
-  children
+  children,
+  linkTo,
+  userId
 }: Readonly<{
   label: string;
   loading: boolean;
   subtitle?: ReactNode;
   children: ReactNode;
+  linkTo?: "overview" | "logins" | "sessions";
+  userId?: string;
 }>) {
-  return (
-    <Card className="gap-2 rounded-lg p-4 shadow-none">
+  const content = (
+    <>
       <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{label}</span>
       {loading ? (
         <>
@@ -89,6 +100,21 @@ function KpiCard({
           {subtitle && <span className="text-xs text-muted-foreground">{subtitle}</span>}
         </>
       )}
-    </Card>
+    </>
   );
+
+  if (linkTo && userId) {
+    return (
+      <LinkCard
+        to="/users/$userId"
+        params={{ userId }}
+        search={{ tab: linkTo === "overview" ? undefined : linkTo }}
+        className="gap-2 rounded-lg p-4 shadow-none"
+      >
+        {content}
+      </LinkCard>
+    );
+  }
+
+  return <Card className="gap-2 rounded-lg p-4 shadow-none">{content}</Card>;
 }

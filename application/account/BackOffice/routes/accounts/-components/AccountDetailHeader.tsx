@@ -8,7 +8,7 @@ import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getCountryFlagEmoji, getCountryName } from "@repo/ui/utils/countryFlag";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -47,9 +47,9 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
         <SyncWithStripeButton tenantId={tenantId} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-4">
         <TenantLogo logoUrl={tenant?.logoUrl} tenantName={tenant?.name ?? ""} size="lg" className="size-20" />
-        <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 self-center">
           {isLoading || !tenant ? (
             <>
               <Skeleton className="h-7 w-64" />
@@ -57,17 +57,19 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
             </>
           ) : (
             <>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="min-w-0 truncate">{tenant.name}</h1>
-                <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
-                  {getSubscriptionPlanLabel(tenant.plan)}
-                </Badge>
-                {tenant.state !== TenantState.Active && <TenantStatePill state={tenant.state} />}
-                <TenantStatusBadge
-                  plan={tenant.plan}
-                  plannedChange={derivePlannedChange(tenant)}
-                  hasEverSubscribed={tenant.hasEverSubscribed}
-                />
+              <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center">
+                <h1 className="m-0 min-w-0 truncate leading-none">{tenant.name}</h1>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
+                    {getSubscriptionPlanLabel(tenant.plan)}
+                  </Badge>
+                  {tenant.state !== TenantState.Active && <TenantStatePill state={tenant.state} />}
+                  <TenantStatusBadge
+                    plan={tenant.plan}
+                    plannedChange={derivePlannedChange(tenant)}
+                    hasEverSubscribed={tenant.hasEverSubscribed}
+                  />
+                </div>
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 {tenant.billingAddress?.country && (
@@ -76,7 +78,8 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
                     <span>{getCountryName(tenant.billingAddress.country, i18n.locale)}</span>
                   </span>
                 )}
-                <span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarIcon className="size-3.5" aria-hidden={true} />
                   <Trans>Created {formatDate(tenant.createdAt)}</Trans>
                 </span>
               </div>

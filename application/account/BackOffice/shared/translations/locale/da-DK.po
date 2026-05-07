@@ -30,9 +30,6 @@ msgstr "{0} samlet"
 msgid "{0} blended · {1} over period"
 msgstr "{0} samlet · {1} for perioden"
 
-msgid "{activationPercent}% activation"
-msgstr "{activationPercent}% aktivering"
-
 msgid "{activeUsers} active"
 msgstr "{activeUsers} aktive"
 
@@ -44,9 +41,6 @@ msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
 
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inaktive"
-
-msgid "{membershipCount, plural, one {# membership} other {# memberships}}"
-msgstr "{membershipCount, plural, one {# medlemskab} other {# medlemskaber}}"
 
 msgid "{pendingUsers} pending"
 msgstr "{pendingUsers} afventer"
@@ -129,6 +123,9 @@ msgstr "Aktivitet"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All accounts this user is a member of, with their plan and role."
+msgstr "Alle konti, brugeren er medlem af, med deres plan og rolle."
+
 msgid "All event types"
 msgstr "Alle hændelsestyper"
 
@@ -140,9 +137,6 @@ msgstr "Beløb"
 
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
-
-msgid "App Insights · Telemetry"
-msgstr "App Insights · Telemetri"
 
 #. placeholder {0}: result.billingEventsAppended
 #. placeholder {1}: formatDate(result.syncedAt)
@@ -170,23 +164,17 @@ msgstr "BackOffice oversigt · {today}"
 msgid "Basis"
 msgstr "Basis"
 
-msgid "Billing"
-msgstr "Fakturering"
-
 msgid "Billing address"
 msgstr "Faktureringsadresse"
 
 msgid "Billing events"
 msgstr "Faktureringshændelser"
 
-msgid "Billing history"
-msgstr "Faktureringshistorik"
-
 msgid "Billing info added"
-msgstr "Faktureringsoplysninger tilføjet"
+msgstr "Faktureringsinfo tilføjet"
 
 msgid "Billing info updated"
-msgstr "Faktureringsoplysninger opdateret"
+msgstr "Faktureringsinfo opdateret"
 
 msgid "Blended MRR"
 msgstr "Samlet MRR"
@@ -256,9 +244,6 @@ msgstr "Aktuel periode"
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
 
-msgid "Custom events"
-msgstr "Brugerdefinerede hændelser"
-
 msgid "Dark"
 msgstr "Mørk"
 
@@ -289,6 +274,10 @@ msgstr "Nedgraderet"
 msgid "Downgrading"
 msgstr "Nedgraderer"
 
+#. placeholder {0}: renderDate(event.effectiveAt)
+msgid "Effective {0}"
+msgstr "Gælder fra {0}"
+
 msgid "Email"
 msgstr "E-mail"
 
@@ -301,8 +290,11 @@ msgstr "E-mail afventer"
 msgid "Event"
 msgstr "Hændelse"
 
-msgid "Exceptions"
-msgstr "Fejl"
+msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
+msgstr "Alle fakturaer, refusioner og kreditnotaer — pengene ind og ud for dette abonnement."
+
+msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
+msgstr "Alle log-ind-forsøg de seneste 30 dage, lykkedes eller mislykkedes, på tværs af e-mail og eksterne udbydere."
 
 msgid "Expired"
 msgstr "Udløbet"
@@ -334,6 +326,9 @@ msgstr "Inaktive"
 msgid "Invoice"
 msgstr "Faktura"
 
+msgid "Invoices"
+msgstr "Fakturaer"
+
 msgid "IP address"
 msgstr "IP-adresse"
 
@@ -355,9 +350,6 @@ msgstr "Sidste {periodDays} dage"
 msgid "Last 24 hours"
 msgstr "Sidste 24 timer"
 
-msgid "Last 30 days"
-msgstr "Sidste 30 dage"
-
 msgid "Last invoice"
 msgstr "Sidste faktura"
 
@@ -367,18 +359,11 @@ msgstr "Seneste login"
 msgid "Last seen"
 msgstr "Sidst set"
 
-#. placeholder {0}: formatDate(user.lastSeenAt)
-msgid "Last seen {0}"
-msgstr "Sidst set {0}"
-
 msgid "Lifetime value"
 msgstr "Livstidsværdi"
 
 msgid "Light"
 msgstr "Lys"
-
-msgid "Live data from Application Insights, scoped to this user"
-msgstr "Live-data fra Application Insights, afgrænset til denne bruger"
 
 msgid "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
 msgstr "Login til lokal udvikling. Produktion bruger Azure Container Apps' indbyggede Entra ID-godkendelse."
@@ -401,6 +386,9 @@ msgstr "Logger ind..."
 msgid "Login history"
 msgstr "Login-historik"
 
+msgid "Logins"
+msgstr "Logins"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -421,6 +409,12 @@ msgstr "Seneste aktivitet"
 
 msgid "MRR"
 msgstr "MRR"
+
+msgid "MRR after"
+msgstr "MRR efter"
+
+msgid "MRR impact"
+msgstr "MRR-effekt"
 
 msgid "MRR trend"
 msgstr "MRR-tendens"
@@ -464,18 +458,6 @@ msgstr "Ingen faktureringshændelser matcher dine filtre"
 msgid "No billing events yet"
 msgstr "Ingen faktureringshændelser endnu"
 
-msgid "No custom events"
-msgstr "Ingen brugerdefinerede hændelser"
-
-msgid "No custom events recorded for this user yet."
-msgstr "Ingen brugerdefinerede hændelser registreret for denne bruger endnu."
-
-msgid "No exceptions"
-msgstr "Ingen fejl"
-
-msgid "No exceptions recorded for this user yet."
-msgstr "Ingen fejl registreret for denne bruger endnu."
-
 msgid "No invoices, refunds, or credit notes yet."
 msgstr "Ingen fakturaer, refusioner eller kreditnotaer endnu."
 
@@ -493,12 +475,6 @@ msgstr "Ingen ejere"
 
 msgid "No owners on this account."
 msgstr "Ingen ejere på denne konto."
-
-msgid "No page views"
-msgstr "Ingen sidevisninger"
-
-msgid "No page views recorded for this user yet."
-msgstr "Ingen sidevisninger registreret for denne bruger endnu."
 
 msgid "No paid plan yet."
 msgstr "Intet betalt abonnement endnu."
@@ -536,6 +512,9 @@ msgstr "Ingen brugere matcher din søgning"
 msgid "Occurred"
 msgstr "Tidspunkt"
 
+msgid "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
+msgstr "En række pr. enhed eller browser, brugeren er logget ind fra. Tilbagekaldte sessioner kan ikke logge ind igen."
+
 msgid "One-time password"
 msgstr "Engangskode"
 
@@ -563,8 +542,8 @@ msgstr "Ejere"
 msgid "Page not found"
 msgstr "Siden blev ikke fundet"
 
-msgid "Page views"
-msgstr "Sidevisninger"
+msgid "Paid"
+msgstr "Betalt"
 
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
@@ -593,6 +572,9 @@ msgstr "Plan"
 msgid "Plan & revenue"
 msgstr "Abonnement og omsætning"
 
+msgid "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
+msgstr "Planændringer, fornyelser, opsigelser og betalingsresultater — abonnementets livscyklus og dets MRR-effekt over tid."
+
 msgid "Plan distribution"
 msgstr "Plan-fordeling"
 
@@ -620,9 +602,6 @@ msgstr "Forrige periode"
 msgid "Reactivated"
 msgstr "Genaktiveret"
 
-msgid "Recent active and historical sessions"
-msgstr "Nylige aktive og historiske sessioner"
-
 msgid "Recent signups"
 msgstr "Nylige tilmeldinger"
 
@@ -641,6 +620,7 @@ msgstr "Fornyelsesdato"
 msgid "Renewed"
 msgstr "Fornyet"
 
+#. placeholder {0}: formatDate(membership.renewalDate)
 #. placeholder {0}: formatDate(tenant.renewalDate)
 msgid "Renews {0}"
 msgstr "Fornyes {0}"
@@ -772,6 +752,9 @@ msgstr "Denne bruger har ingen registrerede sessioner."
 msgid "This user is not a member of any account."
 msgstr "Denne bruger er ikke medlem af nogen konto."
 
+msgid "Total"
+msgstr "I alt"
+
 msgid "Total accounts"
 msgstr "Konti i alt"
 
@@ -808,11 +791,11 @@ msgstr "Brugermenu"
 msgid "Users"
 msgstr "Brugere"
 
-msgid "Users ({totalUsers})"
-msgstr "Brugere ({totalUsers})"
-
 msgid "Users active"
 msgstr "Aktive brugere"
+
+msgid "VAT"
+msgstr "Moms"
 
 msgid "View accounts"
 msgstr "Vis konti"
@@ -823,8 +806,8 @@ msgstr "Vis alle"
 msgid "View all {totalEvents} events"
 msgstr "Vis alle {totalEvents} hændelser"
 
-msgid "View all {totalTransactions} transactions"
-msgstr "Vis alle {totalTransactions} transaktioner"
+msgid "View all {totalTransactions} invoices"
+msgstr "Vis alle {totalTransactions} fakturaer"
 
 msgid "vs prior period"
 msgstr "mod forrige periode"

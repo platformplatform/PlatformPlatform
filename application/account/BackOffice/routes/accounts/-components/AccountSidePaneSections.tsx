@@ -113,7 +113,8 @@ export function AccountSidePaneSections({
             leftValue={lastInvoice ? formatDate(lastInvoice.date) : "-"}
             leftLoading={paymentHistoryLoading}
             rightLabel={t`Amount`}
-            rightValue={formatAmount(tenant.monthlyRecurringRevenue, tenant.currency)}
+            rightValue={lastInvoice ? formatAmount(lastInvoice.amountExcludingTax, lastInvoice.currency) : "-"}
+            rightLoading={paymentHistoryLoading}
           />
 
           <SubscriptionStatusIndicator state={detail?.state} />

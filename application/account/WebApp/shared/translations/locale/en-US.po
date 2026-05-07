@@ -435,9 +435,6 @@ msgstr "Billing"
 msgid "Billing email"
 msgstr "Billing email"
 
-msgid "Billing history"
-msgstr "Billing history"
-
 msgid "Billing information"
 msgstr "Billing information"
 
@@ -1327,6 +1324,9 @@ msgstr "Invited users"
 msgid "Invoice"
 msgstr "Invoice"
 
+msgid "Invoices"
+msgstr "Invoices"
+
 msgid "IP address"
 msgstr "IP address"
 
@@ -1824,6 +1824,9 @@ msgstr "Page not found"
 
 msgid "Page Views"
 msgstr "Page Views"
+
+msgid "Paid"
+msgstr "Paid"
 
 msgid "Palak paneer"
 msgstr "Palak paneer"
@@ -2518,9 +2521,6 @@ msgstr "Subscription"
 
 msgid "Subtle background for grouped rows inside a panel."
 msgstr "Subtle background for grouped rows inside a panel."
-
-msgid "Succeeded"
-msgstr "Succeeded"
 
 msgid "Suggestions"
 msgstr "Suggestions"

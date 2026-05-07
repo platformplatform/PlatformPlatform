@@ -7,7 +7,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/compo
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { CalendarClockIcon, XCircleIcon } from "lucide-react";
+import { CalendarClockIcon, CalendarIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -29,7 +29,7 @@ export function AccountCurrentPlanCard({ tenant, isLoading }: Readonly<AccountCu
   const isFree = tenant.subscribedSince === null && !tenant.hasEverSubscribed;
   if (isFree) {
     return (
-      <CurrentPlanShell stretch={true}>
+      <CurrentPlanShell>
         <CurrentPlanEmpty title={<Trans>No plan</Trans>} description={<Trans>No paid plan yet.</Trans>} />
       </CurrentPlanShell>
     );
@@ -38,7 +38,7 @@ export function AccountCurrentPlanCard({ tenant, isLoading }: Readonly<AccountCu
   const isCanceled = tenant.subscribedSince === null && tenant.hasEverSubscribed;
   if (isCanceled) {
     return (
-      <CurrentPlanShell stretch={true}>
+      <CurrentPlanShell>
         <CurrentPlanEmpty
           title={<Trans>Subscription canceled</Trans>}
           description={<Trans>This account previously had a paid subscription that ended.</Trans>}
@@ -54,10 +54,10 @@ export function AccountCurrentPlanCard({ tenant, isLoading }: Readonly<AccountCu
   );
 }
 
-function CurrentPlanShell({ children, stretch = false }: Readonly<{ children: ReactNode; stretch?: boolean }>) {
+function CurrentPlanShell({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <section className={`flex flex-col ${stretch ? "h-full" : ""}`}>
-      <h4 className="mb-3">
+    <section className="flex flex-col">
+      <h4 className="mb-3 whitespace-nowrap">
         <Trans>Current plan</Trans>
       </h4>
       {children}
@@ -67,7 +67,7 @@ function CurrentPlanShell({ children, stretch = false }: Readonly<{ children: Re
 
 function CurrentPlanEmpty({ title, description }: Readonly<{ title: ReactNode; description: ReactNode }>) {
   return (
-    <Empty className="border bg-card">
+    <Empty className="min-h-[20.75rem] flex-1 border bg-card">
       <EmptyHeader>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
@@ -118,7 +118,7 @@ function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailResponse 
     : [];
 
   return (
-    <Card className="gap-4 rounded-lg p-5 py-5 shadow-none">
+    <Card className="min-h-[20.75rem] gap-4 rounded-lg p-5 py-5 shadow-none">
       <div className="flex min-w-0 flex-col gap-1">
         <div className="flex min-w-0 items-start justify-between gap-2">
           {showStrikedAmount ? (
@@ -159,13 +159,19 @@ function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailResponse 
             <dt className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
               <Trans>Subscribed since</Trans>
             </dt>
-            <dd className="tabular-nums">{tenant.subscribedSince ? formatDate(tenant.subscribedSince) : "-"}</dd>
+            <dd className="inline-flex items-center gap-1.5 tabular-nums">
+              {tenant.subscribedSince && <CalendarIcon className="size-3.5 text-muted-foreground" aria-hidden={true} />}
+              {tenant.subscribedSince ? formatDate(tenant.subscribedSince) : "-"}
+            </dd>
           </div>
           <div className="flex flex-col gap-1">
             <dt className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
               <Trans>Renewal date</Trans>
             </dt>
-            <dd className="tabular-nums">{tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}</dd>
+            <dd className="inline-flex items-center gap-1.5 tabular-nums">
+              {tenant.renewalDate && <CalendarIcon className="size-3.5 text-muted-foreground" aria-hidden={true} />}
+              {tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
+            </dd>
           </div>
         </dl>
 

@@ -46,6 +46,7 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
             <DeltaSubtitle deltaPercent={data.blendedMonthlyRecurringRevenueDeltaPercent} />
           ) : undefined
         }
+        to="/billing-events"
       />
 
       <KpiTile
@@ -97,7 +98,7 @@ interface KpiTileProps {
   value: React.ReactNode;
   loading: boolean;
   subtitle?: React.ReactNode;
-  to?: "/accounts" | "/users";
+  to?: "/accounts" | "/users" | "/billing-events";
 }
 
 function KpiTile({ label, icon: Icon, value, loading, subtitle, to }: Readonly<KpiTileProps>) {

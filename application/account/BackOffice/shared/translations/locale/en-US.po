@@ -30,9 +30,6 @@ msgstr "{0} blended"
 msgid "{0} blended · {1} over period"
 msgstr "{0} blended · {1} over period"
 
-msgid "{activationPercent}% activation"
-msgstr "{activationPercent}% activation"
-
 msgid "{activeUsers} active"
 msgstr "{activeUsers} active"
 
@@ -44,9 +41,6 @@ msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
 
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inactive"
-
-msgid "{membershipCount, plural, one {# membership} other {# memberships}}"
-msgstr "{membershipCount, plural, one {# membership} other {# memberships}}"
 
 msgid "{pendingUsers} pending"
 msgstr "{pendingUsers} pending"
@@ -129,6 +123,9 @@ msgstr "Activity"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All accounts this user is a member of, with their plan and role."
+msgstr "All accounts this user is a member of, with their plan and role."
+
 msgid "All event types"
 msgstr "All event types"
 
@@ -140,9 +137,6 @@ msgstr "Amount"
 
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
-
-msgid "App Insights · Telemetry"
-msgstr "App Insights · Telemetry"
 
 #. placeholder {0}: result.billingEventsAppended
 #. placeholder {1}: formatDate(result.syncedAt)
@@ -170,17 +164,11 @@ msgstr "BackOffice overview · {today}"
 msgid "Basis"
 msgstr "Basis"
 
-msgid "Billing"
-msgstr "Billing"
-
 msgid "Billing address"
 msgstr "Billing address"
 
 msgid "Billing events"
 msgstr "Billing events"
-
-msgid "Billing history"
-msgstr "Billing history"
 
 msgid "Billing info added"
 msgstr "Billing info added"
@@ -256,9 +244,6 @@ msgstr "Current period"
 msgid "Current plan"
 msgstr "Current plan"
 
-msgid "Custom events"
-msgstr "Custom events"
-
 msgid "Dark"
 msgstr "Dark"
 
@@ -289,6 +274,10 @@ msgstr "Downgraded"
 msgid "Downgrading"
 msgstr "Downgrading"
 
+#. placeholder {0}: renderDate(event.effectiveAt)
+msgid "Effective {0}"
+msgstr "Effective {0}"
+
 msgid "Email"
 msgstr "Email"
 
@@ -301,8 +290,11 @@ msgstr "Email pending"
 msgid "Event"
 msgstr "Event"
 
-msgid "Exceptions"
-msgstr "Exceptions"
+msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
+msgstr "Every invoice, refund, and credit note — the money in and out for this subscription."
+
+msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
+msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 
 msgid "Expired"
 msgstr "Expired"
@@ -334,6 +326,9 @@ msgstr "Inactive"
 msgid "Invoice"
 msgstr "Invoice"
 
+msgid "Invoices"
+msgstr "Invoices"
+
 msgid "IP address"
 msgstr "IP address"
 
@@ -355,9 +350,6 @@ msgstr "Last {periodDays} days"
 msgid "Last 24 hours"
 msgstr "Last 24 hours"
 
-msgid "Last 30 days"
-msgstr "Last 30 days"
-
 msgid "Last invoice"
 msgstr "Last invoice"
 
@@ -367,18 +359,11 @@ msgstr "Last log-in"
 msgid "Last seen"
 msgstr "Last seen"
 
-#. placeholder {0}: formatDate(user.lastSeenAt)
-msgid "Last seen {0}"
-msgstr "Last seen {0}"
-
 msgid "Lifetime value"
 msgstr "Lifetime value"
 
 msgid "Light"
 msgstr "Light"
-
-msgid "Live data from Application Insights, scoped to this user"
-msgstr "Live data from Application Insights, scoped to this user"
 
 msgid "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
 msgstr "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
@@ -401,6 +386,9 @@ msgstr "Logging in..."
 msgid "Login history"
 msgstr "Login history"
 
+msgid "Logins"
+msgstr "Logins"
+
 msgid "Logo"
 msgstr "Logo"
 
@@ -421,6 +409,12 @@ msgstr "Most recent activity"
 
 msgid "MRR"
 msgstr "MRR"
+
+msgid "MRR after"
+msgstr "MRR after"
+
+msgid "MRR impact"
+msgstr "MRR impact"
 
 msgid "MRR trend"
 msgstr "MRR trend"
@@ -464,18 +458,6 @@ msgstr "No billing events match your filters"
 msgid "No billing events yet"
 msgstr "No billing events yet"
 
-msgid "No custom events"
-msgstr "No custom events"
-
-msgid "No custom events recorded for this user yet."
-msgstr "No custom events recorded for this user yet."
-
-msgid "No exceptions"
-msgstr "No exceptions"
-
-msgid "No exceptions recorded for this user yet."
-msgstr "No exceptions recorded for this user yet."
-
 msgid "No invoices, refunds, or credit notes yet."
 msgstr "No invoices, refunds, or credit notes yet."
 
@@ -493,12 +475,6 @@ msgstr "No owners"
 
 msgid "No owners on this account."
 msgstr "No owners on this account."
-
-msgid "No page views"
-msgstr "No page views"
-
-msgid "No page views recorded for this user yet."
-msgstr "No page views recorded for this user yet."
 
 msgid "No paid plan yet."
 msgstr "No paid plan yet."
@@ -536,6 +512,9 @@ msgstr "No users match your search"
 msgid "Occurred"
 msgstr "Occurred"
 
+msgid "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
+msgstr "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
+
 msgid "One-time password"
 msgstr "One-time password"
 
@@ -563,8 +542,8 @@ msgstr "Owners"
 msgid "Page not found"
 msgstr "Page not found"
 
-msgid "Page views"
-msgstr "Page views"
+msgid "Paid"
+msgstr "Paid"
 
 msgid "Payment failed"
 msgstr "Payment failed"
@@ -593,6 +572,9 @@ msgstr "Plan"
 msgid "Plan & revenue"
 msgstr "Plan & revenue"
 
+msgid "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
+msgstr "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
+
 msgid "Plan distribution"
 msgstr "Plan distribution"
 
@@ -620,9 +602,6 @@ msgstr "Prior period"
 msgid "Reactivated"
 msgstr "Reactivated"
 
-msgid "Recent active and historical sessions"
-msgstr "Recent active and historical sessions"
-
 msgid "Recent signups"
 msgstr "Recent signups"
 
@@ -641,6 +620,7 @@ msgstr "Renewal date"
 msgid "Renewed"
 msgstr "Renewed"
 
+#. placeholder {0}: formatDate(membership.renewalDate)
 #. placeholder {0}: formatDate(tenant.renewalDate)
 msgid "Renews {0}"
 msgstr "Renews {0}"
@@ -772,6 +752,9 @@ msgstr "This user has no recorded sessions."
 msgid "This user is not a member of any account."
 msgstr "This user is not a member of any account."
 
+msgid "Total"
+msgstr "Total"
+
 msgid "Total accounts"
 msgstr "Total accounts"
 
@@ -808,11 +791,11 @@ msgstr "User menu"
 msgid "Users"
 msgstr "Users"
 
-msgid "Users ({totalUsers})"
-msgstr "Users ({totalUsers})"
-
 msgid "Users active"
 msgstr "Users active"
+
+msgid "VAT"
+msgstr "VAT"
 
 msgid "View accounts"
 msgstr "View accounts"
@@ -823,8 +806,8 @@ msgstr "View all"
 msgid "View all {totalEvents} events"
 msgstr "View all {totalEvents} events"
 
-msgid "View all {totalTransactions} transactions"
-msgstr "View all {totalTransactions} transactions"
+msgid "View all {totalTransactions} invoices"
+msgstr "View all {totalTransactions} invoices"
 
 msgid "vs prior period"
 msgstr "vs prior period"

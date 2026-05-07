@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
+import { MailIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -32,7 +33,10 @@ export function UsersTableRow({
           </Avatar>
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="truncate font-medium text-foreground">{displayName}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <MailIcon className="size-3 shrink-0" aria-hidden={true} />
+              <span className="truncate">{user.email}</span>
+            </span>
           </div>
         </div>
       </TableCell>
@@ -52,7 +56,7 @@ export function UsersTableRow({
       <TableCell className="hidden lg:table-cell">
         {user.lastSeenAt ? (
           <div className="flex flex-col leading-tight">
-            <SmartDateTime date={user.lastSeenAt} withTime={true} />
+            <SmartDateTime date={user.lastSeenAt} />
             <span className="text-xs text-muted-foreground">{formatDate(user.lastSeenAt, true)}</span>
           </div>
         ) : (

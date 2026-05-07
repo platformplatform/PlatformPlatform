@@ -60,7 +60,7 @@ function BillingEventsListPage() {
       <SidebarInset>
         <AppLayout
           variant="center"
-          maxWidth="80rem"
+          maxWidth="64rem"
           browserTitle={t`Billing events`}
           title={t`Billing events`}
           subtitle={t`Authoritative log of subscription, payment, and billing transitions across all accounts.`}

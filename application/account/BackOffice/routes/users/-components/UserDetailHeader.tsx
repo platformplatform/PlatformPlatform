@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, CheckCircle2Icon, XCircleIcon } from "lucide-react";
+import { ArrowLeftIcon, CalendarIcon, CheckCircle2Icon, MailIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -56,29 +56,34 @@ export function UserDetailHeader({ user, isLoading }: Readonly<UserDetailHeaderP
             </Avatar>
             <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="min-w-0 truncate">{getUserDisplayName(user.firstName, user.lastName, user.email)}</h1>
+                <h1 className="m-0 min-w-0 truncate leading-none">
+                  {getUserDisplayName(user.firstName, user.lastName, user.email)}
+                </h1>
                 {user.emailConfirmed ? (
                   <Badge variant="outline" className="gap-1 border-emerald-500/30 text-emerald-600">
                     <CheckCircle2Icon className="size-3" />
-                    <Trans>Email confirmed</Trans>
+                    <span className="hidden sm:inline">
+                      <Trans>Email confirmed</Trans>
+                    </span>
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-600">
                     <XCircleIcon className="size-3" />
-                    <Trans>Email pending</Trans>
+                    <span className="hidden sm:inline">
+                      <Trans>Email pending</Trans>
+                    </span>
                   </Badge>
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                <span>{user.email}</span>
-                <span>
+                <span className="inline-flex items-center gap-1.5">
+                  <MailIcon className="size-3.5" aria-hidden={true} />
+                  <span>{user.email}</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarIcon className="size-3.5" aria-hidden={true} />
                   <Trans>Created {formatDate(user.createdAt)}</Trans>
                 </span>
-                {user.lastSeenAt && (
-                  <span>
-                    <Trans>Last seen {formatDate(user.lastSeenAt)}</Trans>
-                  </span>
-                )}
               </div>
             </div>
           </>

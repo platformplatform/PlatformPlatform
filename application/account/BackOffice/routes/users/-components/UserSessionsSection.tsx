@@ -5,14 +5,11 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/compo
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
-import { MonitorIcon } from "lucide-react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { api } from "@/shared/lib/api/client";
 import { getDeviceTypeLabel, getLoginMethodLabel } from "@/shared/lib/api/labels";
 import { parseUserAgent } from "@/shared/lib/userAgent";
-
-import { UserSectionHeader } from "./UserSectionHeader";
 
 interface UserSessionsSectionProps {
   userId: string;
@@ -25,11 +22,9 @@ export function UserSessionsSection({ userId }: Readonly<UserSessionsSectionProp
 
   return (
     <section className="flex flex-col gap-3">
-      <UserSectionHeader
-        icon={MonitorIcon}
-        title={<Trans>Sessions</Trans>}
-        description={<Trans>Recent active and historical sessions</Trans>}
-      />
+      <div className="text-sm text-muted-foreground">
+        <Trans>One row per device or browser the user is signed in from. Revoked sessions cannot sign in again.</Trans>
+      </div>
       {isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : !data || data.sessions.length === 0 ? (

@@ -15,18 +15,18 @@ export function DashboardSections() {
   const [period, setPeriod] = useState<DashboardTrendPeriod>(DashboardTrendPeriod.Last30Days);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       <DashboardHeader period={period} onPeriodChange={setPeriod} />
       <DashboardKpiTiles period={period} />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardMrrTrendCard period={period} />
         <DashboardPlanDistributionCard />
       </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardTenantGrowthCard period={period} />
         <DashboardUserLoginsCard period={period} />
       </div>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <DashboardRecentSignupsCard />
         </div>

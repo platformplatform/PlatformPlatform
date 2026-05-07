@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar"
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { Link } from "@tanstack/react-router";
+import { MailIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -70,7 +71,10 @@ function UserRow({ user }: Readonly<{ user: TenantUserSummary }>) {
       <div className="flex min-w-0 flex-1 flex-col leading-tight">
         <span className="truncate text-sm font-medium">{displayName}</span>
         {user.title && <span className="truncate text-xs text-muted-foreground">{user.title}</span>}
-        <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+        <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+          <MailIcon className="size-3 shrink-0" aria-hidden={true} />
+          <span className="truncate">{user.email}</span>
+        </span>
       </div>
     </Link>
   );

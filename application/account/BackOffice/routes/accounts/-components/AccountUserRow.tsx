@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar"
 import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { getInitials } from "@repo/utils/string/getInitials";
+import { MailIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -33,7 +34,10 @@ export function AccountUserRow({
           <div className="flex min-w-0 flex-col leading-tight">
             <span className="truncate text-sm font-medium">{displayName}</span>
             {user.title && <span className="truncate text-xs text-muted-foreground">{user.title}</span>}
-            <span className="truncate text-xs text-muted-foreground md:hidden">{user.email}</span>
+            <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground md:hidden">
+              <MailIcon className="size-3 shrink-0" aria-hidden={true} />
+              <span className="truncate">{user.email}</span>
+            </span>
           </div>
           {!user.emailConfirmed && (
             <Badge variant="outline" className="shrink-0">
@@ -42,7 +46,12 @@ export function AccountUserRow({
           )}
         </div>
       </TableCell>
-      <TableCell className="hidden md:table-cell">{user.email}</TableCell>
+      <TableCell className="hidden md:table-cell">
+        <span className="inline-flex items-center gap-1.5">
+          <MailIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden={true} />
+          <span>{user.email}</span>
+        </span>
+      </TableCell>
       <TableCell className="hidden lg:table-cell">
         <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
       </TableCell>

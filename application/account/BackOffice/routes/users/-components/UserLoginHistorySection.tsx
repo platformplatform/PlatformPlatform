@@ -4,13 +4,10 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
-import { KeyIcon } from "lucide-react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { api, LoginEventOutcome } from "@/shared/lib/api/client";
 import { getLoginMethodLabel } from "@/shared/lib/api/labels";
-
-import { UserSectionHeader } from "./UserSectionHeader";
 
 interface UserLoginHistorySectionProps {
   userId: string;
@@ -23,11 +20,11 @@ export function UserLoginHistorySection({ userId }: Readonly<UserLoginHistorySec
 
   return (
     <section className="flex flex-col gap-3">
-      <UserSectionHeader
-        icon={KeyIcon}
-        title={<Trans>Login history</Trans>}
-        description={<Trans>Last 30 days</Trans>}
-      />
+      <div className="text-sm text-muted-foreground">
+        <Trans>
+          Every sign-in attempt over the last 30 days, successful or failed, across email and external providers.
+        </Trans>
+      </div>
       {isLoading ? (
         <Skeleton className="h-24 w-full" />
       ) : !data || data.entries.length === 0 ? (

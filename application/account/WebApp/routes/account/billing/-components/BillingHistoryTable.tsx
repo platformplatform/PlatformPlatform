@@ -28,7 +28,7 @@ function getStatusVariant(status: PaymentTransactionStatus): "default" | "second
 function getStatusLabel(status: PaymentTransactionStatus): string {
   switch (status) {
     case PaymentTransactionStatus.Succeeded:
-      return t`Succeeded`;
+      return t`Paid`;
     case PaymentTransactionStatus.Failed:
       return t`Failed`;
     case PaymentTransactionStatus.Pending:

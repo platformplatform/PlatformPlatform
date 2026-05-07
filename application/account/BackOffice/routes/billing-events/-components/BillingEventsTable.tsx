@@ -74,7 +74,7 @@ export function BillingEventsTable({
 
   const handleRowClick = useCallback(
     (tenantId: string) => {
-      navigate({ to: "/accounts/$tenantId", params: { tenantId }, search: { tab: "billing" } });
+      navigate({ to: "/accounts/$tenantId", params: { tenantId }, search: { tab: "billing-events" } });
     },
     [navigate]
   );
@@ -94,7 +94,12 @@ export function BillingEventsTable({
   return (
     <>
       <div className="flex-1 overflow-visible sm:min-h-48 sm:overflow-auto">
-        <Table className="table-fixed" rowSize="spacious" aria-label={t`Billing events`} stickyHeader={true}>
+        <Table
+          className="min-w-[32rem] table-fixed md:min-w-[48rem] xl:min-w-[53rem]"
+          rowSize="spacious"
+          aria-label={t`Billing events`}
+          stickyHeader={true}
+        >
           <BillingEventsTableColumnHeaders orderBy={orderBy} sortOrder={sortOrder} onSort={handleSort} />
           <TableBody>
             {billingEvents.map((event) => (

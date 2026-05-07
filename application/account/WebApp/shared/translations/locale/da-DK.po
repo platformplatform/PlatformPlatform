@@ -435,9 +435,6 @@ msgstr "Fakturering"
 msgid "Billing email"
 msgstr "Faktureringsmail"
 
-msgid "Billing history"
-msgstr "Betalingshistorik"
-
 msgid "Billing information"
 msgstr "Faktureringsoplysninger"
 
@@ -1327,6 +1324,9 @@ msgstr "Inviterede brugere"
 msgid "Invoice"
 msgstr "Faktura"
 
+msgid "Invoices"
+msgstr "Fakturaer"
+
 msgid "IP address"
 msgstr "IP-adresse"
 
@@ -1349,7 +1349,7 @@ msgid "Item — clickable row"
 msgstr "Element — klikbar række"
 
 msgid "Item — image media"
-msgstr "Element — billedmedie"
+msgstr "Element — billede"
 
 msgid "Item — variants"
 msgstr "Element — varianter"
@@ -1824,6 +1824,9 @@ msgstr "Siden blev ikke fundet"
 
 msgid "Page Views"
 msgstr "Sidevisninger"
+
+msgid "Paid"
+msgstr "Betalt"
 
 msgid "Palak paneer"
 msgstr "Palak paneer"
@@ -2393,7 +2396,7 @@ msgid "Sidebar footer"
 msgstr "Sidemenu-sidefod"
 
 msgid "Sign in without a password using your device."
-msgstr "Log ind uden adgangskode med din enhed."
+msgstr "Log ind uden adgangskode ved hjælp af din enhed."
 
 msgid "Sign up"
 msgstr "Tilmeld dig"
@@ -2518,9 +2521,6 @@ msgstr "Abonnement"
 
 msgid "Subtle background for grouped rows inside a panel."
 msgstr "Diskret baggrund til grupperede rækker i et panel."
-
-msgid "Succeeded"
-msgstr "Gennemført"
 
 msgid "Suggestions"
 msgstr "Forslag"

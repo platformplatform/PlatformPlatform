@@ -8,7 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRightIcon, ZapIcon } from "lucide-react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
-import { api, BillingEventType } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
@@ -19,9 +19,7 @@ export function DashboardRecentStripeEventsCard() {
     params: { query: { Limit: 6 } }
   });
 
-  // Filter out low-signal billing-info events from the dashboard card; they are still visible on the
-  // full /billing-events page for operators who need to audit them.
-  const events = (data?.events ?? []).filter((event) => event.type !== BillingEventType.BillingInfoAdded);
+  const events = data?.events ?? [];
 
   return (
     <DashboardCardShell
@@ -67,7 +65,7 @@ export function DashboardRecentStripeEventsCard() {
                 <Link
                   to="/accounts/$tenantId"
                   params={{ tenantId: String(event.tenantId) }}
-                  search={{ tab: "billing" }}
+                  search={{ tab: "invoices" }}
                   className="-mx-2 grid grid-cols-[auto_minmax(0,9rem)_auto_minmax(0,1fr)_auto_auto] items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent active:bg-accent"
                 >
                   <TenantLogo
