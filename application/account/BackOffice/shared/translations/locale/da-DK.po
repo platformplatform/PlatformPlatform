@@ -91,6 +91,9 @@ msgstr "90d"
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account actions"
+msgstr "Kontohandlinger"
+
 msgid "Account growth"
 msgstr "Kontovækst"
 

@@ -91,6 +91,9 @@ msgstr "90d"
 msgid "Account"
 msgstr "Account"
 
+msgid "Account actions"
+msgstr "Account actions"
+
 msgid "Account growth"
 msgstr "Account growth"
 

@@ -11,13 +11,20 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { Button } from "@repo/ui/components/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { AlertTriangleIcon, CheckCircle2Icon, RefreshCwIcon } from "lucide-react";
+import { AlertTriangleIcon, CheckCircle2Icon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
 import { api } from "@/shared/lib/api/client";
 
-interface SyncWithStripeButtonProps {
+interface AccountActionsMenuProps {
   tenantId: string;
 }
 
@@ -28,7 +35,7 @@ interface SyncResult {
   syncedAt: string;
 }
 
-export function SyncWithStripeButton({ tenantId }: Readonly<SyncWithStripeButtonProps>) {
+export function AccountActionsMenu({ tenantId }: Readonly<AccountActionsMenuProps>) {
   const formatDate = useFormatDate();
   const [result, setResult] = useState<SyncResult | null>(null);
   const [isResultOpen, setIsResultOpen] = useState(false);
@@ -40,22 +47,39 @@ export function SyncWithStripeButton({ tenantId }: Readonly<SyncWithStripeButton
     }
   });
 
-  const handleClick = () => {
+  const handleSync = () => {
     syncMutation.mutate({ params: { path: { id: tenantId } } });
   };
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleClick}
-        isPending={syncMutation.isPending}
-        aria-label={t`Sync with Stripe`}
-      >
-        {!syncMutation.isPending && <RefreshCwIcon className="size-4" />}
-        {syncMutation.isPending ? <Trans>Syncing...</Trans> : <Trans>Sync with Stripe</Trans>}
-      </Button>
+      <DropdownMenu trackingTitle="Account actions">
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label={t`Account actions`}
+                    disabled={syncMutation.isPending}
+                  >
+                    <MoreVerticalIcon className="size-4" />
+                  </Button>
+                }
+              />
+            }
+          />
+          <TooltipContent>{t`Account actions`}</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem trackingLabel="Sync with Stripe" onClick={handleSync} disabled={syncMutation.isPending}>
+            <RefreshCwIcon className="size-4" />
+            {syncMutation.isPending ? <Trans>Syncing...</Trans> : <Trans>Sync with Stripe</Trans>}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <AlertDialog open={isResultOpen} onOpenChange={setIsResultOpen} trackingTitle="Sync with Stripe result">
         <AlertDialogContent>

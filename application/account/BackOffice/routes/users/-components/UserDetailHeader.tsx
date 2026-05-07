@@ -1,12 +1,9 @@
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, CalendarIcon, CheckCircle2Icon, MailIcon, XCircleIcon } from "lucide-react";
+import { CalendarIcon, CheckCircle2Icon, MailIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -23,72 +20,57 @@ export function UserDetailHeader({ user, isLoading }: Readonly<UserDetailHeaderP
   const formatDate = useFormatDate();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="-ml-2 gap-1.5"
-          nativeButton={false}
-          render={<Link to="/users" aria-label={t`Back to users`} />}
-        >
-          <ArrowLeftIcon className="size-4" />
-          <Trans>Users</Trans>
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-4">
-        {isLoading || !user ? (
-          <>
-            <Skeleton className="size-20 rounded-full" />
-            <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
-              <Skeleton className="h-7 w-64" />
-              <Skeleton className="h-4 w-48" />
-            </div>
-          </>
-        ) : (
-          <>
-            <Avatar size="xl" className="size-20">
-              {user.avatarUrl && (
-                <AvatarImage src={user.avatarUrl} alt={getUserDisplayName(user.firstName, user.lastName, user.email)} />
+    <div className="flex flex-wrap items-center gap-4">
+      {isLoading || !user ? (
+        <>
+          <Skeleton className="size-16 rounded-full" />
+          <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
+            <Skeleton className="h-7 w-64" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </>
+      ) : (
+        <>
+          <Avatar size="xl" className="size-16">
+            {user.avatarUrl && (
+              <AvatarImage src={user.avatarUrl} alt={getUserDisplayName(user.firstName, user.lastName, user.email)} />
+            )}
+            <AvatarFallback>{getUserInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="m-0 min-w-0 truncate leading-none">
+                {getUserDisplayName(user.firstName, user.lastName, user.email)}
+              </h1>
+              {user.emailConfirmed ? (
+                <Badge variant="outline" className="gap-1 border-emerald-500/30 text-emerald-600">
+                  <CheckCircle2Icon className="size-3" />
+                  <span className="hidden sm:inline">
+                    <Trans>Email confirmed</Trans>
+                  </span>
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-600">
+                  <XCircleIcon className="size-3" />
+                  <span className="hidden sm:inline">
+                    <Trans>Email pending</Trans>
+                  </span>
+                </Badge>
               )}
-              <AvatarFallback>{getUserInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
-            </Avatar>
-            <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="m-0 min-w-0 truncate leading-none">
-                  {getUserDisplayName(user.firstName, user.lastName, user.email)}
-                </h1>
-                {user.emailConfirmed ? (
-                  <Badge variant="outline" className="gap-1 border-emerald-500/30 text-emerald-600">
-                    <CheckCircle2Icon className="size-3" />
-                    <span className="hidden sm:inline">
-                      <Trans>Email confirmed</Trans>
-                    </span>
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-600">
-                    <XCircleIcon className="size-3" />
-                    <span className="hidden sm:inline">
-                      <Trans>Email pending</Trans>
-                    </span>
-                  </Badge>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <MailIcon className="size-3.5" aria-hidden={true} />
-                  <span>{user.email}</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarIcon className="size-3.5" aria-hidden={true} />
-                  <Trans>Created {formatDate(user.createdAt)}</Trans>
-                </span>
-              </div>
             </div>
-          </>
-        )}
-      </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <MailIcon className="size-3.5" aria-hidden={true} />
+                <span>{user.email}</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarIcon className="size-3.5" aria-hidden={true} />
+                <Trans>Created {formatDate(user.createdAt)}</Trans>
+              </span>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
