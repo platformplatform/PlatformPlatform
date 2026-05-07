@@ -24,6 +24,8 @@ public interface IStripeClient
 
     Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken);
 
+    Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken);
+
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 
     Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);

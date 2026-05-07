@@ -98,6 +98,50 @@ public sealed class StripeClientTests
     }
 
     [Fact]
+    public void ResolvePlanForInvoice_WithProrationUpgrade_ShouldReturnNewPlan()
+    {
+        // Arrange — proration invoice for an upgrade has two lines: a negative credit on the old plan and a
+        // positive charge on the new plan. Stripe may return the credit line first; we must still resolve
+        // to the new plan being charged for, not the old one being credited.
+        var invoice = new Invoice
+        {
+            Lines = new StripeList<InvoiceLineItem>
+            {
+                Data =
+                [
+                    new InvoiceLineItem
+                    {
+                        Amount = -14654,
+                        Pricing = new InvoiceLineItemPricing
+                        {
+                            PriceDetails = new InvoiceLineItemPricingPriceDetails { Price = "price_standard" }
+                        }
+                    },
+                    new InvoiceLineItem
+                    {
+                        Amount = 29406,
+                        Pricing = new InvoiceLineItemPricing
+                        {
+                            PriceDetails = new InvoiceLineItemPricingPriceDetails { Price = "price_premium" }
+                        }
+                    }
+                ]
+            }
+        };
+        IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId = new Dictionary<string, SubscriptionPlan>
+        {
+            ["price_standard"] = SubscriptionPlan.Standard,
+            ["price_premium"] = SubscriptionPlan.Premium
+        };
+
+        // Act
+        var plan = AccountStripeClient.ResolvePlanForInvoice(invoice, planByPriceId);
+
+        // Assert
+        plan.Should().Be(SubscriptionPlan.Premium);
+    }
+
+    [Fact]
     public void ResolvePlanForInvoice_WithMissingPricing_ShouldReturnNull()
     {
         // Arrange — line item without Pricing populated (e.g., manual line items).

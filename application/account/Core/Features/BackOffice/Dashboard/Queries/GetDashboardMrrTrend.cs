@@ -58,12 +58,17 @@ public sealed class GetDashboardMrrTrendHandler(ISubscriptionRepository subscrip
 
     // A subscription contributes to MRR on a day if it was already subscribed (or backdated) at end-of-day, and has a
     // known price. Cancellations are not stored as a separate timestamp, so the historical signal is approximated from
-    // SubscribedSince forward; CurrentPriceAmount is treated as steady over the period.
+    // SubscribedSince forward; the per-subscription contribution is forward MRR (0 when cancelling at period end,
+    // ScheduledPriceAmount when a downgrade is queued, otherwise CurrentPriceAmount), matching the KPI tile and the
+    // per-account MrrAmount tile. The scheduled state is treated as steady over the period.
     private static decimal ComputeDailyMrr(Subscription[] subscriptions, DateOnly date)
     {
         var endOfDay = new DateTimeOffset(date.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
         return subscriptions
             .Where(s => s is { CurrentPriceAmount: not null, SubscribedSince: { } subscribedSince } && subscribedSince < endOfDay)
-            .Sum(s => s.CurrentPriceAmount!.Value);
+            .Sum(s => s.CancelAtPeriodEnd
+                ? 0m
+                : s.ScheduledPriceAmount ?? s.CurrentPriceAmount!.Value
+            );
     }
 }

@@ -64,6 +64,12 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<PriceCatalogItem[]>([]);
     }
 
+    public Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get plan-by-priceId lookup");
+        return Task.FromResult<IReadOnlyDictionary<string, SubscriptionPlan>>(new Dictionary<string, SubscriptionPlan>());
+    }
+
     public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
     {
         logger.LogWarning("Stripe is not configured. Cannot verify webhook signature");

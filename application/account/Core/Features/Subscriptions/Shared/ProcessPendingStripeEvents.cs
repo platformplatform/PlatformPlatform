@@ -27,6 +27,8 @@ public sealed class ProcessPendingStripeEvents(
     ILogger<ProcessPendingStripeEvents> logger
 )
 {
+    private int _eventsAppendedInCurrentSync;
+
     public Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         return ExecuteAsync(stripeCustomerId, false, cancellationToken);
@@ -34,6 +36,7 @@ public sealed class ProcessPendingStripeEvents(
 
     public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, CancellationToken cancellationToken)
     {
+        _eventsAppendedInCurrentSync = 0;
         // Pessimistic lock serializes concurrent webhook processing for the same customer
         var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
         await using var transaction = isSqlite
@@ -136,6 +139,11 @@ public sealed class ProcessPendingStripeEvents(
         if (syncedTransactions is not null)
         {
             subscription.SetPaymentTransactions([.. syncedTransactions]);
+        }
+
+        if (!subscriptionCreated)
+        {
+            await BackfillLegacyBillingEventsAsync(subscription, cancellationToken);
         }
 
         var paymentRefunded = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) > previousRefundCount;
@@ -407,11 +415,15 @@ public sealed class ProcessPendingStripeEvents(
                 subscription.CurrentPriceAmount,
                 subscription.CurrentPriceCurrency
             );
-            // The snapshot is built from the just-synced local state, so today's detector finds zero
-            // discrepancies in the SubscriptionStateMismatch category. The seam stays in place so adding
-            // a Stripe-derived snapshot (full invoice/charge history) for the BillingEvent comparison
-            // becomes a localized change to this block plus the detector itself.
-            var discrepancies = BillingDriftDetector.Detect(subscription, snapshot);
+            // The snapshot is built from the just-synced local state, so the SubscriptionStateMismatch
+            // category finds zero discrepancies today. The seam stays in place so adding a Stripe-derived
+            // snapshot (full invoice/charge history) for per-event comparison becomes a localized change
+            // to this block plus the detector itself.
+            var persistedBillingEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
+            // Add the count appended during this sync — they are tracked in the DbContext but not yet
+            // flushed to the database, so the query above wouldn't otherwise see them.
+            var totalBillingEvents = persistedBillingEvents.Length + _eventsAppendedInCurrentSync;
+            var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, totalBillingEvents);
             subscription.SetDriftStatus(discrepancies, now);
         }
         catch (Exception ex)
@@ -434,6 +446,35 @@ public sealed class ProcessPendingStripeEvents(
         if (existing is null)
         {
             await billingEventRepository.AddAsync(billingEvent, cancellationToken);
+            _eventsAppendedInCurrentSync++;
+        }
+    }
+
+    /// <summary>
+    ///     One-time backfill that replays every stored stripe_event for a customer into the BillingEvent
+    ///     log. Used for subscriptions persisted before the BillingEvent log existed (the live webhook
+    ///     path writes events directly during normal sync). Skipped when the subscription already has
+    ///     BillingEvents — the live path is the authoritative source going forward.
+    /// </summary>
+    private async Task BackfillLegacyBillingEventsAsync(Subscription subscription, CancellationToken cancellationToken)
+    {
+        if (subscription.StripeCustomerId is null) return;
+
+        var existingEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
+        if (existingEvents.Length > 0) return;
+
+        var stripeEvents = await stripeEventRepository.GetProcessedByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
+        if (stripeEvents.Length == 0) return;
+
+        var stripeClient = stripeClientFactory.GetClient();
+        var planByPriceId = await stripeClient.GetPlanByPriceIdAsync(cancellationToken);
+        var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
+        var priceByPlan = priceCatalog.ToDictionary(p => p.Plan, p => p.UnitAmount);
+        var replayedEvents = StripeEventReplayer.Replay(subscription, stripeEvents, planByPriceId, priceByPlan);
+
+        foreach (var billingEvent in replayedEvents)
+        {
+            await AppendBillingEventAsync(billingEvent, cancellationToken);
         }
     }
 

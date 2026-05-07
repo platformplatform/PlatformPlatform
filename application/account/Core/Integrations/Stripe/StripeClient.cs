@@ -985,6 +985,13 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
                 .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
 
+            // Track the latest refund's timestamp per payment intent so the billing-history UI can render
+            // the refund as a separate row at the moment it actually happened, not at the original invoice
+            // date. Stripe returns the most recent refunds inline on the charge by default.
+            var latestRefundedAtByPaymentIntentId = charges.Data
+                .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null && c.Refunds is { Data.Count: > 0 })
+                .ToDictionary(c => c.PaymentIntentId!, c => c.Refunds.Data.Max(r => r.Created));
+
             var creditNoteService = new CreditNoteService();
             var creditNotes = await creditNoteService.ListAsync(
                 new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
@@ -999,19 +1006,25 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 {
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
+                    var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var rAt) ? (DateTimeOffset?)rAt : null;
                     var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
+                    var taxAmount = (invoice.TotalTaxes ?? []).Sum(t => t.Amount) / 100m;
+                    var amountExcludingTax = displayAmount - taxAmount;
                     var plan = ResolvePlanForInvoice(invoice, planByPriceId);
 
                     return new PaymentTransaction(
                         PaymentTransactionId.NewId(),
                         displayAmount,
+                        amountExcludingTax,
+                        taxAmount,
                         invoice.Currency.ToUpperInvariant(),
                         MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
                         invoice.Created,
                         invoice.Status == "uncollectible" ? "Payment failed." : null,
                         invoice.InvoicePdf,
                         creditNotesByInvoiceId.GetValueOrDefault(invoice.Id),
-                        plan
+                        plan,
+                        refundedAt
                     );
                 }
             ).ToArray();
@@ -1029,23 +1042,34 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     }
 
     /// <summary>
-    ///     Resolves a Stripe invoice's first line-item priceId to its <see cref="SubscriptionPlan" /> via the supplied
-    ///     lookup table. Returns <c>null</c> when the line item has no priceId (e.g., manual line items or archived
-    ///     prices not in the catalog) — historical data should not crash the sync just because a price was retired.
-    ///     Public to support unit testing of the priceId-extraction path against a constructed <see cref="Invoice" />.
-    /// </summary>
-    public static SubscriptionPlan? ResolvePlanForInvoice(Invoice invoice, IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId)
-    {
-        var priceId = invoice.Lines?.Data?.FirstOrDefault()?.Pricing?.PriceDetails?.Price;
-        return priceId is not null && planByPriceId.TryGetValue(priceId, out var plan) ? plan : null;
-    }
-
-    /// <summary>
     ///     Reverse of <see cref="GetPriceIdAsync" />: resolves a Stripe priceId (the only field reliably present on
     ///     historical invoice line items) back to its <see cref="SubscriptionPlan" /> via the cached price catalog.
     ///     Unknown / archived priceIds resolve to <c>null</c> rather than throwing — historical data should not crash
     ///     the sync just because a price was retired.
     /// </summary>
+    public async Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        return await BuildPlanByPriceIdAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Resolves a Stripe invoice's representative plan via the supplied price-to-plan lookup. Picks the line item
+    ///     with the largest positive amount, which on proration upgrade/downgrade invoices is the line for the new
+    ///     active plan (the negative line credits unused time on the old plan and would otherwise mis-resolve to it).
+    ///     Falls back to the first line item when no positive lines exist. Returns <c>null</c> when the resolved
+    ///     line has no priceId (manual line items, archived prices not in the catalog) — historical data should
+    ///     not crash the sync just because a price was retired. Public to support unit testing of the priceId
+    ///     extraction path against a constructed <see cref="Invoice" />.
+    /// </summary>
+    public static SubscriptionPlan? ResolvePlanForInvoice(Invoice invoice, IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId)
+    {
+        var lines = invoice.Lines?.Data;
+        var representativeLine = lines?.Where(l => l.Amount > 0).OrderByDescending(l => l.Amount).FirstOrDefault()
+                                 ?? lines?.FirstOrDefault();
+        var priceId = representativeLine?.Pricing?.PriceDetails?.Price;
+        return priceId is not null && planByPriceId.TryGetValue(priceId, out var plan) ? plan : null;
+    }
+
     private async Task<Dictionary<string, SubscriptionPlan>> BuildPlanByPriceIdAsync(CancellationToken cancellationToken)
     {
         await EnsurePriceCachePopulatedAsync(cancellationToken);

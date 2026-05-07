@@ -91,6 +91,34 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetDashboardKpis_WhenSubscriptionsAreCancellingOrDowngrading_ShouldUseForwardMrr()
+    {
+        // Arrange — three paid subscriptions: one stable Premium, one Premium scheduled to downgrade to Standard,
+        // one Standard cancelling at period end. Forward MRR sums to 299 + 149 + 0 = 448.
+        var now = DateTimeOffset.UtcNow;
+        var stable = SeedTenant("Stable Premium", SubscriptionPlan.Premium, now.AddDays(-30));
+        SeedPaidSubscription(stable, SubscriptionPlan.Premium, 299m, false, null, null);
+
+        var downgrading = SeedTenant("Downgrading", SubscriptionPlan.Premium, now.AddDays(-30));
+        SeedPaidSubscription(downgrading, SubscriptionPlan.Premium, 299m, false, SubscriptionPlan.Standard, 149m);
+
+        var cancelling = SeedTenant("Cancelling", SubscriptionPlan.Standard, now.AddDays(-30));
+        SeedPaidSubscription(cancelling, SubscriptionPlan.Standard, 149m, true, null, null);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/kpis");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardKpisResponse>();
+        payload.Should().NotBeNull();
+        payload.BlendedMonthlyRecurringRevenue.Should().Be(448m);
+    }
+
+    [Fact]
     public async Task GetDashboardKpis_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
@@ -134,12 +162,54 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         return tenantId;
     }
 
+    private void SeedPaidSubscription(
+        TenantId tenantId,
+        SubscriptionPlan plan,
+        decimal currentPriceAmount,
+        bool cancelAtPeriodEnd,
+        SubscriptionPlan? scheduledPlan,
+        decimal? scheduledPriceAmount
+    )
+    {
+        var paymentTransactionsJson = JsonSerializer.Serialize(new[]
+            {
+                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, plan)
+            }
+        );
+
+        Connection.Insert("subscriptions", [
+                ("tenant_id", tenantId.Value),
+                ("id", SubscriptionId.NewId().ToString()),
+                ("created_at", DateTimeOffset.UtcNow.AddDays(-30)),
+                ("modified_at", null),
+                ("plan", plan.ToString()),
+                ("scheduled_plan", scheduledPlan?.ToString()),
+                ("stripe_customer_id", "cus_test"),
+                ("stripe_subscription_id", "sub_test"),
+                ("current_price_amount", currentPriceAmount),
+                ("current_price_currency", "DKK"),
+                ("current_period_end", DateTimeOffset.UtcNow.AddDays(30)),
+                ("cancel_at_period_end", cancelAtPeriodEnd),
+                ("first_payment_failed_at", null),
+                ("cancellation_reason", null),
+                ("cancellation_feedback", null),
+                ("payment_transactions", paymentTransactionsJson),
+                ("payment_method", null),
+                ("billing_info", null),
+                ("scheduled_price_amount", (object?)scheduledPriceAmount ?? DBNull.Value),
+                ("has_drift_detected", false),
+                ("drift_checked_at", null),
+                ("drift_discrepancies", "[]")
+            ]
+        );
+    }
+
     private void SeedSubscription(TenantId tenantId, SubscriptionPlan plan, decimal? currentPriceAmount, bool hasSucceededPayment)
     {
         var paymentTransactionsJson = hasSucceededPayment
             ? JsonSerializer.Serialize(new[]
                 {
-                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
+                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, 49.99m, 0m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
                 }
             )
             : "[]";

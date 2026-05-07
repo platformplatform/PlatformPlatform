@@ -17,7 +17,7 @@ public sealed class BillingDriftDetectorTests
         var snapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
 
         // Act
-        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot);
+        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, 0);
 
         // Assert
         discrepancies.Should().BeEmpty();
@@ -32,7 +32,7 @@ public sealed class BillingDriftDetectorTests
         var snapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 49.00m, "DKK");
 
         // Act
-        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot);
+        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, 0);
 
         // Assert
         discrepancies.Should().ContainSingle();
@@ -52,7 +52,7 @@ public sealed class BillingDriftDetectorTests
         var snapshot = new StripeSyncSnapshot(SubscriptionPlan.Standard, true, 49.00m, "DKK");
 
         // Act
-        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot);
+        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, 0);
 
         // Assert
         discrepancies.Should().ContainSingle();
@@ -69,11 +69,49 @@ public sealed class BillingDriftDetectorTests
         var snapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "USD");
 
         // Act
-        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot);
+        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, 0);
 
         // Assert
         discrepancies.Should().HaveCount(3);
         discrepancies.Select(d => d.Kind).Should().AllBeEquivalentTo(DriftDiscrepancyKind.SubscriptionStateMismatch);
+    }
+
+    [Fact]
+    public void Detect_WhenPaymentTransactionsExistButNoBillingEvents_ShouldReturnMissingEventDiscrepancy()
+    {
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 99.00m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null, DateTimeOffset.UtcNow);
+        subscription.SetPaymentTransactions(
+            [new PaymentTransaction(PaymentTransactionId.NewId(), 99.00m, 99.00m, 0m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow, null, null, null)]
+        );
+        var snapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
+
+        // Act
+        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, 0);
+
+        // Assert
+        discrepancies.Should().ContainSingle();
+        discrepancies[0].Kind.Should().Be(DriftDiscrepancyKind.MissingEvent);
+        discrepancies[0].Severity.Should().Be(DriftSeverity.Warning);
+    }
+
+    [Fact]
+    public void Detect_WhenPaymentTransactionsAndBillingEventsBothPresent_ShouldNotReturnMissingEventDiscrepancy()
+    {
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 99.00m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null, DateTimeOffset.UtcNow);
+        subscription.SetPaymentTransactions(
+            [new PaymentTransaction(PaymentTransactionId.NewId(), 99.00m, 99.00m, 0m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow, null, null, null)]
+        );
+        var snapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
+
+        // Act
+        var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, 1);
+
+        // Assert
+        discrepancies.Should().BeEmpty();
     }
 
     [Fact]

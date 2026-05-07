@@ -1,6 +1,7 @@
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
@@ -28,12 +29,18 @@ public sealed class SyncTenantWithStripeHandler(
     ISubscriptionRepository subscriptionRepository,
     IBillingEventRepository billingEventRepository,
     ProcessPendingStripeEvents processPendingStripeEvents,
+    StripeClientFactory stripeClientFactory,
     TimeProvider timeProvider,
     ITelemetryEventsCollector events
 ) : IRequestHandler<SyncTenantWithStripeCommand, Result<SyncTenantWithStripeResponse>>
 {
     public async Task<Result<SyncTenantWithStripeResponse>> Handle(SyncTenantWithStripeCommand command, CancellationToken cancellationToken)
     {
+        if (stripeClientFactory.GetClient() is UnconfiguredStripeClient)
+        {
+            return Result<SyncTenantWithStripeResponse>.BadRequest("Stripe is not configured in this environment, sync is unavailable.");
+        }
+
         var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
         if (tenant is null) return Result<SyncTenantWithStripeResponse>.NotFound($"Tenant with id '{command.TenantId}' not found.");
 

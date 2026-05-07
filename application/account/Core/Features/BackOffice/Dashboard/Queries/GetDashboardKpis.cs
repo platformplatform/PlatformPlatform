@@ -93,9 +93,14 @@ public sealed class GetDashboardKpisHandler(
 
         var activeUsersInPeriod = allUsers.LongCount(u => u.LastSeenAt >= periodStart);
 
+        // Forward MRR per subscription mirrors the per-account MrrAmount tile: 0 if cancelling at period end,
+        // the scheduled (downgraded) price if a downgrade is queued, otherwise the current price.
         var totalMonthlyRecurringRevenue = paidSubscriptions
             .Where(s => s.CurrentPriceAmount.HasValue)
-            .Sum(s => s.CurrentPriceAmount!.Value);
+            .Sum(s => s.CancelAtPeriodEnd
+                ? 0m
+                : s.ScheduledPriceAmount ?? s.CurrentPriceAmount!.Value
+            );
 
         // Period-over-period MRR delta is approximated from the new-tenant signup ratio because the domain does
         // not store historical MRR snapshots. Operators get a directional signal without a daily snapshot table.

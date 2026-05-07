@@ -21,9 +21,12 @@ public sealed record TenantPaymentHistoryResponse(int TotalCount, int PageSize, 
 public sealed record TenantPaymentTransaction(
     PaymentTransactionId Id,
     decimal Amount,
+    decimal AmountExcludingTax,
+    decimal TaxAmount,
     string Currency,
     PaymentTransactionStatus Status,
     DateTimeOffset Date,
+    DateTimeOffset? RefundedAt,
     string? FailureReason,
     string? InvoiceUrl,
     string? CreditNoteUrl,
@@ -63,7 +66,7 @@ public sealed class GetTenantPaymentHistoryHandler(ITenantRepository tenantRepos
         var paged = transactions
             .Skip(query.PageOffset * query.PageSize)
             .Take(query.PageSize)
-            .Select(t => new TenantPaymentTransaction(t.Id, t.Amount, t.Currency, t.Status, t.Date, t.FailureReason, t.InvoiceUrl, t.CreditNoteUrl, t.Plan))
+            .Select(t => new TenantPaymentTransaction(t.Id, t.Amount, t.AmountExcludingTax, t.TaxAmount, t.Currency, t.Status, t.Date, t.RefundedAt, t.FailureReason, t.InvoiceUrl, t.CreditNoteUrl, t.Plan))
             .ToArray();
 
         return new TenantPaymentHistoryResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);

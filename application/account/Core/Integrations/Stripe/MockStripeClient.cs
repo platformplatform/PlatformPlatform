@@ -52,6 +52,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             new PaymentTransaction(
                 PaymentTransactionId.NewId(),
                 29.99m,
+                23.99m,
+                6.00m,
                 "USD",
                 PaymentTransactionStatus.Succeeded,
                 now,
@@ -123,6 +125,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1, false),
                 new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1, false)
             ]
+        );
+    }
+
+    public Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<IReadOnlyDictionary<string, SubscriptionPlan>>(new Dictionary<string, SubscriptionPlan>
+            {
+                ["price_mock_standard"] = SubscriptionPlan.Standard,
+                ["price_mock_premium"] = SubscriptionPlan.Premium
+            }
         );
     }
 
@@ -259,7 +272,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         return Task.FromResult<PaymentTransaction[]?>(
             [
-                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, 23.99m, 6.00m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
             ]
         );
     }

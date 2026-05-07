@@ -46,6 +46,8 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
 
         EnsureBackOfficeSpaShell();
 
+        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
+
         Connection = new SqliteConnection($"Data Source=TestDb_{Guid.NewGuid():N};Mode=Memory;Cache=Shared");
         Connection.Open();
 
@@ -76,7 +78,7 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
                         services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<AccountDbContext>)));
                         services.AddDbContext<AccountDbContext>(options => options.UseSqlite(Connection).UseSnakeCaseNamingConvention());
 
-                        services.AddScoped<ITelemetryEventsCollector>(_ => new TelemetryEventsCollectorSpy(new TelemetryEventsCollector()));
+                        services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
                         services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
                         services.AddTransient<IEmailClient>(_ => Substitute.For<IEmailClient>());
@@ -98,6 +100,8 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
     protected SqliteConnection Connection { get; }
 
     protected DatabaseSeeder DatabaseSeeder { get; }
+
+    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy { get; }
 
     public void Dispose()
     {

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Account.Features.Tenants.BackOffice.Commands;
+using Account.Integrations.OAuth;
 using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Authentication.MockEasyAuth;
@@ -22,6 +23,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         );
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         // Act
         var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
@@ -34,6 +36,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         payload.HasDriftDetected.Should().BeFalse();
         payload.DriftDiscrepancyCount.Should().Be(0);
         payload.SyncedAt.Should().BeAfter(DateTimeOffset.UtcNow.AddMinutes(-1));
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "TenantSyncedWithStripe");
     }
 
     [Fact]
@@ -56,6 +59,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         // Arrange
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
         var unknownTenantId = TenantId.NewId();
 
         // Act
@@ -63,6 +67,24 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task SyncTenantWithStripe_WhenStripeNotConfigured_ShouldReturnBadRequest()
+    {
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", MockStripeClient.MockCustomerId)
+            ]
+        );
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

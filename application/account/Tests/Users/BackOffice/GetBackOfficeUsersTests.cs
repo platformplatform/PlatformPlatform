@@ -292,7 +292,7 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
     {
         var paymentTransactionsJson = JsonSerializer.Serialize(new[]
             {
-                new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, 49.99m, 0m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
             }
         );
 

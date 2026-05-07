@@ -21,9 +21,9 @@ public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
         // Arrange
         var tenant = DatabaseSeeder.Tenant1;
         var transactions = ImmutableArray.Create(
-            new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, "https://stripe.test/inv1", null, SubscriptionPlan.Standard),
-            new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-02-01T00:00:00Z"), null, "https://stripe.test/inv2", null, SubscriptionPlan.Standard),
-            new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, "USD", PaymentTransactionStatus.Failed, DateTimeOffset.Parse("2025-03-01T00:00:00Z"), "Card declined.", null, null, SubscriptionPlan.Standard)
+            new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, "https://stripe.test/inv1", null, SubscriptionPlan.Standard),
+            new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-02-01T00:00:00Z"), null, "https://stripe.test/inv2", null, SubscriptionPlan.Standard),
+            new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD", PaymentTransactionStatus.Failed, DateTimeOffset.Parse("2025-03-01T00:00:00Z"), "Card declined.", null, null, SubscriptionPlan.Standard)
         );
         Connection.Update("subscriptions", "tenant_id", tenant.Id.Value, [
                 ("payment_transactions", JsonSerializer.Serialize(transactions.ToArray()))

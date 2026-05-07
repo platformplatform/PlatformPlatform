@@ -200,13 +200,16 @@ public sealed record PaymentMethod(string Brand, string Last4, int ExpMonth, int
 public sealed record PaymentTransaction(
     PaymentTransactionId Id,
     decimal Amount,
+    decimal AmountExcludingTax,
+    decimal TaxAmount,
     string Currency,
     PaymentTransactionStatus Status,
     DateTimeOffset Date,
     string? FailureReason,
     string? InvoiceUrl,
     string? CreditNoteUrl,
-    SubscriptionPlan? Plan = null
+    SubscriptionPlan? Plan = null,
+    DateTimeOffset? RefundedAt = null
 );
 
 [PublicAPI]

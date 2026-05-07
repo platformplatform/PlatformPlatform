@@ -18,6 +18,14 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     ///     Used by the frontend to poll for webhook processing completion.
     /// </summary>
     Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns previously-processed stripe_event rows for a customer ordered by CreatedAt.
+    ///     Used by the legacy-data backfill to replay the customer's historical webhook chain
+    ///     into the BillingEvent log. Pending events are excluded — they belong to the live
+    ///     sync path which produces BillingEvents directly from state transitions.
+    /// </summary>
+    Task<StripeEvent[]> GetProcessedByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
 
 internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
@@ -39,5 +47,15 @@ internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
     public async Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         return await DbSet.AnyAsync(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending, cancellationToken);
+    }
+
+    public async Task<StripeEvent[]> GetProcessedByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        // SQLite (used in tests) cannot translate DateTimeOffset comparisons in ORDER BY, so we order
+        // in memory after materializing. The set is bounded per-customer (typically <200 webhooks).
+        var events = await DbSet
+            .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Processed)
+            .ToArrayAsync(cancellationToken);
+        return events.OrderBy(e => e.CreatedAt).ToArray();
     }
 }
