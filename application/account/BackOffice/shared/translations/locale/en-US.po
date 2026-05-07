@@ -129,6 +129,9 @@ msgstr "All accounts this user is a member of, with their plan and role."
 msgid "All event types"
 msgstr "All event types"
 
+msgid "All users across every account, newest first. Search and filter to narrow down."
+msgstr "All users across every account, newest first. Search and filter to narrow down."
+
 msgid "All-time"
 msgstr "All-time"
 
@@ -509,6 +512,9 @@ msgstr "No users match your filters."
 msgid "No users match your search"
 msgstr "No users match your search"
 
+msgid "No users yet"
+msgstr "No users yet"
+
 msgid "Occurred"
 msgstr "Occurred"
 
@@ -652,14 +658,8 @@ msgstr "Search by name"
 msgid "Search by name or email"
 msgstr "Search by name or email"
 
-msgid "Search by user email, first or last name, or account name. At least 2 characters."
-msgstr "Search by user email, first or last name, or account name. At least 2 characters."
-
 msgid "Search users"
 msgstr "Search users"
-
-msgid "Search users by email, name, or account."
-msgstr "Search users by email, name, or account."
 
 msgid "Search, filter, and review accounts."
 msgstr "Search, filter, and review accounts."
@@ -767,9 +767,6 @@ msgstr "Try again"
 msgid "Try clearing the search or filters to see more results."
 msgstr "Try clearing the search or filters to see more results."
 
-msgid "Type to search"
-msgstr "Type to search"
-
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -793,6 +790,9 @@ msgstr "Users"
 
 msgid "Users active"
 msgstr "Users active"
+
+msgid "Users will appear here as accounts are created."
+msgstr "Users will appear here as accounts are created."
 
 msgid "VAT"
 msgstr "VAT"

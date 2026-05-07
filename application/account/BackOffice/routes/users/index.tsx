@@ -5,7 +5,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@r
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { SearchIcon, UsersIcon } from "lucide-react";
+import { UsersIcon } from "lucide-react";
 import { z } from "zod";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
@@ -27,12 +27,10 @@ export const Route = createFileRoute("/users/")({
   component: UsersSearchPage
 });
 
-const minSearchLength = 2;
-
 function UsersSearchPage() {
   const { search, roles, activity, pageOffset } = Route.useSearch();
   const trimmed = search?.trim() ?? "";
-  const hasSearch = trimmed.length >= minSearchLength;
+  const hasSearchOrFilter = trimmed.length > 0 || (roles?.length ?? 0) > 0 || activity !== undefined;
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -40,19 +38,19 @@ function UsersSearchPage() {
     {
       params: {
         query: {
-          Search: trimmed,
+          Search: trimmed.length > 0 ? trimmed : undefined,
           Roles: roles,
           Activity: activity,
           PageOffset: pageOffset
         }
       }
     },
-    { placeholderData: keepPreviousData, enabled: hasSearch }
+    { placeholderData: keepPreviousData }
   );
 
   const users = data?.users ?? [];
-  const showEmptySearch = !hasSearch;
-  const showNoResults = hasSearch && !isLoading && users.length === 0;
+  const showNoResults = !isLoading && users.length === 0 && hasSearchOrFilter;
+  const showEmpty = !isLoading && users.length === 0 && !hasSearchOrFilter;
 
   return (
     <SidebarProvider>
@@ -63,25 +61,11 @@ function UsersSearchPage() {
           maxWidth="64rem"
           browserTitle={t`Users`}
           title={t`Users`}
-          subtitle={t`Search users by email, name, or account.`}
+          subtitle={t`All users across every account, newest first. Search and filter to narrow down.`}
         >
           <UsersToolbar search={search} roles={roles ?? []} activity={activity} />
 
-          {showEmptySearch ? (
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <SearchIcon />
-                </EmptyMedia>
-                <EmptyTitle>
-                  <Trans>Type to search</Trans>
-                </EmptyTitle>
-                <EmptyDescription>
-                  <Trans>Search by user email, first or last name, or account name. At least 2 characters.</Trans>
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : showNoResults ? (
+          {showNoResults ? (
             <Empty>
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -92,6 +76,20 @@ function UsersSearchPage() {
                 </EmptyTitle>
                 <EmptyDescription>
                   <Trans>Try a different search term or clear the role and activity filters.</Trans>
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : showEmpty ? (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <UsersIcon />
+                </EmptyMedia>
+                <EmptyTitle>
+                  <Trans>No users yet</Trans>
+                </EmptyTitle>
+                <EmptyDescription>
+                  <Trans>Users will appear here as accounts are created.</Trans>
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

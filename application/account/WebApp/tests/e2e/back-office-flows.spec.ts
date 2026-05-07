@@ -272,10 +272,10 @@ test.describe("@smoke", () => {
 
     // === USERS LIST ===
 
-    await step("Navigate to users list & verify search prompt is shown before typing")(async () => {
+    await step("Navigate to users list & verify table renders with users by default")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/users`);
 
-      await expect(page.getByText("Type to search")).toBeVisible();
+      await expect(page.getByRole("table", { name: "Users" })).toBeVisible();
       await expect(page.getByRole("searchbox", { name: "Search" })).toBeVisible();
     })();
 

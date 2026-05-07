@@ -129,6 +129,9 @@ msgstr "Alle konti, brugeren er medlem af, med deres plan og rolle."
 msgid "All event types"
 msgstr "Alle hændelsestyper"
 
+msgid "All users across every account, newest first. Search and filter to narrow down."
+msgstr "Alle brugere på tværs af konti, nyeste først. Søg og filtrér for at indsnævre."
+
 msgid "All-time"
 msgstr "Samlet"
 
@@ -509,6 +512,9 @@ msgstr "Ingen brugere matcher dine filtre."
 msgid "No users match your search"
 msgstr "Ingen brugere matcher din søgning"
 
+msgid "No users yet"
+msgstr "Ingen brugere endnu"
+
 msgid "Occurred"
 msgstr "Tidspunkt"
 
@@ -652,14 +658,8 @@ msgstr "Søg efter navn"
 msgid "Search by name or email"
 msgstr "Søg efter navn eller e-mail"
 
-msgid "Search by user email, first or last name, or account name. At least 2 characters."
-msgstr "Søg på brugerens e-mail, for- eller efternavn, eller kontonavn. Mindst 2 tegn."
-
 msgid "Search users"
 msgstr "Søg brugere"
-
-msgid "Search users by email, name, or account."
-msgstr "Søg brugere på e-mail, navn eller konto."
 
 msgid "Search, filter, and review accounts."
 msgstr "Søg, filtrér og gennemse konti."
@@ -767,9 +767,6 @@ msgstr "Prøv igen"
 msgid "Try clearing the search or filters to see more results."
 msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
 
-msgid "Type to search"
-msgstr "Skriv for at søge"
-
 msgid "Unknown"
 msgstr "Ukendt"
 
@@ -793,6 +790,9 @@ msgstr "Brugere"
 
 msgid "Users active"
 msgstr "Aktive brugere"
+
+msgid "Users will appear here as accounts are created."
+msgstr "Brugere vises her, efterhånden som konti oprettes."
 
 msgid "VAT"
 msgstr "Moms"

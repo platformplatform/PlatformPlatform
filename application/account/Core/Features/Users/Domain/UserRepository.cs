@@ -390,13 +390,14 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Searches users across every tenant without applying tenant query filters. Search is required and matches
-    ///     user email, full name, or tenant name. The activity filter compares <see cref="User.LastSeenAt" /> to
-    ///     a sliding window relative to <paramref name="now" />. This method is used by the back-office cross-tenant
-    ///     Users search page where tenant context is not established.
+    ///     Searches users across every tenant without applying tenant query filters. When <paramref name="search" />
+    ///     is empty, every user is returned (subject to role/activity filters and pagination). When non-empty,
+    ///     matches user email, full name, or tenant name. The activity filter compares <see cref="User.LastSeenAt" />
+    ///     to a sliding window relative to <paramref name="now" />. This method is used by the back-office
+    ///     cross-tenant Users page where tenant context is not established.
     ///     Search and role filters run in the database. Activity filter, sort, and pagination run in memory because
     ///     SQLite cannot translate DateTimeOffset comparisons in WHERE or ORDER BY clauses (the test database is
-    ///     SQLite). The Users page is search-only by design, so the candidate set after the search predicate is small.
+    ///     SQLite).
     /// </summary>
     public async Task<(User[] Users, int TotalItems, int TotalPages)> SearchAllUsersUnfilteredAsync(
         string search,
@@ -410,21 +411,24 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
         CancellationToken cancellationToken
     )
     {
-        // Tenant name search is implemented as a separate lookup so we don't need an EF join. We then OR the resulting
-        // ids into the user predicate alongside email and full-name matches.
-        var matchingTenantIds = await accountDbContext.Set<Tenant>()
-            .IgnoreQueryFilters()
-            .Where(t => t.Name.ToLower().Contains(search))
-            .Select(t => t.Id)
-            .ToArrayAsync(cancellationToken);
+        var users = DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]);
 
-        var users = DbSet
-            .IgnoreQueryFilters([QueryFilterNames.Tenant])
-            .Where(u =>
+        if (!string.IsNullOrEmpty(search))
+        {
+            // Tenant name search is implemented as a separate lookup so we don't need an EF join. We then OR the
+            // resulting ids into the user predicate alongside email and full-name matches.
+            var matchingTenantIds = await accountDbContext.Set<Tenant>()
+                .IgnoreQueryFilters()
+                .Where(t => t.Name.ToLower().Contains(search))
+                .Select(t => t.Id)
+                .ToArrayAsync(cancellationToken);
+
+            users = users.Where(u =>
                 u.Email.Contains(search) ||
                 ((u.FirstName ?? "") + " " + (u.LastName ?? "")).ToLower().Contains(search) ||
                 matchingTenantIds.AsEnumerable().Contains(u.TenantId)
             );
+        }
 
         if (roles.Length > 0)
         {

@@ -5,7 +5,6 @@ import { MailIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { TenantStatusBadge } from "@/routes/accounts/-components/TenantStatusBadge";
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { getUserRoleLabel } from "@/shared/lib/api/labels";
 
@@ -41,14 +40,7 @@ export function UsersTableRow({
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-sm">{user.tenantName}</span>
-          <TenantStatusBadge
-            plan={user.tenantPlan}
-            plannedChange={user.tenantPlannedChange}
-            hasEverSubscribed={user.tenantHasEverSubscribed}
-          />
-        </div>
+        <span className="truncate text-sm">{user.tenantName}</span>
       </TableCell>
       <TableCell className="hidden lg:table-cell">
         <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>

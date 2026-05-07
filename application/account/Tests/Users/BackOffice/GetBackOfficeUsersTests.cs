@@ -86,9 +86,13 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task GetBackOfficeUsers_WhenSearchIsMissing_ShouldReturnBadRequest()
+    public async Task GetBackOfficeUsers_WhenSearchIsMissing_ShouldReturnAllUsersNewestFirst()
     {
         // Arrange
+        var tenant = SeedTenant("Listing Inc");
+        SeedUser(tenant, "first@listing.com", "First", "User", UserRole.Owner, true, createdAt: DateTimeOffset.UtcNow.AddDays(-3));
+        SeedUser(tenant, "middle@listing.com", "Middle", "User", UserRole.Member, true, createdAt: DateTimeOffset.UtcNow.AddDays(-2));
+        SeedUser(tenant, "last@listing.com", "Last", "User", UserRole.Member, true, createdAt: DateTimeOffset.UtcNow.AddDays(-1));
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -96,21 +100,12 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
         var response = await client.GetAsync("/api/back-office/users");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Fact]
-    public async Task GetBackOfficeUsers_WhenSearchTooShort_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
-        using var client = CreateBackOfficeClientForIdentity(identity);
-
-        // Act
-        var response = await client.GetAsync("/api/back-office/users?search=a");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeUsersResponse>();
+        payload.Should().NotBeNull();
+        payload.Users.Length.Should().BeGreaterThanOrEqualTo(3);
+        var seeded = payload.Users.Where(u => u.Email.EndsWith("@listing.com")).Select(u => u.Email).ToArray();
+        seeded.Should().Equal("last@listing.com", "middle@listing.com", "first@listing.com");
     }
 
     [Fact]
@@ -322,12 +317,12 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
         );
     }
 
-    private void SeedUser(TenantId tenantId, string email, string? firstName, string? lastName, UserRole role, bool emailConfirmed, DateTimeOffset? lastSeenAt = null)
+    private void SeedUser(TenantId tenantId, string email, string? firstName, string? lastName, UserRole role, bool emailConfirmed, DateTimeOffset? lastSeenAt = null, DateTimeOffset? createdAt = null)
     {
         Connection.Insert("users", [
                 ("tenant_id", tenantId.Value),
                 ("id", UserId.NewId().ToString()),
-                ("created_at", DateTimeOffset.UtcNow.AddDays(-30)),
+                ("created_at", createdAt ?? DateTimeOffset.UtcNow.AddDays(-30)),
                 ("modified_at", null),
                 ("last_seen_at", lastSeenAt),
                 ("email", email),

@@ -15,8 +15,8 @@ public sealed record GetBackOfficeUsersQuery(
     string? Search = null,
     UserRole[]? Roles = null,
     UserActivityFilter? Activity = null,
-    SortableBackOfficeUserProperties OrderBy = SortableBackOfficeUserProperties.Name,
-    SortOrder SortOrder = SortOrder.Ascending,
+    SortableBackOfficeUserProperties OrderBy = SortableBackOfficeUserProperties.CreatedAt,
+    SortOrder SortOrder = SortOrder.Descending,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<BackOfficeUsersResponse>>
@@ -73,9 +73,9 @@ public sealed class GetBackOfficeUsersQueryValidator : AbstractValidator<GetBack
 {
     public GetBackOfficeUsersQueryValidator()
     {
-        // Users page is search-only by design - the table has millions of rows. The frontend renders a "Type to search"
-        // empty state until the operator types at least 2 characters, so the API enforces the same minimum.
-        RuleFor(x => x.Search).Must(s => !string.IsNullOrEmpty(s) && s.Length is >= 2 and <= 100).WithMessage("Search must be between 2 and 100 characters.");
+        // Search is optional. When omitted or empty, the page lists every user newest-first. When provided, the cap of
+        // 100 characters guards against malicious input — the WebApp normally sends short tokens.
+        RuleFor(x => x.Search).MaximumLength(100).WithMessage("Search must be at most 100 characters.");
         RuleFor(x => x.Roles.Length).LessThanOrEqualTo(10).WithMessage("Roles filter must contain no more than 10 values.");
         RuleFor(x => x.PageSize).InclusiveBetween(1, 100).WithMessage("Page size must be between 1 and 100.");
         RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("Page offset must be greater than or equal to 0.");
@@ -92,7 +92,7 @@ public sealed class GetBackOfficeUsersHandler(
     public async Task<Result<BackOfficeUsersResponse>> Handle(GetBackOfficeUsersQuery query, CancellationToken cancellationToken)
     {
         var (users, totalCount, totalPages) = await userRepository.SearchAllUsersUnfilteredAsync(
-            query.Search!,
+            query.Search ?? "",
             query.Roles,
             query.Activity,
             timeProvider.GetUtcNow(),
