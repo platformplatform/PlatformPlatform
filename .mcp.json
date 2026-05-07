@@ -37,6 +37,9 @@
         "AZURE_TENANT_ID": "${AZURE_TENANT_ID}",
         "AZURE_SUBSCRIPTION_ID": "${AZURE_SUBSCRIPTION_ID_PRODUCTION}"
       }
+    },
+    "stripe-development": {
+      "command": ".claude/scripts/stripe-mcp-dev.sh"
     }
   }
 }
