@@ -28,7 +28,7 @@ public sealed class GetDashboardMrrTrendQueryValidator : AbstractValidator<GetDa
     }
 }
 
-public sealed class GetDashboardMrrTrendHandler(ISubscriptionRepository subscriptionRepository, TimeProvider timeProvider)
+public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingEventRepository, TimeProvider timeProvider)
     : IRequestHandler<GetDashboardMrrTrendQuery, Result<BackOfficeDashboardMrrTrendResponse>>
 {
     private const string DefaultCurrency = "DKK";
@@ -41,7 +41,13 @@ public sealed class GetDashboardMrrTrendHandler(ISubscriptionRepository subscrip
         var startDate = today.AddDays(-(days - 1));
         var priorStartDate = startDate.AddDays(-days);
 
-        var subscriptions = await subscriptionRepository.GetAllActiveUnfilteredAsync(cancellationToken);
+        // Reconstruct historical MRR from the BillingEvent log: for each subscription, the most recent
+        // event with NewAmount set (and OccurredAt before end-of-day) is its committed MRR for that day.
+        // Subscriptions backfilled via BackfillLegacyBillingEventsAsync are covered the same way.
+        var events = await billingEventRepository.GetMrrChangeEventsUnfilteredAsync(cancellationToken);
+        var eventsBySubscription = events
+            .GroupBy(e => e.SubscriptionId)
+            .ToDictionary(g => g.Key, g => g.OrderBy(e => e.OccurredAt).ToArray());
 
         var points = new BackOfficeDashboardMrrTrendPoint[days];
         var priorPoints = new BackOfficeDashboardMrrTrendPoint[days];
@@ -49,26 +55,24 @@ public sealed class GetDashboardMrrTrendHandler(ISubscriptionRepository subscrip
         {
             var currentDate = startDate.AddDays(index);
             var priorDate = priorStartDate.AddDays(index);
-            points[index] = new BackOfficeDashboardMrrTrendPoint(currentDate, ComputeDailyMrr(subscriptions, currentDate));
-            priorPoints[index] = new BackOfficeDashboardMrrTrendPoint(priorDate, ComputeDailyMrr(subscriptions, priorDate));
+            points[index] = new BackOfficeDashboardMrrTrendPoint(currentDate, ComputeDailyMrr(eventsBySubscription, currentDate));
+            priorPoints[index] = new BackOfficeDashboardMrrTrendPoint(priorDate, ComputeDailyMrr(eventsBySubscription, priorDate));
         }
 
         return new BackOfficeDashboardMrrTrendResponse(query.Period, DefaultCurrency, points, priorPoints);
     }
 
-    // A subscription contributes to MRR on a day if it was already subscribed (or backdated) at end-of-day, and has a
-    // known price. Cancellations are not stored as a separate timestamp, so the historical signal is approximated from
-    // SubscribedSince forward; the per-subscription contribution is forward MRR (0 when cancelling at period end,
-    // ScheduledPriceAmount when a downgrade is queued, otherwise CurrentPriceAmount), matching the KPI tile and the
-    // per-account MrrAmount tile. The scheduled state is treated as steady over the period.
-    private static decimal ComputeDailyMrr(Subscription[] subscriptions, DateOnly date)
+    private static decimal ComputeDailyMrr(Dictionary<SubscriptionId, BillingEvent[]> eventsBySubscription, DateOnly date)
     {
         var endOfDay = new DateTimeOffset(date.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        return subscriptions
-            .Where(s => s is { CurrentPriceAmount: not null, SubscribedSince: { } subscribedSince } && subscribedSince < endOfDay)
-            .Sum(s => s.CancelAtPeriodEnd
-                ? 0m
-                : s.ScheduledPriceAmount ?? s.CurrentPriceAmount!.Value
-            );
+        var total = 0m;
+        foreach (var subscriptionEvents in eventsBySubscription.Values)
+        {
+            // Events are sorted by OccurredAt asc — LastOrDefault picks the latest event up to end-of-day.
+            var latest = subscriptionEvents.LastOrDefault(e => e.OccurredAt < endOfDay);
+            if (latest?.NewAmount is { } amount) total += amount;
+        }
+
+        return total;
     }
 }

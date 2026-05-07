@@ -2,11 +2,12 @@ import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracke
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
+import { BannerPortal } from "@repo/ui/components/BannerPortal";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 
-import { BillingDriftBanner } from "@/shared/components/BillingDriftBanner";
+import { BackOfficeBanners } from "@/shared/components/BackOfficeBanners";
 import { ErrorPage } from "@/shared/components/errorPages/ErrorPage";
 import { NotFoundPage } from "@/shared/components/errorPages/NotFoundPage";
 import { queryClient } from "@/shared/lib/api/client";
@@ -26,8 +27,10 @@ function Root() {
     <QueryClientProvider client={queryClient}>
       <ThemeModeProvider>
         <AuthenticationProvider navigate={(options) => navigate(options)}>
+          <BannerPortal>
+            <BackOfficeBanners />
+          </BannerPortal>
           <PageTracker />
-          <BillingDriftBanner />
           <Outlet />
         </AuthenticationProvider>
       </ThemeModeProvider>

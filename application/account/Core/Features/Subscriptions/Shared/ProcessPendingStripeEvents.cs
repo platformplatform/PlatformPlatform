@@ -281,7 +281,7 @@ public sealed class ProcessPendingStripeEvents(
             await AppendBillingEventAsync(BillingEvent.Create(
                     subscription.Id, subscription.TenantId, BillingEventType.SubscriptionCancelled, now, subscription.Id.Value,
                     subscription.Plan,
-                    previousAmount: subscription.CurrentPriceAmount, amountDelta: -subscription.CurrentPriceAmount,
+                    previousAmount: subscription.CurrentPriceAmount, newAmount: 0m, amountDelta: -subscription.CurrentPriceAmount,
                     currency: subscription.CurrentPriceCurrency,
                     daysOnPreviousPlan: daysOnCurrentPlan, daysUntilEffective: daysUntilExpiry,
                     effectiveAt: subscription.CurrentPeriodEnd,

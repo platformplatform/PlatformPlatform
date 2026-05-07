@@ -30,6 +30,14 @@ public interface IBillingEventRepository : IAppendRepository<BillingEvent, Billi
     ///     happens at the database level and dashboard windows are bounded.
     /// </summary>
     Task<BillingEvent[]> SearchAllUnfilteredAsync(BillingEventType[] eventTypes, DateTimeOffset? occurredFrom, DateTimeOffset? occurredTo, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every billing event with a populated NewAmount across all tenants — the events that
+    ///     change committed MRR. Used by the dashboard MRR-trend computation to reconstruct historical
+    ///     MRR per subscription. Bypasses the tenant query filter because the back-office is cross-tenant
+    ///     by design.
+    /// </summary>
+    Task<BillingEvent[]> GetMrrChangeEventsUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 public sealed class BillingEventRepository(AccountDbContext accountDbContext)
@@ -49,6 +57,14 @@ public sealed class BillingEventRepository(AccountDbContext accountDbContext)
         // in memory. The materialized set is bounded by the dashboard's small request limit (max 50 rows).
         var events = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return events.OrderByDescending(e => e.OccurredAt).Take(limit).ToArray();
+    }
+
+    public async Task<BillingEvent[]> GetMrrChangeEventsUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(e => e.NewAmount != null)
+            .ToArrayAsync(cancellationToken);
     }
 
     public async Task<BillingEvent[]> SearchAllUnfilteredAsync(BillingEventType[] eventTypes, DateTimeOffset? occurredFrom, DateTimeOffset? occurredTo, CancellationToken cancellationToken)

@@ -36,6 +36,9 @@ msgstr "{activeUsers} active"
 msgid "{count} accounts have billing drift detected."
 msgstr "{count} accounts have billing drift detected."
 
+msgid "{count} accounts have not been synced yet — MRR trend is incomplete."
+msgstr "{count} accounts have not been synced yet — MRR trend is incomplete."
+
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
 
@@ -152,12 +155,6 @@ msgstr "Authoritative log of subscription, payment, and billing transitions acro
 msgid "Back Office"
 msgstr "Back Office"
 
-msgid "Back to accounts"
-msgstr "Back to accounts"
-
-msgid "Back to users"
-msgstr "Back to users"
-
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
 
@@ -252,6 +249,11 @@ msgstr "Dark"
 
 msgid "Dashboard"
 msgstr "Dashboard"
+
+#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, data.currency)
+#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, data.currency)
+msgid "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
+msgstr "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
 
 msgid "Date"
 msgstr "Date"
@@ -808,6 +810,9 @@ msgstr "View all {totalEvents} events"
 
 msgid "View all {totalTransactions} invoices"
 msgstr "View all {totalTransactions} invoices"
+
+msgid "View billing events"
+msgstr "View billing events"
 
 msgid "vs prior period"
 msgstr "vs prior period"

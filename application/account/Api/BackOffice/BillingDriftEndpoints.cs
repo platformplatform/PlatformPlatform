@@ -25,5 +25,13 @@ public sealed class BillingDriftEndpoints : IEndpoints
         group.MapGet("/summary", async Task<ApiResult<BillingDriftSummaryResponse>> ([AsParameters] GetBillingDriftSummaryQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<BillingDriftSummaryResponse>();
+
+        group.MapGet("/unsynced-summary", async Task<ApiResult<UnsyncedSubscriptionsSummaryResponse>> ([AsParameters] GetUnsyncedSubscriptionsSummaryQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<UnsyncedSubscriptionsSummaryResponse>();
+
+        group.MapGet("/mrr-consistency-summary", async Task<ApiResult<DashboardMrrConsistencySummaryResponse>> ([AsParameters] GetDashboardMrrConsistencySummaryQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<DashboardMrrConsistencySummaryResponse>();
     }
 }

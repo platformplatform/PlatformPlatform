@@ -40,6 +40,14 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     ///     tenant query filter because the back-office is cross-tenant by design.
     /// </summary>
     Task<int> CountWithDriftDetectedUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Counts paid subscriptions that have no rows in billing_events — i.e. subscriptions that have
+    ///     never been synced into the BillingEvent log. The dashboard's MRR trend silently under-counts
+    ///     these, so the back-office surfaces the count as a banner. Bypasses the tenant query filter
+    ///     because the back-office is cross-tenant by design.
+    /// </summary>
+    Task<int> CountWithoutBillingEventsUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -96,5 +104,13 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     public async Task<int> CountWithDriftDetectedUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().CountAsync(s => s.HasDriftDetected, cancellationToken);
+    }
+
+    public async Task<int> CountWithoutBillingEventsUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters()
+            .Where(s => s.CurrentPriceAmount != null)
+            .Where(s => !accountDbContext.Set<BillingEvent>().IgnoreQueryFilters().Any(e => e.SubscriptionId == s.Id))
+            .CountAsync(cancellationToken);
     }
 }
