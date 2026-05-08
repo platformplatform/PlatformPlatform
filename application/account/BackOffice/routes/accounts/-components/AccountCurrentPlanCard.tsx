@@ -56,7 +56,7 @@ export function AccountCurrentPlanCard({ tenant, isLoading }: Readonly<AccountCu
 
 function CurrentPlanShell({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <section className="flex flex-col">
+    <section className="flex h-full flex-col">
       <h4 className="mb-3 whitespace-nowrap">
         <Trans>Current plan</Trans>
       </h4>
@@ -67,7 +67,7 @@ function CurrentPlanShell({ children }: Readonly<{ children: ReactNode }>) {
 
 function CurrentPlanEmpty({ title, description }: Readonly<{ title: ReactNode; description: ReactNode }>) {
   return (
-    <Empty className="min-h-[20.75rem] flex-1 border bg-card">
+    <Empty className="h-[8.375rem] flex-none border bg-card p-4 md:p-4 lg:h-auto lg:min-h-[20.75rem] lg:flex-1 lg:p-12">
       <EmptyHeader>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{description}</EmptyDescription>
@@ -78,7 +78,7 @@ function CurrentPlanEmpty({ title, description }: Readonly<{ title: ReactNode; d
 
 function renderSkeleton() {
   return (
-    <Card className="gap-4 rounded-lg p-5 py-5 shadow-none">
+    <Card className="flex-1 gap-4 rounded-lg p-5 py-5 shadow-none">
       <Skeleton className="h-5 w-24" />
       <Skeleton className="h-9 w-40" />
       <Skeleton className="h-4 w-32" />
@@ -118,7 +118,7 @@ function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailResponse 
     : [];
 
   return (
-    <Card className="min-h-[20.75rem] gap-4 rounded-lg p-5 py-5 shadow-none">
+    <Card className="min-h-[8.375rem] flex-1 gap-4 rounded-lg p-5 py-5 shadow-none lg:min-h-[20.75rem]">
       <div className="flex min-w-0 flex-col gap-1">
         <div className="flex min-w-0 items-start justify-between gap-2">
           {showStrikedAmount ? (

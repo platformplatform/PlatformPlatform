@@ -31,11 +31,13 @@ export function UserDetailHeader({ user, isLoading }: Readonly<UserDetailHeaderP
         </>
       ) : (
         <>
-          <Avatar size="xl" className="size-16">
+          <Avatar className="size-16">
             {user.avatarUrl && (
               <AvatarImage src={user.avatarUrl} alt={getUserDisplayName(user.firstName, user.lastName, user.email)} />
             )}
-            <AvatarFallback>{getUserInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+            <AvatarFallback className="text-lg">
+              {getUserInitials(user.firstName, user.lastName, user.email)}
+            </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-col justify-center gap-1 self-center">
             <div className="flex flex-wrap items-center gap-2">
@@ -65,7 +67,10 @@ export function UserDetailHeader({ user, isLoading }: Readonly<UserDetailHeaderP
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CalendarIcon className="size-3.5" aria-hidden={true} />
-                <Trans>Created {formatDate(user.createdAt)}</Trans>
+                <Trans>
+                  Created <span className="md:hidden">{formatDate(user.createdAt, false, false, true)}</span>
+                  <span className="hidden md:inline">{formatDate(user.createdAt)}</span>
+                </Trans>
               </span>
             </div>
           </div>

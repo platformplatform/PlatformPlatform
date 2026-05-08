@@ -233,10 +233,12 @@ msgstr "Country"
 msgid "Created"
 msgstr "Created"
 
-#. placeholder {0}: formatDate(tenant.createdAt)
-#. placeholder {0}: formatDate(user.createdAt)
-msgid "Created {0}"
-msgstr "Created {0}"
+#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
+#. placeholder {0}: formatDate(user.createdAt, false, false, true)
+#. placeholder {1}: formatDate(tenant.createdAt)
+#. placeholder {1}: formatDate(user.createdAt)
+msgid "Created <0>{0}</0><1>{1}</1>"
+msgstr "Created <0>{0}</0><1>{1}</1>"
 
 msgid "Credit note"
 msgstr "Credit note"

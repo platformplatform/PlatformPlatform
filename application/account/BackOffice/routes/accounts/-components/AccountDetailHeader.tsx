@@ -39,9 +39,9 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
           </>
         ) : (
           <>
-            <div className="flex flex-col items-start gap-2 md:flex-row md:flex-wrap md:items-center">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="m-0 min-w-0 truncate leading-none">{tenant.name}</h1>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="hidden flex-wrap items-center gap-2 md:flex">
                 <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
                   {getSubscriptionPlanLabel(tenant.plan)}
                 </Badge>
@@ -54,15 +54,26 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 md:hidden">
+                {tenant.state !== TenantState.Active && <TenantStatePill state={tenant.state} />}
+                <TenantStatusBadge
+                  plan={tenant.plan}
+                  plannedChange={derivePlannedChange(tenant)}
+                  hasEverSubscribed={tenant.hasEverSubscribed}
+                />
+              </div>
               {tenant.billingAddress?.country && (
                 <span className="inline-flex items-center gap-1.5">
                   <span aria-hidden={true}>{getCountryFlagEmoji(tenant.billingAddress.country)}</span>
-                  <span>{getCountryName(tenant.billingAddress.country, i18n.locale)}</span>
+                  <span className="hidden md:inline">{getCountryName(tenant.billingAddress.country, i18n.locale)}</span>
                 </span>
               )}
               <span className="inline-flex items-center gap-1.5">
                 <CalendarIcon className="size-3.5" aria-hidden={true} />
-                <Trans>Created {formatDate(tenant.createdAt)}</Trans>
+                <Trans>
+                  Created <span className="md:hidden">{formatDate(tenant.createdAt, false, false, true)}</span>
+                  <span className="hidden md:inline">{formatDate(tenant.createdAt)}</span>
+                </Trans>
               </span>
             </div>
           </>

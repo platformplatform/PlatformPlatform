@@ -82,11 +82,11 @@ function AccountDetailPage() {
               </TabsList>
               <TabsContent value="overview" className="flex flex-col gap-6">
                 <AccountOverviewTab tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
-                <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5">
-                  <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+                  <div className="flex flex-col lg:col-span-2">
                     <AccountCurrentPlanCard tenant={tenant} isLoading={tenantQuery.isLoading} />
                   </div>
-                  <div className="lg:col-span-3">
+                  <div className="flex flex-col lg:col-span-3">
                     <AccountBillingTab
                       tenantId={tenantId}
                       variant="compact-both"
