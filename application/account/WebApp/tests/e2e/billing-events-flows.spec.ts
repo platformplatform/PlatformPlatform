@@ -53,23 +53,26 @@ test.describe("@smoke", () => {
 
     // === FILTERS ===
 
-    await step("Apply Subscribed event-type filter & verify chip becomes pressed and table stays visible")(async () => {
-      const subscribedChip = page.getByRole("button", { name: "Subscribed" });
-      await subscribedChip.click();
-
-      await expect(subscribedChip).toHaveAttribute("aria-pressed", "true");
-      await expect(page.getByRole("table", { name: "Billing events" })).toBeVisible();
-    })();
-
-    await step("Clear event-type filter & verify chip is unpressed and URL returns to base /billing-events")(
+    await step("Apply Subscribed event-type filter & verify URL reflects selection and table stays visible")(
       async () => {
-        const subscribedChip = page.getByRole("button", { name: "Subscribed" });
-        await subscribedChip.click();
+        await page.getByRole("combobox", { name: "All event types" }).click();
+        await page.getByRole("option", { name: "Subscribed" }).click();
+        await page.keyboard.press("Escape");
 
-        await expect(subscribedChip).toHaveAttribute("aria-pressed", "false");
-        await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/billing-events`);
+        await expect(page).toHaveURL(
+          `${BACK_OFFICE_BASE_URL}/billing-events?eventTypes=%5B%22SubscriptionCreated%22%5D`
+        );
+        await expect(page.getByRole("table", { name: "Billing events" })).toBeVisible();
       }
     )();
+
+    await step("Clear Subscribed event-type filter & verify URL returns to base /billing-events")(async () => {
+      await page.getByRole("combobox", { name: "All event types" }).click();
+      await page.getByRole("option", { name: "Subscribed" }).click();
+      await page.keyboard.press("Escape");
+
+      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/billing-events`);
+    })();
 
     await step(
       "Type a deliberately non-matching tenant search & verify URL reflects search query and empty state appears"

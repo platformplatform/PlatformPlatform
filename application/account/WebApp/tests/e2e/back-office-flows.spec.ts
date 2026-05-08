@@ -191,7 +191,6 @@ test.describe("@smoke", () => {
 
       const main = page.getByRole("main");
 
-      await expect(page.getByRole("button", { name: "Back to accounts" })).toBeVisible();
       await expect(main.getByText("MRR")).toBeVisible();
       await expect(main.getByText("Lifetime value")).toBeVisible();
       await expect(main.getByRole("tab", { name: "Users" })).toBeVisible();
@@ -279,32 +278,23 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("searchbox", { name: "Search" })).toBeVisible();
     })();
 
-    await step("Search for e2e owner first name & verify results table with at least one row")(async () => {
+    await step("Search for e2e owner first name & verify URL filters to TestOwner row")(async () => {
       await page.getByRole("searchbox", { name: "Search" }).fill("testowner");
 
+      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/users?search=testowner`);
       await expect(page.getByRole("table", { name: "Users" })).toBeVisible();
       await expect(page.getByRole("columnheader", { name: "User" })).toBeVisible();
-      await expect(page.getByRole("row").nth(1)).toBeVisible();
+      await expect(page.getByRole("row").filter({ hasText: "TestOwner" }).first()).toBeVisible();
     })();
 
-    await step("Click first user row & verify navigation to user detail page with display name and KPI cards")(
-      async () => {
-        await page.getByRole("row").nth(1).click();
+    await step("Click TestOwner row & verify navigation to user detail page with display name and tabs")(async () => {
+      await page.getByRole("row").filter({ hasText: "TestOwner" }).first().click();
 
-        await expect(page.getByRole("heading", { level: 1 })).toContainText("TestOwner");
-        await expect(page.getByText("Last log-in")).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Accounts" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Login history" })).toBeVisible();
-      }
-    )();
-
-    await step("Click Page views tab & verify telemetry section renders all three tabs")(async () => {
-      await page.getByRole("tab", { name: "Page views" }).click();
-
-      await expect(page.getByRole("tab", { name: "Exceptions" })).toBeVisible();
-      await expect(page.getByRole("tab", { name: "Page views" })).toBeVisible();
-      await expect(page.getByRole("tab", { name: "Custom events" })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toContainText("TestOwner");
+      await expect(page.getByText("Last log-in")).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Accounts" })).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Logins" })).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Sessions" })).toBeVisible();
     })();
 
     await backOfficeContext.close();

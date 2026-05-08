@@ -30,7 +30,7 @@ export function DashboardRecentStripeEventsCard() {
   const handleActivate = useCallback(
     (key: RowKey) => {
       const tenantId = String(key).split("|")[0];
-      navigate({ to: "/accounts/$tenantId", params: { tenantId }, search: { tab: "invoices" } });
+      navigate({ to: "/accounts/$tenantId", params: { tenantId }, search: { tab: "billing-events" } });
     },
     [navigate]
   );
