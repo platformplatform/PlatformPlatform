@@ -1,5 +1,5 @@
-using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -18,11 +18,13 @@ public sealed record BackOfficeDashboardRecentSignupsResponse(BackOfficeDashboar
 public sealed record BackOfficeDashboardRecentSignup(
     TenantId TenantId,
     string Name,
-    string? Country,
-    SubscriptionPlan Plan,
     string? TenantLogoUrl,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    BackOfficeDashboardRecentSignupOwner? Owner
 );
+
+[PublicAPI]
+public sealed record BackOfficeDashboardRecentSignupOwner(UserId UserId, string? FirstName, string? LastName, string Email);
 
 public sealed class GetDashboardRecentSignupsQueryValidator : AbstractValidator<GetDashboardRecentSignupsQuery>
 {
@@ -32,31 +34,24 @@ public sealed class GetDashboardRecentSignupsQueryValidator : AbstractValidator<
     }
 }
 
-public sealed class GetDashboardRecentSignupsHandler(
-    ITenantRepository tenantRepository,
-    ISubscriptionRepository subscriptionRepository
-) : IRequestHandler<GetDashboardRecentSignupsQuery, Result<BackOfficeDashboardRecentSignupsResponse>>
+public sealed class GetDashboardRecentSignupsHandler(ITenantRepository tenantRepository, IUserRepository userRepository)
+    : IRequestHandler<GetDashboardRecentSignupsQuery, Result<BackOfficeDashboardRecentSignupsResponse>>
 {
     public async Task<Result<BackOfficeDashboardRecentSignupsResponse>> Handle(GetDashboardRecentSignupsQuery query, CancellationToken cancellationToken)
     {
         var tenants = await tenantRepository.GetMostRecentSignupsUnfilteredAsync(query.Limit, cancellationToken);
         var tenantIds = tenants.Select(t => t.Id).ToArray();
-        var subscriptions = tenantIds.Length == 0
-            ? []
-            : await subscriptionRepository.GetByTenantIdsUnfilteredAsync(tenantIds, cancellationToken);
-        var subscriptionByTenantId = subscriptions.ToDictionary(s => s.TenantId);
+        var ownerByTenantId = await userRepository.GetFirstOwnerByTenantIdsUnfilteredAsync(tenantIds, cancellationToken);
 
         var signups = tenants.Select(tenant =>
             {
-                var subscription = subscriptionByTenantId.GetValueOrDefault(tenant.Id);
-                var country = subscription?.BillingInfo?.Address?.Country;
+                var owner = ownerByTenantId.GetValueOrDefault(tenant.Id);
                 return new BackOfficeDashboardRecentSignup(
                     tenant.Id,
                     tenant.Name,
-                    country,
-                    tenant.Plan,
                     tenant.Logo.Url,
-                    tenant.CreatedAt
+                    tenant.CreatedAt,
+                    owner is null ? null : new BackOfficeDashboardRecentSignupOwner(owner.Id, owner.FirstName, owner.LastName, owner.Email)
                 );
             }
         ).ToArray();

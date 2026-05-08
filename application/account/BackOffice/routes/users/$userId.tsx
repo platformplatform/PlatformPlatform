@@ -61,7 +61,7 @@ function UserDetailPage() {
       <SidebarInset>
         <AppLayout variant="center" maxWidth="64rem" browserTitle={browserTitle}>
           <div className="flex flex-col gap-6">
-            <UserDetailHeader user={user} isLoading={userQuery.isLoading} />
+            <UserDetailHeader user={user} userId={userId} isLoading={userQuery.isLoading} />
             <UserActivityTiles user={user} userId={userId} isLoading={userQuery.isLoading} />
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList>

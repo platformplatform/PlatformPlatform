@@ -92,6 +92,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Returns the earliest-created Owner for each of the given tenants without applying tenant query filters.
+    ///     Used by the back-office recent signups dashboard to attribute each new tenant to the user who signed up.
+    /// </summary>
+    Task<Dictionary<TenantId, User>> GetFirstOwnerByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Returns every non-deleted user across all tenants without applying tenant query filters.
     ///     Used by the back-office dashboard KPI snapshot to compute period-active users (last_seen_at within
     ///     the selected period) across all tenants. SQLite cannot translate DateTimeOffset comparisons in WHERE,
@@ -503,6 +509,26 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     public async Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Returns the earliest-created Owner for each of the given tenants without applying tenant query filters.
+    ///     Used by the back-office recent signups dashboard to attribute each new tenant to the user who signed up.
+    /// </summary>
+    public async Task<Dictionary<TenantId, User>> GetFirstOwnerByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken)
+    {
+        if (tenantIds.Length == 0) return new Dictionary<TenantId, User>();
+
+        // SQLite cannot translate DateTimeOffset ORDER BY clauses, so materialize the candidate Owners and pick
+        // the earliest in memory. Bounded by the number of tenants on the dashboard recent-signups list.
+        var owners = await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u => u.Role == UserRole.Owner && tenantIds.AsEnumerable().Contains(u.TenantId))
+            .ToArrayAsync(cancellationToken);
+
+        return owners
+            .GroupBy(u => u.TenantId)
+            .ToDictionary(g => g.Key, g => g.OrderBy(u => u.CreatedAt).ThenBy(u => u.Id.Value).First());
     }
 
     [UsedImplicitly]

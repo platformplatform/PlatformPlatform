@@ -1,9 +1,7 @@
 import type { RowKey } from "@repo/ui/components/Table";
 
 import { t } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { Badge } from "@repo/ui/components/Badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
@@ -14,13 +12,15 @@ import { useCallback } from "react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { api } from "@/shared/lib/api/client";
-import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
-import { getCountryFlagEmoji, getCountryName } from "@repo/ui/utils/countryFlag";
 
 import { DashboardCardShell } from "./DashboardCardShell";
 
+function getOwnerDisplayName(owner: { firstName: string | null; lastName: string | null; email: string }): string {
+  const fullName = [owner.firstName, owner.lastName].filter((part) => part != null && part.trim() !== "").join(" ");
+  return fullName !== "" ? fullName : owner.email;
+}
+
 export function DashboardRecentSignupsCard() {
-  const { i18n } = useLingui();
   const navigate = useNavigate();
   const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/recent-signups", {
     params: { query: { Limit: 6 } }
@@ -64,17 +64,20 @@ export function DashboardRecentSignupsCard() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <Table rowSize="compact" aria-label={t`Recent signups`} selectionMode="single" onActivate={handleActivate}>
+        <Table
+          rowSize="compact"
+          aria-label={t`Recent signups`}
+          selectionMode="single"
+          onActivate={handleActivate}
+          containerClassName="border-0 bg-transparent"
+        >
           <TableHeader>
             <TableRow>
               <TableHead>
                 <Trans>Account</Trans>
               </TableHead>
               <TableHead className="hidden md:table-cell">
-                <Trans>Plan</Trans>
-              </TableHead>
-              <TableHead className="hidden md:table-cell">
-                <Trans>Country</Trans>
+                <Trans>Owner</Trans>
               </TableHead>
               <TableHead className="text-right">
                 <Trans>Created</Trans>
@@ -96,16 +99,8 @@ export function DashboardRecentSignupsCard() {
                   </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  <Badge variant="secondary" className="text-xs">
-                    {getSubscriptionPlanLabel(signup.plan)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {signup.country ? (
-                    <span className="inline-flex items-center gap-1.5 text-sm">
-                      <span aria-hidden="true">{getCountryFlagEmoji(signup.country)}</span>
-                      <span className="truncate">{getCountryName(signup.country, i18n.locale)}</span>
-                    </span>
+                  {signup.owner ? (
+                    <span className="truncate text-sm">{getOwnerDisplayName(signup.owner)}</span>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}

@@ -72,6 +72,7 @@ export function DashboardRecentStripeEventsCard() {
           aria-label={t`Recent billing events`}
           selectionMode="single"
           onActivate={handleActivate}
+          containerClassName="border-0 bg-transparent"
         >
           <TableHeader>
             <TableRow>
@@ -88,7 +89,7 @@ export function DashboardRecentStripeEventsCard() {
                 <Trans>MRR impact</Trans>
               </TableHead>
               <TableHead className="hidden text-right md:table-cell">
-                <Trans>Date</Trans>
+                <Trans>Occurred</Trans>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -96,8 +97,6 @@ export function DashboardRecentStripeEventsCard() {
             {events.map((event, index) => {
               const variant = BILLING_EVENT_VARIANT[event.type];
               const Icon = variant.icon;
-              const showPlanTransition =
-                event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan;
               const isNegativeAmount = event.amountDelta != null && event.amountDelta < 0;
               return (
                 <TableRow
@@ -122,15 +121,7 @@ export function DashboardRecentStripeEventsCard() {
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {showPlanTransition ? (
-                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
-                        <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan!)}</Badge>
-                        <span aria-hidden={true} className="text-muted-foreground">
-                          →
-                        </span>
-                        <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan!)}</Badge>
-                      </span>
-                    ) : event.toPlan != null ? (
+                    {event.toPlan != null ? (
                       <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan)}</Badge>
                     ) : (
                       <span className="text-muted-foreground">—</span>

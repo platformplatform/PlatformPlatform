@@ -5,7 +5,7 @@ import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getCountryFlagEmoji, getCountryName } from "@repo/ui/utils/countryFlag";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, HashIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -74,6 +74,10 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
                   Created <span className="md:hidden">{formatDate(tenant.createdAt, false, false, true)}</span>
                   <span className="hidden md:inline">{formatDate(tenant.createdAt)}</span>
                 </Trans>
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-mono">
+                <HashIcon className="size-3.5" aria-hidden={true} />
+                <span>{tenantId}</span>
               </span>
             </div>
           </>

@@ -158,7 +158,7 @@ msgid "Account deleted"
 msgstr "Konto slettet"
 
 msgid "Account ID"
-msgstr "Konto-ID"
+msgstr "Konto-id"
 
 msgid "Account logo"
 msgstr "Kontologo"
@@ -2834,6 +2834,9 @@ msgstr "Brugerdata opdateret"
 
 msgid "User deleted successfully: {userDisplayName}"
 msgstr "Bruger slettet succesfuldt: {userDisplayName}"
+
+msgid "User ID"
+msgstr "Bruger-id"
 
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"

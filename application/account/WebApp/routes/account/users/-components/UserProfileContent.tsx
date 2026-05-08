@@ -7,7 +7,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { PencilIcon } from "lucide-react";
+import { HashIcon, PencilIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -40,6 +40,10 @@ export function UserProfileContent({
           {user.firstName} {user.lastName}
         </h4>
         {user.title && <span className="block text-sm text-muted-foreground">{user.title}</span>}
+        <span className="mt-1 inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground">
+          <HashIcon className="size-3" aria-hidden={true} />
+          {user.id}
+        </span>
       </div>
 
       {/* Contact Information */}

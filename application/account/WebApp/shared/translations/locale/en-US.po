@@ -2835,6 +2835,9 @@ msgstr "User data updated"
 msgid "User deleted successfully: {userDisplayName}"
 msgstr "User deleted successfully: {userDisplayName}"
 
+msgid "User ID"
+msgstr "User ID"
+
 msgid "User invited successfully"
 msgstr "User invited successfully"
 

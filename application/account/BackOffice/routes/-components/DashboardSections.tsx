@@ -26,11 +26,11 @@ export function DashboardSections() {
         <DashboardTenantGrowthCard period={period} />
         <DashboardUserLoginsCard period={period} />
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
+        <div className="xl:col-span-2">
           <DashboardRecentSignupsCard />
         </div>
-        <div className="lg:col-span-3">
+        <div className="xl:col-span-3">
           <DashboardRecentStripeEventsCard />
         </div>
       </div>

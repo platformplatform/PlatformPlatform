@@ -81,7 +81,7 @@ export function AccountBillingEventsSection({
           <TableHeader>
             <TableRow>
               <TableHead>
-                <Trans>Date</Trans>
+                <Trans>Occurred</Trans>
               </TableHead>
               <TableHead>
                 <Trans>Event</Trans>
