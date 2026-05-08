@@ -22,6 +22,7 @@ import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { AlertTriangleIcon, CheckCircle2Icon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
+import { useMe } from "@/shared/hooks/useMe";
 import { api } from "@/shared/lib/api/client";
 
 interface AccountActionsMenuProps {
@@ -37,6 +38,7 @@ interface SyncResult {
 
 export function AccountActionsMenu({ tenantId }: Readonly<AccountActionsMenuProps>) {
   const formatDate = useFormatDate();
+  const { data: me } = useMe();
   const [result, setResult] = useState<SyncResult | null>(null);
   const [isResultOpen, setIsResultOpen] = useState(false);
 
@@ -50,6 +52,12 @@ export function AccountActionsMenu({ tenantId }: Readonly<AccountActionsMenuProp
   const handleSync = () => {
     syncMutation.mutate({ params: { path: { id: tenantId } } });
   };
+
+  // Sync with Stripe is admin-only on the server (TenantsEndpoints.cs). Hide the trigger for
+  // non-admins so the UI matches the policy.
+  if (!me?.isAdmin) {
+    return null;
+  }
 
   return (
     <>

@@ -21,7 +21,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", MockStripeClient.MockCustomerId)
             ]
         );
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
         client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
@@ -43,7 +43,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
     public async Task SyncTenantWithStripe_WhenSubscriptionHasNoStripeCustomer_ShouldReturnBadRequest()
     {
         // Arrange
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
@@ -57,7 +57,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
     public async Task SyncTenantWithStripe_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
         client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
         var unknownTenantId = TenantId.NewId();
@@ -77,7 +77,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", MockStripeClient.MockCustomerId)
             ]
         );
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
@@ -85,6 +85,20 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SyncTenantWithStripe_WhenCalledByNonAdmin_ShouldReturnForbidden()
+    {
+        // Arrange
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
