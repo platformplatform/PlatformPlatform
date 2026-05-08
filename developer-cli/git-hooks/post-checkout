@@ -4,7 +4,8 @@
 # worktree inherits the per-machine MCP env values that pp mcp-setup wrote to the
 # gitignored settings.local.json in the main worktree.
 #
-# Enabled per-clone via `git config core.hooksPath developer-cli/git-hooks` (run once by pp mcp-setup).
+# Installed into .git/hooks/post-checkout by `pp install` and re-synced by the CLI's auto-rebuild
+# whenever any file under developer-cli/git-hooks/ changes.
 
 # Skip file checkouts (git checkout -- file). $3 == 1 for branch / worktree checkouts.
 [ "$3" = "1" ] || exit 0
