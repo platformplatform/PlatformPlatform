@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Rejects pushes whose branch name does not match the project's naming convention.
+# GitHub's server-side branch-name restriction (rulesets / metadata restrictions) is Enterprise-only,
+# so this hook is the source of truth on the free plan.
+#
+# Allowed: lowercase kebab-case (a-z, 0-9, single hyphens between segments),
+#          with an optional `demo/` or `experiment/` prefix.
+# Rejected: anything starting with `worktree-` (also `demo/worktree-…` and `experiment/worktree-…`),
+#           upper-case characters, underscores, or double hyphens.
+#
+# The regex is RE2-compatible (no lookahead) so the same pattern can be reused server-side
+# if the project ever moves to a plan that supports branch-name rulesets.
+#
+# Installed into .git/hooks/pre-push by `pp install` and re-synced by the CLI's auto-rebuild
+# whenever any file under developer-cli/git-hooks/ changes.
+
+zero='0000000000000000000000000000000000000000'
+pattern='^(demo/|experiment/)?([a-z0-9]{1,7}|[a-z0-9]{9,}|[a-vx-z0-9][a-z0-9]{7}|w[a-np-z0-9][a-z0-9]{6}|wo[a-qs-z0-9][a-z0-9]{5}|wor[a-jl-z0-9][a-z0-9]{4}|work[a-su-z0-9][a-z0-9]{3}|workt[a-qs-z0-9][a-z0-9]{2}|worktr[a-df-z0-9][a-z0-9]|worktre[a-df-z0-9])(-[a-z0-9]+)*$'
+
+while read -r local_ref local_oid remote_ref remote_oid; do
+    # Skip deletions
+    [ "$local_oid" = "$zero" ] && continue
+
+    # Skip non-branch refs (tags, etc.)
+    branch="${remote_ref#refs/heads/}"
+    [ "$branch" = "$remote_ref" ] && continue
+
+    # The `main` branch is exempt so it can always be pushed regardless of the pattern
+    [ "$branch" = "main" ] && continue
+
+    if ! printf '%s' "$branch" | grep -Eq "$pattern"; then
+        echo "pre-push: refusing to push '$branch'." >&2
+        echo "  Branch names must be lowercase kebab-case, optionally prefixed with 'demo/' or 'experiment/'," >&2
+        echo "  and must not start with 'worktree-'." >&2
+        exit 1
+    fi
+done
+
+exit 0

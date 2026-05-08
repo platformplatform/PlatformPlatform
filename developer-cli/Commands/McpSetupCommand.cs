@@ -113,13 +113,10 @@ public class McpSetupCommand : Command
         PrintHeader("Writing local MCP env values");
         WriteSettingsLocalJson(picks, tenantId);
 
-        PrintHeader("Configuring git post-checkout hook");
-        EnableGitHooks();
-
         PrintHeader("Done");
         AnsiConsole.MarkupLine("[green]MCP env values written to .claude/settings.local.json. Restart Claude Code to pick them up.[/]");
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[grey]Future worktrees of this clone will inherit settings.local.json automatically via the [blue]developer-cli/git-hooks/post-checkout[/] hook.[/]");
+        AnsiConsole.MarkupLine($"[grey]Future worktrees of this clone will inherit settings.local.json via the [blue]post-checkout[/] hook installed by [blue]{Configuration.AliasName} install[/].[/]");
     }
 
     private static AzureAccount[] LoadAzureSubscriptions()
@@ -217,64 +214,6 @@ public class McpSetupCommand : Command
         AnsiConsole.MarkupLine($"[green]Wrote .claude/settings.local.json with {picks.Count} subscription value(s).[/]");
     }
 
-    private static void EnableGitHooks()
-    {
-        var current = ProcessHelper.StartProcess(
-            new ProcessStartInfo
-            {
-                FileName = Configuration.IsWindows ? "cmd.exe" : "git",
-                Arguments = Configuration.IsWindows ? "/C git config --get core.hooksPath" : "config --get core.hooksPath",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WorkingDirectory = Configuration.SourceCodeFolder
-            },
-            exitOnError: false
-        ).Trim();
-
-        if (current == "developer-cli/git-hooks")
-        {
-            AnsiConsole.MarkupLine("[green]core.hooksPath already set to developer-cli/git-hooks.[/]");
-            return;
-        }
-
-        var prompt = string.IsNullOrEmpty(current)
-            ? """
-              The committed [blue]developer-cli/git-hooks/post-checkout[/] hook copies [blue].claude/settings.local.json[/] from the main worktree into any new worktree of this clone, so MCP env values flow automatically.
-
-              To enable, this command will run [blue]git config core.hooksPath developer-cli/git-hooks[/] for this clone (per-clone, one-time).
-
-              [bold]Enable the hook?[/]
-              """
-            : $"""
-               [yellow]Your [blue]core.hooksPath[/] is currently set to [bold]{current}[/].[/]
-
-               Setting it to [blue]developer-cli/git-hooks[/] would overwrite your existing config so the committed [blue]post-checkout[/] hook can copy [blue].claude/settings.local.json[/] into new worktrees.
-
-               [bold]Overwrite?[/]
-               """;
-
-        if (!AnsiConsole.Confirm(prompt.Replace("\n\n", "\n")))
-        {
-            AnsiConsole.MarkupLine("[yellow]Skipped. New worktrees will need [blue].claude/settings.local.json[/] copied manually.[/]");
-            return;
-        }
-
-        ProcessHelper.StartProcess(
-            new ProcessStartInfo
-            {
-                FileName = Configuration.IsWindows ? "cmd.exe" : "git",
-                Arguments = Configuration.IsWindows ? "/C git config core.hooksPath developer-cli/git-hooks" : "config core.hooksPath developer-cli/git-hooks",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WorkingDirectory = Configuration.SourceCodeFolder
-            }
-        );
-
-        AnsiConsole.MarkupLine("[green]Set core.hooksPath to developer-cli/git-hooks for this clone.[/]");
-    }
-
     private static JsonObject LoadOrCreateJsonObject(string path)
     {
         if (!File.Exists(path))
@@ -335,7 +274,6 @@ public class McpSetupCommand : Command
              * Discover Application Insights resources you have access to across all subscriptions
              * Let you pick which environment(s) to wire up (staging / production)
              * Write the actual tenant + subscription IDs to [blue].claude/settings.local.json[/] (gitignored, your machine only)
-             * Optionally enable a [blue]post-checkout[/] git hook so new worktrees of this clone inherit settings.local.json automatically (you will be asked separately)
 
             After completion, restart Claude Code to load the new servers.
 

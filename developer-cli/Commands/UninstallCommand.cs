@@ -27,12 +27,14 @@ public class UninstallCommand : Command
              - Remove the PlatformPlatform Developer CLI alias (on Mac) and remove the CLI from the PATH (Windows)
              - Delete the {Configuration.PublishFolder}/{Configuration.AliasName}.* files
              - Remove the {Configuration.PublishFolder} folder if empty
+             - Remove git hooks copied into .git/hooks/
 
              Are you sure you want to uninstall the PlatformPlatform Developer CLI?
              """;
 
         if (AnsiConsole.Confirm(prompt))
         {
+            GitHooksSync.RemoveAll();
             DeleteFilesFolder();
             RemoveAlias();
 

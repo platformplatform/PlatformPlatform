@@ -185,6 +185,16 @@ public static class ChangeDetection
             .Where(f => !f.Contains("artifacts"))
             .ToList();
 
+        // Include shipped git hooks so editing one triggers the rebuild + sync flow.
+        var gitHooksDirectory = Path.Combine(Configuration.CliFolder, "git-hooks");
+        if (Directory.Exists(gitHooksDirectory))
+        {
+            var hookFiles = Directory
+                .EnumerateFiles(gitHooksDirectory, "*", SearchOption.TopDirectoryOnly)
+                .OrderBy(p => p, StringComparer.Ordinal);
+            solutionFiles.AddRange(hookFiles);
+        }
+
         using var sha256 = SHA256.Create();
         using var combinedStream = new MemoryStream();
 
@@ -284,6 +294,11 @@ public static class ChangeDetection
                 // best-effort wrapper for symmetry.
                 SaveCurrentHash(currentHash);
             }
+
+            // Re-sync committed git hooks after every successful publish. Idempotent and gated on
+            // the user's persisted consent -- silent on no-op, prints "Synced N hook(s)" on update,
+            // and prompts only on first contact (see GitHooksSync.Sync).
+            GitHooksSync.Sync();
         }
         catch (Exception e)
         {
