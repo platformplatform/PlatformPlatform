@@ -21,7 +21,7 @@ export interface BillingEventVariant {
 }
 
 /**
- * Centralised badge styling for the BillingEventType enum. Used by the dashboard "Recent Stripe events"
+ * Centralised badge styling for the BillingEventType enum. Used by the dashboard "Recent billing events"
  * card and the /billing-events table so the colour and icon are consistent everywhere a billing event is
  * surfaced.
  */

@@ -1,11 +1,16 @@
+import type { RowKey } from "@repo/ui/components/Table";
+
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon, ZapIcon } from "lucide-react";
+import { useCallback } from "react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { api } from "@/shared/lib/api/client";
@@ -15,15 +20,24 @@ import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 import { DashboardCardShell } from "./DashboardCardShell";
 
 export function DashboardRecentStripeEventsCard() {
+  const navigate = useNavigate();
   const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/recent-stripe-events", {
     params: { query: { Limit: 6 } }
   });
 
   const events = data?.events ?? [];
 
+  const handleActivate = useCallback(
+    (key: RowKey) => {
+      const tenantId = String(key).split("|")[0];
+      navigate({ to: "/accounts/$tenantId", params: { tenantId }, search: { tab: "invoices" } });
+    },
+    [navigate]
+  );
+
   return (
     <DashboardCardShell
-      title={<Trans>Recent Stripe events</Trans>}
+      title={<Trans>Recent billing events</Trans>}
       action={
         <Link
           to="/billing-events"
@@ -45,7 +59,7 @@ export function DashboardRecentStripeEventsCard() {
           <EmptyHeader>
             <ZapIcon className="size-6 text-muted-foreground" aria-hidden="true" />
             <EmptyTitle>
-              <Trans>No recent Stripe events</Trans>
+              <Trans>No recent billing events</Trans>
             </EmptyTitle>
             <EmptyDescription>
               <Trans>Subscriptions, upgrades, and cancellations will appear here.</Trans>
@@ -53,54 +67,95 @@ export function DashboardRecentStripeEventsCard() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <ul className="flex flex-col">
-          {events.map((event, index) => {
-            const variant = BILLING_EVENT_VARIANT[event.type];
-            const Icon = variant.icon;
-            const showPlanTransition =
-              event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan;
-            const isNegativeAmount = event.amountDelta != null && event.amountDelta < 0;
-            return (
-              <li key={`${event.tenantId}-${event.occurredAt}-${index}`} className="border-b last:border-b-0">
-                <Link
-                  to="/accounts/$tenantId"
-                  params={{ tenantId: String(event.tenantId) }}
-                  search={{ tab: "invoices" }}
-                  className="-mx-2 grid grid-cols-[auto_minmax(0,9rem)_auto_minmax(0,1fr)_auto_auto] items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent active:bg-accent"
+        <Table
+          rowSize="compact"
+          aria-label={t`Recent billing events`}
+          selectionMode="single"
+          onActivate={handleActivate}
+        >
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Trans>Account</Trans>
+              </TableHead>
+              <TableHead>
+                <Trans>Event</Trans>
+              </TableHead>
+              <TableHead className="hidden md:table-cell">
+                <Trans>Plan</Trans>
+              </TableHead>
+              <TableHead className="text-right">
+                <Trans>MRR impact</Trans>
+              </TableHead>
+              <TableHead className="hidden text-right md:table-cell">
+                <Trans>Date</Trans>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {events.map((event, index) => {
+              const variant = BILLING_EVENT_VARIANT[event.type];
+              const Icon = variant.icon;
+              const showPlanTransition =
+                event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan;
+              const isNegativeAmount = event.amountDelta != null && event.amountDelta < 0;
+              return (
+                <TableRow
+                  key={`${event.tenantId}|${event.occurredAt}|${index}`}
+                  rowKey={`${event.tenantId}|${event.occurredAt}|${index}`}
                 >
-                  <TenantLogo
-                    logoUrl={event.tenantLogoUrl}
-                    tenantName={event.tenantName}
-                    size="md"
-                    className="size-10"
-                  />
-                  <span className="truncate text-sm font-medium">{event.tenantName}</span>
-                  <Badge variant="outline" className={`w-fit gap-1 text-xs ${variant.className}`}>
-                    <Icon className="size-3" aria-hidden="true" />
-                    {getBillingEventTypeLabel(event.type)}
-                  </Badge>
-                  {showPlanTransition ? (
-                    <span className="truncate text-xs text-muted-foreground">
-                      {getSubscriptionPlanLabel(event.fromPlan!)} → {getSubscriptionPlanLabel(event.toPlan!)}
-                    </span>
-                  ) : (
-                    <span aria-hidden="true" />
-                  )}
-                  <span
-                    className={`text-right text-sm whitespace-nowrap tabular-nums ${
-                      isNegativeAmount ? "text-rose-500" : "text-muted-foreground"
-                    }`}
+                  <TableCell>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <TenantLogo
+                        logoUrl={event.tenantLogoUrl}
+                        tenantName={event.tenantName}
+                        size="md"
+                        className="size-8 shrink-0"
+                      />
+                      <span className="truncate text-sm font-medium">{event.tenantName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={`w-fit gap-1 text-xs ${variant.className}`}>
+                      <Icon className="size-3" aria-hidden="true" />
+                      {getBillingEventTypeLabel(event.type)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {showPlanTransition ? (
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan!)}</Badge>
+                        <span aria-hidden={true} className="text-muted-foreground">
+                          →
+                        </span>
+                        <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan!)}</Badge>
+                      </span>
+                    ) : event.toPlan != null ? (
+                      <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan)}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell
+                    className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-500" : ""}`}
                   >
-                    {event.amountDelta != null && event.currency
-                      ? formatCurrency(event.amountDelta, event.currency)
-                      : ""}
-                  </span>
-                  <SmartDateTime date={event.occurredAt} className="text-xs whitespace-nowrap text-muted-foreground" />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                    {event.amountDelta != null && event.currency ? (
+                      formatCurrency(event.amountDelta, event.currency)
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden text-right md:table-cell">
+                    <SmartDateTime
+                      date={event.occurredAt}
+                      className="text-xs whitespace-nowrap text-muted-foreground"
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
     </DashboardCardShell>
   );

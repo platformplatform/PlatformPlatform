@@ -98,13 +98,13 @@ test.describe("@smoke", () => {
 
     // === DASHBOARD `VIEW ALL` ===
 
-    await step("Navigate back to dashboard & verify Recent Stripe events card is present")(async () => {
+    await step("Navigate back to dashboard & verify Recent billing events card is present")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
-      await expect(page.getByText("Recent Stripe events", { exact: true })).toBeVisible();
+      await expect(page.getByText("Recent billing events", { exact: true })).toBeVisible();
     })();
 
-    await step("Click Recent Stripe events View all link & verify lands on /billing-events")(async () => {
+    await step("Click Recent billing events View all link & verify lands on /billing-events")(async () => {
       // Target the specific View all link by its href so we are not coupled to surrounding card markup
       // (the dashboard has multiple "View all" links: one for Accounts and one for Billing events).
       await page.locator("a[href='/billing-events']", { hasText: "View all" }).click();

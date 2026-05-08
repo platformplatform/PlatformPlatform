@@ -498,11 +498,11 @@ msgstr "Intet betalt abonnement endnu."
 msgid "No plan"
 msgstr "Intet abonnement"
 
+msgid "No recent billing events"
+msgstr "Ingen nylige faktureringshændelser"
+
 msgid "No recent signups"
 msgstr "Ingen nylige tilmeldinger"
-
-msgid "No recent Stripe events"
-msgstr "Ingen nylige Stripe-hændelser"
 
 msgid "No result available."
 msgstr "Intet resultat tilgængeligt."
@@ -621,11 +621,11 @@ msgstr "Forrige periode"
 msgid "Reactivated"
 msgstr "Genaktiveret"
 
+msgid "Recent billing events"
+msgstr "Nylige faktureringshændelser"
+
 msgid "Recent signups"
 msgstr "Nylige tilmeldinger"
-
-msgid "Recent Stripe events"
-msgstr "Nylige Stripe-hændelser"
 
 msgid "Refunded"
 msgstr "Refunderet"

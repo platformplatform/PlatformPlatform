@@ -498,11 +498,11 @@ msgstr "No paid plan yet."
 msgid "No plan"
 msgstr "No plan"
 
+msgid "No recent billing events"
+msgstr "No recent billing events"
+
 msgid "No recent signups"
 msgstr "No recent signups"
-
-msgid "No recent Stripe events"
-msgstr "No recent Stripe events"
 
 msgid "No result available."
 msgstr "No result available."
@@ -621,11 +621,11 @@ msgstr "Prior period"
 msgid "Reactivated"
 msgstr "Reactivated"
 
+msgid "Recent billing events"
+msgstr "Recent billing events"
+
 msgid "Recent signups"
 msgstr "Recent signups"
-
-msgid "Recent Stripe events"
-msgstr "Recent Stripe events"
 
 msgid "Refunded"
 msgstr "Refunded"

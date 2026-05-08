@@ -1,11 +1,16 @@
+import type { RowKey } from "@repo/ui/components/Table";
+
+import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon, BuildingIcon } from "lucide-react";
+import { useCallback } from "react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { api } from "@/shared/lib/api/client";
@@ -16,11 +21,19 @@ import { DashboardCardShell } from "./DashboardCardShell";
 
 export function DashboardRecentSignupsCard() {
   const { i18n } = useLingui();
+  const navigate = useNavigate();
   const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/recent-signups", {
     params: { query: { Limit: 6 } }
   });
 
   const signups = data?.signups ?? [];
+
+  const handleActivate = useCallback(
+    (key: RowKey) => {
+      navigate({ to: "/accounts/$tenantId", params: { tenantId: String(key) } });
+    },
+    [navigate]
+  );
 
   return (
     <DashboardCardShell
@@ -51,35 +64,59 @@ export function DashboardRecentSignupsCard() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <ul className="flex flex-col">
-          {signups.map((signup) => (
-            <li key={signup.tenantId} className="border-b last:border-b-0">
-              <Link
-                to="/accounts/$tenantId"
-                params={{ tenantId: String(signup.tenantId) }}
-                className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent active:bg-accent"
-              >
-                <TenantLogo logoUrl={signup.tenantLogoUrl} tenantName={signup.name} size="md" className="size-10" />
-                <div className="flex flex-1 flex-col">
-                  <span className="text-sm font-medium">{signup.name}</span>
-                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    {signup.country && (
-                      <>
-                        <span aria-hidden="true">{getCountryFlagEmoji(signup.country)}</span>
-                        <span>{getCountryName(signup.country, i18n.locale)}</span>
-                        <span aria-hidden="true">·</span>
-                      </>
-                    )}
-                    <Badge variant="secondary" className="text-xs">
-                      {getSubscriptionPlanLabel(signup.plan)}
-                    </Badge>
-                  </span>
-                </div>
-                <SmartDateTime date={signup.createdAt} className="text-xs text-muted-foreground" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Table rowSize="compact" aria-label={t`Recent signups`} selectionMode="single" onActivate={handleActivate}>
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Trans>Account</Trans>
+              </TableHead>
+              <TableHead className="hidden md:table-cell">
+                <Trans>Plan</Trans>
+              </TableHead>
+              <TableHead className="hidden md:table-cell">
+                <Trans>Country</Trans>
+              </TableHead>
+              <TableHead className="text-right">
+                <Trans>Created</Trans>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {signups.map((signup) => (
+              <TableRow key={signup.tenantId} rowKey={String(signup.tenantId)}>
+                <TableCell>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <TenantLogo
+                      logoUrl={signup.tenantLogoUrl}
+                      tenantName={signup.name}
+                      size="md"
+                      className="size-8 shrink-0"
+                    />
+                    <span className="truncate text-sm font-medium">{signup.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <Badge variant="secondary" className="text-xs">
+                    {getSubscriptionPlanLabel(signup.plan)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {signup.country ? (
+                    <span className="inline-flex items-center gap-1.5 text-sm">
+                      <span aria-hidden="true">{getCountryFlagEmoji(signup.country)}</span>
+                      <span className="truncate">{getCountryName(signup.country, i18n.locale)}</span>
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <SmartDateTime date={signup.createdAt} className="text-xs whitespace-nowrap text-muted-foreground" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
     </DashboardCardShell>
   );
