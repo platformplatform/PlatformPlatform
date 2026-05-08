@@ -297,6 +297,9 @@ msgstr "E-mail bekræftet"
 msgid "Email pending"
 msgstr "E-mail afventer"
 
+msgid "Enter kiosk mode"
+msgstr "Aktivér kiosktilstand"
+
 msgid "Event"
 msgstr "Hændelse"
 
@@ -305,6 +308,9 @@ msgstr "Alle fakturaer, refusioner og kreditnotaer — pengene ind og ud for det
 
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Alle log-ind-forsøg de seneste 30 dage, lykkedes eller mislykkedes, på tværs af e-mail og eksterne udbydere."
+
+msgid "Exit kiosk mode"
+msgstr "Afslut kiosktilstand"
 
 msgid "Expired"
 msgstr "Udløbet"

@@ -165,7 +165,7 @@ public class SinglePageAppConfiguration
             { "camera", [] },
             { "picture-in-picture", [] },
             { "display-capture", [] },
-            { "fullscreen", [] },
+            { "fullscreen", ["self"] },
             { "web-share", [] },
             { "identity-credentials-get", [] }
         };
