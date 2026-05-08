@@ -40,7 +40,7 @@ export function DashboardHeader({ period, onPeriodChange }: Readonly<DashboardHe
   const fullscreenLabel = isFullscreen ? t`Exit kiosk mode` : t`Enter kiosk mode`;
 
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1>
           <Trans>Dashboard</Trans>

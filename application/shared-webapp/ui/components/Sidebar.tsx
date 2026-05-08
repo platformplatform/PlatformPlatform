@@ -299,7 +299,10 @@ function Sidebar({
     return (
       <>
         {!openMobile && (
-          <div className="fixed right-3 bottom-3 z-20 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))] sm:hidden">
+          <div
+            data-slot="sidebar"
+            className="fixed right-3 bottom-3 z-20 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))] sm:hidden"
+          >
             <Button
               variant="ghost"
               size="icon"
