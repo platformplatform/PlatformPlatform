@@ -87,7 +87,11 @@
       "error",
       {
         "paths": [
-          { "name": "clsx", "message": "Use cn() from @repo/ui/utils instead." }
+          { "name": "clsx", "message": "Use cn() from @repo/ui/utils instead." },
+          {
+            "name": "recharts",
+            "message": "Import chart components from @repo/ui/components/Chart instead. The shared wrappers default accessibilityLayer={true} on chart types so Tab routes to data points and the focus ring matches our theme — importing recharts directly bypasses this and Chrome will paint its native blue focus ring on the SVG."
+          }
         ]
       }
     ]
@@ -156,6 +160,12 @@
     },
     {
       "files": ["**/shared-webapp/ui/utils.ts"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": ["**/shared-webapp/ui/components/Chart.tsx"],
       "rules": {
         "no-restricted-imports": "off"
       }

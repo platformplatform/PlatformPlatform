@@ -1,9 +1,16 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@repo/ui/components/Card";
-import { type ChartConfig, ChartContainer } from "@repo/ui/components/Chart";
+import {
+  type ChartConfig,
+  ChartContainer,
+  Label,
+  PolarGrid,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart
+} from "@repo/ui/components/Chart";
 import { TrendingUpIcon } from "lucide-react";
-import { Label, PolarGrid, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 
 const chartData = [{ browser: "safari", visitors: 1260, fill: "var(--color-safari)" }];
 

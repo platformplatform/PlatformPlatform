@@ -131,6 +131,46 @@
     * {
         @apply border-border;
     }
+    /* App-wide focus ring on native <a> and <button> so raw anchors/buttons never fall back
+       to the browser default blue ring. Lives in @layer base, so any component using Tailwind
+       focus-visible utilities (@layer utilities) still wins. outline-color is pre-set on the
+       base state so Chrome doesn't briefly paint the user-agent default outline color when
+       focus first lands. */
+    a,
+    button {
+        outline-color: var(--ring);
+    }
+    a:focus-visible,
+    button:focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+        border-radius: var(--radius-md);
+    }
+    /* Mirror ChartContainer's focus styling for raw recharts charts (dashboard cards bypass
+       ChartContainer because of a recharts ResizeObserver bug in their flex layout). The SVG
+       surface itself stays unfocused; instead, recharts' accessibilityLayer={true} routes Tab
+       to individual data points and the wrapper, where a 1px --ring outline shows just like
+       the /components/charts demo. */
+    .recharts-surface {
+        outline: none;
+    }
+    .recharts-wrapper *:focus-visible {
+        outline: 1px solid var(--ring);
+        outline-offset: 0;
+        border-radius: var(--radius-md);
+    }
+    /* Mouse click on legend/data-point elements triggers :focus without :focus-visible —
+       suppress the browser-default blue ring so click doesn't show one while keyboard tab
+       still gets the styled ring above. */
+    .recharts-wrapper *:focus:not(:focus-visible) {
+        outline: none;
+    }
+    /* App-wide spacing between recharts legends and the chart axes/dates underneath. Fixes
+       the Current/Prior period legend colliding with X-axis tick labels. Applies to every
+       chart in the app, whether it uses the shared ChartContainer or a raw ResponsiveContainer. */
+    .recharts-legend-wrapper {
+        padding-top: 0.75rem;
+    }
     body {
         @apply bg-background font-sans text-foreground;
         font-feature-settings:

@@ -58,6 +58,7 @@ Use browser MCP tools to test at `https://app.dev.localhost:<appGateway>`. Look 
    - **Icon-only buttons**: Must have a `Tooltip` wrapper. Use descriptive labels, e.g., "Account settings" not "Settings", "Log out" not "Logout"
    - **Active state feedback**: Add press feedback to interactive elements using `active:` pseudo-class with background color changes. Buttons/triggers: `active:bg-primary/70` (or variant-specific active backgrounds). Menu/list items: `active:bg-accent`. Small controls (checkbox, radio): `active:border-primary`
    - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`
+   - **Charts**: Import all chart primitives from `@repo/ui/components/Chart` — direct `recharts` imports are lint-blocked. Wrappers default `accessibilityLayer={true}` so Tab focuses data points, not the SVG (otherwise Chrome paints an unstyleable blue ring)
 
 ## Implementation
 
