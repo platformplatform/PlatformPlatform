@@ -57,6 +57,7 @@ Guidelines for C# backend development, including code style, naming, exceptions,
   - Logging messages should not include a period
   - Use structured logging
 - Never introduce new NuGet dependencies
+- Never use `#pragma warning disable CS####`—fix the warning instead
 - Don't do defensive coding (e.g., don't add exception handling for situations we don't know will happen)
 - Use `user?.IsActive == true` over `user != null && user.IsActive == true`
 - Avoid try-catch unless we cannot fix the root cause—global exception handling covers unknown exceptions

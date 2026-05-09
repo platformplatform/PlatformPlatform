@@ -21,6 +21,7 @@ Guidelines for implementing DDD repositories in the backend, including structure
 8. Repositories are automatically registered in the DI container
 9. Aggregates with `ITenantScopedEntity` are automatically filtered by tenant using EF Core query filters:
    - In rare cases, disable this using `IgnoreQueryFilters` (e.g., looking up anonymous user by email)
+   - Always name the filter via `QueryFilterNames` (e.g., `.IgnoreQueryFilters([QueryFilterNames.Tenant])`)—never the parameterless overload
    - If using `IgnoreQueryFilters`, add an `UnfilteredAsync` suffix and an XML comment warning about disabled filters
 10. Use `IEntityTypeConfiguration<TAggregate>` for EF Core model configuration
 11. Map strongly typed IDs in EF Core configurations using:
@@ -75,21 +76,20 @@ public sealed class AccountDbContext(DbContextOptions<AccountDbContext> options,
 
 ### Use of IgnoreQueryFilters
 
-If you use `.IgnoreQueryFilters()`, the repository method must have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
+Always pass a named filter via `QueryFilterNames`. The method must have an `UnfilteredAsync` suffix and an XML comment warning that the filter is disabled.
 
 ```csharp
-/// <summary> // ✅ DO: Add XML comment explaining why ignoring query filters is acceptable
-///     Retrieves a user by email without applying tenant query filters.
-///     This method should only be used during the login processes where tenant context is not yet established.
+/// <summary> // ✅ DO: XML comment explaining why
+///     Retrieves a user by email without applying the tenant query filter.
 /// </summary>
-public async Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken) // ✅ DO: Add `Unfiltered` to the surffix
+public async Task<User?> GetUserByEmailUnfilteredAsync(string email, CancellationToken cancellationToken) // ✅ DO: UnfilteredAsync suffix
 {
-    return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ✅ DO: Use .IgnoreQueryFilters() only in rare cases, with UnfilteredAsync suffix and XML comment
+    return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ✅ DO: Named filter
 }
 
-// ❌ DON'T: Use .IgnoreQueryFilters() without UnfilteredAsync suffix or without an XML warning comment
-public async Task<User?> GetUserByEmail(string email, CancellationToken cancellationToken)
-{
-    return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Email == email.ToLowerInvariant(), cancellationToken); // ❌ Missing UnfilteredAsync suffix and XML comment
-}
+// ❌ DON'T: Parameterless overload—disables every filter at once
+return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(...);
+
+// ❌ DON'T: Missing UnfilteredAsync suffix and XML comment
+public async Task<User?> GetUserByEmail(...) { ... }
 ```

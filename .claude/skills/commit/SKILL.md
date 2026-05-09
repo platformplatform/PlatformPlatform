@@ -17,7 +17,7 @@ Speed critical. No slow commands unless changes warrant.
 
 ## Translations
 
-Frontend changes touching user-facing strings: run `translate` to check `.po` files. Missing keys: flag user; don't commit until resolved.
+Frontend changes touching user-facing strings: inspect `.po` files for missing translations and translate them. Missing keys: flag user; don't commit until resolved.
 
 ## Validation (judgment)
 
