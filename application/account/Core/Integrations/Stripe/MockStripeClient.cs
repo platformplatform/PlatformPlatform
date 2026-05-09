@@ -23,6 +23,10 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public const string MockInvoiceUrl = "https://mock.stripe.local/invoice/12345";
     public const string MockWebhookEventId = "evt_mock_12345";
 
+    public const string MockSubscriptionCreatedEventId = "evt_mock_subscription_created";
+    public const string MockPaymentFailedEventId = "evt_mock_payment_failed";
+    public const string MockCustomerDeletedEventId = "evt_mock_customer_deleted";
+
     private readonly bool _isEnabled = configuration.GetValue<bool>("Stripe:AllowMockProvider");
 
     public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
@@ -275,6 +279,41 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, 23.99m, 6.00m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
             ]
         );
+    }
+
+    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        var now = timeProvider.GetUtcNow();
+        var events = new List<StripeReplayEvent>
+        {
+            // Default timeline always starts with a subscription.created event mirroring the mock's
+            // SyncSubscriptionStateAsync result (Standard plan on price_mock_standard).
+            new(
+                MockSubscriptionCreatedEventId,
+                "customer.subscription.created",
+                now.AddMinutes(-5),
+                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard"}}]}}}}"""
+            )
+        };
+
+        if (state.OverrideSubscriptionStatus == StripeSubscriptionStatus.PastDue)
+        {
+            events.Add(new StripeReplayEvent(
+                    MockPaymentFailedEventId,
+                    "invoice.payment_failed",
+                    now.AddMinutes(-1),
+                    """{"data":{"object":{"attempt_count":2,"billing_reason":"subscription_cycle"}}}"""
+                )
+            );
+        }
+
+        if (state.SimulateCustomerDeleted)
+        {
+            events.Add(new StripeReplayEvent(MockCustomerDeletedEventId, "customer.deleted", now, "{}"));
+        }
+
+        return Task.FromResult(events.ToArray());
     }
 
     private void EnsureEnabled()

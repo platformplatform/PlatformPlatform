@@ -30,6 +30,8 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
     protected const string BackOfficeHost = "back-office.test.localhost";
 
     private const string TestPublicUrl = "https://localhost";
+
+    private static readonly Lock SpaShellLock = new();
     protected readonly Faker Faker = new();
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
@@ -114,8 +116,8 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
     // build, so the file is missing and the fallback returns 500. The dist's index.html is just the public
     // template plus rsbuild's bundle <script> injection — we don't need that here, so seed dist/index.html
     // from public/index.html when it is missing or when a previous failed `rsbuild dev` left a broken
-    // artifact (no <body id="back-office">). overwrite: true tolerates the rare race where parallel test
-    // class constructors both find the file missing and both write it.
+    // artifact (no <body id="back-office">). The static Lock serializes parallel test class constructors;
+    // File.Copy opens the destination with FileShare.None and concurrent writers hit IOException.
     private static void EnsureBackOfficeSpaShell()
     {
         // Walk up looking for the account folder (the parent of both Tests/BackOffice and BackOffice).
@@ -131,13 +133,16 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
 
         var distDirectory = Path.Combine(directory.FullName, "BackOffice", "dist");
         var distIndexPath = Path.Combine(distDirectory, "index.html");
-        if (File.Exists(distIndexPath) && File.ReadAllText(distIndexPath).Contains("id=\"back-office\"", StringComparison.Ordinal)) return;
-
         var publicIndexPath = Path.Combine(directory.FullName, "BackOffice", "public", "index.html");
-        if (!File.Exists(publicIndexPath)) return;
 
-        Directory.CreateDirectory(distDirectory);
-        File.Copy(publicIndexPath, distIndexPath, true);
+        lock (SpaShellLock)
+        {
+            if (File.Exists(distIndexPath) && File.ReadAllText(distIndexPath).Contains("id=\"back-office\"", StringComparison.Ordinal)) return;
+            if (!File.Exists(publicIndexPath)) return;
+
+            Directory.CreateDirectory(distDirectory);
+            File.Copy(publicIndexPath, distIndexPath, true);
+        }
     }
 
     protected HttpClient CreateBackOfficeClient(string? clientPrincipalName = null, string? clientPrincipalId = null, string? clientPrincipalPayload = null)

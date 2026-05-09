@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
@@ -11,10 +10,6 @@ import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib
 import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
 type BillingEventSummary = components["schemas"]["BillingEventSummary"];
-
-function isSameDay(a: string, b: string): boolean {
-  return a.slice(0, 10) === b.slice(0, 10);
-}
 
 export function AccountBillingEventRow({
   event,
@@ -28,17 +23,11 @@ export function AccountBillingEventRow({
   const variant = BILLING_EVENT_VARIANT[event.eventType];
   const Icon = variant.icon;
   const showPlanTransition = event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan;
-  const showEffective = event.effectiveAt != null && !isSameDay(event.effectiveAt, event.occurredAt);
   return (
     <TableRow rowKey={event.id}>
       <TableCell className="align-top whitespace-nowrap">
         <div className="flex flex-col leading-tight">
           <span>{renderDate(event.occurredAt)}</span>
-          {showEffective && (
-            <span className="text-xs text-muted-foreground">
-              <Trans>Effective {renderDate(event.effectiveAt)}</Trans>
-            </span>
-          )}
         </div>
       </TableCell>
       <TableCell>

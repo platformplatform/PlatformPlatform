@@ -228,7 +228,16 @@ public enum DriftDiscrepancyKind
     MissingEvent,
     ExtraEvent,
     FieldDisagree,
-    SubscriptionStateMismatch
+    SubscriptionStateMismatch,
+
+    /// <summary>
+    ///     A Stripe event arrived whose payload combined multiple state changes that the writer couldn't
+    ///     decompose into a single domain transition (e.g. a customer.subscription.updated whose
+    ///     previous_attributes contain both a cancel_at_period_end toggle and a price change). The
+    ///     event is recorded as <c>BillingEventType.Unclassified</c>; this discrepancy surfaces it on
+    ///     the drift banner so an admin can investigate in Stripe Dashboard.
+    /// </summary>
+    UnclassifiedStripeEvent
 }
 
 [PublicAPI]

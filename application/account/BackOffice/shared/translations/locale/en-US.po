@@ -209,6 +209,9 @@ msgstr "Change theme"
 msgid "Change zoom level"
 msgstr "Change zoom level"
 
+msgid "Clear filter"
+msgstr "Clear filter"
+
 msgid "Clear filters"
 msgstr "Clear filters"
 
@@ -282,9 +285,8 @@ msgstr "Downgraded"
 msgid "Downgrading"
 msgstr "Downgrading"
 
-#. placeholder {0}: renderDate(event.effectiveAt)
-msgid "Effective {0}"
-msgstr "Effective {0}"
+msgid "Drift detected"
+msgstr "Drift detected"
 
 msgid "Email"
 msgstr "Email"
@@ -472,6 +474,9 @@ msgstr "No billing events match your filters"
 msgid "No billing events yet"
 msgstr "No billing events yet"
 
+msgid "No change"
+msgstr "No change"
+
 msgid "No invoices, refunds, or credit notes yet."
 msgstr "No invoices, refunds, or credit notes yet."
 
@@ -525,6 +530,9 @@ msgstr "No users match your search"
 
 msgid "No users yet"
 msgstr "No users yet"
+
+msgid "Not synced yet"
+msgstr "Not synced yet"
 
 msgid "Occurred"
 msgstr "Occurred"
@@ -785,6 +793,9 @@ msgstr "Try again"
 
 msgid "Try clearing the search or filters to see more results."
 msgstr "Try clearing the search or filters to see more results."
+
+msgid "Unclassified"
+msgstr "Unclassified"
 
 msgid "Unknown"
 msgstr "Unknown"

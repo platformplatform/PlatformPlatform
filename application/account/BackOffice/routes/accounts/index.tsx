@@ -31,6 +31,8 @@ const accountsSearchSchema = z.object({
   search: z.string().optional(),
   plans: z.array(z.nativeEnum(SubscriptionPlan)).max(10).optional(),
   statuses: z.array(z.nativeEnum(TenantStatusFilter)).max(10).optional(),
+  unsynced: z.boolean().optional(),
+  driftDetected: z.boolean().optional(),
   orderBy: z.nativeEnum(SortableTenantProperties).optional(),
   sortOrder: z.nativeEnum(SortOrder).optional(),
   pageOffset: z.number().int().nonnegative().optional()
@@ -43,7 +45,7 @@ export const Route = createFileRoute("/accounts/")({
 });
 
 function AccountsListPage() {
-  const { search, plans, statuses, orderBy, sortOrder, pageOffset } = Route.useSearch();
+  const { search, plans, statuses, unsynced, driftDetected, orderBy, sortOrder, pageOffset } = Route.useSearch();
   const navigate = useNavigate();
   const [previewTenant, setPreviewTenant] = useState<TenantSummary | null>(null);
 
@@ -56,6 +58,8 @@ function AccountsListPage() {
           Search: search,
           Plans: plans,
           Statuses: statuses,
+          Unsynced: unsynced,
+          DriftDetected: driftDetected,
           OrderBy: orderBy,
           SortOrder: sortOrder,
           PageOffset: pageOffset
@@ -72,7 +76,12 @@ function AccountsListPage() {
   const handleClosePane = useCallback(() => setPreviewTenant(null), []);
 
   const tenants = data?.tenants ?? [];
-  const hasFilters = Boolean(search) || (plans?.length ?? 0) > 0 || (statuses?.length ?? 0) > 0;
+  const hasFilters =
+    Boolean(search) ||
+    (plans?.length ?? 0) > 0 ||
+    (statuses?.length ?? 0) > 0 ||
+    Boolean(unsynced) ||
+    Boolean(driftDetected);
   const showEmpty = !isLoading && tenants.length === 0;
 
   return (
@@ -91,7 +100,13 @@ function AccountsListPage() {
             ) : undefined
           }
         >
-          <AccountsToolbar search={search} plans={plans ?? []} statuses={statuses ?? []} />
+          <AccountsToolbar
+            search={search}
+            plans={plans ?? []}
+            statuses={statuses ?? []}
+            unsynced={unsynced ?? false}
+            driftDetected={driftDetected ?? false}
+          />
 
           {showEmpty ? (
             <Empty>

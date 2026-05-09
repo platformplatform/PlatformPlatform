@@ -266,29 +266,24 @@ public sealed class GetBackOfficeBillingEventsTests : BackOfficeEndpointBaseTest
         string? currency = "DKK"
     )
     {
-        var billingEvent = BillingEvent.Create(subscriptionId, tenantId, eventType, occurredAt, stripeReference, fromPlan, toPlan, amountDelta: amountDelta, currency: currency);
         Connection.Insert("billing_events", [
                 ("tenant_id", tenantId.Value),
-                ("id", billingEvent.Id.Value),
+                ("id", BillingEventId.NewId().Value),
                 ("subscription_id", subscriptionId.Value),
                 ("created_at", DateTimeOffset.UtcNow),
                 ("modified_at", null),
+                ("stripe_event_id", stripeReference),
                 ("event_type", eventType.ToString()),
                 ("from_plan", fromPlan?.ToString()),
                 ("to_plan", toPlan?.ToString()),
                 ("previous_amount", null),
                 ("new_amount", null),
                 ("amount_delta", amountDelta),
+                ("committed_mrr", 0m),
                 ("currency", currency),
-                ("days_on_previous_plan", null),
-                ("days_until_effective", null),
-                ("days_since_cancelled", null),
-                ("scheduled_for", null),
-                ("effective_at", null),
                 ("occurred_at", occurredAt),
                 ("cancellation_reason", null),
-                ("suspension_reason", null),
-                ("stripe_reference", stripeReference)
+                ("suspension_reason", null)
             ]
         );
     }

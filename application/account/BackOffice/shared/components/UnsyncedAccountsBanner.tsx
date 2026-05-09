@@ -32,7 +32,7 @@ export function UnsyncedAccountsBanner() {
       <span className="flex-1 text-warning-foreground">
         <Trans>{count} accounts have not been synced yet — MRR trend is incomplete.</Trans>
       </span>
-      <Button size="sm" nativeButton={false} render={<Link to="/accounts" />}>
+      <Button size="sm" nativeButton={false} render={<Link to="/accounts" search={{ unsynced: true }} />}>
         <Trans>View accounts</Trans>
       </Button>
     </div>

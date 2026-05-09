@@ -31,7 +31,7 @@ export function BillingDriftBanner() {
       <span className="flex-1 text-warning-foreground">
         <Trans>{count} accounts have billing drift detected.</Trans>
       </span>
-      <Button size="sm" nativeButton={false} render={<Link to="/accounts" />}>
+      <Button size="sm" nativeButton={false} render={<Link to="/accounts" search={{ driftDetected: true }} />}>
         <Trans>View accounts</Trans>
       </Button>
     </div>

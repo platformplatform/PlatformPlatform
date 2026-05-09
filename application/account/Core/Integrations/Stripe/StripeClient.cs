@@ -19,6 +19,24 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     private static readonly TimeSpan PriceCacheDuration = TimeSpan.FromMinutes(1);
     private static readonly string[] LookupKeys = ["standard_monthly", "premium_monthly"];
 
+    private static readonly string[] ReplayEventTypes =
+    [
+        "customer.created",
+        "customer.updated",
+        "customer.deleted",
+        "customer.subscription.created",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+        "subscription_schedule.created",
+        "subscription_schedule.updated",
+        "subscription_schedule.released",
+        "subscription_schedule.canceled",
+        "invoice.payment_succeeded",
+        "invoice.payment_failed",
+        "charge.refunded",
+        "payment_method.attached"
+    ];
+
     private readonly string? _apiKey = configuration["Stripe:ApiKey"];
     private readonly string? _webhookSecret = configuration["Stripe:WebhookSecret"];
 
@@ -1052,6 +1070,32 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         return await BuildPlanByPriceIdAsync(cancellationToken);
     }
 
+    public async Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new EventService();
+            var options = new EventListOptions
+            {
+                Limit = 100,
+                Types = [.. ReplayEventTypes]
+            };
+            var collected = new List<StripeReplayEvent>();
+            await foreach (var stripeEvent in service.ListAutoPagingAsync(options, GetRequestOptions(), cancellationToken))
+            {
+                if (TryExtractCustomerId(stripeEvent) != stripeCustomerId.Value) continue;
+                collected.Add(new StripeReplayEvent(stripeEvent.Id, stripeEvent.Type, stripeEvent.Created, stripeEvent.ToJson()));
+            }
+
+            return [.. collected];
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Failed to list Stripe events for customer '{StripeCustomerId}'", stripeCustomerId);
+            return [];
+        }
+    }
+
     /// <summary>
     ///     Resolves a Stripe invoice's representative plan via the supplied price-to-plan lookup. Picks the line item
     ///     with the largest positive amount, which on proration upgrade/downgrade invoices is the line for the new
@@ -1280,6 +1324,21 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             "uncollectible" => PaymentTransactionStatus.Failed,
             "void" => PaymentTransactionStatus.Refunded,
             _ => PaymentTransactionStatus.Pending
+        };
+    }
+
+    private static string? TryExtractCustomerId(Event stripeEvent)
+    {
+        var data = stripeEvent.Data?.Object;
+        return data switch
+        {
+            Customer customer => customer.Id,
+            StripeSubscription subscription => subscription.CustomerId,
+            SubscriptionSchedule schedule => schedule.CustomerId,
+            Invoice invoice => invoice.CustomerId,
+            Charge charge => charge.CustomerId,
+            global::Stripe.PaymentMethod paymentMethod => paymentMethod.CustomerId,
+            _ => null
         };
     }
 }

@@ -136,6 +136,10 @@ export function getBillingEventTypeLabel(type: BillingEventType): string {
       return t`Billing info updated`;
     case BillingEventType.PaymentMethodUpdated:
       return t`Payment method updated`;
+    case BillingEventType.NoOp:
+      return t`No change`;
+    case BillingEventType.Unclassified:
+      return t`Unclassified`;
     default:
       return String(type);
   }

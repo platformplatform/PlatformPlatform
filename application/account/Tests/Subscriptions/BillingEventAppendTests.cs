@@ -158,37 +158,40 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public void BillingEventId_FromComponentsCalledTwiceWithSameInputs_ShouldProduceSameId()
+    public async Task AppendBillingEvent_WhenSyncReplaysSameStripeEventTwice_ShouldNotAppendDuplicateRow()
     {
-        // Arrange — webhook redelivery after a transaction rollback re-runs detection. The append helper
-        // computes the same deterministic ID and silently skips the duplicate insert. This test pins that
-        // determinism property at the unit level — the ID is a pure function of its inputs.
-        var subscriptionId = SubscriptionId.NewId();
-        var occurredAt = new DateTimeOffset(2026, 5, 1, 12, 0, 0, TimeSpan.Zero);
-        const string stripeReference = "sub_abc123";
+        // Arrange — strict 1:1 invariant: each Stripe event maps to exactly one billing_events row.
+        // The unique stripe_event_id index makes redelivered webhooks idempotent.
+        SetupSubscription(null, nameof(SubscriptionPlan.Basis));
 
-        // Act
-        var firstId = BillingEventId.FromComponents(subscriptionId, BillingEventType.SubscriptionUpgraded, stripeReference, occurredAt);
-        var secondId = BillingEventId.FromComponents(subscriptionId, BillingEventType.SubscriptionUpgraded, stripeReference, occurredAt);
+        var firstRequest = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        firstRequest.Headers.Add("Stripe-Signature", "event_type:checkout.session.completed,event_id:evt_redelivered");
+        var firstResponse = await AnonymousHttpClient.SendAsync(firstRequest);
+        firstResponse.EnsureSuccessStatusCode();
 
-        // Assert
-        firstId.Should().Be(secondId, "deterministic ID generation must produce equal IDs for equal inputs");
-        firstId.Value.Should().StartWith("bilev_", "the ID should carry the BillingEvent prefix");
-    }
+        var firstCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM billing_events WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
 
-    [Fact]
-    public void BillingEventId_FromComponentsWithDifferentEventType_ShouldProduceDifferentId()
-    {
-        // Arrange
-        var subscriptionId = SubscriptionId.NewId();
-        var occurredAt = new DateTimeOffset(2026, 5, 1, 12, 0, 0, TimeSpan.Zero);
-        const string stripeReference = "sub_abc123";
+        // Act — redeliver the SAME logical webhook (same event_id). The replayer reads the existing
+        // stripe_events row, but every billing_event whose stripe_event_id is already recorded is skipped.
+        var secondRequest = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        secondRequest.Headers.Add("Stripe-Signature", "event_type:checkout.session.completed,event_id:evt_redelivered");
+        var secondResponse = await AnonymousHttpClient.SendAsync(secondRequest);
+        secondResponse.EnsureSuccessStatusCode();
 
-        // Act
-        var upgradedId = BillingEventId.FromComponents(subscriptionId, BillingEventType.SubscriptionUpgraded, stripeReference, occurredAt);
-        var downgradedId = BillingEventId.FromComponents(subscriptionId, BillingEventType.SubscriptionDowngraded, stripeReference, occurredAt);
-
-        // Assert
-        upgradedId.Should().NotBe(downgradedId, "IDs must differentiate between event types so an upgrade and a downgrade at the same instant produce distinct rows");
+        // Assert — total billing_events row count unchanged after redelivery.
+        var secondCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM billing_events WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        secondCount.Should().Be(firstCount, "redelivering the same Stripe event must not append a duplicate billing_event row");
     }
 }

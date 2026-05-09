@@ -4,12 +4,14 @@ import {
   CalendarClockIcon,
   CircleAlertIcon,
   CircleCheckIcon,
+  CircleSlashIcon,
   CircleXIcon,
   CreditCardIcon,
   PauseCircleIcon,
   RefreshCwIcon,
   ReplyIcon,
   RotateCcwIcon,
+  TriangleAlertIcon,
   WalletIcon
 } from "lucide-react";
 
@@ -93,5 +95,13 @@ export const BILLING_EVENT_VARIANT: Record<BillingEventType, BillingEventVariant
   [BillingEventType.PaymentMethodUpdated]: {
     className: "bg-sky-500/10 text-sky-500 border-sky-500/20",
     icon: CreditCardIcon
+  },
+  [BillingEventType.NoOp]: {
+    className: "bg-muted text-muted-foreground border-border",
+    icon: CircleSlashIcon
+  },
+  [BillingEventType.Unclassified]: {
+    className: "bg-amber-500/10 text-amber-600 border-amber-500/30",
+    icon: TriangleAlertIcon
   }
 };

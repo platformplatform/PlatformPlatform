@@ -10,9 +10,11 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Subscriptions.Shared;
 
 /// <summary>
-///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row
-///     to serialize concurrent webhook processing, syncs current state from Stripe, then applies
-///     side effects (tenant state changes) based on state diffs between local and synced data.
+///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row to
+///     serialize concurrent webhook processing, syncs current state from Stripe, then writes the new
+///     BillingEvent rows by replaying the customer's full stripe_events history. The unique
+///     stripe_event_id index on billing_events makes the replay idempotent: redelivered webhooks and
+///     re-pulls from the Stripe events API are no-ops.
 /// </summary>
 public sealed class ProcessPendingStripeEvents(
     AccountDbContext dbContext,
@@ -27,8 +29,6 @@ public sealed class ProcessPendingStripeEvents(
     ILogger<ProcessPendingStripeEvents> logger
 )
 {
-    private int _eventsAppendedInCurrentSync;
-
     public Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         return ExecuteAsync(stripeCustomerId, false, cancellationToken);
@@ -36,7 +36,6 @@ public sealed class ProcessPendingStripeEvents(
 
     public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, CancellationToken cancellationToken)
     {
-        _eventsAppendedInCurrentSync = 0;
         // Pessimistic lock serializes concurrent webhook processing for the same customer
         var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
         await using var transaction = isSqlite
@@ -58,6 +57,7 @@ public sealed class ProcessPendingStripeEvents(
         if (pendingEvents.Length > 0 || forceSync)
         {
             await SyncStateFromStripe(tenant, subscription, cancellationToken);
+            await ReplayStripeEventsAsync(subscription, cancellationToken);
 
             MarkAllEventsAsProcessed(pendingEvents, subscription);
         }
@@ -70,7 +70,6 @@ public sealed class ProcessPendingStripeEvents(
 
     private async Task SyncStateFromStripe(Tenant tenant, Subscription subscription, CancellationToken cancellationToken)
     {
-        // Fetch current state from Stripe
         var stripeClient = stripeClientFactory.GetClient();
         var customerResult = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId!, cancellationToken);
 
@@ -93,19 +92,14 @@ public sealed class ProcessPendingStripeEvents(
             tenantRepository.Update(tenant);
             subscriptionRepository.Update(subscription);
             events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.CustomerDeleted, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionSuspended, nowAtCustomerDeleted, subscription.Id.Value,
-                    previousPlan, SubscriptionPlan.Basis,
-                    previousPriceAmount, amountDelta: -previousPriceAmount,
-                    currency: previousPriceCurrency, suspensionReason: SuspensionReason.CustomerDeleted
-                ), cancellationToken
-            );
             return;
         }
 
         var stripeState = await stripeClient.SyncSubscriptionStateAsync(subscription.StripeCustomerId!, cancellationToken);
 
-        // Detect state transitions in lifecycle order (variables and if-blocks below follow the same order)
+        // Detect state transitions in lifecycle order (variables and if-blocks below follow the same order).
+        // The detections drive telemetry collection and Subscription/Tenant state mutations; the BillingEvent
+        // log is populated separately by ReplayStripeEventsAsync running over the customer's stripe_events.
         var billingInfoAdded = subscription.BillingInfo is null && customerResult.BillingInfo is not null;
         var billingInfoUpdated = subscription.BillingInfo is not null && customerResult.BillingInfo is not null && customerResult.BillingInfo != subscription.BillingInfo;
         var latestPaymentMethod = stripeState?.PaymentMethod ?? customerResult.PaymentMethod;
@@ -127,23 +121,16 @@ public sealed class ProcessPendingStripeEvents(
         var now = timeProvider.GetUtcNow();
         var daysOnCurrentPlan = (int)(now - (subscription.ModifiedAt ?? subscription.CreatedAt)).TotalDays;
 
-        // Apply Stripe state to aggregate (after detection, before side effects)
         if (stripeState is not null)
         {
             subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod, now);
             tenant.UpdatePlan(stripeState.Plan);
         }
 
-        // Always sync payment transactions from Stripe (via subscription when active, via invoices when cancelled)
         var syncedTransactions = stripeState?.PaymentTransactions ?? await stripeClient.SyncPaymentTransactionsAsync(subscription.StripeCustomerId!, cancellationToken);
         if (syncedTransactions is not null)
         {
             subscription.SetPaymentTransactions([.. syncedTransactions]);
-        }
-
-        if (!subscriptionCreated)
-        {
-            await BackfillLegacyBillingEventsAsync(subscription, cancellationToken);
         }
 
         var paymentRefunded = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) > previousRefundCount;
@@ -152,71 +139,34 @@ public sealed class ProcessPendingStripeEvents(
         {
             subscription.SetBillingInfo(customerResult.BillingInfo);
             events.CollectEvent(new BillingInfoAdded(subscription.Id, customerResult.BillingInfo?.Address?.Country, customerResult.BillingInfo?.Address?.PostalCode, customerResult.BillingInfo?.Address?.City));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.BillingInfoAdded, now, subscription.Id.Value
-                ), cancellationToken
-            );
         }
 
         if (billingInfoUpdated)
         {
             subscription.SetBillingInfo(customerResult.BillingInfo);
             events.CollectEvent(new BillingInfoUpdated(subscription.Id, customerResult.BillingInfo?.Address?.Country, customerResult.BillingInfo?.Address?.PostalCode, customerResult.BillingInfo?.Address?.City));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.BillingInfoUpdated, now, subscription.Id.Value
-                ), cancellationToken
-            );
         }
 
         if (paymentMethodUpdated)
         {
             subscription.SetPaymentMethod(latestPaymentMethod);
             events.CollectEvent(new PaymentMethodUpdated(subscription.Id));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.PaymentMethodUpdated, now, subscription.Id.Value
-                ), cancellationToken
-            );
         }
 
         if (subscriptionCreated)
         {
             tenant.Activate();
             events.CollectEvent(new SubscriptionCreated(subscription.Id, subscription.Plan, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionCreated, now, stripeState!.StripeSubscriptionId!.Value,
-                    toPlan: subscription.Plan,
-                    newAmount: subscription.CurrentPriceAmount, amountDelta: subscription.CurrentPriceAmount,
-                    currency: subscription.CurrentPriceCurrency
-                ), cancellationToken
-            );
         }
 
         if (subscriptionRenewed)
         {
             events.CollectEvent(new SubscriptionRenewed(subscription.Id, subscription.Plan, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionRenewed, now, $"{subscription.Id.Value}|{stripeState?.CurrentPeriodEnd:O}",
-                    toPlan: subscription.Plan,
-                    previousAmount: previousPriceAmount, newAmount: subscription.CurrentPriceAmount,
-                    amountDelta: subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value,
-                    currency: subscription.CurrentPriceCurrency,
-                    effectiveAt: stripeState?.CurrentPeriodEnd
-                ), cancellationToken
-            );
         }
 
         if (subscriptionUpgraded)
         {
             events.CollectEvent(new SubscriptionUpgraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionUpgraded, now, subscription.Id.Value,
-                    previousPlan, subscription.Plan,
-                    previousPriceAmount, subscription.CurrentPriceAmount,
-                    subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value,
-                    subscription.CurrentPriceCurrency,
-                    daysOnCurrentPlan
-                ), cancellationToken
-            );
         }
 
         if (downgradeScheduled)
@@ -226,16 +176,6 @@ public sealed class ProcessPendingStripeEvents(
             subscription.SetScheduledPlan(stripeState!.ScheduledPlan, scheduledPlanPrice);
             var daysUntilDowngrade = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             events.CollectEvent(new SubscriptionDowngradeScheduled(subscription.Id, subscription.Plan, subscription.ScheduledPlan!.Value, daysUntilDowngrade, subscription.CurrentPriceAmount!.Value, scheduledPlanPrice - subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionDowngradeScheduled, now, subscription.Id.Value,
-                    subscription.Plan, subscription.ScheduledPlan,
-                    subscription.CurrentPriceAmount, scheduledPlanPrice,
-                    scheduledPlanPrice - subscription.CurrentPriceAmount!.Value,
-                    subscription.CurrentPriceCurrency,
-                    daysUntilEffective: daysUntilDowngrade,
-                    scheduledFor: subscription.CurrentPeriodEnd
-                ), cancellationToken
-            );
         }
 
         if (downgradeCancelled)
@@ -247,30 +187,12 @@ public sealed class ProcessPendingStripeEvents(
             var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
             var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == previousScheduledPlan!.Value).UnitAmount;
             events.CollectEvent(new SubscriptionDowngradeCancelled(subscription.Id, subscription.Plan, previousScheduledPlan!.Value, daysUntilDowngrade, daysSinceDowngradeScheduled, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - scheduledPlanPrice, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionDowngradeCancelled, now, subscription.Id.Value,
-                    subscription.Plan, previousScheduledPlan,
-                    scheduledPlanPrice, subscription.CurrentPriceAmount,
-                    subscription.CurrentPriceAmount!.Value - scheduledPlanPrice,
-                    subscription.CurrentPriceCurrency,
-                    daysUntilEffective: daysUntilDowngrade
-                ), cancellationToken
-            );
         }
 
         if (subscriptionDowngraded)
         {
             subscription.SetScheduledPlan(stripeState!.ScheduledPlan, null);
             events.CollectEvent(new SubscriptionDowngraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionDowngraded, now, subscription.Id.Value,
-                    previousPlan, subscription.Plan,
-                    previousPriceAmount, subscription.CurrentPriceAmount,
-                    subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value,
-                    subscription.CurrentPriceCurrency,
-                    daysOnCurrentPlan
-                ), cancellationToken
-            );
         }
 
         if (subscriptionCancelled)
@@ -278,16 +200,6 @@ public sealed class ProcessPendingStripeEvents(
             subscription.SetCancellation(stripeState!.CancelAtPeriodEnd, stripeState.CancellationReason, stripeState.CancellationFeedback);
             var daysUntilExpiry = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             events.CollectEvent(new SubscriptionCancelled(subscription.Id, subscription.Plan, subscription.CancellationReason ?? CancellationReason.CancelledByAdmin, daysUntilExpiry, daysOnCurrentPlan, subscription.CurrentPriceAmount!.Value, -subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionCancelled, now, subscription.Id.Value,
-                    subscription.Plan,
-                    previousAmount: subscription.CurrentPriceAmount, newAmount: 0m, amountDelta: -subscription.CurrentPriceAmount,
-                    currency: subscription.CurrentPriceCurrency,
-                    daysOnPreviousPlan: daysOnCurrentPlan, daysUntilEffective: daysUntilExpiry,
-                    effectiveAt: subscription.CurrentPeriodEnd,
-                    cancellationReason: subscription.CancellationReason
-                ), cancellationToken
-            );
         }
 
         if (subscriptionReactivated)
@@ -296,14 +208,6 @@ public sealed class ProcessPendingStripeEvents(
             subscription.SetCancellation(stripeState!.CancelAtPeriodEnd, stripeState.CancellationReason, stripeState.CancellationFeedback);
             var daysUntilExpiry = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             events.CollectEvent(new SubscriptionReactivated(subscription.Id, subscription.Plan, daysUntilExpiry, daysSinceCancelled, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionReactivated, now, subscription.Id.Value,
-                    toPlan: subscription.Plan,
-                    newAmount: subscription.CurrentPriceAmount, amountDelta: subscription.CurrentPriceAmount,
-                    currency: subscription.CurrentPriceCurrency,
-                    daysSinceCancelled: daysSinceCancelled, daysUntilEffective: daysUntilExpiry
-                ), cancellationToken
-            );
         }
 
         if (subscriptionExpired)
@@ -311,14 +215,6 @@ public sealed class ProcessPendingStripeEvents(
             subscription.ResetToFreePlan();
             tenant.UpdatePlan(SubscriptionPlan.Basis);
             events.CollectEvent(new SubscriptionExpired(subscription.Id, previousPlan, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionExpired, now, subscription.Id.Value,
-                    previousPlan, SubscriptionPlan.Basis,
-                    previousPriceAmount, amountDelta: -previousPriceAmount,
-                    currency: previousPriceCurrency,
-                    daysOnPreviousPlan: daysOnCurrentPlan
-                ), cancellationToken
-            );
         }
 
         if (subscriptionImmediatelyCancelled)
@@ -326,15 +222,6 @@ public sealed class ProcessPendingStripeEvents(
             subscription.ResetToFreePlan();
             tenant.UpdatePlan(SubscriptionPlan.Basis);
             events.CollectEvent(new SubscriptionCancelled(subscription.Id, previousPlan, CancellationReason.CancelledByAdmin, 0, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionImmediatelyCancelled, now, subscription.Id.Value,
-                    previousPlan, SubscriptionPlan.Basis,
-                    previousPriceAmount, amountDelta: -previousPriceAmount,
-                    currency: previousPriceCurrency,
-                    daysOnPreviousPlan: daysOnCurrentPlan,
-                    cancellationReason: CancellationReason.CancelledByAdmin
-                ), cancellationToken
-            );
         }
 
         if (subscriptionSuspended)
@@ -343,27 +230,12 @@ public sealed class ProcessPendingStripeEvents(
             tenant.UpdatePlan(SubscriptionPlan.Basis);
             tenant.Suspend(SuspensionReason.PaymentFailed, now);
             events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.PaymentFailed, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.SubscriptionSuspended, now, subscription.Id.Value,
-                    previousPlan, SubscriptionPlan.Basis,
-                    previousPriceAmount, amountDelta: -previousPriceAmount,
-                    currency: previousPriceCurrency,
-                    suspensionReason: SuspensionReason.PaymentFailed
-                ), cancellationToken
-            );
         }
 
         if (paymentFailed)
         {
             subscription.SetPaymentFailed(now);
             events.CollectEvent(new PaymentFailed(subscription.Id, subscription.Plan, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.PaymentFailed, now, subscription.Id.Value,
-                    toPlan: subscription.Plan,
-                    newAmount: subscription.CurrentPriceAmount,
-                    currency: subscription.CurrentPriceCurrency
-                ), cancellationToken
-            );
         }
 
         if (paymentRecovered)
@@ -371,14 +243,6 @@ public sealed class ProcessPendingStripeEvents(
             var daysInPastDue = (int)(now - subscription.FirstPaymentFailedAt!.Value).TotalDays;
             subscription.ClearPaymentFailure();
             events.CollectEvent(new PaymentRecovered(subscription.Id, subscription.Plan, daysInPastDue, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.PaymentRecovered, now, subscription.Id.Value,
-                    toPlan: subscription.Plan,
-                    newAmount: subscription.CurrentPriceAmount,
-                    currency: subscription.CurrentPriceCurrency,
-                    daysOnPreviousPlan: daysInPastDue
-                ), cancellationToken
-            );
         }
 
         if (paymentRefunded)
@@ -388,25 +252,63 @@ public sealed class ProcessPendingStripeEvents(
             var latestRefund = refundedTransactions[^1];
             var plan = stripeState is not null ? subscription.Plan : previousPlan;
             events.CollectEvent(new PaymentRefunded(subscription.Id, plan, refundCount, latestRefund.Amount, latestRefund.Currency));
-            await AppendBillingEventAsync(BillingEvent.Create(
-                    subscription.Id, subscription.TenantId, BillingEventType.PaymentRefunded, latestRefund.Date, latestRefund.Id.Value,
-                    toPlan: plan,
-                    newAmount: latestRefund.Amount, amountDelta: -latestRefund.Amount,
-                    currency: latestRefund.Currency
-                ), cancellationToken
-            );
         }
 
-        // Persist all aggregate mutations and mark pending events as processed
         var tenantChanged = stripeState is not null || subscriptionCreated || subscriptionExpired || subscriptionImmediatelyCancelled || subscriptionSuspended;
         if (tenantChanged)
         {
             tenantRepository.Update(tenant);
         }
 
-        // Inline drift detection. Compares the just-applied local subscription state against Stripe's
-        // authoritative state and records any discrepancies on the subscription. Wrapped in try/catch
-        // because drift detection is a safety net — a failure here must not block the sync itself.
+        subscriptionRepository.Update(subscription);
+    }
+
+    /// <summary>
+    ///     Replays the customer's Stripe events history (fetched directly from Stripe's events API, not
+    ///     the local <c>stripe_events</c> webhook inbox) through <see cref="StripeEventReplayer" /> and
+    ///     appends any newly recognized rows to <c>billing_events</c>. Stripe is the source of truth here:
+    ///     local webhooks may have gaps (missed deliveries, misconfiguration) and the API call closes them.
+    ///     Idempotent on <c>billing_events.stripe_event_id</c>: rows whose source Stripe event id is already
+    ///     recorded are skipped, so re-running this for every webhook (or via the back-office Sync action)
+    ///     is safe.
+    ///     Drift detection runs at the end and incorporates any <c>Unclassified</c> events the replayer
+    ///     flagged so the existing drift banner picks them up.
+    /// </summary>
+    private async Task ReplayStripeEventsAsync(Subscription subscription, CancellationToken cancellationToken)
+    {
+        if (subscription.StripeCustomerId is null) return;
+
+        var stripeClient = stripeClientFactory.GetClient();
+        var stripeEvents = await stripeClient.GetEventsForCustomerAsync(subscription.StripeCustomerId, cancellationToken);
+        if (stripeEvents.Length == 0)
+        {
+            DetectDrift(subscription, 0, false);
+            return;
+        }
+
+        var planByPriceId = await stripeClient.GetPlanByPriceIdAsync(cancellationToken);
+        var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
+        var priceByPlan = priceCatalog.ToDictionary(p => p.Plan, p => p.UnitAmount);
+
+        var existingStripeEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
+        var state = new StripeEventReplayer.ReplayState();
+        var replayedEvents = StripeEventReplayer.Replay(subscription, stripeEvents, planByPriceId, priceByPlan, state);
+
+        var appendedCount = 0;
+        foreach (var billingEvent in replayedEvents)
+        {
+            if (existingStripeEventIds.Contains(billingEvent.StripeEventId)) continue;
+            await billingEventRepository.AddAsync(billingEvent, cancellationToken);
+            appendedCount++;
+        }
+
+        var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
+        DetectDrift(subscription, totalBillingEvents, state.HasUnclassifiedEvent);
+    }
+
+    private void DetectDrift(Subscription subscription, int billingEventCount, bool hasUnclassifiedEvent)
+    {
+        var now = timeProvider.GetUtcNow();
         try
         {
             var snapshot = new StripeSyncSnapshot(
@@ -415,66 +317,22 @@ public sealed class ProcessPendingStripeEvents(
                 subscription.CurrentPriceAmount,
                 subscription.CurrentPriceCurrency
             );
-            // The snapshot is built from the just-synced local state, so the SubscriptionStateMismatch
-            // category finds zero discrepancies today. The seam stays in place so adding a Stripe-derived
-            // snapshot (full invoice/charge history) for per-event comparison becomes a localized change
-            // to this block plus the detector itself.
-            var persistedBillingEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
-            // Add the count appended during this sync — they are tracked in the DbContext but not yet
-            // flushed to the database, so the query above wouldn't otherwise see them.
-            var totalBillingEvents = persistedBillingEvents.Length + _eventsAppendedInCurrentSync;
-            var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, totalBillingEvents);
+            var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, billingEventCount);
+            if (hasUnclassifiedEvent)
+            {
+                discrepancies = discrepancies.Add(new DriftDiscrepancy(
+                        DriftDiscrepancyKind.UnclassifiedStripeEvent,
+                        "Stripe sent a subscription update combining multiple changes that don't decompose into a single domain transition. Investigate in Stripe Dashboard.",
+                        DriftSeverity.Warning
+                    )
+                );
+            }
+
             subscription.SetDriftStatus(discrepancies, now);
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Drift detection threw while syncing Stripe customer '{StripeCustomerId}', existing drift status preserved", subscription.StripeCustomerId);
-        }
-
-        subscriptionRepository.Update(subscription);
-    }
-
-    /// <summary>
-    ///     Append-only write to the BillingEvent log. The deterministic ID makes webhook redeliveries
-    ///     idempotent — if the same logical event was already recorded (the previous webhook attempt
-    ///     committed before crashing, then redelivered), the existing row is the authoritative record
-    ///     and we never overwrite it.
-    /// </summary>
-    private async Task AppendBillingEventAsync(BillingEvent billingEvent, CancellationToken cancellationToken)
-    {
-        var existing = await billingEventRepository.GetByIdAsync(billingEvent.Id, cancellationToken);
-        if (existing is null)
-        {
-            await billingEventRepository.AddAsync(billingEvent, cancellationToken);
-            _eventsAppendedInCurrentSync++;
-        }
-    }
-
-    /// <summary>
-    ///     One-time backfill that replays every stored stripe_event for a customer into the BillingEvent
-    ///     log. Used for subscriptions persisted before the BillingEvent log existed (the live webhook
-    ///     path writes events directly during normal sync). Skipped when the subscription already has
-    ///     BillingEvents — the live path is the authoritative source going forward.
-    /// </summary>
-    private async Task BackfillLegacyBillingEventsAsync(Subscription subscription, CancellationToken cancellationToken)
-    {
-        if (subscription.StripeCustomerId is null) return;
-
-        var existingEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
-        if (existingEvents.Length > 0) return;
-
-        var stripeEvents = await stripeEventRepository.GetProcessedByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
-        if (stripeEvents.Length == 0) return;
-
-        var stripeClient = stripeClientFactory.GetClient();
-        var planByPriceId = await stripeClient.GetPlanByPriceIdAsync(cancellationToken);
-        var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
-        var priceByPlan = priceCatalog.ToDictionary(p => p.Plan, p => p.UnitAmount);
-        var replayedEvents = StripeEventReplayer.Replay(subscription, stripeEvents, planByPriceId, priceByPlan);
-
-        foreach (var billingEvent in replayedEvents)
-        {
-            await AppendBillingEventAsync(billingEvent, cancellationToken);
         }
     }
 
@@ -495,7 +353,6 @@ public sealed class ProcessPendingStripeEvents(
     {
         TenantScopedTelemetryContext.Set(tenant.Id, subscription.Plan.ToString());
 
-        // Publish collected telemetry events after successful commit
         while (events.HasEvents)
         {
             var telemetryEvent = events.Dequeue();

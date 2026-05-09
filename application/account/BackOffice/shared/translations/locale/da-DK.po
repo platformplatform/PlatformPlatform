@@ -209,6 +209,9 @@ msgstr "Skift tema"
 msgid "Change zoom level"
 msgstr "Skift zoomniveau"
 
+msgid "Clear filter"
+msgstr ""
+
 msgid "Clear filters"
 msgstr "Ryd filtre"
 
@@ -282,9 +285,8 @@ msgstr "Nedgraderet"
 msgid "Downgrading"
 msgstr "Nedgraderer"
 
-#. placeholder {0}: renderDate(event.effectiveAt)
-msgid "Effective {0}"
-msgstr "Gælder fra {0}"
+msgid "Drift detected"
+msgstr ""
 
 msgid "Email"
 msgstr "E-mail"
@@ -472,6 +474,9 @@ msgstr "Ingen faktureringshændelser matcher dine filtre"
 msgid "No billing events yet"
 msgstr "Ingen faktureringshændelser endnu"
 
+msgid "No change"
+msgstr ""
+
 msgid "No invoices, refunds, or credit notes yet."
 msgstr "Ingen fakturaer, refusioner eller kreditnotaer endnu."
 
@@ -525,6 +530,9 @@ msgstr "Ingen brugere matcher din søgning"
 
 msgid "No users yet"
 msgstr "Ingen brugere endnu"
+
+msgid "Not synced yet"
+msgstr ""
 
 msgid "Occurred"
 msgstr "Tidspunkt"
@@ -785,6 +793,9 @@ msgstr "Prøv igen"
 
 msgid "Try clearing the search or filters to see more results."
 msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
+
+msgid "Unclassified"
+msgstr ""
 
 msgid "Unknown"
 msgstr "Ukendt"

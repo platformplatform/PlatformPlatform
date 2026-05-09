@@ -22,7 +22,7 @@ public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBase
         var tenantId = SeedTenant("Stripe Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedBillingEvent(tenantId, subscriptionId, BillingEventType.SubscriptionCreated, now.AddHours(-3), "evt_created", toPlan: SubscriptionPlan.Standard);
-        SeedBillingEvent(tenantId, subscriptionId, BillingEventType.SubscriptionUpgraded, now.AddHours(-1), "evt_upgraded", SubscriptionPlan.Standard, SubscriptionPlan.Premium, 30m, "DKK");
+        SeedBillingEvent(tenantId, subscriptionId, BillingEventType.SubscriptionUpgraded, now.AddHours(-1), "evt_upgraded", SubscriptionPlan.Standard, SubscriptionPlan.Premium, 30m, currency: "DKK");
 
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
@@ -118,36 +118,32 @@ public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBase
         SubscriptionId subscriptionId,
         BillingEventType eventType,
         DateTimeOffset occurredAt,
-        string stripeReference,
+        string stripeEventId,
         SubscriptionPlan? fromPlan = null,
         SubscriptionPlan? toPlan = null,
         decimal? amountDelta = null,
+        decimal committedMrr = 0m,
         string? currency = null
     )
     {
-        var billingEvent = BillingEvent.Create(subscriptionId, tenantId, eventType, occurredAt, stripeReference, fromPlan, toPlan, amountDelta: amountDelta, currency: currency);
         Connection.Insert("billing_events", [
                 ("tenant_id", tenantId.Value),
-                ("id", billingEvent.Id.Value),
+                ("id", BillingEventId.NewId().Value),
                 ("subscription_id", subscriptionId.Value),
                 ("created_at", DateTimeOffset.UtcNow),
                 ("modified_at", null),
+                ("stripe_event_id", stripeEventId),
                 ("event_type", eventType.ToString()),
                 ("from_plan", fromPlan?.ToString()),
                 ("to_plan", toPlan?.ToString()),
                 ("previous_amount", null),
                 ("new_amount", null),
                 ("amount_delta", amountDelta),
+                ("committed_mrr", committedMrr),
                 ("currency", currency),
-                ("days_on_previous_plan", null),
-                ("days_until_effective", null),
-                ("days_since_cancelled", null),
-                ("scheduled_for", null),
-                ("effective_at", null),
                 ("occurred_at", occurredAt),
                 ("cancellation_reason", null),
-                ("suspension_reason", null),
-                ("stripe_reference", stripeReference)
+                ("suspension_reason", null)
             ]
         );
     }

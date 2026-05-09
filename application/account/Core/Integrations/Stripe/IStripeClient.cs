@@ -53,7 +53,17 @@ public interface IStripeClient
     Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken);
 
     Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns Stripe events related to a customer, ordered by creation time. Used by the BillingEvent
+    ///     writer to enforce the strict 1:1 invariant: every recognized Stripe event yields exactly one
+    ///     billing_events row. Stripe's events API is the source of truth — local <c>stripe_events</c>
+    ///     rows are only a webhook inbox/queue and may have gaps that this method fills in.
+    /// </summary>
+    Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
+
+public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload);
 
 public sealed record StripeWebhookEventResult(
     string EventId,

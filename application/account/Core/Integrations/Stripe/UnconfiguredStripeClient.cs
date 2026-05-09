@@ -153,4 +153,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         logger.LogWarning("Stripe is not configured. Cannot sync payment transactions for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<PaymentTransaction[]?>(null);
     }
+
+    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot list events for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult<StripeReplayEvent[]>([]);
+    }
 }

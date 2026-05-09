@@ -42,10 +42,8 @@ public sealed record BillingEventSummary(
     decimal? AmountDelta,
     decimal? PreviousAmount,
     decimal? NewAmount,
+    decimal CommittedMrr,
     string? Currency,
-    int? DaysOnPreviousPlan,
-    DateTimeOffset? ScheduledFor,
-    DateTimeOffset? EffectiveAt,
     DateTimeOffset OccurredAt
 );
 
@@ -113,10 +111,8 @@ public sealed class GetBackOfficeBillingEventsHandler(
                         e.AmountDelta,
                         e.PreviousAmount,
                         e.NewAmount,
+                        e.CommittedMrr,
                         e.Currency,
-                        e.DaysOnPreviousPlan,
-                        e.ScheduledFor,
-                        e.EffectiveAt,
                         e.OccurredAt
                     );
                 }

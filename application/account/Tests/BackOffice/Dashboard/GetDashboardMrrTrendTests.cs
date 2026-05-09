@@ -129,26 +129,22 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
     {
         Connection.Insert("billing_events", [
                 ("tenant_id", tenantId.Value),
-                ("id", BillingEventId.FromComponents(subscriptionId, BillingEventType.SubscriptionCreated, "evt_test", occurredAt).ToString()),
+                ("id", BillingEventId.NewId().Value),
                 ("subscription_id", subscriptionId.ToString()),
                 ("created_at", occurredAt),
                 ("modified_at", null),
+                ("stripe_event_id", $"evt_test_{Guid.NewGuid():N}"),
                 ("event_type", nameof(BillingEventType.SubscriptionCreated)),
                 ("from_plan", null),
                 ("to_plan", nameof(SubscriptionPlan.Standard)),
                 ("previous_amount", 0m),
                 ("new_amount", newAmount),
                 ("amount_delta", newAmount),
+                ("committed_mrr", newAmount),
                 ("currency", "DKK"),
-                ("days_on_previous_plan", null),
-                ("days_until_effective", null),
-                ("days_since_cancelled", null),
-                ("scheduled_for", null),
-                ("effective_at", null),
                 ("occurred_at", occurredAt),
                 ("cancellation_reason", null),
-                ("suspension_reason", null),
-                ("stripe_reference", "evt_test")
+                ("suspension_reason", null)
             ]
         );
     }

@@ -13,6 +13,8 @@ public sealed record GetTenantsQuery(
     string? Search = null,
     SubscriptionPlan[]? Plans = null,
     TenantStatusFilter[]? Statuses = null,
+    bool Unsynced = false,
+    bool DriftDetected = false,
     SortableTenantProperties OrderBy = SortableTenantProperties.Name,
     SortOrder SortOrder = SortOrder.Ascending,
     int PageOffset = 0,
@@ -89,7 +91,7 @@ public sealed class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery
     }
 }
 
-public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository)
+public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, IBillingEventRepository billingEventRepository)
     : IRequestHandler<GetTenantsQuery, Result<TenantsResponse>>
 {
     public async Task<Result<TenantsResponse>> Handle(GetTenantsQuery query, CancellationToken cancellationToken)
@@ -101,6 +103,27 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             ? []
             : await subscriptionRepository.GetByTenantIdsUnfilteredAsync(tenantIds, cancellationToken);
         var subscriptionsByTenantId = subscriptions.ToDictionary(s => s.TenantId);
+
+        // Tenant-issue filters from the back-office banners. DriftDetected is a per-subscription flag set
+        // by the writer when the replayer hits an Unclassified event; Unsynced means a paid subscription
+        // has no BillingEvent rows yet (the dashboard MRR trend silently under-counts these).
+        if (query.DriftDetected)
+        {
+            tenants = tenants.Where(t => subscriptionsByTenantId.GetValueOrDefault(t.Id)?.HasDriftDetected == true).ToArray();
+        }
+
+        if (query.Unsynced)
+        {
+            var subscriptionIdsWithEvents = subscriptions.Length == 0
+                ? new HashSet<SubscriptionId>()
+                : await billingEventRepository.GetSubscriptionIdsWithEventsUnfilteredAsync([.. subscriptions.Select(s => s.Id)], cancellationToken);
+            tenants = tenants.Where(t =>
+                {
+                    var subscription = subscriptionsByTenantId.GetValueOrDefault(t.Id);
+                    return subscription is { CurrentPriceAmount: not null } && !subscriptionIdsWithEvents.Contains(subscription.Id);
+                }
+            ).ToArray();
+        }
 
         var summaries = tenants.Select(tenant => MapTenantSummary(tenant, subscriptionsByTenantId.GetValueOrDefault(tenant.Id))).ToArray();
 

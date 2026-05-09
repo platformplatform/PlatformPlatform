@@ -1,10 +1,12 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Badge } from "@repo/ui/components/Badge";
+import { Button } from "@repo/ui/components/Button";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@repo/ui/components/InputGroup";
 import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useNavigate } from "@tanstack/react-router";
-import { SearchIcon, XIcon } from "lucide-react";
+import { CloudOffIcon, SearchIcon, TriangleAlertIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import type { SortableTenantProperties } from "@/shared/lib/api/client";
@@ -16,9 +18,11 @@ interface AccountsToolbarProps {
   search: string | undefined;
   plans: SubscriptionPlan[];
   statuses: TenantStatusFilter[];
+  unsynced: boolean;
+  driftDetected: boolean;
 }
 
-export function AccountsToolbar({ search, plans, statuses }: Readonly<AccountsToolbarProps>) {
+export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetected }: Readonly<AccountsToolbarProps>) {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(search ?? "");
   const debouncedSearch = useDebounce(searchInput, 500);
@@ -137,6 +141,49 @@ export function AccountsToolbar({ search, plans, statuses }: Readonly<AccountsTo
           <Trans>Free</Trans>
         </ToggleGroupItem>
       </ToggleGroup>
+
+      <IssueFilterBadges unsynced={unsynced} driftDetected={driftDetected} />
     </div>
+  );
+}
+
+function IssueFilterBadges({ unsynced, driftDetected }: Readonly<{ unsynced: boolean; driftDetected: boolean }>) {
+  const navigate = useNavigate();
+  const clear = (key: "unsynced" | "driftDetected") => () =>
+    navigate({
+      to: "/accounts",
+      search: (previous) => ({
+        search: previous.search,
+        plans: previous.plans,
+        statuses: previous.statuses,
+        unsynced: key === "unsynced" ? undefined : previous.unsynced,
+        driftDetected: key === "driftDetected" ? undefined : previous.driftDetected,
+        orderBy: previous.orderBy as SortableTenantProperties | undefined,
+        sortOrder: previous.sortOrder,
+        pageOffset: undefined
+      })
+    });
+
+  return (
+    <>
+      {unsynced && (
+        <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-600">
+          <CloudOffIcon className="size-3.5" aria-hidden={true} />
+          <Trans>Not synced yet</Trans>
+          <Button variant="ghost" size="icon-xs" aria-label={t`Clear filter`} onClick={clear("unsynced")}>
+            <XIcon className="size-3" />
+          </Button>
+        </Badge>
+      )}
+      {driftDetected && (
+        <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-600">
+          <TriangleAlertIcon className="size-3.5" aria-hidden={true} />
+          <Trans>Drift detected</Trans>
+          <Button variant="ghost" size="icon-xs" aria-label={t`Clear filter`} onClick={clear("driftDetected")}>
+            <XIcon className="size-3" />
+          </Button>
+        </Badge>
+      )}
+    </>
   );
 }
