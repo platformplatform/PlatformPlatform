@@ -309,7 +309,7 @@ export function AppLayout({
   }, [browserTitle, title]);
 
   return (
-    <div className="flex min-h-dvh flex-1 flex-col">
+    <div className="flex min-h-[calc(100dvh-var(--banner-offset,0rem))] flex-1 flex-col">
       {/* Row layout: main takes remaining width, sidePane reserves its own column.
           When the pane opens, main naturally shrinks because it has `min-w-0 flex-1`. */}
       <div className="flex min-h-0 flex-1 overflow-hidden">
