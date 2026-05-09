@@ -31,6 +31,9 @@ msgstr "Back Office"
 msgid "BackOffice - Localhost"
 msgstr "BackOffice - Localhost"
 
+msgid "Basis"
+msgstr "Basis"
+
 msgid "Change language"
 msgstr "Change language"
 
@@ -106,11 +109,17 @@ msgstr "Main navigation"
 msgid "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
 
+msgid "Member"
+msgstr "Member"
+
 msgid "Navigation"
 msgstr "Navigation"
 
 msgid "No back-office access"
 msgstr "No back-office access"
+
+msgid "Owner"
+msgstr "Owner"
 
 msgid "Page not found"
 msgstr "Page not found"
@@ -124,6 +133,9 @@ msgstr "Please check the URL or return to the home page."
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 
+msgid "Premium"
+msgstr "Premium"
+
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
@@ -135,6 +147,9 @@ msgstr "Small"
 
 msgid "Something went wrong"
 msgstr "Something went wrong"
+
+msgid "Standard"
+msgstr "Standard"
 
 msgid "Support"
 msgstr "Support"
