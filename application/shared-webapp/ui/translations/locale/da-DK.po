@@ -60,7 +60,7 @@ msgid "Leave"
 msgstr "Forlad"
 
 msgid "Loading"
-msgstr ""
+msgstr "Indlæser"
 
 msgid "Main content"
 msgstr "Hovedindhold"
@@ -78,7 +78,7 @@ msgid "No results found"
 msgstr "Ingen resultater fundet"
 
 msgid "Open calendar"
-msgstr ""
+msgstr "Åbn kalender"
 
 msgid "Open navigation menu"
 msgstr "Åbn navigationsmenu"
