@@ -220,8 +220,8 @@ jobs:
         run: npm run build
 
       - name: Run Lint
-        working-directory: application/account/WebApp
-        run: npm run lint
+        working-directory: developer-cli
+        run: dotnet run -- lint --frontend
 
       - name: Check for Frontend Formatting Issues
         working-directory: application/account/WebApp
@@ -233,10 +233,6 @@ jobs:
             echo "Formatting issues detected. Please run 'npm run format' from /application/account/WebApp folder locally and commit the formatted code."
             exit 1
           }
-
-      - name: Run Back Office Lint
-        working-directory: application/account/BackOffice
-        run: npm run lint
 
       - name: Check for Back Office Formatting Issues
         working-directory: application/account/BackOffice

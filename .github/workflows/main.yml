@@ -215,8 +215,8 @@ jobs:
         run: npm run build
 
       - name: Run Lint
-        working-directory: application/main/WebApp
-        run: npm run lint
+        working-directory: developer-cli
+        run: dotnet run -- lint --frontend
 
       - name: Check for Frontend Formatting Issues
         working-directory: application/main/WebApp
