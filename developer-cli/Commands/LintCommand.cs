@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.Diagnostics;
 using DeveloperCli.Installation;
 using DeveloperCli.Utilities;
+using Karambolo.PO;
 using Spectre.Console;
 
 namespace DeveloperCli.Commands;
@@ -60,7 +61,8 @@ public class LintCommand : Command
             if (lintFrontend)
             {
                 Prerequisite.Ensure(Prerequisite.Node);
-                RunFrontendLinting(quiet);
+                var frontendHasIssues = RunFrontendLinting(quiet);
+                hasIssues = hasIssues || frontendHasIssues;
                 frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
@@ -165,10 +167,66 @@ public class LintCommand : Command
         return hasIssues;
     }
 
-    private static void RunFrontendLinting(bool quiet)
+    private static bool RunFrontendLinting(bool quiet)
     {
         if (!quiet) AnsiConsole.MarkupLine("[blue]Running frontend linting...[/]");
         ProcessHelper.Run("npm run lint", Configuration.ApplicationFolder, "Frontend linting", quiet);
+
+        return CheckMissingTranslations(quiet);
+    }
+
+    private static bool CheckMissingTranslations(bool quiet)
+    {
+        if (!quiet) AnsiConsole.MarkupLine("[blue]Checking for missing translations...[/]");
+
+        var translationFiles = Directory.GetFiles(Configuration.ApplicationFolder, "*.po", SearchOption.AllDirectories)
+            .Where(f => !f.Contains("node_modules") && !f.EndsWith("en-US.po"))
+            .ToArray();
+
+        var filesWithMissing = new List<(string RelativePath, int MissingCount)>();
+        foreach (var translationFile in translationFiles)
+        {
+            var content = File.ReadAllText(translationFile);
+            var parseResult = new POParser().Parse(new StringReader(content));
+            if (!parseResult.Success) continue;
+
+            var missingCount = parseResult.Catalog.Values
+                .OfType<POSingularEntry>()
+                .Count(entry => string.IsNullOrWhiteSpace(entry.Translation));
+
+            if (missingCount > 0)
+            {
+                var relativePath = translationFile.Replace(Configuration.ApplicationFolder, "").TrimStart(Path.DirectorySeparatorChar);
+                filesWithMissing.Add((relativePath, missingCount));
+            }
+        }
+
+        if (filesWithMissing.Count == 0)
+        {
+            if (!quiet) AnsiConsole.MarkupLine("[green]No missing translations![/]");
+            return false;
+        }
+
+        // Translation issues do not land in result.json, so always print which files are affected
+        // even in quiet mode. Otherwise the user only sees the generic "Issues found" message.
+        if (quiet)
+        {
+            Console.WriteLine($"Missing translations found in {filesWithMissing.Count} file(s):");
+            foreach (var (relativePath, missingCount) in filesWithMissing)
+            {
+                Console.WriteLine($"  {missingCount} missing in {relativePath}");
+            }
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[yellow]Missing translations found in {filesWithMissing.Count} file(s):[/]");
+            foreach (var (relativePath, missingCount) in filesWithMissing)
+            {
+                AnsiConsole.MarkupLine($"  [red]{missingCount}[/] missing in [cyan]{relativePath}[/]");
+            }
+        }
+
+        return true;
     }
 
     private static bool RunDeveloperCliLinting(bool noBuild, bool quiet)
