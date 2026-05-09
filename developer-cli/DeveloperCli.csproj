@@ -10,17 +10,11 @@
         <UserSecretsId>platformplatform-f817f2a1-ac57-4756-aef2-a57ca864bbd3</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
-        <PackageReference Include="Azure.Identity" Version="1.21.0" />
-        <PackageReference Include="Azure.ResourceManager" Version="1.14.0" />
         <PackageReference Include="Bogus" Version="35.6.5" />
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
         <PackageReference Include="Karambolo.PO" Version="1.13.0" />
-        <PackageReference Include="Microsoft.Extensions.AI" Version="10.5.0" />
-        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.5.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.7" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
-        <PackageReference Include="OpenAI" Version="2.10.0" />
         <PackageReference Include="Spectre.Console" Version="0.55.2" />
         <PackageReference Include="System.CommandLine" Version="2.0.7" />
     </ItemGroup>

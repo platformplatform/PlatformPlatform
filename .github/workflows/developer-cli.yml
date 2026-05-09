@@ -1,0 +1,70 @@
+name: Developer CLI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "developer-cli/**"
+      - ".github/workflows/developer-cli.yml"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "developer-cli/**"
+      - ".github/workflows/developer-cli.yml"
+      - "!**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-verify:
+    name: Build, Lint, and Format
+    runs-on: ubuntu-24.04
+
+    env:
+      # Skip the CLI's self-rebuild on every invocation; we build explicitly below.
+      DEVELOPERCLI_SKIP_CHANGE_DETECTION: "1"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: developer-cli/global.json
+
+      - name: Restore .NET Tools
+        working-directory: developer-cli
+        run: dotnet tool restore
+
+      - name: Restore .NET Dependencies
+        working-directory: developer-cli
+        run: dotnet restore
+
+      - name: Build Developer CLI
+        working-directory: developer-cli
+        run: dotnet build DeveloperCli.slnx --no-restore
+
+      - name: Run Code Linting
+        working-directory: developer-cli
+        run: |
+          dotnet run --no-build -- lint --cli --no-build | tee lint-output.log
+
+          if ! grep -q "No developer-cli issues found!" lint-output.log; then
+            echo "Code linting issues found."
+            exit 1
+          fi
+
+      - name: Check for Code Formatting Issues
+        working-directory: developer-cli
+        run: |
+          dotnet run --no-build -- format --cli --no-build
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet run -- format --cli' from /developer-cli folder locally and commit the formatted code."
+            exit 1
+          }
