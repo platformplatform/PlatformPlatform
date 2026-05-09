@@ -306,4 +306,79 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
   return configLabelKey in config ? config[configLabelKey] : config[key];
 }
 
-export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle };
+// Chart-type wrappers with `accessibilityLayer={true}` defaulted on. Recharts ships this prop
+// off-by-default; without it, Tab focuses the entire <svg role="application"> which Chrome
+// paints with its native blue focus ring (un-styleable on SVG). With it, Tab routes to
+// individual data points and our Tailwind `--ring` outline takes effect. Spread last so
+// consumers can still pass `accessibilityLayer={false}` to opt out.
+function AreaChart(props: React.ComponentProps<typeof RechartsPrimitive.AreaChart>) {
+  return <RechartsPrimitive.AreaChart accessibilityLayer={true} {...props} />;
+}
+function BarChart(props: React.ComponentProps<typeof RechartsPrimitive.BarChart>) {
+  return <RechartsPrimitive.BarChart accessibilityLayer={true} {...props} />;
+}
+function LineChart(props: React.ComponentProps<typeof RechartsPrimitive.LineChart>) {
+  return <RechartsPrimitive.LineChart accessibilityLayer={true} {...props} />;
+}
+function PieChart(props: React.ComponentProps<typeof RechartsPrimitive.PieChart>) {
+  return <RechartsPrimitive.PieChart accessibilityLayer={true} {...props} />;
+}
+function RadialBarChart(props: React.ComponentProps<typeof RechartsPrimitive.RadialBarChart>) {
+  return <RechartsPrimitive.RadialBarChart accessibilityLayer={true} {...props} />;
+}
+
+// Plain re-exports of the recharts primitives consumers compose inside the chart wrappers.
+// Consumers must import these from `@repo/ui/components/Chart` rather than `recharts` directly
+// (enforced via `no-restricted-imports`) so the wrapped chart types are always picked up.
+const Area = RechartsPrimitive.Area;
+const Bar = RechartsPrimitive.Bar;
+const Cell = RechartsPrimitive.Cell;
+const CartesianGrid = RechartsPrimitive.CartesianGrid;
+const Label = RechartsPrimitive.Label;
+const Legend = RechartsPrimitive.Legend;
+const Line = RechartsPrimitive.Line;
+const Pie = RechartsPrimitive.Pie;
+const PolarAngleAxis = RechartsPrimitive.PolarAngleAxis;
+const PolarGrid = RechartsPrimitive.PolarGrid;
+const PolarRadiusAxis = RechartsPrimitive.PolarRadiusAxis;
+const RadialBar = RechartsPrimitive.RadialBar;
+const Rectangle = RechartsPrimitive.Rectangle;
+const ReferenceLine = RechartsPrimitive.ReferenceLine;
+const ResponsiveContainer = RechartsPrimitive.ResponsiveContainer;
+const Sector = RechartsPrimitive.Sector;
+const Tooltip = RechartsPrimitive.Tooltip;
+const XAxis = RechartsPrimitive.XAxis;
+const YAxis = RechartsPrimitive.YAxis;
+
+export {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
+  Label,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  RadialBar,
+  RadialBarChart,
+  Rectangle,
+  ReferenceLine,
+  ResponsiveContainer,
+  Sector,
+  Tooltip,
+  XAxis,
+  YAxis
+};

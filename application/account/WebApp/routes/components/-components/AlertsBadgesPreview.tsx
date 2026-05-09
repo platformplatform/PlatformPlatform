@@ -150,6 +150,9 @@ export function AlertsBadgesPreview() {
           <Badge variant="destructive">
             <Trans>Destructive</Trans>
           </Badge>
+          <Badge variant="warning">
+            <Trans>Warning</Trans>
+          </Badge>
           <Badge variant="outline">
             <Trans>Outline</Trans>
           </Badge>

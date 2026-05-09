@@ -215,17 +215,17 @@ jobs:
         run: npm run build
 
       - name: Run Lint
-        working-directory: application/main/WebApp
-        run: npm run lint
+        working-directory: developer-cli
+        run: dotnet run -- lint --frontend
 
-      - name: Check for Frontend Formatting Issues
-        working-directory: application/main/WebApp
+      - name: Run Format
+        working-directory: developer-cli
         run: |
-          npm run format
+          dotnet run -- format --frontend
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'npm run format' from /application/main/WebApp folder locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --frontend' locally and commit the formatted code."
             exit 1
           }
 

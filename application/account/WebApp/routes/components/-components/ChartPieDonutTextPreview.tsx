@@ -1,10 +1,17 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@repo/ui/components/Card";
-import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@repo/ui/components/Chart";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  Label,
+  Pie,
+  PieChart
+} from "@repo/ui/components/Chart";
 import { TrendingUpIcon } from "lucide-react";
 import { useMemo } from "react";
-import { Label, Pie, PieChart } from "recharts";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },

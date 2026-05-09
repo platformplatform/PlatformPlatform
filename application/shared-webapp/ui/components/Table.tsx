@@ -29,7 +29,7 @@ const INTERACTIVE_SELECTOR =
 
 function parseRowKey(value: string): RowKey {
   const numeric = Number(value);
-  return value !== "" && !Number.isNaN(numeric) && String(numeric) === value ? numeric : value;
+  return value !== "" && Number.isSafeInteger(numeric) && String(numeric) === value ? numeric : value;
 }
 
 function rowSelector(key: RowKey): string {
@@ -189,6 +189,7 @@ interface TableProps extends React.ComponentProps<"table"> {
   activateOnNavigate?: boolean;
   scrollToKey?: RowKey;
   stickyHeader?: boolean;
+  containerClassName?: string;
 }
 
 function Table({
@@ -201,6 +202,7 @@ function Table({
   activateOnNavigate = false,
   scrollToKey,
   stickyHeader = false,
+  containerClassName,
   ...props
 }: TableProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -440,7 +442,11 @@ function Table({
   }, [hasSelection]);
 
   const table = (
-    <div ref={containerRef} data-slot="table-container" className="relative w-full overflow-x-auto">
+    <div
+      ref={containerRef}
+      data-slot="table-container"
+      className={cn("relative w-full overflow-x-auto rounded-md border bg-card", containerClassName)}
+    >
       <table data-slot="table" className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
   );
@@ -466,7 +472,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
     <TableRowSizeContext value="compact">
       <thead
         data-slot="table-header"
-        className={cn("[&_tr]:border-b", sticky && "sticky top-0 z-10 [&_tr]:bg-background", className)}
+        className={cn("[&_tr]:border-b [&_tr]:bg-card", sticky && "sticky top-0 z-10", className)}
         {...props}
       />
     </TableRowSizeContext>
@@ -510,7 +516,10 @@ function TableRow({ className, rowKey, ...props }: TableRowProps) {
       data-row-key={rowKey != null ? String(rowKey) : undefined}
       data-state={isSelected ? "selected" : undefined}
       className={cn(
-        "rounded-md border-b outline-ring transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 active:bg-muted data-[state=selected]:bg-active-background",
+        // Selected and keyboard-focused rows are marked with a 4px primary-colored bar on the
+        // left edge (drawn via inset box-shadow so it doesn't shift content). No outline ring —
+        // the bar replaces it for both states. Mouse-selected and keyboard-focused look identical.
+        "border-b transition-colors focus-visible:shadow-[inset_4px_0_0_var(--primary)] focus-visible:outline-none active:bg-muted data-[state=selected]:bg-active-background data-[state=selected]:shadow-[inset_4px_0_0_var(--primary)]",
         !suppressHover && "hover:bg-hover-background data-[state=selected]:hover:bg-active-background",
         rowSizeStyles[rowSize],
         isSelectable && "cursor-pointer select-none",

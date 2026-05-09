@@ -69,11 +69,6 @@ msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
 msgid "+39 06 555 0000"
 msgstr "+39 06 555 0000"
 
-msgid ""
-"1 Infinite Loop\n"
-"Cupertino, CA 95014"
-msgstr ""
-
 msgid "1 TB storage"
 msgstr "1 TB lagerplads"
 
@@ -91,6 +86,13 @@ msgstr "100 GB lagerplads"
 
 msgid "100% Security Score"
 msgstr "100% sikkerhedsscore"
+
+msgid ""
+"123 Example Street\n"
+"Anytown, AA 12345"
+msgstr ""
+"123 Example Street\n"
+"Anytown, AA 12345"
 
 msgid "14 h 30 min logged"
 msgstr "14 t 30 min logget"
@@ -1471,6 +1473,9 @@ msgstr "Lineær fremskridtsbjælke til determinerede, forgrundsopgaver som uploa
 
 msgid "Link"
 msgstr "Link"
+
+msgid "Link card"
+msgstr "Linkkort"
 
 msgid "Link sizes"
 msgstr "Linkstørrelser"
@@ -2928,6 +2933,9 @@ msgstr "Se brugere"
 
 msgid "Visitors"
 msgstr "Besøgende"
+
+msgid "Warning"
+msgstr "Advarsel"
 
 msgid "Warning alert"
 msgstr "Advarselsbesked"

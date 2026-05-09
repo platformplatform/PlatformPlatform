@@ -2,15 +2,18 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@repo/ui/components/Card";
 import {
+  Bar,
+  BarChart,
+  CartesianGrid,
   type ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
-  ChartTooltipContent
+  ChartTooltipContent,
+  XAxis
 } from "@repo/ui/components/Chart";
 import { TrendingUpIcon } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },

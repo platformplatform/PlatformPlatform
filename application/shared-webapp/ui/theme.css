@@ -43,8 +43,8 @@
     --danger-foreground: var(--destructive-foreground);
     --success: oklch(0.45 0.15 145);
     --success-foreground: oklch(0.985 0 0);
-    --warning: oklch(0.75 0.18 70);
-    --warning-foreground: oklch(0.13 0.028 261.692);
+    --warning: oklch(0.5 0.18 55);
+    --warning-foreground: oklch(0.985 0 0);
     --info: oklch(0.55 0.2 260);
     --info-foreground: oklch(0.13 0.028 261.692);
     --panel-opacity: 0.5;

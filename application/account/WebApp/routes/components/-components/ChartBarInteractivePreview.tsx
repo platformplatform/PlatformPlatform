@@ -2,9 +2,17 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/Card";
-import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@repo/ui/components/Chart";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  XAxis
+} from "@repo/ui/components/Chart";
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import { dailyVisitors as chartData } from "./chartSampleData";
 

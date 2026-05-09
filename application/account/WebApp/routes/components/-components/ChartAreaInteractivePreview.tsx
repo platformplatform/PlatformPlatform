@@ -2,17 +2,20 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/Card";
 import {
+  Area,
+  AreaChart,
+  CartesianGrid,
   type ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
-  ChartTooltipContent
+  ChartTooltipContent,
+  XAxis
 } from "@repo/ui/components/Chart";
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { SelectField } from "@repo/ui/components/SelectField";
 import { useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 import { dailyVisitors as chartData } from "./chartSampleData";
 

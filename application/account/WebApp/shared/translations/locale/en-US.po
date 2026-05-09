@@ -69,13 +69,6 @@ msgstr "© {currentYear} PlatformPlatform. All rights reserved."
 msgid "+39 06 555 0000"
 msgstr "+39 06 555 0000"
 
-msgid ""
-"1 Infinite Loop\n"
-"Cupertino, CA 95014"
-msgstr ""
-"1 Infinite Loop\n"
-"Cupertino, CA 95014"
-
 msgid "1 TB storage"
 msgstr "1 TB storage"
 
@@ -93,6 +86,13 @@ msgstr "100 GB storage"
 
 msgid "100% Security Score"
 msgstr "100% Security Score"
+
+msgid ""
+"123 Example Street\n"
+"Anytown, AA 12345"
+msgstr ""
+"123 Example Street\n"
+"Anytown, AA 12345"
 
 msgid "14 h 30 min logged"
 msgstr "14 h 30 min logged"
@@ -1473,6 +1473,9 @@ msgstr "Linear progress bar for determinate, foreground tasks like uploads or on
 
 msgid "Link"
 msgstr "Link"
+
+msgid "Link card"
+msgstr "Link card"
 
 msgid "Link sizes"
 msgstr "Link sizes"
@@ -2930,6 +2933,9 @@ msgstr "View users"
 
 msgid "Visitors"
 msgstr "Visitors"
+
+msgid "Warning"
+msgstr "Warning"
 
 msgid "Warning alert"
 msgstr "Warning alert"

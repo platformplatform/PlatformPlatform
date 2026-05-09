@@ -157,7 +157,7 @@ export function MultiSelect({
             </span>
             <ChevronDownIcon className="size-4 shrink-0 opacity-50" />
           </PopoverTrigger>
-          <PopoverContent className="w-(--anchor-width) p-1" align="start">
+          <PopoverContent className="min-w-(--anchor-width) p-1" align="start">
             <div
               id={`${name}-listbox`}
               ref={listRef}
@@ -181,7 +181,7 @@ export function MultiSelect({
                     )}
                   >
                     {item.icon && <span className="shrink-0 [&_svg:not([class*='size-'])]:size-4">{item.icon}</span>}
-                    <span className="truncate">{item.label}</span>
+                    <span className="whitespace-nowrap">{item.label}</span>
                     {checked && (
                       <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
                         <CheckIcon className="size-4" />
