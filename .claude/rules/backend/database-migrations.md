@@ -11,7 +11,7 @@ Guidelines for creating database migrations using PostgreSQL conventions with sn
 
 1. Create migrations manually rather than using Entity Framework tooling:
    - Place migrations in `/[scs-name]/Core/Database/Migrations`
-   - Name migration files with 14-digit timestamp prefix: `YYYYMMDDHHmmss_MigrationName.cs`
+   - Name migration files with 14-digit timestamp prefix: `YYYYMMDDHHmmss_MigrationName.cs`—`HHmm` must be the actual current time, never `0000`
    - Only implement the `Up` method--don't create `Down` migration
 
 2. Follow this strict column ordering in table creation statements:
@@ -46,7 +46,8 @@ Guidelines for creating database migrations using PostgreSQL conventions with sn
    - Filtered indexes use PostgreSQL `WHERE` clause syntax (e.g., `filter: "deleted_at IS NULL"`)
 
 7. Migrate existing data:
-   - Use `migrationBuilder.Sql("UPDATE table_name SET column_name = value WHERE condition")` with care
+   - Use `migrationBuilder.Sql("UPDATE table_name SET column_name = value WHERE condition;")` with care
+   - End SQL with `;`. Deploy wraps it: `... THEN <sql> END IF;`. No `;` → collides with `END IF;` → Postgres errors `syntax error at or near "END"`
 
 ## Examples
 
@@ -83,6 +84,7 @@ public sealed class AddUserPreferences : Migration
 }
 
 // ❌ DON'T: Forget to add the attribute [DbContext(typeof(XxxDbContext))] for the self-contained system
+[Migration("20250507000000_AddUserPrefs")]  // ❌ HHmm is `0000`—use actual current time
 [Migration("20250507_AddUserPrefs")]  // ❌ Missing proper 14-digit timestamp
 public class AddUserPrefsMigration : Migration  // ❌ Not sealed, incorrect naming, suffixed with Migration
 {
