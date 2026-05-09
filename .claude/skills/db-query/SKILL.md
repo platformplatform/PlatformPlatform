@@ -7,6 +7,8 @@ description: Query the local Postgres database of the active Aspire worktree via
 
 **Read-only. Every write needs explicit user approval for that exact statement, every time — prior approvals never carry over.**
 
+**For destructive operations (DROP, TRUNCATE, DELETE, ALTER, or anything that loses data), take extreme care. If anything in the request is even slightly unclear about the scope, target, or intent, stop and ask for clarification before executing. Always assume the most conservative interpretation.**
+
 ## Prerequisites
 
 If `psql --version` fails, tell the user:
