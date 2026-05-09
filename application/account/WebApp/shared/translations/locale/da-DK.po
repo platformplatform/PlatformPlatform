@@ -186,7 +186,7 @@ msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Opnået i Microsoft Defender for Cloud ved at følge Azures bedste praksis"
 
 msgid "Action"
-msgstr ""
+msgstr "Handling"
 
 msgid "Activating subscription"
 msgstr "Aktiverer abonnement"
@@ -204,7 +204,7 @@ msgid "Active users in the past 30 days"
 msgstr "Aktive brugere i de sidste 30 dage"
 
 msgid "Add an extra layer of security to your account."
-msgstr ""
+msgstr "Tilføj et ekstra sikkerhedslag til din konto."
 
 msgid "Add billing information"
 msgstr "Tilføj faktureringsoplysninger"
@@ -461,7 +461,7 @@ msgid "Bold"
 msgstr "Fed"
 
 msgid "Bordered row for stand-alone settings or list items."
-msgstr ""
+msgstr "Række med kant til selvstændige indstillinger eller listeelementer."
 
 msgid "Bottom"
 msgstr "Bund"
@@ -1059,7 +1059,7 @@ msgid "Email address"
 msgstr "E-mailadresse"
 
 msgid "Email me when a new device signs in."
-msgstr ""
+msgstr "Send mig en e-mail, når en ny enhed logger ind."
 
 msgid "Email support"
 msgstr "E-mail-support"
@@ -1137,7 +1137,7 @@ msgid "Export as PDF"
 msgstr "Eksporter som PDF"
 
 msgid "External"
-msgstr ""
+msgstr "Ekstern"
 
 msgid "Extra large"
 msgstr "Ekstra stor"
@@ -1290,7 +1290,7 @@ msgid "Indeterminate"
 msgstr "Ubestemt"
 
 msgid "Indeterminate loading indicator. Use Progress when you can show how much work remains; reach for Spinner when you can't."
-msgstr ""
+msgstr "Ubestemt indlæsningsindikator. Brug Progress, når du kan vise, hvor meget arbejde der er tilbage; vælg Spinner, når du ikke kan."
 
 msgid "Indian"
 msgstr "Indisk"
@@ -1344,13 +1344,13 @@ msgid "Italic"
 msgstr "Kursiv"
 
 msgid "Item — clickable row"
-msgstr ""
+msgstr "Element — klikbar række"
 
 msgid "Item — image media"
-msgstr ""
+msgstr "Element — billedmedie"
 
 msgid "Item — variants"
-msgstr ""
+msgstr "Element — varianter"
 
 msgid "Item archived"
 msgstr "Element arkiveret"
@@ -1359,7 +1359,7 @@ msgid "Item deleted"
 msgstr "Element slettet"
 
 msgid "ItemGroup — settings list"
-msgstr ""
+msgstr "ItemGroup — indstillingsliste"
 
 msgid "January - June 2024"
 msgstr "Januar - juni 2024"
@@ -1506,7 +1506,7 @@ msgid "Logged out"
 msgstr "Logget ud"
 
 msgid "Login alerts"
-msgstr ""
+msgstr "Login-advarsler"
 
 msgid "Login method"
 msgstr "Login-metode"
@@ -1533,7 +1533,7 @@ msgid "Main navigation"
 msgstr "Hovednavigation"
 
 msgid "Manage"
-msgstr ""
+msgstr "Administrer"
 
 msgid "Manage subscription"
 msgstr "Administrer abonnement"
@@ -1641,7 +1641,7 @@ msgid "Multi-select summary side pane"
 msgstr "Oversigtspanel for flervalg"
 
 msgid "Muted"
-msgstr ""
+msgstr "Dæmpet"
 
 msgid "Name"
 msgstr "Navn"
@@ -1740,7 +1740,7 @@ msgid "Number (integer)"
 msgstr "Tal (heltal)"
 
 msgid "Off"
-msgstr ""
+msgstr "Fra"
 
 msgid "OK"
 msgstr "OK"
@@ -1749,7 +1749,7 @@ msgid "Okonomiyaki"
 msgstr "Okonomiyaki"
 
 msgid "On"
-msgstr ""
+msgstr "Til"
 
 msgid "One-time code"
 msgstr "Engangskode"
@@ -1824,7 +1824,7 @@ msgid "Palak paneer"
 msgstr "Palak paneer"
 
 msgid "Passkeys"
-msgstr ""
+msgstr "Passkeys"
 
 msgid "Passwordless deployments"
 msgstr "Adgangskodeløse implementeringer"
@@ -2388,7 +2388,7 @@ msgid "Sidebar footer"
 msgstr "Sidemenu-sidefod"
 
 msgid "Sign in without a password using your device."
-msgstr ""
+msgstr "Log ind uden adgangskode med din enhed."
 
 msgid "Sign up"
 msgstr "Tilmeld dig"
@@ -2421,10 +2421,10 @@ msgid "SLA"
 msgstr "SLA"
 
 msgid "Slider (range)"
-msgstr ""
+msgstr "Slider (interval)"
 
 msgid "Slider with steps"
-msgstr ""
+msgstr "Slider med trin"
 
 msgid "Slow-cooked classics"
 msgstr "Langtidsstegte klassikere"
@@ -2463,7 +2463,7 @@ msgid "Spaghetti carbonara"
 msgstr "Spaghetti carbonara"
 
 msgid "Spinner"
-msgstr ""
+msgstr "Spinner"
 
 msgid "Split buttons"
 msgstr "Delte knapper"
@@ -2512,7 +2512,7 @@ msgid "Subscription"
 msgstr "Abonnement"
 
 msgid "Subtle background for grouped rows inside a panel."
-msgstr ""
+msgstr "Diskret baggrund til grupperede rækker i et panel."
 
 msgid "Succeeded"
 msgstr "Gennemført"
@@ -2542,7 +2542,7 @@ msgid "Tablet"
 msgstr "Tablet"
 
 msgid "Tabs"
-msgstr ""
+msgstr "Faner"
 
 msgid "Tacos al pastor"
 msgstr "Tacos al pastor"
@@ -2731,7 +2731,7 @@ msgid "Try again"
 msgstr "Prøv igen"
 
 msgid "Two-factor authentication"
-msgstr ""
+msgstr "Tofaktor-godkendelse"
 
 msgid "Type a command or search..."
 msgstr "Skriv en kommando eller søg..."
@@ -2921,7 +2921,7 @@ msgid "View profile"
 msgstr "Se profil"
 
 msgid "View profile verification"
-msgstr ""
+msgstr "Vis profilbekræftelse"
 
 msgid "View users"
 msgstr "Se brugere"
@@ -3038,7 +3038,7 @@ msgid "Your plan will be downgraded to {planName} at the end of your current bil
 msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende planfunktioner indtil da."
 
 msgid "Your profile has been verified"
-msgstr ""
+msgstr "Din profil er blevet bekræftet"
 
 msgid "Your scheduled downgrade has been cancelled."
 msgstr "Din planlagte nedgradering er blevet afbrudt."
