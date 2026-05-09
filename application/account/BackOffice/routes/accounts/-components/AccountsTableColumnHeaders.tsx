@@ -78,7 +78,7 @@ export function AccountsTableColumnHeaders({ orderBy, sortOrder, onSort }: Reado
           onSort={onSort}
           className="hidden w-[6.5rem] xl:table-cell"
         >
-          <Trans>Created</Trans>
+          <Trans>Signed up</Trans>
         </SortableTableHead>
       </TableRow>
     </TableHeader>

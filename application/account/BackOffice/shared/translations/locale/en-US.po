@@ -233,9 +233,7 @@ msgstr "Country"
 msgid "Created"
 msgstr "Created"
 
-#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
 #. placeholder {0}: formatDate(user.createdAt, false, false, true)
-#. placeholder {1}: formatDate(tenant.createdAt)
 #. placeholder {1}: formatDate(user.createdAt)
 msgid "Created <0>{0}</0><1>{1}</1>"
 msgstr "Created <0>{0}</0><1>{1}</1>"
@@ -682,6 +680,14 @@ msgstr "Sessions"
 
 msgid "Show details"
 msgstr "Show details"
+
+msgid "Signed up"
+msgstr "Signed up"
+
+#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
+#. placeholder {1}: formatDate(tenant.createdAt)
+msgid "Signed up <0>{0}</0><1>{1}</1>"
+msgstr "Signed up <0>{0}</0><1>{1}</1>"
 
 #. placeholder {0}: formatDate(tenant.createdAt)
 msgid "Since {0}"

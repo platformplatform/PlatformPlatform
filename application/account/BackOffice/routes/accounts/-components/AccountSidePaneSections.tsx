@@ -143,7 +143,7 @@ export function AccountSidePaneSections({
 
       <SidePaneDivider />
 
-      <SidePaneSection label={t`Created`}>
+      <SidePaneSection label={t`Signed up`}>
         <span className="flex items-center justify-between gap-2 text-sm">
           <span>{formatDate(tenant.createdAt)}</span>
           <span className="text-muted-foreground">{formatRelativeTime(tenant.createdAt, i18n.locale)}</span>

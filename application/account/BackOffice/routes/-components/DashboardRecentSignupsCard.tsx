@@ -80,7 +80,7 @@ export function DashboardRecentSignupsCard() {
                 <Trans>Owner</Trans>
               </TableHead>
               <TableHead className="text-right">
-                <Trans>Created</Trans>
+                <Trans>Signed up</Trans>
               </TableHead>
             </TableRow>
           </TableHeader>

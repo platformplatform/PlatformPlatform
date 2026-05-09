@@ -233,9 +233,7 @@ msgstr "Land"
 msgid "Created"
 msgstr "Oprettet"
 
-#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
 #. placeholder {0}: formatDate(user.createdAt, false, false, true)
-#. placeholder {1}: formatDate(tenant.createdAt)
 #. placeholder {1}: formatDate(user.createdAt)
 msgid "Created <0>{0}</0><1>{1}</1>"
 msgstr "Oprettet <0>{0}</0><1>{1}</1>"
@@ -682,6 +680,14 @@ msgstr "Sessioner"
 
 msgid "Show details"
 msgstr "Vis detaljer"
+
+msgid "Signed up"
+msgstr "Tilmeldt"
+
+#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
+#. placeholder {1}: formatDate(tenant.createdAt)
+msgid "Signed up <0>{0}</0><1>{1}</1>"
+msgstr "Tilmeldt <0>{0}</0><1>{1}</1>"
 
 #. placeholder {0}: formatDate(tenant.createdAt)
 msgid "Since {0}"

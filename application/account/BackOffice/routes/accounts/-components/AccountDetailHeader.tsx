@@ -71,7 +71,7 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
               <span className="inline-flex items-center gap-1.5">
                 <CalendarIcon className="size-3.5" aria-hidden={true} />
                 <Trans>
-                  Created <span className="md:hidden">{formatDate(tenant.createdAt, false, false, true)}</span>
+                  Signed up <span className="md:hidden">{formatDate(tenant.createdAt, false, false, true)}</span>
                   <span className="hidden md:inline">{formatDate(tenant.createdAt)}</span>
                 </Trans>
               </span>
