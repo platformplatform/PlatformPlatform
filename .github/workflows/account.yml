@@ -223,9 +223,31 @@ jobs:
         working-directory: application/account/WebApp
         run: npm run lint
 
+      - name: Check for Frontend Formatting Issues
+        working-directory: application/account/WebApp
+        run: |
+          npm run format
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'npm run format' from /application/account/WebApp folder locally and commit the formatted code."
+            exit 1
+          }
+
       - name: Run Back Office Lint
         working-directory: application/account/BackOffice
         run: npm run lint
+
+      - name: Check for Back Office Formatting Issues
+        working-directory: application/account/BackOffice
+        run: |
+          npm run format
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'npm run format' from /application/account/BackOffice folder locally and commit the formatted code."
+            exit 1
+          }
 
   database-migrations-stage:
     name: Database Staging

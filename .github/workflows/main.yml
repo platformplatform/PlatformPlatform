@@ -218,6 +218,17 @@ jobs:
         working-directory: application/main/WebApp
         run: npm run lint
 
+      - name: Check for Frontend Formatting Issues
+        working-directory: application/main/WebApp
+        run: |
+          npm run format
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'npm run format' from /application/main/WebApp folder locally and commit the formatted code."
+            exit 1
+          }
+
   database-migrations-stage:
     name: Database Staging
     if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
