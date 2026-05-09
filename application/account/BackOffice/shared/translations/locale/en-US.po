@@ -570,6 +570,9 @@ msgstr "Page not found"
 msgid "Paid"
 msgstr "Paid"
 
+msgid "Past due"
+msgstr "Past due"
+
 msgid "Payment failed"
 msgstr "Payment failed"
 

@@ -124,6 +124,8 @@ export function getBillingEventTypeLabel(type: BillingEventType): string {
       return t`Cancelled immediately`;
     case BillingEventType.SubscriptionSuspended:
       return t`Suspended`;
+    case BillingEventType.SubscriptionPastDue:
+      return t`Past due`;
     case BillingEventType.PaymentFailed:
       return t`Payment failed`;
     case BillingEventType.PaymentRecovered:

@@ -100,6 +100,9 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 public sealed class SignupStarted
     : TelemetryEvent;
 
+public sealed class StripeEventPayloadMismatch(string eventId, string eventType, string existingHash, string newHash)
+    : TelemetryEvent(("event_id", eventId), ("event_type", eventType), ("existing_hash", existingHash), ("new_hash", newHash));
+
 public sealed class SubscriptionCancelled(
     SubscriptionId subscriptionId,
     SubscriptionPlan plan,
@@ -267,3 +270,6 @@ public sealed class UserZoomLevelChanged(string fromZoomLevel, string toZoomLeve
 
 public sealed class UsersBulkDeleted(int count)
     : TelemetryEvent(("count", count));
+
+public sealed class WebhookDeliveryRecovered(string eventId, string eventType, string recoverySource)
+    : TelemetryEvent(("event_id", eventId), ("event_type", eventType), ("recovery_source", recoverySource));

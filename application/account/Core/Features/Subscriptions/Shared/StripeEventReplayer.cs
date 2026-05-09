@@ -256,8 +256,48 @@ public static class StripeEventReplayer
             );
         }
 
+        // status: active → past_due (or unpaid). Customer's payment failed; subscription remains on plan but is
+        // delinquent. Both Stripe statuses indicate the same business state from our perspective — the
+        // dunning escalation path (past_due → unpaid → canceled) is a Stripe-side detail. Pairs with the
+        // PaymentFailed row that the invoice.payment_failed event produces at the same timestamp; both rows
+        // describe different facets of the same business event. Committed MRR unchanged.
+        if (previous.TryGetProperty("status", out var prevStatus) && prevStatus.GetString() == "active")
+        {
+            var newStatus = ResolveSubscriptionStatus(payload);
+            if (newStatus is "past_due" or "unpaid")
+            {
+                return BillingEvent.Create(
+                    tenantId, subscriptionId, stripeEventId, BillingEventType.SubscriptionPastDue, occurredAt, state.CommittedMrr,
+                    toPlan: state.Plan, newAmount: state.CommittedMrr, currency: currency
+                );
+            }
+        }
+
+        // latest_invoice rolled to a new invoice id — Stripe started a new billing cycle. This branch is
+        // intentionally a NoOp:
+        //   * Happy-path renewal: invoice.payment_succeeded fires next and emits SubscriptionRenewed (or
+        //     PaymentRecovered for retry success). Emitting SubscriptionRenewed here too would duplicate it.
+        //   * Past_due renewal: the active → past_due status change in the same payload is handled by the
+        //     branch above, which emits SubscriptionPastDue. The latest_invoice change is the same business
+        //     event from a different angle and adds no unique signal.
+        // Audit row preserved so the 1:1 invariant holds.
+        if (previous.TryGetProperty("latest_invoice", out _))
+        {
+            return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
+        }
+
         // previous_attributes carried fields we don't track (e.g. metadata, period dates). Audit row.
         return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
+    }
+
+    private static string? ResolveSubscriptionStatus(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object) return null;
+        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        if (data.ValueKind != JsonValueKind.Object) return null;
+        var sub = data.TryGetProperty("object", out var obj) ? obj : default;
+        if (sub.ValueKind != JsonValueKind.Object) return null;
+        return sub.TryGetProperty("status", out var s) ? s.GetString() : null;
     }
 
     private static BillingEvent MapSubscriptionDeleted(
@@ -434,11 +474,14 @@ public static class StripeEventReplayer
         string currency
     )
     {
-        // Skip 3DS challenges that succeed on first attempt (attempt_count == 1) — those produce a
-        // payment_failed event followed shortly by payment_succeeded. Only emit PaymentFailed when Stripe
-        // has retried (attempt_count > 1), which is a real persistent failure. Failures don't change
-        // committed MRR — the customer is still on the plan, just behind on payment.
-        if (!HasMultiplePaymentAttempts(payload))
+        // Only emit PaymentFailed for genuine recurring billing failures (billing_reason ==
+        // subscription_cycle). The proration invoice from a plan change can also fail and is covered by
+        // the customer.subscription.updated upgrade/downgrade row instead. Failures don't change committed
+        // MRR — the customer is still on the plan, just behind on payment. If Stripe later succeeds via a
+        // retry (3DS or smart-retry), invoice.payment_succeeded fires and emits PaymentRecovered — that's
+        // accurate history rather than swallowing the initial failure.
+        var billingReason = ExtractInvoiceBillingReason(payload);
+        if (billingReason != "subscription_cycle")
         {
             return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
         }

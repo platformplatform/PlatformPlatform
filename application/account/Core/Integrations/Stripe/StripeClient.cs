@@ -463,7 +463,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
             var customerId = ExtractCustomerId(payload);
 
-            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId);
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, stripeEvent.ApiVersion);
         }
         catch (StripeException ex)
         {
@@ -1070,6 +1070,13 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         return await BuildPlanByPriceIdAsync(cancellationToken);
     }
 
+    /// <summary>
+    ///     Lists Stripe events for a customer via Stripe's events.list API. Used as a reconciliation source
+    ///     to detect webhooks we missed: any event id Stripe returns that we don't have in stripe_events
+    ///     locally is a delivery we lost. Stripe retains events for only 30 days
+    ///     (see https://docs.stripe.com/api/events) — anything older is unreachable through this API and
+    ///     must be backed by our local stripe_events archive instead.
+    /// </summary>
     public async Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         try
@@ -1084,7 +1091,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             await foreach (var stripeEvent in service.ListAutoPagingAsync(options, GetRequestOptions(), cancellationToken))
             {
                 if (TryExtractCustomerId(stripeEvent) != stripeCustomerId.Value) continue;
-                collected.Add(new StripeReplayEvent(stripeEvent.Id, stripeEvent.Type, stripeEvent.Created, stripeEvent.ToJson()));
+                collected.Add(new StripeReplayEvent(stripeEvent.Id, stripeEvent.Type, stripeEvent.Created, stripeEvent.ToJson(), stripeEvent.ApiVersion));
             }
 
             return [.. collected];

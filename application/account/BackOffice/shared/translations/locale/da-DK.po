@@ -570,6 +570,9 @@ msgstr "Siden blev ikke fundet"
 msgid "Paid"
 msgstr "Betalt"
 
+msgid "Past due"
+msgstr "Forfalden"
+
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
 

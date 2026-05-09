@@ -56,8 +56,9 @@ public sealed class ProcessPendingStripeEvents(
         // forceSync runs the Stripe sync even with no pending events (used by the BackOffice "Sync with Stripe" admin action)
         if (pendingEvents.Length > 0 || forceSync)
         {
+            var recoveredEvents = await ReconcileEventLogFromEventsListAsync(stripeCustomerId, cancellationToken);
             await SyncStateFromStripe(tenant, subscription, cancellationToken);
-            await ReplayStripeEventsAsync(subscription, cancellationToken);
+            await SyncBillingEventsAsync(subscription, pendingEvents, recoveredEvents, cancellationToken);
 
             MarkAllEventsAsProcessed(pendingEvents, subscription);
         }
@@ -99,7 +100,7 @@ public sealed class ProcessPendingStripeEvents(
 
         // Detect state transitions in lifecycle order (variables and if-blocks below follow the same order).
         // The detections drive telemetry collection and Subscription/Tenant state mutations; the BillingEvent
-        // log is populated separately by ReplayStripeEventsAsync running over the customer's stripe_events.
+        // log is populated separately by SyncBillingEventsAsync running over the customer's stripe_events.
         var billingInfoAdded = subscription.BillingInfo is null && customerResult.BillingInfo is not null;
         var billingInfoUpdated = subscription.BillingInfo is not null && customerResult.BillingInfo is not null && customerResult.BillingInfo != subscription.BillingInfo;
         var latestPaymentMethod = stripeState?.PaymentMethod ?? customerResult.PaymentMethod;
@@ -264,35 +265,80 @@ public sealed class ProcessPendingStripeEvents(
     }
 
     /// <summary>
-    ///     Replays the customer's Stripe events history (fetched directly from Stripe's events API, not
-    ///     the local <c>stripe_events</c> webhook inbox) through <see cref="StripeEventReplayer" /> and
-    ///     appends any newly recognized rows to <c>billing_events</c>. Stripe is the source of truth here:
-    ///     local webhooks may have gaps (missed deliveries, misconfiguration) and the API call closes them.
-    ///     Idempotent on <c>billing_events.stripe_event_id</c>: rows whose source Stripe event id is already
-    ///     recorded are skipped, so re-running this for every webhook (or via the back-office Sync action)
-    ///     is safe.
+    ///     Synchronizes the BillingEvent ledger with the customer's Stripe events history. Unions three
+    ///     in-memory event sources — the durable <c>stripe_events</c> archive (Status=Processed),
+    ///     the just-arrived webhook events (still Pending in this transaction), and any events recovered
+    ///     in this same transaction by <see cref="ReconcileEventLogFromEventsListAsync" /> — dedupes by
+    ///     event id, then runs the union through <see cref="StripeEventReplayer" /> and appends any
+    ///     newly recognized rows to <c>billing_events</c>. The just-arrived webhook events come in via
+    ///     the <paramref name="pendingEvents" /> parameter so they participate in the same pass — without
+    ///     this, the most recent webhook would not be reflected in the BillingEvent ledger until the next
+    ///     webhook (or admin Sync) ran, since the archive query filters Status=Processed and
+    ///     <see cref="MarkAllEventsAsProcessed" /> flips Pending → Processed only after this method returns.
+    ///     The local archive is the durable source of truth — Stripe's events.list only retains events
+    ///     for 30 days (see https://docs.stripe.com/api/events), so beyond that window the archive is the
+    ///     only complete history.
+    ///     Idempotent on <c>billing_events.stripe_event_id</c>: rows whose source Stripe event id is
+    ///     already recorded are skipped, so re-running this for every webhook (or via the back-office
+    ///     Sync action) is safe.
     ///     Drift detection runs at the end and incorporates any <c>Unclassified</c> events the replayer
     ///     flagged so the existing drift banner picks them up.
     /// </summary>
-    private async Task ReplayStripeEventsAsync(Subscription subscription, CancellationToken cancellationToken)
+    private async Task SyncBillingEventsAsync(Subscription subscription, StripeEvent[] pendingEvents, StripeEvent[] recoveredEvents, CancellationToken cancellationToken)
     {
         if (subscription.StripeCustomerId is null) return;
 
-        var stripeClient = stripeClientFactory.GetClient();
-        var stripeEvents = await stripeClient.GetEventsForCustomerAsync(subscription.StripeCustomerId, cancellationToken);
-        if (stripeEvents.Length == 0)
+        // Read the durable archive and union with events that haven't been SaveChanges'd yet in this
+        // transaction (the just-arrived Pending webhook events and any events recovered from events.list).
+        // Querying alone would miss them: archive query filters Status=Processed, and the EF DbSet
+        // doesn't surface entities only added in the current change set. All three sources are dedup'd by
+        // event id. Sort is owned by the replayer (canonical sort site: CreatedAt then EventId for a
+        // stable tie-break).
+        var archivedEvents = await stripeEventRepository.GetReplayableByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
+        var allEvents = archivedEvents
+            .Concat(pendingEvents)
+            .Concat(recoveredEvents)
+            .GroupBy(e => e.Id.Value)
+            .Select(g => g.First())
+            .ToArray();
+
+        if (allEvents.Length == 0)
         {
-            DetectDrift(subscription, 0, false);
+            await DetectDrift(subscription, 0, false, [], cancellationToken);
             return;
         }
 
+        var unsupportedVersions = new HashSet<string?>();
+        var supportedEvents = new List<StripeEvent>(allEvents.Length);
+        foreach (var stripeEvent in allEvents)
+        {
+            if (StripeEventPayloadResolverFactory.TryFor(stripeEvent.ApiVersion, out _))
+            {
+                supportedEvents.Add(stripeEvent);
+                continue;
+            }
+
+            if (unsupportedVersions.Add(stripeEvent.ApiVersion))
+            {
+                logger.LogWarning(
+                    "Stripe event {EventId} has unsupported api_version '{ApiVersion}'; replay skipped — add an IStripeEventPayloadResolver implementation",
+                    stripeEvent.Id.Value, stripeEvent.ApiVersion ?? "null"
+                );
+            }
+        }
+
+        var stripeClient = stripeClientFactory.GetClient();
         var planByPriceId = await stripeClient.GetPlanByPriceIdAsync(cancellationToken);
         var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
         var priceByPlan = priceCatalog.ToDictionary(p => p.Plan, p => p.UnitAmount);
 
+        var replayEvents = supportedEvents
+            .Select(e => new StripeReplayEvent(e.Id.Value, e.EventType, e.CreatedAt, e.Payload ?? "", e.ApiVersion))
+            .ToArray();
+
         var existingStripeEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
         var state = new StripeEventReplayer.ReplayState();
-        var replayedEvents = StripeEventReplayer.Replay(subscription, stripeEvents, planByPriceId, priceByPlan, state);
+        var replayedEvents = StripeEventReplayer.Replay(subscription, replayEvents, planByPriceId, priceByPlan, state);
 
         var appendedCount = 0;
         foreach (var billingEvent in replayedEvents)
@@ -303,10 +349,10 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
-        DetectDrift(subscription, totalBillingEvents, state.HasUnclassifiedEvent);
+        await DetectDrift(subscription, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, cancellationToken);
     }
 
-    private void DetectDrift(Subscription subscription, int billingEventCount, bool hasUnclassifiedEvent)
+    private async Task DetectDrift(Subscription subscription, int billingEventCount, bool hasUnclassifiedEvent, HashSet<string?> unsupportedApiVersions, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         try
@@ -328,6 +374,20 @@ public sealed class ProcessPendingStripeEvents(
                 );
             }
 
+            foreach (var version in unsupportedApiVersions)
+            {
+                discrepancies = discrepancies.Add(new DriftDiscrepancy(
+                        DriftDiscrepancyKind.UnsupportedStripeApiVersion,
+                        $"Stripe sent an event using api_version '{version ?? "null"}' for which no IStripeEventPayloadResolver is registered. The event is preserved in stripe_events but not replayed into billing_events. Add a resolver and re-sync.",
+                        DriftSeverity.Critical,
+                        ActualValue: version
+                    )
+                );
+            }
+
+            var coverageDiscrepancies = await CheckResourceCoverageAsync(subscription, now, cancellationToken);
+            discrepancies = discrepancies.AddRange(coverageDiscrepancies);
+
             subscription.SetDriftStatus(discrepancies, now);
         }
         catch (Exception ex)
@@ -336,15 +396,162 @@ public sealed class ProcessPendingStripeEvents(
         }
     }
 
+    /// <summary>
+    ///     Per-resource audit: walks every Stripe-tracked resource on the subscription and verifies
+    ///     a corresponding event exists in the local archive. Each missing event becomes a drift
+    ///     discrepancy. The recovery countdown is driven by the resource's known timestamp: if the
+    ///     resource timestamp is within Stripe's 30-day events.list window the discrepancy is
+    ///     <see cref="DriftDiscrepancyKind.MissingHistoricalEvent" /> (auto-recoverable on next
+    ///     reconciliation pass); past the window it escalates to
+    ///     <see cref="DriftDiscrepancyKind.MissingHistoricalEventUnrecoverable" /> (P1: data is
+    ///     permanently lost from Stripe and must be investigated as a reconciliation bug).
+    ///     TODO: if a coverage kind proves too noisy in production, expose per-kind suppression via
+    ///     IConfiguration (e.g. BillingDrift:DisabledCoverageKinds:0=PaymentMethodAttached) so operators
+    ///     can silence it without a deploy.
+    /// </summary>
+    private async Task<DriftDiscrepancy[]> CheckResourceCoverageAsync(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var discrepancies = new List<DriftDiscrepancy>();
+        if (subscription.StripeCustomerId is null) return [.. discrepancies];
+
+        var archive = await stripeEventRepository.GetReplayableByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
+        var eventTypesPresent = archive.Select(e => e.EventType).ToHashSet();
+
+        if (subscription.SubscribedSince is { } subscribedSince && !eventTypesPresent.Contains("customer.subscription.created"))
+        {
+            discrepancies.Add(BuildCoverageDiscrepancy(
+                    "customer.subscription.created", subscribedSince, now,
+                    $"Subscription started on {subscribedSince:O} but no customer.subscription.created event is recorded.",
+                    BillingEventType.SubscriptionCreated
+                )
+            );
+        }
+
+        var succeededTransactions = subscription.PaymentTransactions.Where(t => t.Status == PaymentTransactionStatus.Succeeded).ToArray();
+        if (succeededTransactions.Length > 0 && !eventTypesPresent.Contains("invoice.payment_succeeded"))
+        {
+            var earliest = succeededTransactions.Min(t => t.Date);
+            discrepancies.Add(BuildCoverageDiscrepancy(
+                    "invoice.payment_succeeded", earliest, now,
+                    $"Subscription has {succeededTransactions.Length} succeeded payments but no invoice.payment_succeeded event is recorded.",
+                    BillingEventType.SubscriptionRenewed
+                )
+            );
+        }
+
+        var refundedTransactions = subscription.PaymentTransactions.Where(t => t.Status == PaymentTransactionStatus.Refunded).ToArray();
+        if (refundedTransactions.Length > 0 && !eventTypesPresent.Contains("charge.refunded"))
+        {
+            var earliestRefund = refundedTransactions.Min(t => t.RefundedAt ?? t.Date);
+            discrepancies.Add(BuildCoverageDiscrepancy(
+                    "charge.refunded", earliestRefund, now,
+                    $"Subscription has {refundedTransactions.Length} refunded payments but no charge.refunded event is recorded.",
+                    BillingEventType.PaymentRefunded
+                )
+            );
+        }
+
+        if (subscription.ScheduledPlan is not null && !eventTypesPresent.Contains("subscription_schedule.updated"))
+        {
+            var scheduledAt = subscription.ModifiedAt ?? subscription.CreatedAt;
+            discrepancies.Add(BuildCoverageDiscrepancy(
+                    "subscription_schedule.updated", scheduledAt, now,
+                    $"Subscription has a scheduled plan ({subscription.ScheduledPlan}) but no subscription_schedule.updated event is recorded.",
+                    BillingEventType.SubscriptionDowngradeScheduled
+                )
+            );
+        }
+
+        if (subscription.PaymentMethod is not null && !eventTypesPresent.Contains("payment_method.attached"))
+        {
+            var attachedAt = subscription.SubscribedSince ?? subscription.CreatedAt;
+            discrepancies.Add(BuildCoverageDiscrepancy(
+                    "payment_method.attached", attachedAt, now,
+                    "Subscription has a payment method but no payment_method.attached event is recorded.",
+                    BillingEventType.PaymentMethodUpdated
+                )
+            );
+        }
+
+        return [.. discrepancies];
+    }
+
+    private static DriftDiscrepancy BuildCoverageDiscrepancy(
+        string expectedEventType,
+        DateTimeOffset eventOccurredAt,
+        DateTimeOffset now,
+        string description,
+        BillingEventType billingEventType
+    )
+    {
+        var stripeRetentionWindow = TimeSpan.FromDays(30);
+        var withinWindow = now - eventOccurredAt < stripeRetentionWindow;
+        var kind = withinWindow ? DriftDiscrepancyKind.MissingHistoricalEvent : DriftDiscrepancyKind.MissingHistoricalEventUnrecoverable;
+        var severity = withinWindow ? DriftSeverity.Warning : DriftSeverity.Critical;
+        return new DriftDiscrepancy(
+            kind,
+            $"{description} Expected event type: {expectedEventType}.",
+            severity,
+            billingEventType,
+            OccurredAt: eventOccurredAt
+        );
+    }
+
+    /// <summary>
+    ///     Closes gaps in the local <c>stripe_events</c> archive by listing Stripe's events.list API
+    ///     (30-day retention window — see https://docs.stripe.com/api/events) and inserting any event
+    ///     ids Stripe knows about but we don't. Recovered events land as Status=Processed with
+    ///     <c>recovery_source = "events_list"</c>; the subsequent <see cref="SyncBillingEventsAsync" />
+    ///     pass picks them up (alongside the durable archive) and emits the corresponding BillingEvent
+    ///     rows. Returns the recovered events so the replayer can union them with the archive without
+    ///     needing an intermediate SaveChanges (the EF DbSet query won't see entities only added in
+    ///     the current change set).
+    /// </summary>
+    private async Task<StripeEvent[]> ReconcileEventLogFromEventsListAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        var stripeClient = stripeClientFactory.GetClient();
+        var stripeEvents = await stripeClient.GetEventsForCustomerAsync(stripeCustomerId, cancellationToken);
+        if (stripeEvents.Length == 0) return [];
+
+        var existingIds = await stripeEventRepository.GetExistingEventIdsByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
+        var now = timeProvider.GetUtcNow();
+        var recovered = new List<StripeEvent>();
+
+        foreach (var stripeEvent in stripeEvents)
+        {
+            if (existingIds.Contains(stripeEvent.EventId)) continue;
+
+            var payloadHash = StripeEventPayloadHasher.Hash(stripeEvent.Payload);
+            var recoveredEvent = StripeEvent.CreateRecovered(
+                stripeEvent.EventId,
+                stripeEvent.EventType,
+                stripeCustomerId,
+                stripeEvent.Payload,
+                stripeEvent.ApiVersion,
+                payloadHash,
+                now,
+                "events_list"
+            );
+            await stripeEventRepository.AddAsync(recoveredEvent, cancellationToken);
+            recovered.Add(recoveredEvent);
+
+            events.CollectEvent(new WebhookDeliveryRecovered(stripeEvent.EventId, stripeEvent.EventType, "events_list"));
+            logger.LogWarning(
+                "Recovered Stripe event {EventId} ({EventType}) for customer '{StripeCustomerId}' from events.list — webhook delivery was missed",
+                stripeEvent.EventId, stripeEvent.EventType, stripeCustomerId
+            );
+        }
+
+        return [.. recovered];
+    }
+
     private void MarkAllEventsAsProcessed(StripeEvent[] pendingEvents, Subscription subscription)
     {
         var now = timeProvider.GetUtcNow();
 
         foreach (var pendingEvent in pendingEvents)
         {
-            pendingEvent.MarkProcessed(now);
-            pendingEvent.SetStripeSubscriptionId(subscription.StripeSubscriptionId);
-            pendingEvent.SetTenantId(subscription.TenantId);
+            pendingEvent.MarkProcessed(now, subscription.TenantId, subscription.StripeSubscriptionId);
             stripeEventRepository.Update(pendingEvent);
         }
     }

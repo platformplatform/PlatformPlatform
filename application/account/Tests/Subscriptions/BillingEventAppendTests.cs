@@ -92,12 +92,15 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
         SetupSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
-        // Act
+        // Act — pin the webhook event id to the same id the events.list mock returns so the
+        // pending and recovered sources represent the same Stripe event (deduped by the in-memory
+        // union; otherwise both sources would produce a SubscriptionSuspended row, since both
+        // legitimately classify customer.deleted into a billing event).
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
             Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
         };
-        request.Headers.Add("Stripe-Signature", "event_type:customer.deleted");
+        request.Headers.Add("Stripe-Signature", $"event_type:customer.deleted,event_id:{MockStripeClient.MockCustomerDeletedEventId}");
         var response = await AnonymousHttpClient.SendAsync(request);
 
         // Assert
@@ -193,5 +196,47 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
             [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
         );
         secondCount.Should().Be(firstCount, "redelivering the same Stripe event must not append a duplicate billing_event row");
+    }
+
+    [Fact]
+    public async Task AppendBillingEvent_WhenJustArrivedWebhookIsNotInEventsListMock_ShouldStillAppendBillingEventInSamePass()
+    {
+        // Arrange — regression for the multi-source reconciliation bug. The just-arrived webhook is stored
+        // as Pending by AcknowledgeStripeWebhook, then ProcessPendingStripeEvents must include it in the same
+        // replay pass. Before the fix, the archive query filtered Status=Processed (skipping the just-arrived
+        // Pending event) and the events.list reconciliation skipped it too because it was already in
+        // stripe_events — resulting in NO billing_event row for the most recent webhook until the next
+        // webhook (or admin Sync) ran. The fix unions the in-memory pending events into the replay input.
+        SetupSubscription();
+        TelemetryEventsCollectorSpy.Reset();
+        var uniqueEventId = $"evt_test_unique_{Guid.NewGuid():N}";
+
+        // The MockStripeClient.GetEventsForCustomerAsync mock does NOT contain this event id — exactly the
+        // scenario that exposed the bug. The payload is a meaningful classifying customer.subscription.updated
+        // event with status active → past_due so the replayer emits a SubscriptionPastDue BillingEvent.
+        var payload = """{"data":{"object":{"status":"past_due"},"previous_attributes":{"status":"active"}}}""";
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent(payload, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", $"event_type:customer.subscription.updated,event_id:{uniqueEventId}");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert — exactly one billing_events row exists with the just-arrived event's stripe_event_id
+        response.EnsureSuccessStatusCode();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM billing_events WHERE tenant_id = @tenantId AND stripe_event_id = @stripeEventId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value, stripeEventId = uniqueEventId }]
+        );
+        rowCount.Should().Be(1, "the just-arrived webhook event must produce a billing_events row in the same processing pass, even when it is not in the events.list reconciliation source");
+
+        var eventType = Connection.ExecuteScalar<string>(
+            "SELECT event_type FROM billing_events WHERE tenant_id = @tenantId AND stripe_event_id = @stripeEventId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value, stripeEventId = uniqueEventId }]
+        );
+        eventType.Should().Be(nameof(BillingEventType.SubscriptionPastDue), "the active → past_due payload should classify as SubscriptionPastDue");
     }
 }

@@ -20,12 +20,21 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Returns previously-processed stripe_event rows for a customer ordered by CreatedAt.
-    ///     Used by the legacy-data backfill to replay the customer's historical webhook chain
-    ///     into the BillingEvent log. Pending events are excluded — they belong to the live
-    ///     sync path which produces BillingEvents directly from state transitions.
+    ///     Returns the durable-archive stripe_event rows for a customer that the replayer should
+    ///     consume to (re)build the BillingEvent log. Includes both webhook-delivered and
+    ///     reconciliation-recovered events (Status=Processed); excludes Pending (not yet
+    ///     processed), Ignored (no customer match), and Failed. Source of truth for replay:
+    ///     this archive, not Stripe's events.list (which only retains 30 days per
+    ///     https://docs.stripe.com/api/events).
     /// </summary>
-    Task<StripeEvent[]> GetProcessedByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+    Task<StripeEvent[]> GetReplayableByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the set of Stripe event ids (regardless of Status) already recorded for a customer.
+    ///     Used by the reconciliation passes to detect events that exist in Stripe but not in our
+    ///     archive — those are inserted as recovered events with status=Processed.
+    /// </summary>
+    Task<HashSet<string>> GetExistingEventIdsByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
 
 internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
@@ -49,13 +58,24 @@ internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
         return await DbSet.AnyAsync(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending, cancellationToken);
     }
 
-    public async Task<StripeEvent[]> GetProcessedByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public async Task<StripeEvent[]> GetReplayableByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        // SQLite (used in tests) cannot translate DateTimeOffset comparisons in ORDER BY, so we order
-        // in memory after materializing. The set is bounded per-customer (typically <200 webhooks).
-        var events = await DbSet
+        // No ORDER BY: the replayer is the canonical sort site (orders by CreatedAt then EventId for
+        // a stable tie-break). Materializing here keeps the query SQLite-translatable and the set is
+        // bounded per-customer (typically <200 webhooks over a subscription's lifetime). Status=Processed
+        // covers both webhook-delivered events and reconciliation-recovered events (CreateRecovered lands
+        // them as Processed directly).
+        return await DbSet
             .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Processed)
             .ToArrayAsync(cancellationToken);
-        return events.OrderBy(e => e.CreatedAt).ToArray();
+    }
+
+    public async Task<HashSet<string>> GetExistingEventIdsByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        var ids = await DbSet
+            .Where(e => e.StripeCustomerId == stripeCustomerId)
+            .Select(e => e.Id.Value)
+            .ToArrayAsync(cancellationToken);
+        return [.. ids];
     }
 }

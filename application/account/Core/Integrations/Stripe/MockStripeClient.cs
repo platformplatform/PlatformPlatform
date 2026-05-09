@@ -27,6 +27,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public const string MockPaymentFailedEventId = "evt_mock_payment_failed";
     public const string MockCustomerDeletedEventId = "evt_mock_customer_deleted";
 
+    public const string MockApiVersion = "2025-09-30.preview";
+
     private readonly bool _isEnabled = configuration.GetValue<bool>("Stripe:AllowMockProvider");
 
     public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
@@ -165,7 +167,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var customerIdString = payload.StartsWith("customer:") ? payload.Split(':')[1] : payload == "no_customer" ? null : MockCustomerId;
         StripeCustomerId.TryParse(customerIdString, out var customerId);
 
-        return new StripeWebhookEventResult(eventId, eventType, customerId);
+        return new StripeWebhookEventResult(eventId, eventType, customerId, MockApiVersion);
     }
 
     public Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
@@ -293,7 +295,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 MockSubscriptionCreatedEventId,
                 "customer.subscription.created",
                 now.AddMinutes(-5),
-                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard"}}]}}}}"""
+                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard"}}]}}}}""",
+                MockApiVersion
             )
         };
 
@@ -303,14 +306,15 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                     MockPaymentFailedEventId,
                     "invoice.payment_failed",
                     now.AddMinutes(-1),
-                    """{"data":{"object":{"attempt_count":2,"billing_reason":"subscription_cycle"}}}"""
+                    """{"data":{"object":{"attempt_count":1,"billing_reason":"subscription_cycle"}}}""",
+                    MockApiVersion
                 )
             );
         }
 
         if (state.SimulateCustomerDeleted)
         {
-            events.Add(new StripeReplayEvent(MockCustomerDeletedEventId, "customer.deleted", now, "{}"));
+            events.Add(new StripeReplayEvent(MockCustomerDeletedEventId, "customer.deleted", now, "{}", MockApiVersion));
         }
 
         return Task.FromResult(events.ToArray());

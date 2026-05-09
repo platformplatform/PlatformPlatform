@@ -26,6 +26,12 @@ public sealed record BillingEventId(string Value) : StronglyTypedUlid<BillingEve
 ///     subscription's drift flag for admin review.
 ///     Idempotent on <see cref="StripeEventId" /> (unique index): redelivered webhooks and re-pulls from
 ///     the Stripe events API are no-ops.
+///     Source of truth: the local <c>stripe_events</c> archive, NOT Stripe's events.list API. Stripe only
+///     retains events for 30 days (see https://docs.stripe.com/api/events) — anything older must come from
+///     our local archive. The events.list API is used only as a reconciliation source for detecting
+///     webhooks that never reached us within the retention window.
+///     Hard rule: rows in this table are never deleted, never updated. Schema changes use ALTER TABLE
+///     ADD/DROP COLUMN, never DROP/TRUNCATE/DELETE FROM.
 /// </summary>
 public sealed class BillingEvent : AggregateRoot<BillingEventId>, ITenantScopedEntity
 {
@@ -101,6 +107,13 @@ public sealed class BillingEvent : AggregateRoot<BillingEventId>, ITenantScopedE
     }
 }
 
+/// <summary>
+///     The type of subscription-relevant Stripe event recorded by the BillingEvent log.
+///     IMPORTANT: when adding a new value, also add it to the multi-select on /billing-events
+///     (see <c>application/account/BackOffice/routes/billing-events/-components/BillingEventsToolbar.tsx</c>,
+///     constant <c>ALL_EVENT_TYPES</c>). The toolbar is hand-maintained and does not enumerate the
+///     enum at runtime — operators won't be able to filter by a new type until that list is updated.
+/// </summary>
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum BillingEventType
@@ -116,6 +129,15 @@ public enum BillingEventType
     SubscriptionExpired,
     SubscriptionImmediatelyCancelled,
     SubscriptionSuspended,
+
+    /// <summary>
+    ///     Stripe transitioned the subscription's status from active to past_due (a payment failed).
+    ///     Fires alongside <see cref="PaymentFailed" /> from the corresponding invoice.payment_failed event;
+    ///     pairs with <see cref="SubscriptionReactivated" /> when payment recovers and status returns to active.
+    ///     Carries forward CommittedMrr unchanged and AmountDelta=null — the customer is still on the plan,
+    ///     just behind on payment.
+    /// </summary>
+    SubscriptionPastDue,
     PaymentFailed,
     PaymentRecovered,
     PaymentRefunded,

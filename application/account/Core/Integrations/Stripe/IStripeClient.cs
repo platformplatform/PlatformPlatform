@@ -55,20 +55,22 @@ public interface IStripeClient
     Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Returns Stripe events related to a customer, ordered by creation time. Used by the BillingEvent
-    ///     writer to enforce the strict 1:1 invariant: every recognized Stripe event yields exactly one
-    ///     billing_events row. Stripe's events API is the source of truth — local <c>stripe_events</c>
-    ///     rows are only a webhook inbox/queue and may have gaps that this method fills in.
+    ///     Returns Stripe events related to a customer (last 30 days — see
+    ///     https://docs.stripe.com/api/events) via the events.list API. Used as a reconciliation source
+    ///     to detect webhook deliveries we missed: any event id Stripe knows about that's not in our
+    ///     local <c>stripe_events</c> archive gets inserted as a recovered row. The local archive is
+    ///     the durable source of truth for replay; events.list is only the recovery channel.
     /// </summary>
     Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
 
-public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload);
+public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload, string? ApiVersion);
 
 public sealed record StripeWebhookEventResult(
     string EventId,
     string EventType,
-    StripeCustomerId? CustomerId
+    StripeCustomerId? CustomerId,
+    string? ApiVersion
 );
 
 public sealed record CheckoutSessionResult(string SessionId, string ClientSecret);

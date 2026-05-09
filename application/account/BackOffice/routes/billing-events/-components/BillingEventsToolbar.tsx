@@ -17,7 +17,10 @@ interface BillingEventsToolbarProps {
 }
 
 // Order matches the BillingEventType enum so the dropdown reads in the same lifecycle order operators
-// see in our domain log (creation → renewal → upgrade → downgrade → cancellation → payment).
+// see in our domain log (creation → renewal → upgrade → downgrade → cancellation → payment → audit).
+// IMPORTANT: this list mirrors the C# BillingEventType enum (see application/account/Core/Features/
+// Subscriptions/Domain/BillingEvent.cs). Add new enum values here too — the enum's doc comment also
+// flags this requirement.
 const ALL_EVENT_TYPES: BillingEventType[] = [
   BillingEventType.SubscriptionCreated,
   BillingEventType.SubscriptionRenewed,
@@ -30,12 +33,15 @@ const ALL_EVENT_TYPES: BillingEventType[] = [
   BillingEventType.SubscriptionExpired,
   BillingEventType.SubscriptionImmediatelyCancelled,
   BillingEventType.SubscriptionSuspended,
+  BillingEventType.SubscriptionPastDue,
   BillingEventType.PaymentFailed,
   BillingEventType.PaymentRecovered,
   BillingEventType.PaymentRefunded,
   BillingEventType.BillingInfoAdded,
   BillingEventType.BillingInfoUpdated,
-  BillingEventType.PaymentMethodUpdated
+  BillingEventType.PaymentMethodUpdated,
+  BillingEventType.NoOp,
+  BillingEventType.Unclassified
 ];
 
 export function BillingEventsToolbar({ search, eventTypes }: Readonly<BillingEventsToolbarProps>) {

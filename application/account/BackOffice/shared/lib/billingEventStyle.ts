@@ -72,6 +72,10 @@ export const BILLING_EVENT_VARIANT: Record<BillingEventType, BillingEventVariant
     className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
     icon: PauseCircleIcon
   },
+  [BillingEventType.SubscriptionPastDue]: {
+    className: "bg-amber-500/10 text-amber-600 border-amber-500/30",
+    icon: CircleAlertIcon
+  },
   [BillingEventType.PaymentFailed]: {
     className: "bg-rose-500/10 text-rose-500 border-rose-500/20",
     icon: CircleAlertIcon
