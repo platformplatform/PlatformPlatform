@@ -114,7 +114,7 @@ If STEP 4 confirmed a rename, rename the branch and verify. Safe in a worktree (
 ## STEP 9: Push
 
 1. Re-check upstream tracking with `git rev-parse @{u} 2>/dev/null`.
-2. **If unset** (branch never pushed, or just renamed): ask "Branch is local-only. Push to origin?". On confirm: `git push -u origin HEAD`. The `-u` is required to set upstream tracking.
+2. **If unset** (branch never pushed, or just renamed): ask "Branch is local-only. Push to origin?". On confirm, push and ensure the pushed branch has upstream tracking (`git push --set-upstream origin "$(git branch --show-current)"`).
 3. **If upstream exists**, check divergence:
    - `git log --oneline @{u}..HEAD` (local-ahead)
    - `git log --oneline HEAD..@{u}` (remote-ahead)
