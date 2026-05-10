@@ -21,7 +21,9 @@ export function SortableTableHead({
   children: React.ReactNode;
 }>) {
   const isActive = orderBy === column;
-  const isDescending = isActive && sortOrder === SortOrder.Descending;
+  // Backend default is Descending and the URL stores Descending as undefined; treat undefined as
+  // Descending so the chevron renders correctly when the active column is in its default state.
+  const isDescending = isActive && (sortOrder ?? SortOrder.Descending) === SortOrder.Descending;
   const ariaSort = isActive ? (isDescending ? "descending" : "ascending") : "none";
 
   return (

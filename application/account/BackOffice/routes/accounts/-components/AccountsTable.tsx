@@ -83,14 +83,17 @@ export function AccountsTable({
 
   const handleSort = useCallback(
     (column: SortableTenantProperties) => {
+      // Backend default is Descending and the URL stores Descending as undefined; treat both undefined
+      // and explicit Descending as the descending state when computing the next direction.
       const isCurrent = orderBy === column;
-      const nextOrder = isCurrent && sortOrder === SortOrder.Descending ? SortOrder.Ascending : SortOrder.Descending;
+      const isCurrentlyDescending = (sortOrder ?? SortOrder.Descending) === SortOrder.Descending;
+      const nextOrder = isCurrent && isCurrentlyDescending ? SortOrder.Ascending : SortOrder.Descending;
       navigate({
         to: "/accounts",
         search: (previous) => ({
           ...previous,
           orderBy: column,
-          sortOrder: nextOrder === SortOrder.Ascending ? undefined : nextOrder,
+          sortOrder: nextOrder === SortOrder.Descending ? undefined : nextOrder,
           pageOffset: undefined
         })
       });
