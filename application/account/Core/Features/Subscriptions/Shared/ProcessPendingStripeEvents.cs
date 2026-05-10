@@ -316,7 +316,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (allEvents.Length == 0)
         {
-            await DetectDrift(subscription, driftSnapshots, 0, false, [], cancellationToken);
+            DetectDrift(subscription, driftSnapshots, 0, false, [], []);
             return;
         }
 
@@ -361,10 +361,11 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
-        await DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, cancellationToken);
+        var eventTypesPresent = allEvents.Select(e => e.EventType).ToHashSet();
+        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent);
     }
 
-    private async Task DetectDrift(Subscription subscription, DriftSnapshots driftSnapshots, int billingEventCount, bool hasUnclassifiedEvent, HashSet<string?> unsupportedApiVersions, CancellationToken cancellationToken)
+    private void DetectDrift(Subscription subscription, DriftSnapshots driftSnapshots, int billingEventCount, bool hasUnclassifiedEvent, HashSet<string?> unsupportedApiVersions, HashSet<string> eventTypesPresent)
     {
         var now = timeProvider.GetUtcNow();
         try
@@ -395,7 +396,7 @@ public sealed class ProcessPendingStripeEvents(
                 );
             }
 
-            var coverageDiscrepancies = await CheckResourceCoverageAsync(subscription, now, cancellationToken);
+            var coverageDiscrepancies = CheckResourceCoverage(subscription, now, eventTypesPresent);
             discrepancies = discrepancies.AddRange(coverageDiscrepancies);
 
             subscription.SetDriftStatus(discrepancies, now);
@@ -419,13 +420,18 @@ public sealed class ProcessPendingStripeEvents(
     ///     IConfiguration (e.g. BillingDrift:DisabledCoverageKinds:0=PaymentMethodAttached) so operators
     ///     can silence it without a deploy.
     /// </summary>
-    private async Task<DriftDiscrepancy[]> CheckResourceCoverageAsync(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
+    /// <summary>
+    ///     <paramref name="eventTypesPresent" /> is the in-memory union of archived (already-Processed),
+    ///     just-arrived Pending, and reconciliation-recovered events for this customer — computed by the
+    ///     caller in <see cref="SyncBillingEventsAsync" />. Re-querying the archive here would miss the
+    ///     Pending events because they only flip to Processed after the UnitOfWork commits, causing a
+    ///     spurious drift on the very webhook that introduced the resource (e.g. a downgrade firing both
+    ///     the schedule update and the coverage check in the same pass).
+    /// </summary>
+    private static DriftDiscrepancy[] CheckResourceCoverage(Subscription subscription, DateTimeOffset now, HashSet<string> eventTypesPresent)
     {
         var discrepancies = new List<DriftDiscrepancy>();
         if (subscription.StripeCustomerId is null) return [.. discrepancies];
-
-        var archive = await stripeEventRepository.GetReplayableByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
-        var eventTypesPresent = archive.Select(e => e.EventType).ToHashSet();
 
         if (subscription.SubscribedSince is { } subscribedSince && !eventTypesPresent.Contains("customer.subscription.created"))
         {
