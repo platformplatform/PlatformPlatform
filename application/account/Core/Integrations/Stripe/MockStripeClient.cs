@@ -14,6 +14,12 @@ public sealed class MockStripeState
     public bool SimulateOpenInvoice { get; set; }
 
     public DateTimeOffset? CustomerCreated { get; set; }
+
+    // Production only supports DKK (enforced by the StripeClient boundary guard and the DB CHECK
+    // constraints on subscriptions.current_price_currency and billing_events.currency). Override
+    // on a per-test basis to simulate Stripe returning a non-DKK currency so the boundary guard
+    // can be exercised. Default matches production.
+    public string SubscriptionCurrency { get; set; } = "DKK";
 }
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider, MockStripeState state) : IStripeClient
@@ -62,7 +68,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 29.99m,
                 23.99m,
                 6.00m,
-                "USD",
+                state.SubscriptionCurrency,
                 PaymentTransactionStatus.Succeeded,
                 now,
                 null,
@@ -77,7 +83,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             null,
             StripeSubscriptionId.NewId(MockSubscriptionId),
             29.99m,
-            "USD",
+            state.SubscriptionCurrency,
             now.AddDays(30),
             false,
             null,
@@ -281,7 +287,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         return Task.FromResult<PaymentTransaction[]?>(
             [
-                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, 23.99m, 6.00m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, 23.99m, 6.00m, state.SubscriptionCurrency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
             ]
         );
     }

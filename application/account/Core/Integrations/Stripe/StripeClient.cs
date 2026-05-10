@@ -142,6 +142,11 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var scheduledPlan = GetScheduledPlan(stripeSubscription);
             var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
             var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
+            if (currentPriceCurrency is not null && currentPriceCurrency != "DKK")
+            {
+                logger.LogWarning("Non-DKK currency '{Currency}' observed on Stripe subscription '{SubscriptionId}' for customer '{CustomerId}'", currentPriceCurrency, stripeSubscription.Id, stripeCustomerId);
+            }
+
             var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
             var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
             var cancellationReason = stripeSubscription.CancelAtPeriodEnd

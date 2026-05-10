@@ -47,7 +47,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", "cus_test"),
                 ("stripe_subscription_id", "sub_test"),
                 ("current_price_amount", 199.00),
-                ("current_price_currency", "USD"),
+                ("current_price_currency", "DKK"),
                 ("current_period_end", DateTimeOffset.UtcNow.AddDays(25)),
                 ("cancel_at_period_end", false),
                 ("first_payment_failed_at", null),
@@ -77,7 +77,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         payload.Name.Should().Be("Acme Corp");
         payload.Plan.Should().Be(SubscriptionPlan.Premium);
         payload.MonthlyRecurringRevenue.Should().Be(199.00m);
-        payload.Currency.Should().Be("USD");
+        payload.Currency.Should().Be("DKK");
         payload.LifetimeValue.Should().Be(199.00m);
         payload.BillingAddress.Should().NotBeNull();
         payload.BillingAddress.Country.Should().Be("US");

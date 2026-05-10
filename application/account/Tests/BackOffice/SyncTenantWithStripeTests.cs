@@ -117,6 +117,27 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task SyncTenantWithStripe_WhenStripeReturnsNonDkkCurrency_ShouldReturnBadRequest()
+    {
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", MockStripeClient.MockCustomerId)
+            ]
+        );
+        StripeState.SubscriptionCurrency = "USD";
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "StripeNonDkkSubscriptionRejected");
+    }
+
+    [Fact]
     public async Task SyncTenantWithStripe_WhenSyncSucceeds_ShouldOverwriteSubscribedSinceWithStripeCustomerCreated()
     {
         // Arrange

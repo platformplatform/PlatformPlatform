@@ -52,6 +52,16 @@ public sealed class SyncTenantWithStripeHandler(
             return Result<SyncTenantWithStripeResponse>.BadRequest("Tenant has no Stripe customer to sync with.");
         }
 
+        // Single-currency invariant: the dashboard MRR handlers sum across all subscriptions / billing events
+        // without grouping by currency, so any non-DKK row corrupts the totals. Reject non-DKK at the
+        // boundary before the sync mutates persistence. The DB CHECK constraint is the structural backstop.
+        var stripeState = await stripeClientFactory.GetClient().SyncSubscriptionStateAsync(subscription.StripeCustomerId, cancellationToken);
+        if (stripeState?.CurrentPriceCurrency is { } observedCurrency && observedCurrency != "DKK")
+        {
+            events.CollectEvent(new StripeNonDkkSubscriptionRejected(subscription.Id, observedCurrency));
+            return Result<SyncTenantWithStripeResponse>.BadRequest($"Subscription currency '{observedCurrency}' is not supported. Only DKK is currently supported.", true);
+        }
+
         var beforeEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
 
         await processPendingStripeEvents.ExecuteAsync(subscription.StripeCustomerId, true, cancellationToken);

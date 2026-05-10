@@ -23,7 +23,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("stripe_customer_id", stripeCustomerId),
                 ("stripe_subscription_id", stripeSubscriptionId),
                 ("current_price_amount", hasStripeSubscription ? 29.99m : null),
-                ("current_price_currency", hasStripeSubscription ? "USD" : null),
+                ("current_price_currency", hasStripeSubscription ? "DKK" : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
                 ("first_payment_failed_at", firstPaymentFailedAt),
                 ("cancellation_reason", cancellationReason)

@@ -112,5 +112,24 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         migrationBuilder.AddColumn<string>("payload_hash", "stripe_events", "text", nullable: true);
 
         migrationBuilder.CreateIndex("ix_stripe_events_recovered_at", "stripe_events", "recovered_at", filter: "recovered_at IS NOT NULL");
+
+        // v1 stance: only DKK is supported. The dashboard MRR handlers sum decimal amounts across every
+        // subscription / billing event without grouping by currency, so any non-DKK row corrupts the totals.
+        // The boundary guard in SyncTenantWithStripeHandler rejects non-DKK syncs before they reach
+        // persistence; these CHECK constraints are the structural backstop so the invariant holds even if
+        // a future code path forgets the boundary check. Basis-only tenants have no current_price_currency
+        // (NULL), so the subscriptions constraint allows NULL. billing_events.currency is always populated
+        // by the Stripe event payload, so the billing_events constraint requires the literal 'DKK'.
+        migrationBuilder.AddCheckConstraint(
+            "chk_billing_events_currency_dkk",
+            "billing_events",
+            "currency = 'DKK'"
+        );
+
+        migrationBuilder.AddCheckConstraint(
+            "chk_subscriptions_current_price_currency_dkk",
+            "subscriptions",
+            "current_price_currency IS NULL OR current_price_currency = 'DKK'"
+        );
     }
 }
