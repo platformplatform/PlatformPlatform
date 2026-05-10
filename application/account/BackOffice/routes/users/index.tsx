@@ -61,7 +61,7 @@ function UsersSearchPage() {
           maxWidth="64rem"
           browserTitle={t`Users`}
           title={t`Users`}
-          subtitle={t`All users across every account, newest first. Search and filter to narrow down.`}
+          subtitle={t`All users across every account, most recently seen first. Search and filter to narrow down.`}
         >
           <UsersToolbar search={search} roles={roles ?? []} activity={activity} />
 

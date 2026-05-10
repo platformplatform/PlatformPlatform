@@ -135,8 +135,8 @@ msgstr "All accounts this user is a member of, with their plan and role."
 msgid "All event types"
 msgstr "All event types"
 
-msgid "All users across every account, newest first. Search and filter to narrow down."
-msgstr "All users across every account, newest first. Search and filter to narrow down."
+msgid "All users across every account, most recently seen first. Search and filter to narrow down."
+msgstr "All users across every account, most recently seen first. Search and filter to narrow down."
 
 msgid "All-time"
 msgstr "All-time"

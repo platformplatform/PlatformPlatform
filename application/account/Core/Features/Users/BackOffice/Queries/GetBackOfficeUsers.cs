@@ -15,7 +15,7 @@ public sealed record GetBackOfficeUsersQuery(
     string? Search = null,
     UserRole[]? Roles = null,
     UserActivityFilter? Activity = null,
-    SortableBackOfficeUserProperties OrderBy = SortableBackOfficeUserProperties.CreatedAt,
+    SortableBackOfficeUserProperties OrderBy = SortableBackOfficeUserProperties.LastSeenAt,
     SortOrder SortOrder = SortOrder.Descending,
     int PageOffset = 0,
     int PageSize = 25

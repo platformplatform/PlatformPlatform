@@ -135,8 +135,8 @@ msgstr "Alle konti, brugeren er medlem af, med deres plan og rolle."
 msgid "All event types"
 msgstr "Alle hændelsestyper"
 
-msgid "All users across every account, newest first. Search and filter to narrow down."
-msgstr "Alle brugere på tværs af konti, nyeste først. Søg og filtrér for at indsnævre."
+msgid "All users across every account, most recently seen first. Search and filter to narrow down."
+msgstr "Alle brugere på tværs af konti, senest sete først. Søg og filtrér for at indsnævre."
 
 msgid "All-time"
 msgstr "Samlet"

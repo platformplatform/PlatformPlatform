@@ -262,8 +262,8 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
                 ? users.OrderBy(u => u.CreatedAt)
                 : users.OrderByDescending(u => u.CreatedAt),
             SortableUserProperties.LastSeenAt => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.LastSeenAt)
-                : users.OrderByDescending(u => u.LastSeenAt),
+                ? users.OrderBy(u => u.LastSeenAt == null ? 1 : 0).ThenBy(u => u.LastSeenAt).ThenByDescending(u => u.CreatedAt)
+                : users.OrderBy(u => u.LastSeenAt == null ? 1 : 0).ThenByDescending(u => u.LastSeenAt).ThenByDescending(u => u.CreatedAt),
             SortableUserProperties.Name => sortOrder == SortOrder.Ascending
                 ? users.OrderBy(u => u.FirstName == null ? 1 : 0)
                     .ThenBy(u => u.FirstName)

@@ -86,13 +86,22 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task GetBackOfficeUsers_WhenSearchIsMissing_ShouldReturnAllUsersNewestFirst()
+    public async Task GetBackOfficeUsers_WhenSearchIsMissing_ShouldReturnAllUsersMostRecentlySeenFirst()
     {
         // Arrange
         var tenant = SeedTenant("Listing Inc");
-        SeedUser(tenant, "first@listing.com", "First", "User", UserRole.Owner, true, createdAt: DateTimeOffset.UtcNow.AddDays(-3));
-        SeedUser(tenant, "middle@listing.com", "Middle", "User", UserRole.Member, true, createdAt: DateTimeOffset.UtcNow.AddDays(-2));
-        SeedUser(tenant, "last@listing.com", "Last", "User", UserRole.Member, true, createdAt: DateTimeOffset.UtcNow.AddDays(-1));
+        SeedUser(tenant, "first@listing.com", "First", "User", UserRole.Owner, true,
+            createdAt: DateTimeOffset.UtcNow.AddDays(-3), lastSeenAt: DateTimeOffset.UtcNow.AddDays(-3)
+        );
+        SeedUser(tenant, "middle@listing.com", "Middle", "User", UserRole.Member, true,
+            createdAt: DateTimeOffset.UtcNow.AddDays(-2), lastSeenAt: DateTimeOffset.UtcNow.AddDays(-2)
+        );
+        SeedUser(tenant, "last@listing.com", "Last", "User", UserRole.Member, true,
+            createdAt: DateTimeOffset.UtcNow.AddDays(-1), lastSeenAt: DateTimeOffset.UtcNow.AddDays(-1)
+        );
+        SeedUser(tenant, "never@listing.com", "Never", "Seen", UserRole.Member, true,
+            createdAt: DateTimeOffset.UtcNow.AddDays(-1)
+        );
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
@@ -103,9 +112,9 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeUsersResponse>();
         payload.Should().NotBeNull();
-        payload.Users.Length.Should().BeGreaterThanOrEqualTo(3);
+        payload.Users.Length.Should().BeGreaterThanOrEqualTo(4);
         var seeded = payload.Users.Where(u => u.Email.EndsWith("@listing.com")).Select(u => u.Email).ToArray();
-        seeded.Should().Equal("last@listing.com", "middle@listing.com", "first@listing.com");
+        seeded.Should().Equal("last@listing.com", "middle@listing.com", "first@listing.com", "never@listing.com");
     }
 
     [Fact]
