@@ -52,7 +52,7 @@ export function AccountSidePaneSections({
   const ownersQuery = api.useQuery(
     "get",
     "/api/back-office/tenants/{id}/users",
-    { params: { path: { id: debouncedTenantId }, query: { Role: UserRole.Owner, PageSize: 100 } } },
+    { params: { path: { id: debouncedTenantId }, query: { Roles: [UserRole.Owner], PageSize: 100 } } },
     { enabled: detailReady }
   );
 

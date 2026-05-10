@@ -23,7 +23,7 @@ interface AccountOverviewTabProps {
 
 export function AccountOverviewTab({ tenant, tenantId, isLoading }: Readonly<AccountOverviewTabProps>) {
   const ownersQuery = api.useQuery("get", "/api/back-office/tenants/{id}/users", {
-    params: { path: { id: tenantId }, query: { Role: UserRole.Owner, PageSize: 100 } }
+    params: { path: { id: tenantId }, query: { Roles: [UserRole.Owner], PageSize: 100 } }
   });
 
   const owners = ownersQuery.data?.users ?? [];
