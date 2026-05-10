@@ -6,7 +6,7 @@ import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { ActivityIcon, BuildingIcon, CoinsIcon, UsersIcon } from "lucide-react";
 
-import { api, DashboardTrendPeriod } from "@/shared/lib/api/client";
+import { api, DashboardTrendPeriod, TenantStatusFilter } from "@/shared/lib/api/client";
 
 interface DashboardKpiTilesProps {
   period: DashboardTrendPeriod;
@@ -46,7 +46,8 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
             <DeltaSubtitle deltaPercent={data.blendedMonthlyRecurringRevenueDeltaPercent} />
           ) : undefined
         }
-        to="/billing-events"
+        to="/accounts"
+        search={{ statuses: [TenantStatusFilter.Active, TenantStatusFilter.Downgrading] }}
       />
 
       <KpiTile
@@ -99,9 +100,10 @@ interface KpiTileProps {
   loading: boolean;
   subtitle?: React.ReactNode;
   to?: "/accounts" | "/users" | "/billing-events";
+  search?: { statuses?: TenantStatusFilter[] };
 }
 
-function KpiTile({ label, icon: Icon, value, loading, subtitle, to }: Readonly<KpiTileProps>) {
+function KpiTile({ label, icon: Icon, value, loading, subtitle, to, search }: Readonly<KpiTileProps>) {
   const content = (
     <>
       <span className="flex items-center gap-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
@@ -124,7 +126,7 @@ function KpiTile({ label, icon: Icon, value, loading, subtitle, to }: Readonly<K
 
   if (to) {
     return (
-      <LinkCard to={to} className="gap-2 rounded-lg p-4 shadow-none">
+      <LinkCard to={to} search={search} className="gap-2 rounded-lg p-4 shadow-none">
         {content}
       </LinkCard>
     );
