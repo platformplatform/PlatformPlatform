@@ -1,14 +1,12 @@
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
+import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { DownloadIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
+import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { PaymentTransactionStatus } from "@/shared/lib/api/client";
 import { getPaymentStatusLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
@@ -16,13 +14,12 @@ type Invoice = components["schemas"]["BackOfficeInvoiceSummary"];
 
 export function InvoicesTableRow({
   invoice,
-  formatDate,
   onRowClick
 }: Readonly<{
   invoice: Invoice;
-  formatDate: (value: string | null | undefined) => string;
   onRowClick: (tenantId: string) => void;
 }>) {
+  const formatDate = useFormatDate();
   // Refunded rows show the amounts struck through — money came in, then went back out. Mirrors the
   // per-account Invoices tab so operators see consistent semantics across both surfaces.
   const isRefunded = invoice.status === PaymentTransactionStatus.Refunded;
@@ -36,8 +33,11 @@ export function InvoicesTableRow({
           <span className="truncate font-medium text-foreground">{invoice.tenantName}</span>
         </div>
       </TableCell>
-      <TableCell className="text-sm whitespace-nowrap text-muted-foreground tabular-nums">
-        {formatDate(invoice.date)}
+      <TableCell className="whitespace-nowrap">
+        <div className="flex flex-col leading-tight">
+          <SmartDateTime date={invoice.date} />
+          <span className="text-xs text-muted-foreground tabular-nums">{formatDate(invoice.date, true, true)}</span>
+        </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
         {invoice.plan != null ? (
@@ -59,47 +59,6 @@ export function InvoicesTableRow({
       </TableCell>
       <TableCell>
         <PaymentStatusBadge status={invoice.status} failureReason={invoice.failureReason} />
-      </TableCell>
-      <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
-        <div className="flex items-center justify-end gap-2">
-          {invoice.invoiceUrl && (
-            <Button
-              size="xs"
-              variant="default"
-              nativeButton={false}
-              className="gap-1 max-sm:w-fit"
-              render={
-                <a href={invoice.invoiceUrl} target="_blank" rel="noopener noreferrer" aria-label={t`Open invoice`} />
-              }
-            >
-              <DownloadIcon className="size-3" />
-              <span className="hidden md:inline">
-                <Trans>Invoice</Trans>
-              </span>
-            </Button>
-          )}
-          {invoice.creditNoteUrl && (
-            <Button
-              size="xs"
-              variant="default"
-              nativeButton={false}
-              className="gap-1 max-sm:w-fit"
-              render={
-                <a
-                  href={invoice.creditNoteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={t`Open credit note`}
-                />
-              }
-            >
-              <DownloadIcon className="size-3" />
-              <span className="hidden md:inline">
-                <Trans>Credit note</Trans>
-              </span>
-            </Button>
-          )}
-        </div>
       </TableCell>
     </TableRow>
   );

@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
-import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 
@@ -33,7 +32,6 @@ export function InvoicesTable({
   sortOrder
 }: Readonly<InvoicesTableProps>) {
   const navigate = useNavigate();
-  const formatDate = useFormatDate();
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -103,12 +101,7 @@ export function InvoicesTable({
           <InvoicesTableColumnHeaders orderBy={orderBy} sortOrder={sortOrder} onSort={handleSort} />
           <TableBody>
             {invoices.map((invoice) => (
-              <InvoicesTableRow
-                key={invoice.id}
-                invoice={invoice}
-                formatDate={formatDate}
-                onRowClick={handleRowClick}
-              />
+              <InvoicesTableRow key={invoice.id} invoice={invoice} onRowClick={handleRowClick} />
             ))}
           </TableBody>
         </Table>

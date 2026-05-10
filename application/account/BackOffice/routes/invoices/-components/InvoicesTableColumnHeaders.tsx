@@ -93,7 +93,6 @@ export function InvoicesTableColumnHeaders({ orderBy, sortOrder, onSort }: Reado
         >
           <Trans>Status</Trans>
         </SortableHead>
-        <TableHead className="w-[12rem] text-right" />
       </TableRow>
     </TableHeader>
   );
