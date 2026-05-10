@@ -132,6 +132,13 @@ public sealed class ProcessPendingStripeEvents(
             tenant.UpdatePlan(stripeState.Plan);
         }
 
+        // Overwrite SubscribedSince with Stripe's authoritative Customer.Created. Runs after
+        // SetStripeSubscription so it wins over the Basis→paid first-activation timestamp captured there.
+        if (customerResult.CustomerCreated is { } stripeCustomerCreated)
+        {
+            subscription.SetSubscribedSinceFromStripe(stripeCustomerCreated);
+        }
+
         var syncedTransactions = stripeState?.PaymentTransactions ?? await stripeClient.SyncPaymentTransactionsAsync(subscription.StripeCustomerId!, cancellationToken);
         if (syncedTransactions is not null)
         {

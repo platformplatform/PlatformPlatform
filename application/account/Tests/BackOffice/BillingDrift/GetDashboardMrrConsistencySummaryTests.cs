@@ -38,6 +38,31 @@ public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointB
     }
 
     [Fact]
+    public async Task GetDashboardMrrConsistencySummary_WhenDifferenceIsBelowSubCentTolerance_ShouldSnapTrendLatestToKpi()
+    {
+        // Arrange — KPI MRR = 100.00, trend-latest event NewAmount = 100.005. The 0.005 diff is sub-cent
+        // accounting noise; the tolerance must snap trend-latest to KPI so the FE strict-equality
+        // banner stays suppressed.
+        var tenantId = SeedTenant("Sub Cent Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedPaidSubscription(tenantId, subscriptionId, 100.00m, false, null);
+        SeedSubscriptionCreatedEvent(tenantId, subscriptionId, 100.005m);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/billing-drift/mrr-consistency-summary");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<DashboardMrrConsistencySummaryResponse>();
+        payload.Should().NotBeNull();
+        payload.KpiMonthlyRecurringRevenue.Should().Be(100.00m);
+        payload.TrendLatestMonthlyRecurringRevenue.Should().Be(payload.KpiMonthlyRecurringRevenue);
+    }
+
+    [Fact]
     public async Task GetDashboardMrrConsistencySummary_WhenSubscriptionCancelledButNoCancellationEvent_ShouldReturnDifferingValues()
     {
         // Arrange — paid subscription cancelled at period end (KPI forward MRR contribution = 0)

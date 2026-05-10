@@ -16,6 +16,10 @@ public sealed class GetDashboardMrrConsistencySummaryHandler(ISubscriptionReposi
 {
     private const string DefaultCurrency = "DKK";
 
+    // Sub-cent diffs between KPI and trend-latest MRR are accounting noise, not drift. The FE banner
+    // does strict equality so we snap trend-latest to KPI when the absolute diff is below tolerance.
+    private const decimal ToleranceAmount = 0.01m;
+
     public async Task<Result<DashboardMrrConsistencySummaryResponse>> Handle(GetDashboardMrrConsistencySummaryQuery query, CancellationToken cancellationToken)
     {
         var paidSubscriptions = await subscriptionRepository.GetAllActiveUnfilteredAsync(cancellationToken);
@@ -26,6 +30,11 @@ public sealed class GetDashboardMrrConsistencySummaryHandler(ISubscriptionReposi
         var trendLatestMrr = events
             .GroupBy(e => e.SubscriptionId)
             .Sum(g => g.OrderByDescending(e => e.OccurredAt).First().NewAmount ?? 0m);
+
+        if (Math.Abs(kpiMrr - trendLatestMrr) < ToleranceAmount)
+        {
+            trendLatestMrr = kpiMrr;
+        }
 
         return new DashboardMrrConsistencySummaryResponse(kpiMrr, trendLatestMrr, DefaultCurrency);
     }

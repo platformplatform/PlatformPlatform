@@ -1,4 +1,5 @@
 using Account.Database;
+using Account.Integrations.Stripe;
 using Bogus;
 using JetBrains.Annotations;
 using Microsoft.ApplicationInsights;
@@ -104,6 +105,8 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
     protected DatabaseSeeder DatabaseSeeder { get; }
 
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy { get; }
+
+    protected MockStripeState StripeState => _webApplicationFactory.Services.GetRequiredService<MockStripeState>();
 
     public void Dispose()
     {

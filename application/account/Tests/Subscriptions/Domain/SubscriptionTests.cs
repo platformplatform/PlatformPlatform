@@ -100,4 +100,20 @@ public sealed class SubscriptionTests
         // Assert
         subscription.SubscribedSince.Should().Be(reactivation);
     }
+
+    [Fact]
+    public void SetSubscribedSinceFromStripe_WhenCalled_ShouldOverwriteExistingValue()
+    {
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        var firstActivation = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", firstActivation.AddDays(30), null, firstActivation);
+        var stripeCustomerCreated = DateTimeOffset.Parse("2025-08-01T00:00:00Z");
+
+        // Act
+        subscription.SetSubscribedSinceFromStripe(stripeCustomerCreated);
+
+        // Assert
+        subscription.SubscribedSince.Should().Be(stripeCustomerCreated);
+    }
 }

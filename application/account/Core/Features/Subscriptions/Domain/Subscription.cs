@@ -111,6 +111,16 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         }
     }
 
+    /// <summary>
+    ///     Authoritative Stripe <c>Customer.Created</c> value. Supersedes the migration backfill of
+    ///     <c>created_at</c>. Called on every sync so the tenant's <c>SubscribedSince</c> converges
+    ///     to Stripe's customer-creation timestamp regardless of any earlier local value.
+    /// </summary>
+    public void SetSubscribedSinceFromStripe(DateTimeOffset stripeCustomerCreated)
+    {
+        SubscribedSince = stripeCustomerCreated;
+    }
+
     public void SetCancellation(bool cancelAtPeriodEnd, CancellationReason? cancellationReason, string? cancellationFeedback)
     {
         CancelAtPeriodEnd = cancelAtPeriodEnd;

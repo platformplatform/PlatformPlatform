@@ -12,6 +12,8 @@ public sealed class MockStripeState
     public bool SimulateCustomerDeleted { get; set; }
 
     public bool SimulateOpenInvoice { get; set; }
+
+    public DateTimeOffset? CustomerCreated { get; set; }
 }
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider, MockStripeState state) : IStripeClient
@@ -181,7 +183,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
         var billingInfo = new BillingInfo("Test Organization", new BillingAddress("Vestergade 12", null, "1456", "København K", null, "DK"), "billing@example.com", null);
         var paymentMethod = new PaymentMethod("visa", "4242", 12, 2026);
-        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false, paymentMethod));
+        var customerCreated = state.CustomerCreated ?? timeProvider.GetUtcNow();
+        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false, paymentMethod, customerCreated));
     }
 
     public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)
