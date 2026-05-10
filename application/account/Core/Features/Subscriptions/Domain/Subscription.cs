@@ -224,6 +224,7 @@ public sealed record DriftDiscrepancy(
 );
 
 [PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DriftDiscrepancyKind
 {
     MissingEvent,
@@ -275,6 +276,7 @@ public enum DriftDiscrepancyKind
 }
 
 [PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum DriftSeverity
 {
     Warning,
