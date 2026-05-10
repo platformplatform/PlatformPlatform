@@ -159,4 +159,9 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         logger.LogWarning("Stripe is not configured. Cannot list events for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<StripeReplayEvent[]>([]);
     }
+
+    public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)
+    {
+        return null;
+    }
 }

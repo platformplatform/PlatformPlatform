@@ -549,6 +549,9 @@ msgstr "Open account"
 msgid "Open credit note"
 msgstr "Open credit note"
 
+msgid "Open in Stripe"
+msgstr "Open in Stripe"
+
 msgid "Open invoice"
 msgstr "Open invoice"
 

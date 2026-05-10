@@ -320,6 +320,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(events.ToArray());
     }
 
+    // ReSharper disable once ReturnTypeCanBeNotNullable
+    public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)
+    {
+        EnsureEnabled();
+        return $"https://dashboard.stripe.com/test/customers/{stripeCustomerId.Value}";
+    }
+
     private void EnsureEnabled()
     {
         if (!_isEnabled)

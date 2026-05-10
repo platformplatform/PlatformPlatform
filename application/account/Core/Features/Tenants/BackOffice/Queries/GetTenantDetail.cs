@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
@@ -32,7 +33,8 @@ public sealed record TenantDetailResponse(
     DateTimeOffset? ModifiedAt,
     bool HasDriftDetected,
     DateTimeOffset? DriftCheckedAt,
-    DriftDiscrepancy[] DriftDiscrepancies
+    DriftDiscrepancy[] DriftDiscrepancies,
+    string? StripeCustomerUrl
 );
 
 [PublicAPI]
@@ -45,7 +47,7 @@ public sealed record BillingAddressResponse(
     string? Country
 );
 
-public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository)
+public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, StripeClientFactory stripeClientFactory)
     : IRequestHandler<GetTenantDetailQuery, Result<TenantDetailResponse>>
 {
     public async Task<Result<TenantDetailResponse>> Handle(GetTenantDetailQuery query, CancellationToken cancellationToken)
@@ -91,7 +93,8 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             tenant.ModifiedAt,
             subscription?.HasDriftDetected ?? false,
             subscription?.DriftCheckedAt,
-            subscription?.DriftDiscrepancies.ToArray() ?? []
+            subscription?.DriftDiscrepancies.ToArray() ?? [],
+            subscription?.StripeCustomerId is { } stripeCustomerId ? stripeClientFactory.GetClient().BuildCustomerDashboardUrl(stripeCustomerId) : null
         );
     }
 }

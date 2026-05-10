@@ -62,6 +62,13 @@ public interface IStripeClient
     ///     the durable source of truth for replay; events.list is only the recovery channel.
     /// </summary>
     Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Builds the Stripe Dashboard URL for a customer. Returns null when no Stripe API key is
+    ///     configured. The URL points at the test-mode dashboard for `sk_test_*` keys and the live
+    ///     dashboard otherwise — matching how the Stripe Dashboard itself disambiguates modes.
+    /// </summary>
+    string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId);
 }
 
 public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload, string? ApiVersion);

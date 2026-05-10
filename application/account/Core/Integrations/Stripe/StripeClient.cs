@@ -1103,6 +1103,17 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         }
     }
 
+    public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)
+    {
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            return null;
+        }
+
+        var modeSegment = _apiKey.StartsWith("sk_test_") ? "/test" : string.Empty;
+        return $"https://dashboard.stripe.com{modeSegment}/customers/{stripeCustomerId.Value}";
+    }
+
     /// <summary>
     ///     Resolves a Stripe invoice's representative plan via the supplied price-to-plan lookup. Picks the line item
     ///     with the largest positive amount, which on proration upgrade/downgrade invoices is the line for the new

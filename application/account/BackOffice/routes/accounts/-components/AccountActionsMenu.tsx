@@ -19,7 +19,7 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { AlertTriangleIcon, CheckCircle2Icon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
+import { AlertTriangleIcon, CheckCircle2Icon, ExternalLinkIcon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
 import { useMe } from "@/shared/hooks/useMe";
@@ -27,6 +27,7 @@ import { api } from "@/shared/lib/api/client";
 
 interface AccountActionsMenuProps {
   tenantId: string;
+  stripeCustomerUrl: string | null | undefined;
 }
 
 interface SyncResult {
@@ -36,7 +37,7 @@ interface SyncResult {
   syncedAt: string;
 }
 
-export function AccountActionsMenu({ tenantId }: Readonly<AccountActionsMenuProps>) {
+export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<AccountActionsMenuProps>) {
   const formatDate = useFormatDate();
   const { data: me } = useMe();
   const [result, setResult] = useState<SyncResult | null>(null);
@@ -86,6 +87,15 @@ export function AccountActionsMenu({ tenantId }: Readonly<AccountActionsMenuProp
             <RefreshCwIcon className="size-4" />
             {syncMutation.isPending ? <Trans>Syncing...</Trans> : <Trans>Sync with Stripe</Trans>}
           </DropdownMenuItem>
+          {stripeCustomerUrl && (
+            <DropdownMenuItem
+              trackingLabel="Open in Stripe"
+              onClick={() => window.open(stripeCustomerUrl, "_blank", "noopener,noreferrer")}
+            >
+              <ExternalLinkIcon className="size-4" />
+              <Trans>Open in Stripe</Trans>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
