@@ -17,7 +17,7 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var transactionId = PaymentTransactionId.NewId().ToString();
-        var transactionsJson = $$"""[{"Id":"{{transactionId}}","Amount":29.99,"Currency":"usd","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test"}]""";
+        var transactionsJson = $$"""[{"Id":"{{transactionId}}","Amount":29.99,"AmountExcludingTax":23.99,"TaxAmount":6.00,"Currency":"usd","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test"}]""";
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", "cus_test_123"),
