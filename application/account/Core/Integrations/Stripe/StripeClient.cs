@@ -1036,7 +1036,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                         amountExcludingTax,
                         taxAmount,
                         invoice.Currency.ToUpperInvariant(),
-                        MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
+                        MapInvoiceStatus(invoice.Status, invoice.AmountPaid, chargeAmountRefunded),
                         invoice.Created,
                         invoice.Status == "uncollectible" ? "Payment failed." : null,
                         invoice.InvoicePdf,
@@ -1328,9 +1328,14 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         };
     }
 
-    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long postPaymentCreditNotesAmount, long chargeAmountRefunded)
+    // Only an actual refund of the underlying charge counts as Refunded — that is the only case
+    // where money leaves our Stripe balance and Stripe emits charge.refunded. A post-payment
+    // credit note that credits the customer's Stripe balance does NOT refund the charge
+    // (charge.amount_refunded stays 0, no charge.refunded event), so we keep the transaction as
+    // Succeeded; the credited balance is reconciled against future invoices.
+    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long chargeAmountRefunded)
     {
-        if (status == "paid" && amountPaid > 0 && (postPaymentCreditNotesAmount >= amountPaid || chargeAmountRefunded >= amountPaid))
+        if (status == "paid" && amountPaid > 0 && chargeAmountRefunded >= amountPaid)
         {
             return PaymentTransactionStatus.Refunded;
         }
