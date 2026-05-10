@@ -1030,9 +1030,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
                     var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var rAt) ? (DateTimeOffset?)rAt : null;
-                    var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
-                    var taxAmount = (invoice.TotalTaxes ?? []).Sum(t => t.Amount) / 100m;
-                    var amountExcludingTax = displayAmount - taxAmount;
+                    var (displayAmount, amountExcludingTax, taxAmount) = ComputeInvoiceAmountBreakdown(invoice);
                     var plan = ResolvePlanForInvoice(invoice, planByPriceId);
 
                     return new PaymentTransaction(
@@ -1135,6 +1133,21 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                                  ?? lines?.FirstOrDefault();
         var priceId = representativeLine?.Pricing?.PriceDetails?.Price;
         return priceId is not null && planByPriceId.TryGetValue(priceId, out var plan) ? plan : null;
+    }
+
+    /// <summary>
+    ///     Computes the display, excluding-tax, and tax components for a Stripe invoice. The excluding-tax value is
+    ///     clamped at zero because Stripe's auto-tax can return a positive <c>total_taxes</c> alongside zero
+    ///     <c>amount_paid</c> / <c>total</c> (e.g., a proration credit fully offsets a new charge), which would
+    ///     otherwise produce a negative excluding-tax that silently subtracts from LTV. Public to support unit testing
+    ///     of the clamp against a constructed <see cref="Invoice" />.
+    /// </summary>
+    public static (decimal DisplayAmount, decimal AmountExcludingTax, decimal TaxAmount) ComputeInvoiceAmountBreakdown(Invoice invoice)
+    {
+        var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
+        var taxAmount = (invoice.TotalTaxes ?? []).Sum(t => t.Amount) / 100m;
+        var amountExcludingTax = Math.Max(0m, displayAmount - taxAmount);
+        return (displayAmount, amountExcludingTax, taxAmount);
     }
 
     private async Task<Dictionary<string, SubscriptionPlan>> BuildPlanByPriceIdAsync(CancellationToken cancellationToken)

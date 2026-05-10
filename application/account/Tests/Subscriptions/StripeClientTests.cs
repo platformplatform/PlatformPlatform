@@ -164,6 +164,50 @@ public sealed class StripeClientTests
         plan.Should().BeNull();
     }
 
+    [Fact]
+    public void ComputeInvoiceAmountBreakdown_WhenZeroNetWithPositiveTax_ShouldClampAmountExcludingTaxAtZero()
+    {
+        // Arrange — Stripe auto-tax can produce a zero-net paid invoice (proration credit fully offsets a new charge)
+        // alongside a positive total_taxes. Without the clamp, AmountExcludingTax would go negative and silently
+        // subtract from LTV.
+        var invoice = new Invoice
+        {
+            Status = "paid",
+            AmountPaid = 0,
+            Total = 0,
+            TotalTaxes = [new InvoiceTotalTax { Amount = 1611 }]
+        };
+
+        // Act
+        var (displayAmount, amountExcludingTax, taxAmount) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+
+        // Assert
+        displayAmount.Should().Be(0m);
+        amountExcludingTax.Should().Be(0m);
+        taxAmount.Should().Be(16.11m);
+    }
+
+    [Fact]
+    public void ComputeInvoiceAmountBreakdown_WhenPaidWithTax_ShouldSplitDisplayAmountAcrossTaxAndExcludingTax()
+    {
+        // Arrange — normal paid invoice with positive amount and tax.
+        var invoice = new Invoice
+        {
+            Status = "paid",
+            AmountPaid = 12500,
+            Total = 12500,
+            TotalTaxes = [new InvoiceTotalTax { Amount = 2500 }]
+        };
+
+        // Act
+        var (displayAmount, amountExcludingTax, taxAmount) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+
+        // Assert
+        displayAmount.Should().Be(125m);
+        amountExcludingTax.Should().Be(100m);
+        taxAmount.Should().Be(25m);
+    }
+
     private static Invoice BuildInvoiceWithPriceId(string priceId)
     {
         return new Invoice

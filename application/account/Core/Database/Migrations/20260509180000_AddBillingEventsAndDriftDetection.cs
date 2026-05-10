@@ -55,7 +55,7 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         migrationBuilder.AddCheckConstraint(
             "chk_subscriptions_payment_transactions_tax_breakdown",
             "subscriptions",
-            """NOT jsonb_path_exists(payment_transactions, '$[*] ? (!(@.AmountExcludingTax.type() == "number") || !(@.TaxAmount.type() == "number"))')"""
+            """NOT jsonb_path_exists(payment_transactions, '$[*] ? (!(@.AmountExcludingTax.type() == "number") || !(@.TaxAmount.type() == "number") || @.AmountExcludingTax < 0 || @.TaxAmount < 0)')"""
         );
 
         // The billing_events table is append-only. The unique index on stripe_event_id enforces strict
