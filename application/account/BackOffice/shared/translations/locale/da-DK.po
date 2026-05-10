@@ -167,6 +167,9 @@ msgstr "BackOffice oversigt · {today}"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Billing"
+msgstr "Fakturering"
+
 msgid "Billing address"
 msgstr "Faktureringsadresse"
 
@@ -223,9 +226,6 @@ msgstr "Luk"
 
 msgid "Close account preview"
 msgstr "Luk kontoforhåndsvisning"
-
-msgid "Coming soon"
-msgstr "Kommer snart"
 
 msgid "Contact your administrator."
 msgstr "Kontakt din administrator."
@@ -317,12 +317,6 @@ msgstr "Udløbet"
 
 msgid "Failed"
 msgstr "Mislykket"
-
-msgid "Feature flags"
-msgstr "Feature flags"
-
-msgid "Feature flags (coming soon)"
-msgstr "Feature flags (kommer snart)"
 
 msgid "Free"
 msgstr "Gratis"
@@ -740,12 +734,6 @@ msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
 msgid "Succeeded"
 msgstr "Gennemført"
 
-msgid "Support"
-msgstr "Support"
-
-msgid "Support (coming soon)"
-msgstr "Support (kommer snart)"
-
 msgid "Suspended"
 msgstr "Suspenderet"
 
@@ -850,12 +838,6 @@ msgstr "Vis faktureringshændelser"
 
 msgid "vs prior period"
 msgstr "mod forrige periode"
-
-msgid "Wait list"
-msgstr "Venteliste"
-
-msgid "Wait list (coming soon)"
-msgstr "Venteliste (kommer snart)"
 
 msgid "When"
 msgstr "Hvornår"

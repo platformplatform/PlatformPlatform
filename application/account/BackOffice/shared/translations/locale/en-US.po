@@ -167,6 +167,9 @@ msgstr "BackOffice overview · {today}"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Billing"
+msgstr "Billing"
+
 msgid "Billing address"
 msgstr "Billing address"
 
@@ -223,9 +226,6 @@ msgstr "Close"
 
 msgid "Close account preview"
 msgstr "Close account preview"
-
-msgid "Coming soon"
-msgstr "Coming soon"
 
 msgid "Contact your administrator."
 msgstr "Contact your administrator."
@@ -317,12 +317,6 @@ msgstr "Expired"
 
 msgid "Failed"
 msgstr "Failed"
-
-msgid "Feature flags"
-msgstr "Feature flags"
-
-msgid "Feature flags (coming soon)"
-msgstr "Feature flags (coming soon)"
 
 msgid "Free"
 msgstr "Free"
@@ -740,12 +734,6 @@ msgstr "Subscriptions, upgrades, and cancellations will appear here."
 msgid "Succeeded"
 msgstr "Succeeded"
 
-msgid "Support"
-msgstr "Support"
-
-msgid "Support (coming soon)"
-msgstr "Support (coming soon)"
-
 msgid "Suspended"
 msgstr "Suspended"
 
@@ -850,12 +838,6 @@ msgstr "View billing events"
 
 msgid "vs prior period"
 msgstr "vs prior period"
-
-msgid "Wait list"
-msgstr "Wait list"
-
-msgid "Wait list (coming soon)"
-msgstr "Wait list (coming soon)"
 
 msgid "When"
 msgstr "When"

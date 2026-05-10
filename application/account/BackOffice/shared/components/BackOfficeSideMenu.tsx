@@ -13,7 +13,7 @@ import {
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { Building2Icon, FlagIcon, HomeIcon, LifeBuoyIcon, ListIcon, UsersIcon, ZapIcon } from "lucide-react";
+import { Building2Icon, HomeIcon, UsersIcon, ZapIcon } from "lucide-react";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
@@ -69,6 +69,15 @@ export function BackOfficeSideMenu() {
                     </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <Trans>Billing</Trans>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild={true} isActive={isBillingEventsActive} tooltip={t`Billing events`}>
                     <RouterLink to="/billing-events">
@@ -77,39 +86,6 @@ export function BackOfficeSideMenu() {
                         <Trans>Billing events</Trans>
                       </span>
                     </RouterLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              <Trans>Coming soon</Trans>
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Feature flags (coming soon)`}>
-                    <FlagIcon />
-                    <span>
-                      <Trans>Feature flags</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Support (coming soon)`}>
-                    <LifeBuoyIcon />
-                    <span>
-                      <Trans>Support</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Wait list (coming soon)`}>
-                    <ListIcon />
-                    <span>
-                      <Trans>Wait list</Trans>
-                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
