@@ -168,7 +168,7 @@ public static class StripeEventReplayer
     )
     {
         var newPlan = ResolvePlanFromSubscriptionPayload(payload, planByPriceId) ?? fallbackPlan;
-        var newPrice = priceByPlan.TryGetValue(newPlan, out var p) ? p : 0m;
+        var newPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(newPlan, out var p) ? p : 0m);
         var previousMrr = state.CommittedMrr;
         state.Plan = newPlan;
         state.PlanPrice = newPrice;
@@ -264,7 +264,7 @@ public static class StripeEventReplayer
             // Premium→Standard shows -150.
             var eventType = newPlan!.Value > previousPlan!.Value ? BillingEventType.SubscriptionUpgraded : BillingEventType.SubscriptionDowngraded;
             var previousMrr = state.CommittedMrr;
-            var newPrice = priceByPlan.TryGetValue(newPlan.Value, out var np) ? np : 0m;
+            var newPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(newPlan.Value, out var np) ? np : 0m);
             state.Plan = newPlan;
             state.PlanPrice = newPrice;
             state.CommittedMrr = state.CancelAtPeriodEnd ? 0m : newPrice;
@@ -425,7 +425,7 @@ public static class StripeEventReplayer
             return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
         }
 
-        var scheduledPrice = priceByPlan.TryGetValue(scheduledPlan.Value, out var sp) ? sp : 0m;
+        var scheduledPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(scheduledPlan.Value, out var sp) ? sp : 0m);
         var previousMrr = state.CommittedMrr;
         state.ScheduledPlan = scheduledPlan;
         state.CommittedMrr = scheduledPrice;
@@ -681,6 +681,33 @@ public static class StripeEventReplayer
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Extracts <c>$.data.object.items.data[0].price.unit_amount</c> from a Stripe subscription event
+    ///     payload. This is the locked-in price for this specific subscription at the time the event fired,
+    ///     which is authoritative over the live catalog <c>priceByPlan</c> dictionary — an admin who archives
+    ///     a plan's price and creates a new active one for the same plan would otherwise cause the catalog
+    ///     lookup to return the new price while the subscription remains on the old locked-in price.
+    ///     Stripe encodes <c>unit_amount</c> as a long in minor units (cents); the value is divided by 100
+    ///     to produce the major-unit decimal the rest of the domain uses. Returns null when the payload
+    ///     doesn't carry a unit_amount (e.g., subscription_schedule events whose price lives elsewhere), in
+    ///     which case the caller falls back to the catalog dictionary.
+    /// </summary>
+    private static decimal? ExtractUnitAmountFromPayload(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object) return null;
+        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        if (data.ValueKind != JsonValueKind.Object) return null;
+        var stripeObject = data.TryGetProperty("object", out var obj) ? obj : default;
+        if (stripeObject.ValueKind != JsonValueKind.Object) return null;
+        if (!stripeObject.TryGetProperty("items", out var items) || items.ValueKind != JsonValueKind.Object) return null;
+        if (!items.TryGetProperty("data", out var itemsData) || itemsData.ValueKind != JsonValueKind.Array || itemsData.GetArrayLength() == 0) return null;
+        var firstItem = itemsData[0];
+        if (firstItem.ValueKind != JsonValueKind.Object) return null;
+        if (!firstItem.TryGetProperty("price", out var price) || price.ValueKind != JsonValueKind.Object) return null;
+        if (!price.TryGetProperty("unit_amount", out var unitAmount) || unitAmount.ValueKind != JsonValueKind.Number) return null;
+        return unitAmount.GetInt64() / 100m;
     }
 
     /// <summary>

@@ -371,6 +371,74 @@ public sealed class StripeEventReplayerTests
     }
 
     [Fact]
+    public void Replay_WhenSubscriptionUpdatedPlanChangeCarriesUnitAmount_ShouldEmitNewAmountFromPayload()
+    {
+        // Arrange — admin archives the active Premium price and replaces it with a new active price for the
+        // same plan. priceByPlan[Premium] now reflects the new catalog price (159.00), but this specific
+        // subscription is on the old locked-in price (149.00) carried by the payload itself. The payload
+        // must win — otherwise replayed BillingEvent.NewAmount diverges from Subscription.CurrentPriceAmount
+        // and the drift banner fires permanently for legacy subscriptions.
+        var subscription = CreateActiveSubscription();
+        var priceByPlanWithRecatalogedPremium = new Dictionary<SubscriptionPlan, decimal>
+        {
+            [SubscriptionPlan.Standard] = 29m,
+            [SubscriptionPlan.Premium] = 159m
+        };
+        var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_upgraded_locked_in_price",
+                "customer.subscription.updated",
+                occurredAt,
+                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_premium","unit_amount":14900,"currency":"usd"}}]},"status":"active"},"previous_attributes":{"items":{"data":[{"price":{"id":"price_standard"}}]}}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, priceByPlanWithRecatalogedPremium);
+
+        // Assert — NewAmount comes from the payload's unit_amount (14900 / 100 = 149.00), NOT priceByPlan[Premium] (159.00).
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionUpgraded);
+        emitted[0].NewAmount.Should().Be(149.00m, "the payload's locked-in unit_amount is authoritative over the live catalog");
+    }
+
+    [Fact]
+    public void Replay_WhenSubscriptionCreatedPayloadHasNoUnitAmount_ShouldFallBackToPriceByPlan()
+    {
+        // Arrange — older subscription events (or schedule events) may omit unit_amount on the embedded
+        // price object. In that case the catalog priceByPlan remains the fallback so NewAmount is still
+        // populated rather than zeroed out.
+        var subscription = Subscription.Create(TenantId.NewId());
+        var priceByPlanWithStandard = new Dictionary<SubscriptionPlan, decimal>
+        {
+            [SubscriptionPlan.Standard] = 29.99m,
+            [SubscriptionPlan.Premium] = 99m
+        };
+        var occurredAt = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_created_no_unit_amount",
+                "customer.subscription.created",
+                occurredAt,
+                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_standard","currency":"usd"}}]}}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, priceByPlanWithStandard);
+
+        // Assert — NewAmount falls back to priceByPlan[Standard] = 29.99 since the payload has no unit_amount.
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionCreated);
+        emitted[0].NewAmount.Should().Be(29.99m, "without unit_amount in the payload, the catalog lookup is the fallback");
+    }
+
+    [Fact]
     public void Replay_WhenNoCurrencyResolvable_ShouldSkipEventWithoutEmitting()
     {
         // Arrange — every source is exhausted: payload has no currency, no override, and the subscription
