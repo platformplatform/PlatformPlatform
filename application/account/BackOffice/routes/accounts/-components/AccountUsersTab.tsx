@@ -46,6 +46,7 @@ export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
         path: { id: tenantId },
         query: {
           Search: debouncedSearch || undefined,
+          Roles: roles.length === 0 ? undefined : roles,
           PageOffset: pageOffset || undefined
         }
       }
@@ -53,8 +54,7 @@ export function AccountUsersTab({ tenantId }: Readonly<AccountUsersTabProps>) {
     { placeholderData: keepPreviousData }
   );
 
-  const allUsers = data?.users ?? [];
-  const users = roles.length === 0 ? allUsers : allUsers.filter((user) => roles.includes(user.role));
+  const users = data?.users ?? [];
   const totalPages = data?.totalPages ?? 0;
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
   const hasFilters = Boolean(debouncedSearch) || roles.length > 0;

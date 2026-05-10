@@ -2,6 +2,7 @@ using Account.Database;
 using Account.Features.Subscriptions.Domain;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 using SharedKernel.ExecutionContext;
 using SharedKernel.Persistence;
 
@@ -76,7 +77,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     /// </summary>
     public async Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
     public async Task<Tenant[]> SearchAllTenantsAsync(string? search, SubscriptionPlan[] plans, CancellationToken cancellationToken)
@@ -109,7 +110,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
         if (ids.Length == 0) return new Dictionary<TenantId, string>();
 
         return await DbSet
-            .IgnoreQueryFilters()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(t => ids.AsEnumerable().Contains(t.Id))
             .ToDictionaryAsync(t => t.Id, t => t.Name, cancellationToken);
     }
@@ -123,7 +124,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     {
         if (ids.Length == 0) return [];
 
-        return await DbSet.IgnoreQueryFilters().Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -134,7 +135,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     /// </summary>
     public async Task<Tenant[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken)
     {
-        var tenants = await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
+        var tenants = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return tenants.Where(t => t.CreatedAt >= since).ToArray();
     }
 
@@ -144,7 +145,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     /// </summary>
     public async Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -155,7 +156,7 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     /// </summary>
     public async Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken)
     {
-        var tenants = await DbSet.IgnoreQueryFilters().ToArrayAsync(cancellationToken);
+        var tenants = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return tenants.OrderByDescending(t => t.CreatedAt).Take(limit).ToArray();
     }
 }

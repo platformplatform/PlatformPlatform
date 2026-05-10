@@ -83,7 +83,7 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/users?role=Owner");
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/users?roles=Owner");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -91,6 +91,33 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         // DatabaseSeeder.Tenant1Owner plus owner2 above.
         payload.TotalCount.Should().Be(2);
+        payload.Users.Should().OnlyContain(u => u.Role == UserRole.Owner);
+    }
+
+    [Fact]
+    public async Task GetTenantUsers_WhenFilteringByMultipleRoles_ShouldHonorRoleFilterAtQueryTimeAcrossPages()
+    {
+        // Arrange — seed enough users across roles so role filtering must run at the database layer for
+        // pagination to be correct. With 1 Owner on Tenant1 (the seeder) plus 30 Member users added below,
+        // filtering ?roles=Owner must return only the 1 Owner regardless of page size.
+        var tenant = DatabaseSeeder.Tenant1;
+        for (var index = 0; index < 30; index++)
+        {
+            SeedUser(tenant.Id, $"member{index}@tenant-1.com", $"Member{index}", "User", UserRole.Member);
+        }
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/users?roles=Owner&pageSize=5");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantUsersResponse>();
+        payload.Should().NotBeNull();
+        // DatabaseSeeder seeds one Owner and one Member on Tenant1; the loop adds 30 Members.
+        payload.TotalCount.Should().Be(1);
         payload.Users.Should().OnlyContain(u => u.Role == UserRole.Owner);
     }
 

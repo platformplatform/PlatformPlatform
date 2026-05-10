@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 using SharedKernel.Persistence;
 
 namespace Account.Features.Authentication.Domain;
@@ -148,7 +149,7 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
     public async Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUserUnfilteredAsync(UserId userId, int pageOffset, int pageSize, CancellationToken cancellationToken)
     {
         var sessions = await DbSet
-            .IgnoreQueryFilters()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(s => s.UserId == userId)
             .ToArrayAsync(cancellationToken);
 
@@ -171,7 +172,7 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
         if (userIds.Length == 0) return ([], 0, 0);
 
         var sessions = await DbSet
-            .IgnoreQueryFilters()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(s => userIds.AsEnumerable().Contains(s.UserId))
             .ToArrayAsync(cancellationToken);
 
@@ -192,7 +193,7 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
     public async Task<long> CountActiveSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken)
     {
         var sessions = await DbSet
-            .IgnoreQueryFilters()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(s => s.RevokedAt == null)
             .Select(s => new { s.CreatedAt })
             .ToArrayAsync(cancellationToken);

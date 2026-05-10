@@ -34,10 +34,8 @@ export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetect
     navigate({
       to: "/accounts",
       search: (previous) => ({
-        plans: previous.plans,
-        statuses: previous.statuses,
+        ...previous,
         orderBy: previous.orderBy as SortableTenantProperties | undefined,
-        sortOrder: previous.sortOrder,
         search: debouncedSearch || undefined,
         pageOffset: undefined
       })
@@ -53,10 +51,8 @@ export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetect
     navigate({
       to: "/accounts",
       search: (previous) => ({
-        search: previous.search,
-        statuses: previous.statuses,
+        ...previous,
         orderBy: previous.orderBy as SortableTenantProperties | undefined,
-        sortOrder: previous.sortOrder,
         plans: next.length === 0 ? undefined : next,
         pageOffset: undefined
       })
@@ -68,10 +64,8 @@ export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetect
     navigate({
       to: "/accounts",
       search: (previous) => ({
-        search: previous.search,
-        plans: previous.plans,
+        ...previous,
         orderBy: previous.orderBy as SortableTenantProperties | undefined,
-        sortOrder: previous.sortOrder,
         statuses: next.length === 0 ? undefined : next,
         pageOffset: undefined
       })
@@ -153,13 +147,10 @@ function IssueFilterBadges({ unsynced, driftDetected }: Readonly<{ unsynced: boo
     navigate({
       to: "/accounts",
       search: (previous) => ({
-        search: previous.search,
-        plans: previous.plans,
-        statuses: previous.statuses,
+        ...previous,
+        orderBy: previous.orderBy as SortableTenantProperties | undefined,
         unsynced: key === "unsynced" ? undefined : previous.unsynced,
         driftDetected: key === "driftDetected" ? undefined : previous.driftDetected,
-        orderBy: previous.orderBy as SortableTenantProperties | undefined,
-        sortOrder: previous.sortOrder,
         pageOffset: undefined
       })
     });

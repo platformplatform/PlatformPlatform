@@ -10,7 +10,7 @@ namespace Account.Features.Tenants.BackOffice.Queries;
 [PublicAPI]
 public sealed record GetTenantUsersQuery(
     string? Search = null,
-    UserRole? Role = null,
+    UserRole[]? Roles = null,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<TenantUsersResponse>>
@@ -19,6 +19,8 @@ public sealed record GetTenantUsersQuery(
     public TenantId Id { get; init; } = null!;
 
     public string? Search { get; } = Search?.Trim().ToLower();
+
+    public UserRole[] Roles { get; } = Roles ?? [];
 }
 
 [PublicAPI]
@@ -62,7 +64,7 @@ public sealed class GetTenantUsersHandler(ITenantRepository tenantRepository, IU
         var (users, totalCount, totalPages) = await userRepository.SearchTenantUsersUnfilteredAsync(
             tenant.Id,
             query.Search,
-            query.Role,
+            query.Roles,
             query.PageOffset,
             query.PageSize,
             cancellationToken

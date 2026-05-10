@@ -1,6 +1,7 @@
 using Account.Database;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 using SharedKernel.ExecutionContext;
 using SharedKernel.Persistence;
 
@@ -68,19 +69,19 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     {
         if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
         {
-            return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
+            return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).SingleOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
         }
 
         return await DbSet
             .FromSqlInterpolated($"SELECT * FROM subscriptions WHERE stripe_customer_id = {stripeCustomerId.Value} FOR UPDATE")
-            .IgnoreQueryFilters()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .SingleOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Subscription?> GetByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return DbSet.Local.SingleOrDefault(s => s.TenantId == tenantId)
-               ?? await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+               ?? await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).SingleOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
     }
 
     /// <summary>
@@ -89,7 +90,7 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     /// </summary>
     public async Task<Subscription[]> GetByTenantIdsUnfilteredAsync(TenantId[] tenantIds, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().Where(s => tenantIds.AsEnumerable().Contains(s.TenantId)).ToArrayAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(s => tenantIds.AsEnumerable().Contains(s.TenantId)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -98,19 +99,20 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     /// </summary>
     public async Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().Where(s => s.Plan != SubscriptionPlan.Basis).ToArrayAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(s => s.Plan != SubscriptionPlan.Basis).ToArrayAsync(cancellationToken);
     }
 
     public async Task<int> CountWithDriftDetectedUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().CountAsync(s => s.HasDriftDetected, cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(s => s.HasDriftDetected, cancellationToken);
     }
 
     public async Task<int> CountWithoutBillingEventsUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters()
+        var tenantFilterName = new[] { QueryFilterNames.Tenant };
+        return await DbSet.IgnoreQueryFilters(tenantFilterName)
             .Where(s => s.CurrentPriceAmount != null)
-            .Where(s => !accountDbContext.Set<BillingEvent>().IgnoreQueryFilters().Any(e => e.SubscriptionId == s.Id))
+            .Where(s => !accountDbContext.Set<BillingEvent>().IgnoreQueryFilters(tenantFilterName).Any(e => e.SubscriptionId == s.Id))
             .CountAsync(cancellationToken);
     }
 }

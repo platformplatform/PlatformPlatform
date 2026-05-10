@@ -57,8 +57,8 @@ public sealed class ProcessPendingStripeEvents(
         if (pendingEvents.Length > 0 || forceSync)
         {
             var recoveredEvents = await ReconcileEventLogFromEventsListAsync(stripeCustomerId, cancellationToken);
-            await SyncStateFromStripe(tenant, subscription, cancellationToken);
-            await SyncBillingEventsAsync(subscription, pendingEvents, recoveredEvents, cancellationToken);
+            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, cancellationToken);
+            await SyncBillingEventsAsync(subscription, pendingEvents, recoveredEvents, driftSnapshots, cancellationToken);
 
             MarkAllEventsAsProcessed(pendingEvents, subscription);
         }
@@ -69,10 +69,13 @@ public sealed class ProcessPendingStripeEvents(
         SendTelemetryEvents(tenant, subscription);
     }
 
-    private async Task SyncStateFromStripe(Tenant tenant, Subscription subscription, CancellationToken cancellationToken)
+    private async Task<DriftSnapshots> SyncStateFromStripe(Tenant tenant, Subscription subscription, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
         var customerResult = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId!, cancellationToken);
+
+        // Snapshot captured before any mutation so the drift detector can compare local-pre-sync against Stripe.
+        var localSnapshot = StripeSyncSnapshot.FromSubscription(subscription);
 
         var previousPlan = subscription.Plan;
         var previousPriceAmount = subscription.CurrentPriceAmount;
@@ -81,7 +84,7 @@ public sealed class ProcessPendingStripeEvents(
         if (customerResult is null)
         {
             logger.LogError("Failed to fetch billing info for Stripe customer '{StripeCustomerId}'", subscription.StripeCustomerId);
-            return;
+            return new DriftSnapshots(localSnapshot, null);
         }
 
         if (customerResult.IsCustomerDeleted)
@@ -93,7 +96,8 @@ public sealed class ProcessPendingStripeEvents(
             tenantRepository.Update(tenant);
             subscriptionRepository.Update(subscription);
             events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.CustomerDeleted, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
-            return;
+            // Stripe's view: customer is gone, no subscription. Pair with the pre-sync local snapshot above.
+            return new DriftSnapshots(localSnapshot, new StripeSyncSnapshot(SubscriptionPlan.Basis, false, null, null));
         }
 
         var stripeState = await stripeClient.SyncSubscriptionStateAsync(subscription.StripeCustomerId!, cancellationToken);
@@ -262,6 +266,14 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         subscriptionRepository.Update(subscription);
+
+        // Stripe snapshot built from the just-fetched Stripe state, paired with the pre-sync local snapshot
+        // captured at the start of this method. When stripeState is null Stripe has no active subscription
+        // for the customer, so the equivalent snapshot is the free plan with no price.
+        var stripeSnapshot = stripeState is null
+            ? new StripeSyncSnapshot(SubscriptionPlan.Basis, false, null, null)
+            : new StripeSyncSnapshot(stripeState.Plan, stripeState.CancelAtPeriodEnd, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency);
+        return new DriftSnapshots(localSnapshot, stripeSnapshot);
     }
 
     /// <summary>
@@ -284,7 +296,7 @@ public sealed class ProcessPendingStripeEvents(
     ///     Drift detection runs at the end and incorporates any <c>Unclassified</c> events the replayer
     ///     flagged so the existing drift banner picks them up.
     /// </summary>
-    private async Task SyncBillingEventsAsync(Subscription subscription, StripeEvent[] pendingEvents, StripeEvent[] recoveredEvents, CancellationToken cancellationToken)
+    private async Task SyncBillingEventsAsync(Subscription subscription, StripeEvent[] pendingEvents, StripeEvent[] recoveredEvents, DriftSnapshots driftSnapshots, CancellationToken cancellationToken)
     {
         if (subscription.StripeCustomerId is null) return;
 
@@ -304,7 +316,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (allEvents.Length == 0)
         {
-            await DetectDrift(subscription, 0, false, [], cancellationToken);
+            await DetectDrift(subscription, driftSnapshots, 0, false, [], cancellationToken);
             return;
         }
 
@@ -349,21 +361,19 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
-        await DetectDrift(subscription, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, cancellationToken);
+        await DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, cancellationToken);
     }
 
-    private async Task DetectDrift(Subscription subscription, int billingEventCount, bool hasUnclassifiedEvent, HashSet<string?> unsupportedApiVersions, CancellationToken cancellationToken)
+    private async Task DetectDrift(Subscription subscription, DriftSnapshots driftSnapshots, int billingEventCount, bool hasUnclassifiedEvent, HashSet<string?> unsupportedApiVersions, CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         try
         {
-            var snapshot = new StripeSyncSnapshot(
-                subscription.Plan,
-                subscription.CancelAtPeriodEnd,
-                subscription.CurrentPriceAmount,
-                subscription.CurrentPriceCurrency
-            );
-            var discrepancies = BillingDriftDetector.Detect(subscription, snapshot, billingEventCount);
+            // The Stripe snapshot is null when the customer fetch failed earlier in the sync, so fall back
+            // to the local pre-sync view (no SubscriptionStateMismatch can be detected without a Stripe view,
+            // but the other coverage checks still run).
+            var stripeSnapshot = driftSnapshots.Stripe ?? driftSnapshots.LocalBeforeSync;
+            var discrepancies = BillingDriftDetector.Detect(driftSnapshots.LocalBeforeSync, stripeSnapshot, subscription.PaymentTransactions.Length, billingEventCount);
             if (hasUnclassifiedEvent)
             {
                 discrepancies = discrepancies.Add(new DriftDiscrepancy(
@@ -567,4 +577,6 @@ public sealed class ProcessPendingStripeEvents(
             logger.LogInformation("Telemetry: {EventName} {EventProperties}", telemetryEvent.GetType().Name, string.Join(", ", telemetryEvent.Properties.Select(p => $"{p.Key}={p.Value}")));
         }
     }
+
+    private sealed record DriftSnapshots(StripeSyncSnapshot LocalBeforeSync, StripeSyncSnapshot? Stripe);
 }

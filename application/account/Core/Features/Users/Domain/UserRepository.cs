@@ -61,7 +61,7 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<(User[] Users, int TotalItems, int TotalPages)> SearchTenantUsersUnfilteredAsync(
         TenantId tenantId,
         string? search,
-        UserRole? role,
+        UserRole[] roles,
         int? pageOffset,
         int pageSize,
         CancellationToken cancellationToken
@@ -355,7 +355,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     public async Task<(User[] Users, int TotalItems, int TotalPages)> SearchTenantUsersUnfilteredAsync(
         TenantId tenantId,
         string? search,
-        UserRole? role,
+        UserRole[] roles,
         int? pageOffset,
         int pageSize,
         CancellationToken cancellationToken
@@ -363,9 +363,9 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     {
         var users = DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(u => u.TenantId == tenantId);
 
-        if (role is not null)
+        if (roles.Length > 0)
         {
-            users = users.Where(u => u.Role == role);
+            users = users.Where(u => roles.AsEnumerable().Contains(u.Role));
         }
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -424,7 +424,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
             // Tenant name search is implemented as a separate lookup so we don't need an EF join. We then OR the
             // resulting ids into the user predicate alongside email and full-name matches.
             var matchingTenantIds = await accountDbContext.Set<Tenant>()
-                .IgnoreQueryFilters()
+                .IgnoreQueryFilters([QueryFilterNames.Tenant])
                 .Where(t => t.Name.ToLower().Contains(search))
                 .Select(t => t.Id)
                 .ToArrayAsync(cancellationToken);

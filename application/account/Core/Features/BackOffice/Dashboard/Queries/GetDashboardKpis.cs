@@ -96,11 +96,15 @@ public sealed class GetDashboardKpisHandler(
 
         var totalMonthlyRecurringRevenue = paidSubscriptions.Sum(MrrCalculator.ForwardMrr);
 
-        // Period-over-period MRR delta is approximated from the new-tenant signup ratio because the domain does
-        // not store historical MRR snapshots. Operators get a directional signal without a daily snapshot table.
-        var mrrDeltaPercent = newTenantsInPriorPeriod == 0
+        // Period-over-period MRR delta uses the MRR contribution of subscriptions that already existed
+        // at the start of the period as the prior baseline. The domain does not store historical MRR
+        // snapshots, so this approximation treats subscriptions still active today and created before
+        // periodStart as the prior-period MRR. Subscriptions created within the period contribute the
+        // delta. This is an MRR-driven directional signal rather than a signup-count proxy.
+        var priorMonthlyRecurringRevenue = paidSubscriptions.Where(s => s.CreatedAt < periodStart).Sum(MrrCalculator.ForwardMrr);
+        var mrrDeltaPercent = priorMonthlyRecurringRevenue == 0m
             ? (decimal?)null
-            : Math.Round(((decimal)newTenantsInPeriod - newTenantsInPriorPeriod) / newTenantsInPriorPeriod * 100m, 1);
+            : Math.Round((totalMonthlyRecurringRevenue - priorMonthlyRecurringRevenue) / priorMonthlyRecurringRevenue * 100m, 1);
 
         return new BackOfficeDashboardKpisResponse(
             query.Period,

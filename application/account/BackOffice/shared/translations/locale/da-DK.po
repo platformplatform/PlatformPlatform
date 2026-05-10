@@ -210,7 +210,7 @@ msgid "Change zoom level"
 msgstr "Skift zoomniveau"
 
 msgid "Clear filter"
-msgstr ""
+msgstr "Ryd filter"
 
 msgid "Clear filters"
 msgstr "Ryd filtre"
@@ -286,7 +286,7 @@ msgid "Downgrading"
 msgstr "Nedgraderer"
 
 msgid "Drift detected"
-msgstr ""
+msgstr "Afvigelser fundet"
 
 msgid "Email"
 msgstr "E-mail"
@@ -475,7 +475,7 @@ msgid "No billing events yet"
 msgstr "Ingen faktureringshændelser endnu"
 
 msgid "No change"
-msgstr ""
+msgstr "Ingen ændring"
 
 msgid "No invoices, refunds, or credit notes yet."
 msgstr "Ingen fakturaer, refusioner eller kreditnotaer endnu."
@@ -532,7 +532,7 @@ msgid "No users yet"
 msgstr "Ingen brugere endnu"
 
 msgid "Not synced yet"
-msgstr ""
+msgstr "Ikke synkroniseret endnu"
 
 msgid "Occurred"
 msgstr "Tidspunkt"
@@ -798,7 +798,7 @@ msgid "Try clearing the search or filters to see more results."
 msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
 
 msgid "Unclassified"
-msgstr ""
+msgstr "Uklassificeret"
 
 msgid "Unknown"
 msgstr "Ukendt"

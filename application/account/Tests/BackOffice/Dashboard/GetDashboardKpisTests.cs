@@ -91,6 +91,46 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetDashboardKpis_WhenComputingMrrDelta_ShouldDeriveFromMrrNotSignupCount()
+    {
+        // Arrange — three signups within the last 30 days, only one of which is paying. Two paid
+        // subscriptions exist that pre-date the period start (created 60+ days ago). The MRR delta
+        // must reflect the MRR added by the new paid subscription (49.99 / 200 = +25%), not the
+        // signup-count ratio (3/0 → null / divide-by-zero or 3/something).
+        var now = DateTimeOffset.UtcNow;
+
+        var oldPremium = SeedTenant("Old Premium", SubscriptionPlan.Premium, now.AddDays(-90));
+        SeedPaidSubscription(oldPremium, SubscriptionPlan.Premium, 100m, false, null, null, now.AddDays(-90));
+
+        var oldStandard = SeedTenant("Old Standard", SubscriptionPlan.Standard, now.AddDays(-90));
+        SeedPaidSubscription(oldStandard, SubscriptionPlan.Standard, 100m, false, null, null, now.AddDays(-90));
+
+        // New paid subscription within the period contributes 49.99 to MRR.
+        var newPaid = SeedTenant("New Paid", SubscriptionPlan.Standard, now.AddDays(-5));
+        SeedPaidSubscription(newPaid, SubscriptionPlan.Standard, 49.99m, false, null, null, now.AddDays(-5));
+
+        // Two new free signups within the period contribute 0 to MRR — these would inflate a
+        // signup-count delta but must not affect the MRR delta.
+        SeedTenant("New Free 1", SubscriptionPlan.Basis, now.AddDays(-3));
+        SeedTenant("New Free 2", SubscriptionPlan.Basis, now.AddDays(-2));
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/kpis");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardKpisResponse>();
+        payload.Should().NotBeNull();
+        payload.BlendedMonthlyRecurringRevenue.Should().Be(249.99m);
+        // Prior period MRR (subscriptions created before periodStart): 100 + 100 = 200.
+        // Delta: (249.99 - 200) / 200 = 24.995% → rounded to 25.0%.
+        payload.BlendedMonthlyRecurringRevenueDeltaPercent.Should().Be(25.0m);
+    }
+
+    [Fact]
     public async Task GetDashboardKpis_WhenSubscriptionsAreCancellingOrDowngrading_ShouldUseForwardMrr()
     {
         // Arrange — three paid subscriptions: one stable Premium, one Premium scheduled to downgrade to Standard,
@@ -116,6 +156,31 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardKpisResponse>();
         payload.Should().NotBeNull();
         payload.BlendedMonthlyRecurringRevenue.Should().Be(448m);
+    }
+
+    [Fact]
+    public async Task GetDashboardKpis_WhenSoftDeletedTenantsExist_ShouldExcludeThemFromCounts()
+    {
+        // Arrange — one active tenant and one soft-deleted tenant. The dashboard query bypasses the
+        // tenant filter (it is cross-tenant by design) but must still respect the soft-delete filter
+        // so deleted tenants do not inflate KPI counts.
+        var now = DateTimeOffset.UtcNow;
+        SeedTenant("Active Inc", SubscriptionPlan.Standard, now.AddDays(-10));
+        var deletedTenant = SeedTenant("Deleted Co", SubscriptionPlan.Standard, now.AddDays(-15));
+        Connection.Update("tenants", "id", deletedTenant.Value, [("deleted_at", now.AddDays(-1))]);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/kpis");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardKpisResponse>();
+        payload.Should().NotBeNull();
+        // DatabaseSeeder.Tenant1 plus the active tenant seeded here. The soft-deleted tenant must not count.
+        payload.TotalTenants.Should().Be(2);
     }
 
     [Fact]
@@ -168,19 +233,21 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         decimal currentPriceAmount,
         bool cancelAtPeriodEnd,
         SubscriptionPlan? scheduledPlan,
-        decimal? scheduledPriceAmount
+        decimal? scheduledPriceAmount,
+        DateTimeOffset? createdAt = null
     )
     {
+        var subscriptionCreatedAt = createdAt ?? DateTimeOffset.UtcNow.AddDays(-30);
         var paymentTransactionsJson = JsonSerializer.Serialize(new[]
             {
-                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, plan)
+                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, "DKK", PaymentTransactionStatus.Succeeded, subscriptionCreatedAt, null, null, null, plan)
             }
         );
 
         Connection.Insert("subscriptions", [
                 ("tenant_id", tenantId.Value),
                 ("id", SubscriptionId.NewId().ToString()),
-                ("created_at", DateTimeOffset.UtcNow.AddDays(-30)),
+                ("created_at", subscriptionCreatedAt),
                 ("modified_at", null),
                 ("plan", plan.ToString()),
                 ("scheduled_plan", scheduledPlan?.ToString()),
