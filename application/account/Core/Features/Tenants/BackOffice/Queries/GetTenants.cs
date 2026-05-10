@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -45,8 +46,12 @@ public sealed record TenantSummary(
     bool HasEverSubscribed,
     string? Country,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? ModifiedAt
+    DateTimeOffset? ModifiedAt,
+    TenantOwnerSummary? Owner
 );
+
+[PublicAPI]
+public sealed record TenantOwnerSummary(UserId UserId, string? FirstName, string? LastName, string Email);
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -93,7 +98,7 @@ public sealed class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery
     }
 }
 
-public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, IBillingEventRepository billingEventRepository)
+public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, IBillingEventRepository billingEventRepository, IUserRepository userRepository)
     : IRequestHandler<GetTenantsQuery, Result<TenantsResponse>>
 {
     public async Task<Result<TenantsResponse>> Handle(GetTenantsQuery query, CancellationToken cancellationToken)
@@ -127,7 +132,16 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             ).ToArray();
         }
 
-        var summaries = tenants.Select(tenant => MapTenantSummary(tenant, subscriptionsByTenantId.GetValueOrDefault(tenant.Id))).ToArray();
+        var ownerByTenantId = tenants.Length == 0
+            ? new Dictionary<TenantId, User>()
+            : await userRepository.GetFirstOwnerByTenantIdsUnfilteredAsync(tenants.Select(t => t.Id).ToArray(), cancellationToken);
+
+        var summaries = tenants.Select(tenant => MapTenantSummary(
+                tenant,
+                subscriptionsByTenantId.GetValueOrDefault(tenant.Id),
+                ownerByTenantId.GetValueOrDefault(tenant.Id)
+            )
+        ).ToArray();
 
         if (query.Statuses.Length > 0)
         {
@@ -193,7 +207,7 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
         };
     }
 
-    private static TenantSummary MapTenantSummary(Tenant tenant, Subscription? subscription)
+    private static TenantSummary MapTenantSummary(Tenant tenant, Subscription? subscription, User? owner)
     {
         var plannedChange = subscription switch
         {
@@ -221,7 +235,8 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             hasEverSubscribed,
             subscription?.BillingInfo?.Address?.Country,
             tenant.CreatedAt,
-            tenant.ModifiedAt
+            tenant.ModifiedAt,
+            owner is null ? null : new TenantOwnerSummary(owner.Id, owner.FirstName, owner.LastName, owner.Email)
         );
     }
 }

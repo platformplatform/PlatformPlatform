@@ -11,6 +11,7 @@ import { PlannedSubscriptionChange } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
+import { getUserDisplayName } from "../../users/-components/userDisplay";
 import { TenantStatusBadge } from "./TenantStatusBadge";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
@@ -36,6 +37,11 @@ export function AccountsTableRow({
           <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.name} size="md" className="size-10" />
           <div className="flex min-w-0 flex-col gap-1">
             <span className="truncate font-medium text-foreground">{tenant.name}</span>
+            {tenant.owner && (
+              <span className="truncate text-xs text-muted-foreground">
+                {getUserDisplayName(tenant.owner.firstName, tenant.owner.lastName, tenant.owner.email)}
+              </span>
+            )}
             <div className="hidden md:flex lg:hidden">
               <Badge className={`w-fit ${getSubscriptionPlanBadgeClass(tenant.plan)}`}>
                 {getSubscriptionPlanLabel(tenant.plan)}
