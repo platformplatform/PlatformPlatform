@@ -6,6 +6,7 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 
 import type { components } from "@/shared/lib/api/client";
 
+import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { PlannedSubscriptionChange } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
@@ -26,7 +27,7 @@ export function AccountsTableRow({
   formatDate
 }: Readonly<{
   tenant: TenantSummary;
-  formatDate: (value: string | null | undefined) => string;
+  formatDate: (value: string | null | undefined, includeTime?: boolean, omitCurrentYear?: boolean) => string;
 }>) {
   return (
     <TableRow rowKey={tenant.id}>
@@ -91,7 +92,12 @@ export function AccountsTableRow({
           "-"
         )}
       </TableCell>
-      <TableCell className="hidden xl:table-cell">{formatDate(tenant.createdAt)}</TableCell>
+      <TableCell className="hidden xl:table-cell">
+        <div className="flex flex-col leading-tight">
+          <SmartDateTime date={tenant.createdAt} />
+          <span className="text-xs text-muted-foreground tabular-nums">{formatDate(tenant.createdAt, true, true)}</span>
+        </div>
+      </TableCell>
     </TableRow>
   );
 }

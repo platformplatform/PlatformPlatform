@@ -17,7 +17,7 @@ export function UsersTableRow({
   formatDate
 }: Readonly<{
   user: BackOfficeUserSummary;
-  formatDate: (value: string | null | undefined, includeTime?: boolean) => string;
+  formatDate: (value: string | null | undefined, includeTime?: boolean, omitCurrentYear?: boolean) => string;
 }>) {
   const displayName = getUserDisplayName(user.firstName, user.lastName, user.email);
   const initials = getUserInitials(user.firstName, user.lastName, user.email);
@@ -49,13 +49,20 @@ export function UsersTableRow({
         {user.lastSeenAt ? (
           <div className="flex flex-col leading-tight">
             <SmartDateTime date={user.lastSeenAt} />
-            <span className="text-xs text-muted-foreground">{formatDate(user.lastSeenAt, true)}</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {formatDate(user.lastSeenAt, true, true)}
+            </span>
           </div>
         ) : (
           <span className="text-muted-foreground">-</span>
         )}
       </TableCell>
-      <TableCell className="hidden xl:table-cell">{formatDate(user.createdAt)}</TableCell>
+      <TableCell className="hidden xl:table-cell">
+        <div className="flex flex-col leading-tight">
+          <SmartDateTime date={user.createdAt} />
+          <span className="text-xs text-muted-foreground tabular-nums">{formatDate(user.createdAt, true, true)}</span>
+        </div>
+      </TableCell>
     </TableRow>
   );
 }

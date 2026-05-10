@@ -6,6 +6,7 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 
 import type { components } from "@/shared/lib/api/client";
 
+import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
@@ -17,7 +18,7 @@ export function BillingEventsTableRow({
   onRowClick
 }: Readonly<{
   event: BillingEventSummary;
-  formatDate: (value: string | null | undefined) => string;
+  formatDate: (value: string | null | undefined, includeTime?: boolean, omitCurrentYear?: boolean) => string;
   onRowClick: (tenantId: string) => void;
 }>) {
   const variant = BILLING_EVENT_VARIANT[event.eventType];
@@ -72,8 +73,11 @@ export function BillingEventsTableRow({
           <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className="text-sm whitespace-nowrap text-muted-foreground tabular-nums">
-        {formatDate(event.occurredAt)}
+      <TableCell className="whitespace-nowrap">
+        <div className="flex flex-col leading-tight">
+          <SmartDateTime date={event.occurredAt} />
+          <span className="text-xs text-muted-foreground tabular-nums">{formatDate(event.occurredAt, true, true)}</span>
+        </div>
       </TableCell>
     </TableRow>
   );
