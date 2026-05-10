@@ -23,7 +23,10 @@ public sealed record TenantDetailResponse(
     DateTimeOffset? RenewalDate,
     DateTimeOffset? SubscribedSince,
     bool HasEverSubscribed,
+    string? BillingName,
+    string? TaxId,
     BillingAddressResponse? BillingAddress,
+    PaymentMethodResponse? PaymentMethod,
     decimal? LifetimeValue,
     TenantState State,
     SuspensionReason? SuspensionReason,
@@ -46,6 +49,9 @@ public sealed record BillingAddressResponse(
     string? State,
     string? Country
 );
+
+[PublicAPI]
+public sealed record PaymentMethodResponse(string Brand, string Last4, int ExpMonth, int ExpYear);
 
 public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, StripeClientFactory stripeClientFactory)
     : IRequestHandler<GetTenantDetailQuery, Result<TenantDetailResponse>>
@@ -71,6 +77,10 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             ? new BillingAddressResponse(address.Line1, address.Line2, address.PostalCode, address.City, address.State, address.Country)
             : null;
 
+        var paymentMethod = subscription?.PaymentMethod is { } pm
+            ? new PaymentMethodResponse(pm.Brand, pm.Last4, pm.ExpMonth, pm.ExpYear)
+            : null;
+
         return new TenantDetailResponse(
             tenant.Id,
             tenant.Name,
@@ -83,7 +93,10 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             subscription?.CurrentPeriodEnd,
             subscription?.SubscribedSince,
             hasEverSubscribed,
+            subscription?.BillingInfo?.Name,
+            subscription?.BillingInfo?.TaxId,
             billingAddress,
+            paymentMethod,
             lifetimeValue,
             tenant.State,
             tenant.SuspensionReason,

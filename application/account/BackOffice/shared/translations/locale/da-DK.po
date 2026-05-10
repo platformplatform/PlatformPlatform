@@ -253,6 +253,9 @@ msgstr "Aktuel periode"
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
 
+msgid "Customer"
+msgstr "Kunde"
+
 msgid "Dark"
 msgstr "Mørk"
 
@@ -320,6 +323,9 @@ msgstr "Afslut kiosktilstand"
 
 msgid "Expired"
 msgstr "Udløbet"
+
+msgid "Expires"
+msgstr "Udløber"
 
 msgid "Failed"
 msgstr "Mislykket"
@@ -593,6 +599,9 @@ msgstr "Forfalden"
 
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
+
+msgid "Payment method"
+msgstr "Betalingsmetode"
 
 msgid "Payment method updated"
 msgstr "Betalingsmetode opdateret"
