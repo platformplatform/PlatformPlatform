@@ -175,4 +175,129 @@ public sealed class StripeEventReplayerTests
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.SubscriptionPastDue);
     }
+
+    [Fact]
+    public void Replay_WhenSubscriptionDeletedAfterResetToFreePlan_ShouldStampCurrencyFromPayload()
+    {
+        // Arrange — reproduces the C1 terminal-state currency bug. The sync flow runs
+        // SyncStateFromStripe BEFORE SyncBillingEventsAsync; for terminal-state branches that flow nulls
+        // Subscription.CurrentPriceCurrency via ResetToFreePlan. By the time the replayer reads the live
+        // subscription, the currency is gone and the old "?? "USD"" fallback would mis-stamp DKK rows
+        // with USD. The fix sources the currency from the Stripe event payload itself.
+        var subscription = Subscription.Create(TenantId.NewId());
+        // Explicitly null — represents the post-ResetToFreePlan state at the moment Replay runs.
+        subscription.ResetToFreePlan();
+        subscription.CurrentPriceCurrency.Should().BeNull();
+
+        var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_deleted_dkk",
+                "customer.subscription.deleted",
+                occurredAt,
+                """{"data":{"object":{"currency":"dkk","status":"canceled","cancel_at_period_end":false}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionImmediatelyCancelled);
+        emitted[0].Currency.Should().Be("DKK", "currency must come from the Stripe event payload, not the post-ResetToFreePlan subscription");
+    }
+
+    [Fact]
+    public void Replay_WhenSubscriptionCreatedHasItemsPriceCurrency_ShouldStampCurrencyFromPriceItem()
+    {
+        // Arrange — pre-subscription customer events (BillingInfoAdded, PaymentMethodUpdated) and the
+        // initial customer.subscription.created event fire BEFORE the local subscription has any
+        // CurrentPriceCurrency value, so the payload's items.data[0].price.currency is the only
+        // authoritative source.
+        var subscription = Subscription.Create(TenantId.NewId());
+        subscription.CurrentPriceCurrency.Should().BeNull();
+
+        var occurredAt = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_created_dkk",
+                "customer.subscription.created",
+                occurredAt,
+                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_standard","currency":"dkk"}}]}}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionCreated);
+        emitted[0].Currency.Should().Be("DKK", "currency must come from items.data[0].price.currency when the top-level currency field is absent");
+    }
+
+    [Fact]
+    public void Replay_WhenPayloadHasNoCurrencyButOverrideProvided_ShouldStampCurrencyFromOverride()
+    {
+        // Arrange — fallback path: payload doesn't carry currency (e.g. customer.created, payment_method.attached)
+        // and the live subscription has been reset by an earlier branch in the same sync transaction. The
+        // caller passes a snapshot of CurrentPriceCurrency captured BEFORE the mutation as currencyOverride.
+        var subscription = Subscription.Create(TenantId.NewId());
+        subscription.ResetToFreePlan();
+        subscription.CurrentPriceCurrency.Should().BeNull();
+
+        var occurredAt = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_payment_method_attached",
+                "payment_method.attached",
+                occurredAt,
+                """{"data":{"object":{"id":"pm_test","type":"card"}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan, currencyOverride: "DKK");
+
+        // Assert
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.PaymentMethodUpdated);
+        emitted[0].Currency.Should().Be("DKK");
+    }
+
+    [Fact]
+    public void Replay_WhenNoCurrencyResolvable_ShouldSkipEventWithoutEmitting()
+    {
+        // Arrange — every source is exhausted: payload has no currency, no override, and the subscription
+        // has been reset. Refusing to emit is preferable to guessing "USD" — the row would be permanently
+        // wrong on the append-only billing_events log.
+        var subscription = Subscription.Create(TenantId.NewId());
+        subscription.ResetToFreePlan();
+        subscription.CurrentPriceCurrency.Should().BeNull();
+
+        var occurredAt = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_payment_method_attached_no_currency",
+                "payment_method.attached",
+                occurredAt,
+                """{"data":{"object":{"id":"pm_test","type":"card"}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert
+        emitted.Should().BeEmpty("no currency could be resolved from any source — the replayer must refuse to emit rather than guess");
+    }
 }

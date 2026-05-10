@@ -26,16 +26,37 @@ public static class StripeEventReplayer
         StripeReplayEvent[] stripeEvents,
         IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId,
         IReadOnlyDictionary<SubscriptionPlan, decimal> priceByPlan,
-        ReplayState? state = null
+        ReplayState? state = null,
+        string? currencyOverride = null,
+        ILogger? logger = null
     )
     {
         var emitted = new List<BillingEvent>();
         state ??= new ReplayState();
-        var currency = subscription.CurrentPriceCurrency ?? "USD";
 
         foreach (var stripeEvent in stripeEvents.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId))
         {
-            var billingEvent = MapEvent(stripeEvent, subscription, state, planByPriceId, priceByPlan, currency);
+            var payload = ParsePayload(stripeEvent.Payload);
+
+            // Per-event resolution preserves the true currency of every row even when state mutations
+            // (e.g. Subscription.ResetToFreePlan in the same sync transaction) have nulled the live
+            // CurrentPriceCurrency before this replayer reads it. Order: payload (authoritative for the
+            // event itself), then caller-supplied override (typically a pre-mutation snapshot), then the
+            // live subscription. No "USD" fallback — a missing currency is a real upstream defect.
+            var currency = ExtractCurrencyFromPayload(payload)
+                           ?? currencyOverride
+                           ?? subscription.CurrentPriceCurrency;
+
+            if (currency is null)
+            {
+                logger?.LogWarning(
+                    "Skipping Stripe event {EventId} ({EventType}) for subscription '{SubscriptionId}': no currency could be resolved from payload, override, or subscription",
+                    stripeEvent.EventId, stripeEvent.EventType, subscription.Id.Value
+                );
+                continue;
+            }
+
+            var billingEvent = MapEvent(stripeEvent, payload, subscription, state, planByPriceId, priceByPlan, currency);
             if (billingEvent is not null)
             {
                 emitted.Add(billingEvent);
@@ -47,6 +68,7 @@ public static class StripeEventReplayer
 
     private static BillingEvent? MapEvent(
         StripeReplayEvent stripeEvent,
+        JsonElement payload,
         Subscription subscription,
         ReplayState state,
         IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId,
@@ -58,7 +80,6 @@ public static class StripeEventReplayer
         var tenantId = subscription.TenantId;
         var occurredAt = stripeEvent.CreatedAt;
         var stripeEventId = stripeEvent.EventId;
-        var payload = ParsePayload(stripeEvent.Payload);
 
         switch (stripeEvent.EventType)
         {
@@ -611,6 +632,43 @@ public static class StripeEventReplayer
         if (invoice.ValueKind != JsonValueKind.Object) return false;
         var attemptCount = invoice.TryGetProperty("attempt_count", out var ac) && ac.ValueKind == JsonValueKind.Number ? ac.GetInt32() : 0;
         return attemptCount > 1;
+    }
+
+    /// <summary>
+    ///     Extracts the ISO 4217 currency code from a Stripe event payload. invoice.* and
+    ///     customer.subscription.* objects expose <c>$.data.object.currency</c>; the subscription object
+    ///     additionally carries the per-item price under <c>$.data.object.items.data[0].price.currency</c>
+    ///     which is the authoritative source on the rare event types where the top-level <c>currency</c>
+    ///     is absent. Stripe normalizes currency codes to lowercase in payloads (per
+    ///     https://docs.stripe.com/currencies); we upper-case to match the rest of the codebase.
+    /// </summary>
+    private static string? ExtractCurrencyFromPayload(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object) return null;
+        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        if (data.ValueKind != JsonValueKind.Object) return null;
+        var stripeObject = data.TryGetProperty("object", out var obj) ? obj : default;
+        if (stripeObject.ValueKind != JsonValueKind.Object) return null;
+
+        if (stripeObject.TryGetProperty("currency", out var currency) && currency.ValueKind == JsonValueKind.String)
+        {
+            return currency.GetString()?.ToUpperInvariant();
+        }
+
+        if (stripeObject.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Object
+                                                                && items.TryGetProperty("data", out var itemsData) && itemsData.ValueKind == JsonValueKind.Array
+                                                                && itemsData.GetArrayLength() > 0)
+        {
+            var firstItem = itemsData[0];
+            if (firstItem.ValueKind == JsonValueKind.Object
+                && firstItem.TryGetProperty("price", out var price) && price.ValueKind == JsonValueKind.Object
+                && price.TryGetProperty("currency", out var priceCurrency) && priceCurrency.ValueKind == JsonValueKind.String)
+            {
+                return priceCurrency.GetString()?.ToUpperInvariant();
+            }
+        }
+
+        return null;
     }
 
     private static JsonElement ParsePayload(string? rawPayload)

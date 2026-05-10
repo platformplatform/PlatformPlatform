@@ -357,7 +357,14 @@ public sealed class ProcessPendingStripeEvents(
 
         var existingStripeEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
         var state = new StripeEventReplayer.ReplayState();
-        var replayedEvents = StripeEventReplayer.Replay(subscription, replayEvents, planByPriceId, priceByPlan, state);
+
+        // Several SyncStateFromStripe branches (subscriptionExpired, subscriptionImmediatelyCancelled,
+        // subscriptionSuspended, IsCustomerDeleted) call Subscription.ResetToFreePlan which nulls
+        // CurrentPriceCurrency BEFORE this replay runs, so the live subscription is no longer authoritative.
+        // Prefer the just-fetched Stripe view, otherwise fall back to the pre-sync local snapshot — both
+        // were captured before any mutation. The replayer still tries the per-event payload first.
+        var currencyOverride = driftSnapshots.Stripe?.CurrentPriceCurrency ?? driftSnapshots.LocalBeforeSync.CurrentPriceCurrency;
+        var replayedEvents = StripeEventReplayer.Replay(subscription, replayEvents, planByPriceId, priceByPlan, state, currencyOverride, logger);
 
         var appendedCount = 0;
         foreach (var billingEvent in replayedEvents)
