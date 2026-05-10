@@ -18,13 +18,13 @@ type PaymentTransaction = components["schemas"]["TenantPaymentTransaction"];
 export function AccountPaymentRow({
   transaction,
   renderDate,
-  showTaxBreakdown,
-  showPlan = true
+  showPlan = true,
+  showActions = true
 }: Readonly<{
   transaction: PaymentTransaction;
   renderDate: (value: string | null | undefined) => ReactNode;
-  showTaxBreakdown?: boolean;
   showPlan?: boolean;
+  showActions?: boolean;
 }>) {
   // Refunded rows show the amounts struck through — money came in, then went back out.
   const isRefunded = transaction.status === PaymentTransactionStatus.Refunded;
@@ -41,74 +41,68 @@ export function AccountPaymentRow({
           )}
         </TableCell>
       )}
-      {showTaxBreakdown ? (
-        <>
-          <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${refundedClass}`}>
-            {formatCurrency(transaction.amountExcludingTax, transaction.currency)}
-          </TableCell>
-          <TableCell
-            className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${isRefunded ? "line-through" : ""}`}
-          >
-            {formatCurrency(transaction.taxAmount, transaction.currency)}
-          </TableCell>
-          <TableCell className={`text-right whitespace-nowrap tabular-nums ${refundedClass}`}>
-            {formatCurrency(transaction.amount, transaction.currency)}
-          </TableCell>
-        </>
-      ) : (
-        <TableCell className={`tabular-nums ${refundedClass}`}>
-          {formatCurrency(transaction.amount, transaction.currency)}
-        </TableCell>
-      )}
+      <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${refundedClass}`}>
+        {formatCurrency(transaction.amountExcludingTax, transaction.currency)}
+      </TableCell>
+      <TableCell
+        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${isRefunded ? "line-through" : ""}`}
+      >
+        {formatCurrency(transaction.taxAmount, transaction.currency)}
+      </TableCell>
+      <TableCell className={`text-right whitespace-nowrap tabular-nums ${refundedClass}`}>
+        {formatCurrency(transaction.amount, transaction.currency)}
+      </TableCell>
       <TableCell>
         <PaymentStatusBadge status={transaction.status} failureReason={transaction.failureReason} />
       </TableCell>
-      <TableCell className="text-right">
-        <div className="flex items-center justify-end gap-2">
-          {transaction.invoiceUrl && (
-            <Button
-              size="xs"
-              variant="default"
-              nativeButton={false}
-              className="gap-1 max-sm:w-fit"
-              render={
-                <a
-                  href={transaction.invoiceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={t`Open invoice`}
-                />
-              }
-            >
-              <DownloadIcon className="size-3" />
-              <span className="hidden md:inline">
-                <Trans>Invoice</Trans>
-              </span>
-            </Button>
-          )}
-          {transaction.creditNoteUrl && (
-            <Button
-              size="xs"
-              variant="default"
-              nativeButton={false}
-              className="gap-1 max-sm:w-fit"
-              render={
-                <a
-                  href={transaction.creditNoteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={t`Open credit note`}
-                />
-              }
-            >
-              <DownloadIcon className="size-3" />
-              <span className="hidden md:inline">
-                <Trans>Credit note</Trans>
-              </span>
-            </Button>
-          )}
-        </div>
-      </TableCell>
+      {showActions && (
+        <TableCell className="text-right">
+          <div className="flex items-center justify-end gap-2">
+            {transaction.invoiceUrl && (
+              <Button
+                size="xs"
+                variant="default"
+                nativeButton={false}
+                className="gap-1 max-sm:w-fit"
+                render={
+                  <a
+                    href={transaction.invoiceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t`Open invoice`}
+                  />
+                }
+              >
+                <DownloadIcon className="size-3" />
+                <span className="hidden md:inline">
+                  <Trans>Invoice</Trans>
+                </span>
+              </Button>
+            )}
+            {transaction.creditNoteUrl && (
+              <Button
+                size="xs"
+                variant="default"
+                nativeButton={false}
+                className="gap-1 max-sm:w-fit"
+                render={
+                  <a
+                    href={transaction.creditNoteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t`Open credit note`}
+                  />
+                }
+              >
+                <DownloadIcon className="size-3" />
+                <span className="hidden md:inline">
+                  <Trans>Credit note</Trans>
+                </span>
+              </Button>
+            )}
+          </div>
+        </TableCell>
+      )}
     </TableRow>
   );
 }

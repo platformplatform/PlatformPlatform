@@ -92,27 +92,19 @@ export function AccountBillingHistorySection({
                   <Trans>Plan</Trans>
                 </TableHead>
               )}
-              {isCompact ? (
-                <TableHead>
-                  <Trans>Amount</Trans>
-                </TableHead>
-              ) : (
-                <>
-                  <TableHead className="hidden text-right md:table-cell">
-                    <Trans>Amount</Trans>
-                  </TableHead>
-                  <TableHead className="hidden text-right md:table-cell">
-                    <Trans>VAT</Trans>
-                  </TableHead>
-                  <TableHead className="text-right">
-                    <Trans>Total</Trans>
-                  </TableHead>
-                </>
-              )}
+              <TableHead className="hidden text-right md:table-cell">
+                <Trans>Amount</Trans>
+              </TableHead>
+              <TableHead className="hidden text-right md:table-cell">
+                <Trans>VAT</Trans>
+              </TableHead>
+              <TableHead className="text-right">
+                <Trans>Total</Trans>
+              </TableHead>
               <TableHead>
                 <Trans>Status</Trans>
               </TableHead>
-              <TableHead className="text-right" />
+              {!isCompact && <TableHead className="text-right" />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,8 +113,8 @@ export function AccountBillingHistorySection({
                 key={transaction.id}
                 transaction={transaction}
                 renderDate={renderDate}
-                showTaxBreakdown={!isCompact}
                 showPlan={!isCompact}
+                showActions={!isCompact}
               />
             ))}
           </TableBody>
