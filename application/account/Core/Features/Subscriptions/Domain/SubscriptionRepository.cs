@@ -37,6 +37,13 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Retrieves every subscription that has at least one payment transaction recorded. Used by the
+    ///     back-office invoices listing which expands the JSON transactions array into one row per invoice.
+    ///     Bypasses the tenant query filter because the back-office is cross-tenant by design.
+    /// </summary>
+    Task<Subscription[]> GetAllWithTransactionsUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Counts subscriptions where billing drift has been detected and not yet acknowledged. Bypasses the
     ///     tenant query filter because the back-office is cross-tenant by design.
     /// </summary>
@@ -100,6 +107,16 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     public async Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(s => s.Plan != SubscriptionPlan.Basis).ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<Subscription[]> GetAllWithTransactionsUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        // PaymentTransactions is a jsonb column whose Length cannot be translated to SQL by EF Core
+        // uniformly across providers (SQLite is used in tests, Postgres in dev/prod), so the materialized
+        // set is filtered in memory. This is acceptable because back-office is the only caller and the row
+        // count of subscriptions is small relative to other cross-tenant queries already done here.
+        var subscriptions = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return [.. subscriptions.Where(s => s.PaymentTransactions.Length > 0)];
     }
 
     public async Task<int> CountWithDriftDetectedUnfilteredAsync(CancellationToken cancellationToken)

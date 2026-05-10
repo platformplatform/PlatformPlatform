@@ -135,6 +135,9 @@ msgstr "All accounts this user is a member of, with their plan and role."
 msgid "All event types"
 msgstr "All event types"
 
+msgid "All statuses"
+msgstr "All statuses"
+
 msgid "All users across every account, most recently seen first. Search and filter to narrow down."
 msgstr "All users across every account, most recently seen first. Search and filter to narrow down."
 
@@ -306,6 +309,9 @@ msgstr "Event"
 msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
 msgstr "Every invoice, refund, and credit note — the money in and out for this subscription."
 
+msgid "Every invoice, refund, and credit note across all accounts."
+msgstr "Every invoice, refund, and credit note across all accounts."
+
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 
@@ -338,6 +344,9 @@ msgstr "Invoice"
 
 msgid "Invoices"
 msgstr "Invoices"
+
+msgid "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
 
 msgid "IP address"
 msgstr "IP address"
@@ -470,6 +479,12 @@ msgstr "No billing events yet"
 
 msgid "No change"
 msgstr "No change"
+
+msgid "No invoices match your filters"
+msgstr "No invoices match your filters"
+
+msgid "No invoices yet"
+msgstr "No invoices yet"
 
 msgid "No invoices, refunds, or credit notes yet."
 msgstr "No invoices, refunds, or credit notes yet."

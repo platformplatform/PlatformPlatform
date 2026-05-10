@@ -13,7 +13,7 @@ import {
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { Building2Icon, HomeIcon, UsersIcon, ZapIcon } from "lucide-react";
+import { Building2Icon, HomeIcon, ReceiptIcon, UsersIcon, ZapIcon } from "lucide-react";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
@@ -25,6 +25,7 @@ export function BackOfficeSideMenu() {
   const isAccountsActive = currentPath === "/accounts" || currentPath.startsWith("/accounts/");
   const isUsersActive = currentPath === "/users" || currentPath.startsWith("/users/");
   const isBillingEventsActive = currentPath === "/billing-events" || currentPath.startsWith("/billing-events/");
+  const isInvoicesActive = currentPath === "/invoices" || currentPath.startsWith("/invoices/");
 
   return (
     <Sidebar collapsible="icon">
@@ -78,6 +79,16 @@ export function BackOfficeSideMenu() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild={true} isActive={isInvoicesActive} tooltip={t`Invoices`}>
+                    <RouterLink to="/invoices">
+                      <ReceiptIcon />
+                      <span>
+                        <Trans>Invoices</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild={true} isActive={isBillingEventsActive} tooltip={t`Billing events`}>
                     <RouterLink to="/billing-events">
