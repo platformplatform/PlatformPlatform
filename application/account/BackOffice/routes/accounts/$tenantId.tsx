@@ -90,7 +90,8 @@ function AccountDetailPage() {
                     <AccountBillingTab
                       tenantId={tenantId}
                       variant="compact-both"
-                      onViewAll={() => setActiveTab("invoices")}
+                      onViewAllInvoices={() => setActiveTab("invoices")}
+                      onViewAllEvents={() => setActiveTab("billing-events")}
                     />
                   </div>
                 </div>

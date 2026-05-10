@@ -19,11 +19,18 @@ interface AccountBillingTabProps {
    * `events-full` — Billing events tab: full list of events only, with MRR before/after columns.
    */
   variant: AccountBillingTabVariant;
-  /** Click handler for the "View all" links rendered in compact mode. */
-  onViewAll?: () => void;
+  /** Click handler for the "View all # invoices" link rendered in compact mode. */
+  onViewAllInvoices?: () => void;
+  /** Click handler for the "View all # events" link rendered in compact mode. */
+  onViewAllEvents?: () => void;
 }
 
-export function AccountBillingTab({ tenantId, variant, onViewAll }: Readonly<AccountBillingTabProps>) {
+export function AccountBillingTab({
+  tenantId,
+  variant,
+  onViewAllInvoices,
+  onViewAllEvents
+}: Readonly<AccountBillingTabProps>) {
   const formatDate = useFormatDate();
   const [pageOffset, setPageOffset] = useState(0);
 
@@ -85,7 +92,7 @@ export function AccountBillingTab({ tenantId, variant, onViewAll }: Readonly<Acc
           totalTransactions={totalTransactions}
           totalPages={totalPages}
           currentPage={currentPage}
-          onViewAll={onViewAll}
+          onViewAll={onViewAllInvoices}
           onPageChange={setPageOffset}
           renderDate={renderRowDate}
         />
@@ -96,7 +103,7 @@ export function AccountBillingTab({ tenantId, variant, onViewAll }: Readonly<Acc
           isLoading={eventsQuery.isLoading}
           isCompact={isCompact}
           totalEvents={totalEvents}
-          onViewAll={onViewAll}
+          onViewAll={onViewAllEvents}
           renderDate={renderRowDate}
         />
       )}
