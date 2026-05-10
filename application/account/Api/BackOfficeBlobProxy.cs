@@ -29,6 +29,7 @@ public static class BackOfficeBlobProxy
         if (blob is null) return Results.NotFound();
 
         httpContext.Response.Headers.CacheControl = "public, max-age=2592000, immutable";
+        httpContext.Response.Headers.XContentTypeOptions = "nosniff";
         return Results.Stream(blob.Value.Stream, blob.Value.ContentType);
     }
 }

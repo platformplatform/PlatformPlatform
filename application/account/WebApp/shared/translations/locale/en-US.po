@@ -1937,9 +1937,6 @@ msgstr "Please log in again to continue."
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
 
-msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
-msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
-
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 

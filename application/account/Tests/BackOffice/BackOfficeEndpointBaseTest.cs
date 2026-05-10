@@ -88,6 +88,8 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
 
                         services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = Substitute.For<ITelemetryChannel>() }));
                         services.AddScoped<IExecutionContext, HttpExecutionContext>();
+
+                        ConfigureAdditionalTestServices(services);
                     }
                 );
             }
@@ -112,6 +114,10 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
     {
         Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void ConfigureAdditionalTestServices(IServiceCollection services)
+    {
     }
 
     // SinglePageAppConfiguration.GetHtmlTemplate() reads BackOffice/dist/index.html on every SPA-shell

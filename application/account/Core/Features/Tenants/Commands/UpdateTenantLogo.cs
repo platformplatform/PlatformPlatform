@@ -20,8 +20,8 @@ public sealed class UpdateTenantLogoValidator : AbstractValidator<UpdateTenantLo
     public UpdateTenantLogoValidator()
     {
         RuleFor(x => x.ContentType)
-            .Must(x => x is "image/jpeg" or "image/png" or "image/gif" or "image/webp" or "image/svg+xml")
-            .WithMessage(_ => "Image must be of type JPEG, PNG, GIF, WebP, or SVG.");
+            .Must(x => x is "image/jpeg" or "image/png" or "image/gif" or "image/webp")
+            .WithMessage(_ => "Image must be of type JPEG, PNG, GIF, or WebP.");
 
         RuleFor(x => x.FileStream.Length)
             .LessThanOrEqualTo(2 * 1024 * 1024)
@@ -91,7 +91,6 @@ public sealed class UpdateTenantLogoHandler(
             "image/png" => "png",
             "image/gif" => "gif",
             "image/webp" => "webp",
-            "image/svg+xml" => "svg",
             _ => throw new InvalidOperationException($"Unsupported content type: {contentType}")
         };
     }
