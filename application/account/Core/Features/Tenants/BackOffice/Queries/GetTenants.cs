@@ -15,8 +15,8 @@ public sealed record GetTenantsQuery(
     TenantStatusFilter[]? Statuses = null,
     bool Unsynced = false,
     bool DriftDetected = false,
-    SortableTenantProperties OrderBy = SortableTenantProperties.Name,
-    SortOrder SortOrder = SortOrder.Ascending,
+    SortableTenantProperties OrderBy = SortableTenantProperties.ModifiedAt,
+    SortOrder SortOrder = SortOrder.Descending,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<TenantsResponse>>
@@ -44,7 +44,8 @@ public sealed record TenantSummary(
     PlannedSubscriptionChange? PlannedChange,
     bool HasEverSubscribed,
     string? Country,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ModifiedAt
 );
 
 [PublicAPI]
@@ -76,7 +77,8 @@ public enum SortableTenantProperties
     RenewalDate,
     Status,
     Country,
-    CreatedAt
+    CreatedAt,
+    ModifiedAt
 }
 
 public sealed class GetTenantsQueryValidator : AbstractValidator<GetTenantsQuery>
@@ -146,6 +148,10 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             (SortableTenantProperties.Country, _) => summaries.OrderByDescending(s => s.Country ?? string.Empty).ThenBy(s => s.Name),
             (SortableTenantProperties.CreatedAt, SortOrder.Ascending) => summaries.OrderBy(s => s.CreatedAt),
             (SortableTenantProperties.CreatedAt, _) => summaries.OrderByDescending(s => s.CreatedAt),
+            // ModifiedAt is null until the tenant is touched; treat that as "latest activity = creation"
+            // so the default view shows recently-changed and brand-new tenants together at the top.
+            (SortableTenantProperties.ModifiedAt, SortOrder.Ascending) => summaries.OrderBy(s => s.ModifiedAt ?? s.CreatedAt).ThenBy(s => s.Name),
+            (SortableTenantProperties.ModifiedAt, _) => summaries.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ThenBy(s => s.Name),
             (SortableTenantProperties.Name, SortOrder.Descending) => summaries.OrderByDescending(s => s.Name),
             _ => summaries.OrderBy(s => s.Name)
         };
@@ -211,7 +217,8 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             plannedChange,
             hasEverSubscribed,
             subscription?.BillingInfo?.Address?.Country,
-            tenant.CreatedAt
+            tenant.CreatedAt,
+            tenant.ModifiedAt
         );
     }
 }
