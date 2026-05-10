@@ -323,7 +323,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (allEvents.Length == 0)
         {
-            DetectDrift(subscription, driftSnapshots, 0, false, [], []);
+            DetectDrift(subscription, driftSnapshots, 0, false, [], [], []);
             return;
         }
 
@@ -374,12 +374,40 @@ public sealed class ProcessPendingStripeEvents(
             appendedCount++;
         }
 
+        // Out-of-order recovery (e.g. a customer.subscription.created arriving after a later
+        // customer.subscription.deleted was already classified and persisted) leaves the persisted row's
+        // denormalized fields wrong for the now-correct state-machine ordering. The append-only invariant
+        // forbids mutating the persisted row, so surface the wrongness via drift instead so an operator
+        // can investigate.
+        var persistedRows = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
+        var persistedByStripeId = persistedRows.ToDictionary(r => r.StripeEventId);
+        var staleBillingEvents = new List<BillingEvent>();
+        foreach (var replayed in replayedEvents)
+        {
+            if (!persistedByStripeId.TryGetValue(replayed.StripeEventId, out var persisted)) continue;
+            if (persisted.CommittedMrr != replayed.CommittedMrr
+                || persisted.AmountDelta != replayed.AmountDelta
+                || persisted.PreviousAmount != replayed.PreviousAmount
+                || persisted.NewAmount != replayed.NewAmount)
+            {
+                staleBillingEvents.Add(replayed);
+            }
+        }
+
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
         var eventTypesPresent = allEvents.Select(e => e.EventType).ToHashSet();
-        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent);
+        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, staleBillingEvents);
     }
 
-    private void DetectDrift(Subscription subscription, DriftSnapshots driftSnapshots, int billingEventCount, bool hasUnclassifiedEvent, HashSet<string?> unsupportedApiVersions, HashSet<string> eventTypesPresent)
+    private void DetectDrift(
+        Subscription subscription,
+        DriftSnapshots driftSnapshots,
+        int billingEventCount,
+        bool hasUnclassifiedEvent,
+        HashSet<string?> unsupportedApiVersions,
+        HashSet<string> eventTypesPresent,
+        IReadOnlyList<BillingEvent> staleBillingEvents
+    )
     {
         var now = timeProvider.GetUtcNow();
         try
@@ -406,6 +434,18 @@ public sealed class ProcessPendingStripeEvents(
                         $"Stripe sent an event using api_version '{version ?? "null"}' for which no IStripeEventPayloadResolver is registered. The event is preserved in stripe_events but not replayed into billing_events. Add a resolver and re-sync.",
                         DriftSeverity.Critical,
                         ActualValue: version
+                    )
+                );
+            }
+
+            foreach (var staleRow in staleBillingEvents)
+            {
+                discrepancies = discrepancies.Add(new DriftDiscrepancy(
+                        DriftDiscrepancyKind.BillingEventDenormalizationStale,
+                        $"Persisted billing_event '{staleRow.StripeEventId}' has stale denormalized fields. Replay produced different CommittedMrr/AmountDelta/PreviousAmount/NewAmount values; this indicates an out-of-order event recovery. The persisted row is left untouched per the append-only invariant.",
+                        DriftSeverity.Warning,
+                        staleRow.EventType,
+                        OccurredAt: staleRow.OccurredAt
                     )
                 );
             }

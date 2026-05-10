@@ -282,7 +282,15 @@ public enum DriftDiscrepancyKind
     ///     surfaced for forensic review. Either Stripe redelivered an event with mutated content
     ///     (their bug to investigate) or our hashing is broken (our bug to investigate).
     /// </summary>
-    StripeEventPayloadDivergence
+    StripeEventPayloadDivergence,
+
+    /// <summary>
+    ///     A persisted BillingEvent row's denormalized fields (CommittedMrr, AmountDelta, PreviousAmount, NewAmount)
+    ///     no longer match what a fresh replay produces — typically because an older event was recovered after a
+    ///     newer event was already classified and persisted. The persisted row is left untouched per the
+    ///     append-only invariant; this discrepancy surfaces the wrongness for operator review.
+    /// </summary>
+    BillingEventDenormalizationStale
 }
 
 [PublicAPI]

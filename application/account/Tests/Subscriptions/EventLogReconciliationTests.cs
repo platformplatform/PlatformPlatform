@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Text;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Shared;
 using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Tests.Persistence;
@@ -30,6 +32,113 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
                 ("current_price_currency", hasStripeSubscription ? "DKK" : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null)
             ]
+        );
+    }
+
+    [Fact]
+    public async Task Reconcile_WhenPersistedBillingEventHasStaleDenormalizedFields_ShouldFlagDriftAndPreservePersistedRow()
+    {
+        // Arrange — a customer.subscription.deleted event was classified and persisted while the local
+        // state machine was wrong (e.g. an earlier customer.subscription.created webhook had been missed
+        // and the row was emitted with CommittedMrr=0). The persisted row therefore carries
+        // AmountDelta=0/PreviousAmount=0/NewAmount=0. The created event is later recorded in the archive,
+        // so a fresh replay now produces a correct deleted row (AmountDelta=-29, PreviousAmount=29), but
+        // the append-only invariant forbids mutating the persisted row.
+        SetupSubscription();
+
+        var now = TimeProvider.GetUtcNow();
+        var createdEventId = "evt_mock_subscription_created_seed";
+        var createdOccurredAt = now.AddHours(-2);
+        var createdPayload = """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard"}}]}}}}""";
+
+        Connection.Insert("stripe_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", createdEventId),
+                ("created_at", createdOccurredAt),
+                ("modified_at", null),
+                ("event_type", "customer.subscription.created"),
+                ("status", nameof(StripeEventStatus.Processed)),
+                ("processed_at", createdOccurredAt),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("payload", createdPayload),
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash(createdPayload)),
+                ("recovered_at", null),
+                ("recovery_source", null)
+            ]
+        );
+
+        var deletedEventId = "evt_mock_subscription_deleted_seed";
+        var deletedOccurredAt = now.AddMinutes(-30);
+        var deletedPayload = """{"data":{"object":{"status":"canceled","cancel_at_period_end":false}}}""";
+
+        Connection.Insert("stripe_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", deletedEventId),
+                ("created_at", deletedOccurredAt),
+                ("modified_at", null),
+                ("event_type", "customer.subscription.deleted"),
+                ("status", nameof(StripeEventStatus.Processed)),
+                ("processed_at", deletedOccurredAt),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("payload", deletedPayload),
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash(deletedPayload)),
+                ("recovered_at", null),
+                ("recovery_source", null)
+            ]
+        );
+
+        Connection.Insert("billing_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", DatabaseSeeder.Tenant1Subscription.Id.Value),
+                ("created_at", deletedOccurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", deletedEventId),
+                ("event_type", nameof(BillingEventType.SubscriptionImmediatelyCancelled)),
+                ("from_plan", null),
+                ("to_plan", nameof(SubscriptionPlan.Basis)),
+                ("previous_amount", 0m),
+                ("new_amount", 0m),
+                ("amount_delta", 0m),
+                ("committed_mrr", 0m),
+                ("currency", "DKK"),
+                ("occurred_at", deletedOccurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
+            ]
+        );
+
+        // Act — any subsequent webhook triggers ProcessPendingStripeEvents, which replays the full archive
+        // through StripeEventReplayer. The replayer reads the seeded created+deleted events in order and
+        // produces deleted-row denormalized values that differ from what is persisted.
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.updated");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert — append-only invariant: the persisted row's denormalized fields are untouched.
+        response.EnsureSuccessStatusCode();
+
+        var persistedAmountDelta = Connection.ExecuteScalar<string>(
+            "SELECT amount_delta FROM billing_events WHERE stripe_event_id = @id", [new { id = deletedEventId }]
+        );
+        decimal.Parse(persistedAmountDelta, CultureInfo.InvariantCulture).Should().Be(0m, "the append-only invariant forbids mutating the persisted billing_event row even when replay would produce different values");
+
+        // Assert — drift surfaces the staleness for operator review.
+        var driftDiscrepanciesJson = Connection.ExecuteScalar<string>(
+            "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        driftDiscrepanciesJson.Should().Contain(
+            nameof(DriftDiscrepancyKind.BillingEventDenormalizationStale),
+            "the persisted deleted row's denormalized fields no longer match a fresh replay and must be surfaced as drift"
         );
     }
 
