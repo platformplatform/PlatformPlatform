@@ -513,6 +513,12 @@ msgstr "No plan"
 msgid "No recent billing events"
 msgstr "No recent billing events"
 
+msgid "No recent logins"
+msgstr "No recent logins"
+
+msgid "No recent payments"
+msgstr "No recent payments"
+
 msgid "No recent signups"
 msgstr "No recent signups"
 
@@ -645,6 +651,12 @@ msgstr "Reactivated"
 msgid "Recent billing events"
 msgstr "Recent billing events"
 
+msgid "Recent logins"
+msgstr "Recent logins"
+
+msgid "Recent payments"
+msgstr "Recent payments"
+
 msgid "Recent signups"
 msgstr "Recent signups"
 
@@ -748,6 +760,9 @@ msgstr "Subscriptions, upgrades, and cancellations will appear here."
 
 msgid "Succeeded"
 msgstr "Succeeded"
+
+msgid "Successful logins will appear here as users sign in."
+msgstr "Successful logins will appear here as users sign in."
 
 msgid "Suspended"
 msgstr "Suspended"

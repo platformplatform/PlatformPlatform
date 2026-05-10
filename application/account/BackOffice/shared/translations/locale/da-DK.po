@@ -513,6 +513,12 @@ msgstr "Intet abonnement"
 msgid "No recent billing events"
 msgstr "Ingen nylige faktureringshændelser"
 
+msgid "No recent logins"
+msgstr "Ingen nylige logins"
+
+msgid "No recent payments"
+msgstr "Ingen nylige betalinger"
+
 msgid "No recent signups"
 msgstr "Ingen nylige tilmeldinger"
 
@@ -645,6 +651,12 @@ msgstr "Genaktiveret"
 msgid "Recent billing events"
 msgstr "Nylige faktureringshændelser"
 
+msgid "Recent logins"
+msgstr "Nylige logins"
+
+msgid "Recent payments"
+msgstr "Nylige betalinger"
+
 msgid "Recent signups"
 msgstr "Nylige tilmeldinger"
 
@@ -748,6 +760,9 @@ msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
 
 msgid "Succeeded"
 msgstr "Gennemført"
+
+msgid "Successful logins will appear here as users sign in."
+msgstr "Vellykkede logins vises her, når brugere logger ind."
 
 msgid "Suspended"
 msgstr "Suspenderet"

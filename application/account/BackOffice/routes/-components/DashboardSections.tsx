@@ -6,6 +6,8 @@ import { DashboardHeader } from "./DashboardHeader";
 import { DashboardKpiTiles } from "./DashboardKpiTiles";
 import { DashboardMrrTrendCard } from "./DashboardMrrTrendCard";
 import { DashboardPlanDistributionCard } from "./DashboardPlanDistributionCard";
+import { DashboardRecentLoginsCard } from "./DashboardRecentLoginsCard";
+import { DashboardRecentPaymentsCard } from "./DashboardRecentPaymentsCard";
 import { DashboardRecentSignupsCard } from "./DashboardRecentSignupsCard";
 import { DashboardRecentStripeEventsCard } from "./DashboardRecentStripeEventsCard";
 import { DashboardTenantGrowthCard } from "./DashboardTenantGrowthCard";
@@ -26,13 +28,13 @@ export function DashboardSections() {
         <DashboardTenantGrowthCard period={period} />
         <DashboardUserLoginsCard period={period} />
       </div>
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-        <div className="xl:col-span-2">
-          <DashboardRecentSignupsCard />
-        </div>
-        <div className="xl:col-span-3">
-          <DashboardRecentStripeEventsCard />
-        </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <DashboardRecentSignupsCard />
+        <DashboardRecentLoginsCard />
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <DashboardRecentPaymentsCard />
+        <DashboardRecentStripeEventsCard />
       </div>
     </div>
   );

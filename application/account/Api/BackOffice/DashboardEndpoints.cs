@@ -45,5 +45,13 @@ public sealed class DashboardEndpoints : IEndpoints
         group.MapGet("/recent-stripe-events", async Task<ApiResult<BackOfficeDashboardRecentStripeEventsResponse>> ([AsParameters] GetDashboardRecentStripeEventsQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<BackOfficeDashboardRecentStripeEventsResponse>();
+
+        group.MapGet("/recent-payments", async Task<ApiResult<BackOfficeDashboardRecentPaymentsResponse>> ([AsParameters] GetDashboardRecentPaymentsQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardRecentPaymentsResponse>();
+
+        group.MapGet("/recent-logins", async Task<ApiResult<BackOfficeDashboardRecentLoginsResponse>> ([AsParameters] GetDashboardRecentLoginsQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardRecentLoginsResponse>();
     }
 }
