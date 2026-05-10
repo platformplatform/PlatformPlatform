@@ -43,7 +43,8 @@ public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingE
 
         // Reconstruct historical MRR from the BillingEvent log: for each subscription, the most recent
         // event with NewAmount set (and OccurredAt before end-of-day) is its committed MRR for that day.
-        // Subscriptions backfilled via BackfillLegacyBillingEventsAsync are covered the same way.
+        // Pre-migration paid subscriptions have no billing_events rows until the first Sync with Stripe runs;
+        // their per-subscription state is surfaced via DriftDiscrepancyKind.MissingHistoricalEvent.
         var events = await billingEventRepository.GetMrrChangeEventsUnfilteredAsync(cancellationToken);
         var eventsBySubscription = events
             .GroupBy(e => e.SubscriptionId)
