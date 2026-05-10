@@ -65,7 +65,7 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             .Sum(t => t.AmountExcludingTax);
 
         var hasEverSubscribed = subscription?.PaymentTransactions
-            .Any(t => t.Status == PaymentTransactionStatus.Succeeded) == true;
+            .Any(t => t.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
 
         var billingAddress = subscription?.BillingInfo?.Address is { } address
             ? new BillingAddressResponse(address.Line1, address.Line2, address.PostalCode, address.City, address.State, address.Country)

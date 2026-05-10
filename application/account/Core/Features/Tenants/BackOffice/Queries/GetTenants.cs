@@ -202,8 +202,11 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             _ => (PlannedSubscriptionChange?)null
         };
 
+        // Refunded counts as "ever subscribed" — money flowed in before being credited back, so the
+        // tenant did pay at some point. Distinguishes a refunded customer (Canceled) from never having
+        // paid at all (Free).
         var hasEverSubscribed = subscription?.PaymentTransactions
-            .Any(transaction => transaction.Status == PaymentTransactionStatus.Succeeded) == true;
+            .Any(transaction => transaction.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
 
         return new TenantSummary(
             tenant.Id,

@@ -72,7 +72,7 @@ public sealed class GetDashboardKpisHandler(
             : await subscriptionRepository.GetByTenantIdsUnfilteredAsync(freePlanTenantIds, cancellationToken);
         var hasEverSubscribedByTenantId = freePlanSubscriptions.ToDictionary(
             s => s.TenantId,
-            s => s.PaymentTransactions.Any(t => t.Status == PaymentTransactionStatus.Succeeded)
+            s => s.PaymentTransactions.Any(t => t.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded)
         );
 
         var totalTenants = tenants.LongLength;
