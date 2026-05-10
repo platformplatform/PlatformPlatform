@@ -42,7 +42,7 @@ export function UserDetailHeader({ user, userId, isLoading }: Readonly<UserDetai
           </Avatar>
           <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 self-center">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="m-0 min-w-0 truncate leading-none">
+              <h1 className="m-0 min-w-0 truncate leading-tight">
                 {getUserDisplayName(user.firstName, user.lastName, user.email)}
               </h1>
               {user.emailConfirmed ? (

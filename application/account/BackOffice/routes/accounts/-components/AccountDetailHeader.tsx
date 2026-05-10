@@ -40,7 +40,7 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="m-0 min-w-0 truncate leading-none">{tenant.name}</h1>
+              <h1 className="m-0 min-w-0 truncate leading-tight">{tenant.name}</h1>
               <div className="hidden flex-wrap items-center gap-2 md:flex">
                 <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>
                   {getSubscriptionPlanLabel(tenant.plan)}
