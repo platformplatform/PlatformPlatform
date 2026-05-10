@@ -11,7 +11,7 @@ import { ArrowRightIcon, BuildingIcon } from "lucide-react";
 import { useCallback } from "react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
-import { api } from "@/shared/lib/api/client";
+import { api, SortableTenantProperties } from "@/shared/lib/api/client";
 
 import { DashboardCardShell } from "./DashboardCardShell";
 
@@ -39,7 +39,11 @@ export function DashboardRecentSignupsCard() {
     <DashboardCardShell
       title={<Trans>Recent signups</Trans>}
       action={
-        <Link to="/accounts" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/accounts"
+          search={{ orderBy: SortableTenantProperties.CreatedAt }}
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
           <Trans>View all</Trans>
           <ArrowRightIcon className="size-3.5" aria-hidden="true" />
         </Link>
