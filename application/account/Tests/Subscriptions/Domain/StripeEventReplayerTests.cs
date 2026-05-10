@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
+using Account.Features.Tenants.Domain;
 using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Domain;
@@ -270,6 +271,103 @@ public sealed class StripeEventReplayerTests
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.PaymentMethodUpdated);
         emitted[0].Currency.Should().Be("DKK");
+    }
+
+    [Fact]
+    public void Replay_WhenSubscriptionDeletedFollowsCancelAtPeriodEndToggle_ShouldEmitSubscriptionExpired()
+    {
+        // Arrange — voluntary period-end cancel. The customer.subscription.updated event flips
+        // cancel_at_period_end from false to true (which the replayer tracks via state.CancelAtPeriodEnd),
+        // and Stripe later emits customer.subscription.deleted at period end. Stripe clears cape on the
+        // deletion payload, so the period-end-vs-immediate distinction must come from prior state, not
+        // the deletion payload itself.
+        var subscription = CreateActiveSubscription();
+        var cancelToggledAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
+        var expiredAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_cape_true",
+                "customer.subscription.updated",
+                cancelToggledAt,
+                """{"data":{"object":{"items":{"data":[{"price":{"id":"price_standard","currency":"usd"}}]},"cancel_at_period_end":true,"status":"active"},"previous_attributes":{"cancel_at_period_end":false}}}""",
+                MockApiVersion
+            ),
+            new StripeReplayEvent(
+                "evt_subscription_deleted_period_end",
+                "customer.subscription.deleted",
+                expiredAt,
+                """{"data":{"object":{"currency":"usd","status":"canceled","cancel_at_period_end":false,"cancellation_details":{"reason":"cancellation_requested"}}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert — first row is the cancellation toggle, second row is the period-end expiry.
+        emitted.Should().HaveCount(2);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionCancelled);
+        emitted[1].EventType.Should().Be(BillingEventType.SubscriptionExpired);
+        emitted[1].StripeEventId.Should().Be("evt_subscription_deleted_period_end");
+    }
+
+    [Fact]
+    public void Replay_WhenSubscriptionDeletedHasPaymentFailedReason_ShouldEmitSubscriptionSuspended()
+    {
+        // Arrange — dunning termination. Stripe escalates a past_due/unpaid subscription to canceled and
+        // sets cancellation_details.reason=payment_failed on the deletion payload. The audit ledger must
+        // attribute this to involuntary churn, not voluntary cancellation.
+        var subscription = CreateActiveSubscription();
+        var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_deleted_dunning",
+                "customer.subscription.deleted",
+                occurredAt,
+                """{"data":{"object":{"currency":"usd","status":"canceled","cancel_at_period_end":false,"cancellation_details":{"reason":"payment_failed"}}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionSuspended);
+        emitted[0].SuspensionReason.Should().Be(SuspensionReason.PaymentFailed);
+        emitted[0].StripeEventId.Should().Be("evt_subscription_deleted_dunning");
+    }
+
+    [Fact]
+    public void Replay_WhenSubscriptionDeletedWithoutCancelAtPeriodEndOrPaymentFailed_ShouldEmitSubscriptionImmediatelyCancelled()
+    {
+        // Arrange — admin-initiated immediate cancel: no prior cape=true update event in the replay
+        // sequence and reason=cancellation_requested rather than payment_failed. The classification falls
+        // through to SubscriptionImmediatelyCancelled.
+        var subscription = CreateActiveSubscription();
+        var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_subscription_deleted_immediate",
+                "customer.subscription.deleted",
+                occurredAt,
+                """{"data":{"object":{"currency":"usd","status":"canceled","cancel_at_period_end":false,"cancellation_details":{"reason":"cancellation_requested"}}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionImmediatelyCancelled);
+        emitted[0].SuspensionReason.Should().BeNull();
+        emitted[0].StripeEventId.Should().Be("evt_subscription_deleted_immediate");
     }
 
     [Fact]

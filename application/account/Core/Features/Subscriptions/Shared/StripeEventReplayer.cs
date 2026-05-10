@@ -331,16 +331,28 @@ public static class StripeEventReplayer
         string currency
     )
     {
-        var data = payload.ValueKind == JsonValueKind.Object && payload.TryGetProperty("data", out var d) ? d : default;
-        var sub = data.ValueKind == JsonValueKind.Object && data.TryGetProperty("object", out var obj) ? obj : default;
-        var status = sub.ValueKind == JsonValueKind.Object && sub.TryGetProperty("status", out var s) ? s.GetString() : null;
-        var cancelAtPeriodEnd = sub.ValueKind == JsonValueKind.Object && sub.TryGetProperty("cancel_at_period_end", out var cape) && cape.ValueKind == JsonValueKind.True;
+        // Stripe clears cancel_at_period_end BEFORE emitting customer.subscription.deleted, so the payload's
+        // cape field is unreliable for distinguishing a voluntary period-end expiry from an immediate cancel.
+        // The leading signal is cancellation_details.reason (payment_failed → dunning, cancellation_requested
+        // → voluntary), with state.CancelAtPeriodEnd (tracked from prior subscription.updated events) as the
+        // disambiguator for voluntary cases.
+        var cancellationReason = ExtractCancellationReasonFromPayload(payload);
 
-        var eventType = status is "past_due" or "unpaid" or "incomplete_expired"
-            ? BillingEventType.SubscriptionSuspended
-            : cancelAtPeriodEnd
-                ? BillingEventType.SubscriptionExpired
-                : BillingEventType.SubscriptionImmediatelyCancelled;
+        BillingEventType eventType;
+        SuspensionReason? suspensionReason = null;
+        if (cancellationReason == "payment_failed")
+        {
+            eventType = BillingEventType.SubscriptionSuspended;
+            suspensionReason = SuspensionReason.PaymentFailed;
+        }
+        else if (state.CancelAtPeriodEnd)
+        {
+            eventType = BillingEventType.SubscriptionExpired;
+        }
+        else
+        {
+            eventType = BillingEventType.SubscriptionImmediatelyCancelled;
+        }
 
         var previousMrr = state.CommittedMrr;
         var fromPlan = state.Plan;
@@ -354,7 +366,7 @@ public static class StripeEventReplayer
             fromPlan, SubscriptionPlan.Basis,
             previousMrr, 0m, -previousMrr,
             currency,
-            suspensionReason: eventType == BillingEventType.SubscriptionSuspended ? SuspensionReason.PaymentFailed : null
+            suspensionReason: suspensionReason
         );
     }
 
@@ -669,6 +681,25 @@ public static class StripeEventReplayer
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Extracts <c>$.data.object.cancellation_details.reason</c> from a Stripe subscription event payload.
+    ///     Stripe populates this on customer.subscription.deleted to convey *why* the subscription ended —
+    ///     <c>payment_failed</c> for dunning-driven terminations, <c>cancellation_requested</c> for voluntary
+    ///     cancels. Returns the lowercase string as Stripe emits it, or null when absent or non-string.
+    /// </summary>
+    private static string? ExtractCancellationReasonFromPayload(JsonElement payload)
+    {
+        if (payload.ValueKind != JsonValueKind.Object) return null;
+        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        if (data.ValueKind != JsonValueKind.Object) return null;
+        var stripeObject = data.TryGetProperty("object", out var obj) ? obj : default;
+        if (stripeObject.ValueKind != JsonValueKind.Object) return null;
+        var cancellationDetails = stripeObject.TryGetProperty("cancellation_details", out var details) ? details : default;
+        if (cancellationDetails.ValueKind != JsonValueKind.Object) return null;
+        if (!cancellationDetails.TryGetProperty("reason", out var reason) || reason.ValueKind != JsonValueKind.String) return null;
+        return reason.GetString()?.ToLowerInvariant();
     }
 
     private static JsonElement ParsePayload(string? rawPayload)
