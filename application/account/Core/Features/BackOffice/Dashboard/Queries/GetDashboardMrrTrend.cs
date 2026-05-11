@@ -41,6 +41,10 @@ public sealed class GetDashboardMrrTrendQueryValidator : AbstractValidator<GetDa
 public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingEventRepository, IPlatformCurrencyProvider platformCurrencyProvider, TimeProvider timeProvider)
     : IRequestHandler<GetDashboardMrrTrendQuery, Result<BackOfficeDashboardMrrTrendResponse>>
 {
+    // Soft-delete semantic: every historical point sums the MRR from every subscription active at that time,
+    // regardless of whether the tenant has since been soft-deleted. BillingEvent rows are immutable historical
+    // money facts that outlive the tenant lifecycle, so a deleted tenant must appear in the historical curve at
+    // the period it was paying — otherwise the trend silently rewrites the past every time a tenant churns.
     public async Task<Result<BackOfficeDashboardMrrTrendResponse>> Handle(GetDashboardMrrTrendQuery query, CancellationToken cancellationToken)
     {
         var days = DashboardTrendPeriods.GetDays(query.Period);

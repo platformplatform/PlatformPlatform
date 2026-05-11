@@ -48,6 +48,10 @@ public sealed class GetDashboardKpisHandler(
     TimeProvider timeProvider
 ) : IRequestHandler<GetDashboardKpisQuery, Result<BackOfficeDashboardKpisResponse>>
 {
+    // Soft-delete semantic: tenant counts (Total/Active/Trial/Canceled, NewTenantsInPeriod) exclude soft-deleted
+    // tenants — a deleted tenant is no longer a tenant. BLENDED MRR sums every active subscription regardless of
+    // tenant soft-delete state — subscription/billing rows are immutable historical money facts that outlive the
+    // tenant lifecycle, so MRR must not silently drop the moment a paying tenant churns.
     public async Task<Result<BackOfficeDashboardKpisResponse>> Handle(GetDashboardKpisQuery query, CancellationToken cancellationToken)
     {
         var days = DashboardTrendPeriods.GetDays(query.Period);

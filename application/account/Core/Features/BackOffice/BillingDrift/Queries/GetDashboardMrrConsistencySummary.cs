@@ -15,6 +15,10 @@ public sealed record DashboardMrrConsistencySummaryResponse(decimal KpiMonthlyRe
 public sealed class GetDashboardMrrConsistencySummaryHandler(ISubscriptionRepository subscriptionRepository, IBillingEventRepository billingEventRepository, IPlatformCurrencyProvider platformCurrencyProvider)
     : IRequestHandler<GetDashboardMrrConsistencySummaryQuery, Result<DashboardMrrConsistencySummaryResponse>>
 {
+    // Soft-delete semantic: both sides of the consistency comparison include every active subscription / MRR-changing
+    // billing event regardless of tenant soft-delete state. Subscription and BillingEvent rows are immutable historical
+    // money facts; the comparison only stays meaningful if both sides share the same retention rule.
+
     // Sub-cent diffs between KPI and trend-latest MRR are accounting noise, not drift. The FE banner
     // does strict equality so we snap trend-latest to KPI when the absolute diff is below tolerance.
     private const decimal ToleranceAmount = 0.01m;

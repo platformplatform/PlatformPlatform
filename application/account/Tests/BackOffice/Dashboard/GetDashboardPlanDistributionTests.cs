@@ -40,6 +40,33 @@ public sealed class GetDashboardPlanDistributionTests : BackOfficeEndpointBaseTe
     }
 
     [Fact]
+    public async Task Handle_WhenTenantSoftDeleted_ExcludesFromCurrentDistribution()
+    {
+        // Plan distribution is a forward-looking current-state snapshot — a soft-deleted tenant has no
+        // "current plan" by definition and must drop out. DatabaseSeeder.Tenant1 (Basis) is the only tenant
+        // that remains visible alongside the active Standard tenant; the Premium tenant is soft-deleted.
+        // Arrange
+        SeedTenant("Active Standard", SubscriptionPlan.Standard);
+        var deletedTenantId = SeedTenant("Churned Premium", SubscriptionPlan.Premium);
+        Connection.Update("tenants", "id", deletedTenantId.Value, [("deleted_at", DateTimeOffset.UtcNow.AddDays(-1))]);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/plan-distribution");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardPlanDistributionResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalTenants.Should().Be(2, "soft-deleted tenants must not count toward the current-state snapshot");
+        payload.Distribution.Single(d => d.Plan == SubscriptionPlan.Basis).Count.Should().Be(1);
+        payload.Distribution.Single(d => d.Plan == SubscriptionPlan.Standard).Count.Should().Be(1);
+        payload.Distribution.Single(d => d.Plan == SubscriptionPlan.Premium).Count.Should().Be(0);
+    }
+
+    [Fact]
     public async Task GetDashboardPlanDistribution_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
@@ -52,7 +79,7 @@ public sealed class GetDashboardPlanDistributionTests : BackOfficeEndpointBaseTe
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    private void SeedTenant(string name, SubscriptionPlan plan)
+    private TenantId SeedTenant(string name, SubscriptionPlan plan)
     {
         var tenantId = TenantId.NewId();
         Connection.Insert("tenants", [
@@ -65,5 +92,6 @@ public sealed class GetDashboardPlanDistributionTests : BackOfficeEndpointBaseTe
                 ("logo", """{"Url":null,"Version":0}""")
             ]
         );
+        return tenantId;
     }
 }

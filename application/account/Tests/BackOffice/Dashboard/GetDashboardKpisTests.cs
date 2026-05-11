@@ -187,6 +187,38 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task Handle_BlendedMrrSumsAcrossActiveSubscriptionsRegardlessOfTenantSoftDelete()
+    {
+        // BLENDED MRR is the sum of every active subscription, regardless of tenant soft-delete state.
+        // Subscription rows are immutable historical money facts that outlive the tenant lifecycle, so a
+        // paid subscription on a soft-deleted tenant must still contribute. Tenant counts (Total/Active/...)
+        // continue to exclude soft-deleted tenants — a deleted tenant is no longer a tenant.
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        var activeTenant = SeedTenant("Active Inc", SubscriptionPlan.Standard, now.AddDays(-60));
+        SeedPaidSubscription(activeTenant, SubscriptionPlan.Standard, 49.99m, false, null, null);
+
+        var softDeletedTenant = SeedTenant("Churned Co", SubscriptionPlan.Premium, now.AddDays(-90));
+        SeedPaidSubscription(softDeletedTenant, SubscriptionPlan.Premium, 99m, false, null, null, now.AddDays(-90));
+        Connection.Update("tenants", "id", softDeletedTenant.Value, [("deleted_at", now.AddDays(-1))]);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/kpis");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardKpisResponse>();
+        payload.Should().NotBeNull();
+        // Both subscriptions contribute: 49.99 from the active tenant plus 99 from the soft-deleted tenant.
+        payload.BlendedMonthlyRecurringRevenue.Should().Be(148.99m, "subscriptions on soft-deleted tenants must still contribute to BLENDED MRR");
+        // DatabaseSeeder.Tenant1 plus the active tenant — the soft-deleted tenant is excluded from the count.
+        payload.TotalTenants.Should().Be(2);
+    }
+
+    [Fact]
     public async Task GetDashboardKpis_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange

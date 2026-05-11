@@ -20,6 +20,9 @@ public sealed record BackOfficeDashboardPlanDistributionEntry(SubscriptionPlan P
 public sealed class GetDashboardPlanDistributionHandler(ITenantRepository tenantRepository)
     : IRequestHandler<GetDashboardPlanDistributionQuery, Result<BackOfficeDashboardPlanDistributionResponse>>
 {
+    // Soft-delete semantic: this is a forward-looking current-state snapshot. Soft-deleted tenants are excluded —
+    // a deleted tenant has no "current plan" by definition. GetAllUnfilteredAsync bypasses the tenant scope filter
+    // but the SoftDelete query filter still applies, so deleted tenants drop out automatically.
     public async Task<Result<BackOfficeDashboardPlanDistributionResponse>> Handle(GetDashboardPlanDistributionQuery query, CancellationToken cancellationToken)
     {
         var tenants = await tenantRepository.GetAllUnfilteredAsync(cancellationToken);

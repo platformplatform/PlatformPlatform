@@ -48,6 +48,35 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task Handle_WhenTenantSoftDeletedAfterPayingForOneMonth_IncludesThatMonthInTrend()
+    {
+        // Historical-point semantic: a tenant paid for the month leading up to today, then was soft-deleted.
+        // The MRR for the period it was paying must remain in the trend — billing events are immutable
+        // historical money facts and the curve cannot rewrite itself when a tenant churns.
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        var subscribedSince = now.AddDays(-5);
+        var paidTenant = SeedTenant("Churned Paying Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedActiveSubscription(paidTenant, subscriptionId, 49.99m, subscribedSince);
+        SeedSubscriptionCreatedEvent(paidTenant, subscriptionId, 49.99m, subscribedSince);
+        Connection.Update("tenants", "id", paidTenant.Value, [("deleted_at", now)]);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/mrr-trend?Period=Last7Days");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardMrrTrendResponse>();
+        payload.Should().NotBeNull();
+        payload.Points.Should().Contain(p => p.MonthlyRecurringRevenue == 49.99m, "the trend must include MRR for the period the now-soft-deleted tenant was paying");
+        payload.Points.Count(p => p.MonthlyRecurringRevenue == 49.99m).Should().BeGreaterOrEqualTo(4);
+    }
+
+    [Fact]
     public async Task GetDashboardMrrTrend_WhenCalledWithInvalidPeriod_ShouldReturnBadRequest()
     {
         // Arrange

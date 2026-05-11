@@ -36,8 +36,8 @@ export function MrrMismatchBanner() {
       <ScaleIcon className="size-4 shrink-0 text-warning-foreground" aria-hidden={true} />
       <span className="flex-1 text-warning-foreground">
         <Trans>
-          Dashboard MRR mismatch: KPI shows {formatCurrency(data.kpiMonthlyRecurringRevenue, currency)}, trend
-          latest shows {formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)}.
+          Dashboard MRR mismatch: KPI shows {formatCurrency(data.kpiMonthlyRecurringRevenue, currency)}, trend latest
+          shows {formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)}.
         </Trans>
       </span>
       <Button size="sm" nativeButton={false} render={<Link to="/billing-events" />}>
