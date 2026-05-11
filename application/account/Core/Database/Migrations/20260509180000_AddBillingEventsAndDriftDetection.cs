@@ -72,11 +72,11 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         // - recovered_at / recovery_source: non-null when the event was added by reconciliation
         //   (events.list or webhook_endpoint_deliveries) rather than via webhook delivery — forensic
         //   marker that a webhook delivery was missed.
-        migrationBuilder.AddColumn<string>("api_version", "stripe_events", "text", nullable: true);
+        migrationBuilder.AddColumn<string>("api_version", "stripe_events", "text", nullable: false);
         migrationBuilder.AddColumn<DateTimeOffset>("recovered_at", "stripe_events", "timestamptz", nullable: true);
         migrationBuilder.AddColumn<string>("recovery_source", "stripe_events", "text", nullable: true);
-        migrationBuilder.AddColumn<string>("payload_hash", "stripe_events", "text", nullable: true);
-        migrationBuilder.AddColumn<DateTimeOffset>("stripe_created_at", "stripe_events", "timestamptz", nullable: true);
+        migrationBuilder.AddColumn<string>("payload_hash", "stripe_events", "text", nullable: false);
+        migrationBuilder.AddColumn<DateTimeOffset>("stripe_created_at", "stripe_events", "timestamptz", nullable: false);
 
         migrationBuilder.CreateIndex("ix_stripe_events_recovered_at", "stripe_events", "recovered_at", filter: "recovered_at IS NOT NULL");
 
@@ -100,6 +100,12 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
             "chk_subscriptions_current_price_currency_format",
             "subscriptions",
             "current_price_currency IS NULL OR current_price_currency ~ '^[A-Z]{3}$'"
+        );
+
+        migrationBuilder.AddCheckConstraint(
+            "chk_subscriptions_payment_transactions_currency_format",
+            "subscriptions",
+            """NOT jsonb_path_exists(payment_transactions, '$[*] ? (!(@.Currency.type() == "string") || !(@.Currency like_regex "^[A-Z]{3}$"))')"""
         );
     }
 }
