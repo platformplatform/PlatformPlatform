@@ -12,11 +12,11 @@ namespace Account.Features.Subscriptions.Shared;
 ///     captured before sync mutations and the Stripe snapshot captured from Stripe's response. These fields
 ///     drive customer access and are operationally the most important to keep aligned. It also flags a coarse
 ///     <see cref="DriftDiscrepancyKind.MissingEvent" /> when there are stored PaymentTransactions but zero
-///     BillingEvent rows for the subscription — the legacy case for subscriptions persisted before the
-///     BillingEvent log existed. Per-event comparison (<see cref="DriftDiscrepancyKind.ExtraEvent" /> /
-///     <see cref="DriftDiscrepancyKind.FieldDisagree" />) requires a deterministic
-///     `ComputeExpectedEvents(StripeSyncSnapshot)` helper that consumes full Stripe history; this is a
-///     follow-up extension that plugs into the same return type.
+///     BillingEvent rows for the subscription — invoices made it to the local PaymentTransactions array
+///     without a corresponding event row, indicating a bug in the event-emission pipeline. Per-event
+///     comparison (<see cref="DriftDiscrepancyKind.ExtraEvent" /> / <see cref="DriftDiscrepancyKind.FieldDisagree" />)
+///     requires a deterministic `ComputeExpectedEvents(StripeSyncSnapshot)` helper that consumes full Stripe
+///     history; this is a follow-up extension that plugs into the same return type.
 /// </summary>
 public static class BillingDriftDetector
 {
@@ -24,9 +24,8 @@ public static class BillingDriftDetector
     {
         var discrepancies = ImmutableArray.CreateBuilder<DriftDiscrepancy>();
 
-        // Surfaces legacy subscriptions persisted before the BillingEvent log existed (or any other case
-        // where invoices made it to the local PaymentTransactions array without a corresponding event row).
-        // The Sync admin action is the natural trigger to fix this with a backfill.
+        // PaymentTransactions exist on the subscription but the BillingEvent log is empty — the event-emission
+        // pipeline missed at least one invoice.payment_succeeded. Reconcile is the natural recovery path.
         if (paymentTransactionCount > 0 && billingEventCount == 0)
         {
             discrepancies.Add(new DriftDiscrepancy(

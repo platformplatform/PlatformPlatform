@@ -133,15 +133,8 @@ public sealed class ProcessPendingStripeEvents(
 
         if (stripeState is not null)
         {
-            subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod, now);
+            subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod);
             tenant.UpdatePlan(stripeState.Plan);
-        }
-
-        // Overwrite SubscribedSince with Stripe's authoritative Customer.Created. Runs after
-        // SetStripeSubscription so it wins over the Basis→paid first-activation timestamp captured there.
-        if (customerResult.CustomerCreated is { } stripeCustomerCreated)
-        {
-            subscription.SetSubscribedSinceFromStripe(stripeCustomerCreated);
         }
 
         var syncedTransactions = stripeState?.PaymentTransactions ?? await stripeClient.SyncPaymentTransactionsAsync(subscription.StripeCustomerId!, cancellationToken);
@@ -343,14 +336,13 @@ public sealed class ProcessPendingStripeEvents(
             // from the same request, not read from the cold durable archive.
             // Source the replay timestamp from Stripe's authoritative Event.Created (captured at ingestion
             // into StripeCreatedAt) so the replayer orders events and writes BillingEvent.OccurredAt at the
-            // moment Stripe says the event occurred. Legacy rows recorded before StripeCreatedAt existed
-            // fall back to AuditableEntity.CreatedAt (ingestion time).
+            // moment Stripe says the event occurred.
             unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt ?? pending.CreatedAt, pending.Payload ?? "", pending.ApiVersion);
         }
 
         if (unioned.Count == 0)
         {
-            DetectDrift(subscription, driftSnapshots, 0, false, [], [], []);
+            DetectDrift(subscription, driftSnapshots, 0, false, [], [], [], []);
             return;
         }
 
@@ -395,6 +387,15 @@ public sealed class ProcessPendingStripeEvents(
             if (existingStripeEventIds.Contains(billingEvent.StripeEventId)) continue;
             await billingEventRepository.AddAsync(billingEvent, cancellationToken);
             appendedCount++;
+
+            // SubscribedSince is a denormalized cache of MIN(occurred_at) across SubscriptionCreated rows for
+            // the tenant. AdvanceSubscribedSinceBackwardFromBillingEvent is monotonic-backward: a late-arriving
+            // recovered event can rewind it earlier, but a new subscription started after a cancel (later
+            // OccurredAt) cannot move it forward.
+            if (billingEvent.EventType == BillingEventType.SubscriptionCreated)
+            {
+                subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(billingEvent.OccurredAt);
+            }
         }
 
         // Advance the events.list anchor to the most recent event we just consumed so the next sync only
@@ -428,7 +429,10 @@ public sealed class ProcessPendingStripeEvents(
 
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
         var eventTypesPresent = unioned.Values.Select(e => e.EventType).ToHashSet();
-        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, staleBillingEvents);
+        var billingEventTypesPresent = persistedRows.Select(r => r.EventType)
+            .Concat(replayedEvents.Select(r => r.EventType))
+            .ToHashSet();
+        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents);
     }
 
     private void DetectDrift(
@@ -438,6 +442,7 @@ public sealed class ProcessPendingStripeEvents(
         bool hasUnclassifiedEvent,
         HashSet<string?> unsupportedApiVersions,
         HashSet<string> eventTypesPresent,
+        HashSet<BillingEventType> billingEventTypesPresent,
         IReadOnlyList<BillingEvent> staleBillingEvents
     )
     {
@@ -482,7 +487,7 @@ public sealed class ProcessPendingStripeEvents(
                 );
             }
 
-            var coverageDiscrepancies = CheckResourceCoverage(subscription, now, eventTypesPresent);
+            var coverageDiscrepancies = CheckResourceCoverage(subscription, now, eventTypesPresent, billingEventTypesPresent);
             discrepancies = discrepancies.AddRange(coverageDiscrepancies);
 
             subscription.SetDriftStatus(discrepancies, now);
@@ -507,16 +512,20 @@ public sealed class ProcessPendingStripeEvents(
     ///     IConfiguration (e.g. BillingDrift:DisabledCoverageKinds:0=PaymentMethodAttached) so operators
     ///     can silence it without a deploy.
     /// </summary>
-    private static DriftDiscrepancy[] CheckResourceCoverage(Subscription subscription, DateTimeOffset now, HashSet<string> eventTypesPresent)
+    private static DriftDiscrepancy[] CheckResourceCoverage(Subscription subscription, DateTimeOffset now, HashSet<string> eventTypesPresent, HashSet<BillingEventType> billingEventTypesPresent)
     {
         var discrepancies = new List<DriftDiscrepancy>();
         if (subscription.StripeCustomerId is null) return [.. discrepancies];
 
-        if (subscription.SubscribedSince is { } subscribedSince && !eventTypesPresent.Contains("customer.subscription.created"))
+        // Source the SubscriptionCreated coverage check from the BillingEvent log, not the denormalized
+        // SubscribedSince column. The log is authoritative: any SubscriptionCreated row means a paid run
+        // happened, so the corresponding customer.subscription.created stripe_events row must exist too.
+        if (billingEventTypesPresent.Contains(BillingEventType.SubscriptionCreated) && !eventTypesPresent.Contains("customer.subscription.created"))
         {
+            var subscribedSince = subscription.SubscribedSince ?? subscription.CreatedAt;
             discrepancies.Add(BuildCoverageDiscrepancy(
                     "customer.subscription.created", subscribedSince, now,
-                    $"Subscription started on {subscribedSince:O} but no customer.subscription.created event is recorded.",
+                    "Subscription has a SubscriptionCreated billing_events row but no customer.subscription.created stripe_events row is recorded.",
                     BillingEventType.SubscriptionCreated
                 )
             );

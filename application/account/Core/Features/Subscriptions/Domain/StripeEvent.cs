@@ -56,7 +56,7 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
     ///     The Stripe API version active when Stripe created this event. Pinned at event creation time and
     ///     never changes (see https://docs.stripe.com/api/events). The replayer uses this to dispatch to
     ///     the correct <c>IStripeEventPayloadResolver</c> when the JSON shape changes between Stripe API
-    ///     versions. Null only on rows recorded before this column existed.
+    ///     versions.
     /// </summary>
     public string? ApiVersion { get; private set; }
 
@@ -79,7 +79,7 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
     ///     SHA-256 hash of the raw payload when this row was first stored. Used by AcknowledgeStripeWebhook
     ///     to detect StripeEventPayloadDivergence: if the same event id arrives twice with different
     ///     payloads, the existing row is preserved unchanged and the divergence is surfaced as a drift
-    ///     discrepancy. Null only on rows recorded before this column existed.
+    ///     discrepancy.
     /// </summary>
     public string? PayloadHash { get; private set; }
 
@@ -87,8 +87,7 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
     ///     Stripe's authoritative <c>Event.Created</c> timestamp (see https://docs.stripe.com/api/events).
     ///     Captured at ingestion from both webhook deliveries and reconciliation sources so the replayer
     ///     can order events and stamp <c>BillingEvent.OccurredAt</c> from the time Stripe says the event
-    ///     occurred — never our ingestion time. Null only on rows recorded before this column existed;
-    ///     the replayer falls back to <c>CreatedAt</c> (ingestion time) in that case.
+    ///     occurred — never our ingestion time.
     /// </summary>
     public DateTimeOffset? StripeCreatedAt { get; private set; }
 

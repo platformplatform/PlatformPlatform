@@ -525,7 +525,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 paymentMethod = new PaymentMethod("link", last4, 0, 0);
             }
 
-            return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false, paymentMethod, new DateTimeOffset(DateTime.SpecifyKind(customer.Created, DateTimeKind.Utc)));
+            return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false, paymentMethod);
         }
         catch (StripeException ex)
         {

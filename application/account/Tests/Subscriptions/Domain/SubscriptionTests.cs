@@ -8,112 +8,82 @@ namespace Account.Tests.Subscriptions.Domain;
 public sealed class SubscriptionTests
 {
     [Fact]
-    public void SetStripeSubscription_WhenFirstActivationOnPaidPlan_ShouldCaptureSubscribedSince()
+    public void AdvanceSubscribedSinceBackwardFromBillingEvent_WhenUnset_ShouldAssignFromEvent()
+    {
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        var firstSubscriptionCreatedAt = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+
+        // Act
+        subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(firstSubscriptionCreatedAt);
+
+        // Assert
+        subscription.SubscribedSince.Should().Be(firstSubscriptionCreatedAt);
+    }
+
+    [Fact]
+    public void AdvanceSubscribedSinceBackwardFromBillingEvent_WhenOlderEventArrivesLate_ShouldRewindBackward()
+    {
+        // Arrange — subscription has SubscribedSince=T1 from a SubscriptionCreated event; a reconcile then
+        // recovers an older SubscriptionCreated event at T0 < T1.
+        var subscription = Subscription.Create(TenantId.NewId());
+        var t1 = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t1);
+        var t0 = DateTimeOffset.Parse("2025-08-01T00:00:00Z");
+
+        // Act
+        subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t0);
+
+        // Assert
+        subscription.SubscribedSince.Should().Be(t0);
+    }
+
+    [Fact]
+    public void AdvanceSubscribedSinceBackwardFromBillingEvent_WhenSameTenantStartsNewSubscriptionLater_ShouldPreserveOriginal()
+    {
+        // Arrange — tenant cancels original subscription, then starts a brand-new Stripe subscription on the
+        // same tenant. The new SubscriptionCreated event at T2 > T0 must not move SubscribedSince forward.
+        var subscription = Subscription.Create(TenantId.NewId());
+        var t0 = DateTimeOffset.Parse("2025-08-01T00:00:00Z");
+        subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t0);
+        subscription.ResetToFreePlan();
+        var t2 = DateTimeOffset.Parse("2026-04-01T10:00:00Z");
+
+        // Act
+        subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t2);
+
+        // Assert
+        subscription.SubscribedSince.Should().Be(t0);
+    }
+
+    [Fact]
+    public void ResetToFreePlan_WhenCalled_ShouldPreserveSubscribedSince()
+    {
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        var t0 = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t0);
+
+        // Act
+        subscription.ResetToFreePlan();
+
+        // Assert — a cancellation must never clear SubscribedSince. Gaps in subscription coverage are
+        // irrelevant to the tenant-scoped invariant.
+        subscription.SubscribedSince.Should().Be(t0);
+    }
+
+    [Fact]
+    public void SetStripeSubscription_WhenCalled_ShouldNotTouchSubscribedSince()
     {
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         var now = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
 
         // Act
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", now.AddDays(30), null, now);
+        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "DKK", now.AddDays(30), null);
 
-        // Assert
-        subscription.SubscribedSince.Should().Be(now);
-    }
-
-    [Fact]
-    public void SetStripeSubscription_WhenActivatingFreePlan_ShouldNotCaptureSubscribedSince()
-    {
-        // Arrange
-        var subscription = Subscription.Create(TenantId.NewId());
-        var now = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-
-        // Act
-        subscription.SetStripeSubscription(null, SubscriptionPlan.Basis, null, null, null, null, now);
-
-        // Assert
+        // Assert — SubscribedSince is sourced exclusively from SubscriptionCreated BillingEvents, never from
+        // the live Stripe state mutation. The cache stays null until the matching BillingEvent is appended.
         subscription.SubscribedSince.Should().BeNull();
-    }
-
-    [Fact]
-    public void SetStripeSubscription_WhenAlreadyActive_ShouldNotOverwriteSubscribedSince()
-    {
-        // Arrange
-        var subscription = Subscription.Create(TenantId.NewId());
-        var firstActivation = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", firstActivation.AddDays(30), null, firstActivation);
-        var laterUpdate = DateTimeOffset.Parse("2026-02-20T10:00:00Z");
-
-        // Act
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Premium, 99.99m, "USD", laterUpdate.AddDays(30), null, laterUpdate);
-
-        // Assert
-        subscription.SubscribedSince.Should().Be(firstActivation);
-    }
-
-    [Fact]
-    public void ResetToFreePlan_WhenCalled_ShouldClearSubscribedSince()
-    {
-        // Arrange
-        var subscription = Subscription.Create(TenantId.NewId());
-        var activationTime = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", activationTime.AddDays(30), null, activationTime);
-
-        // Act
-        subscription.ResetToFreePlan();
-
-        // Assert
-        subscription.SubscribedSince.Should().BeNull();
-    }
-
-    [Fact]
-    public void SetStripeSubscription_WhenChangingBetweenPaidPlans_ShouldPreserveSubscribedSince()
-    {
-        // Arrange
-        var subscription = Subscription.Create(TenantId.NewId());
-        var firstActivation = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", firstActivation.AddDays(30), null, firstActivation);
-        var upgradeTime = DateTimeOffset.Parse("2026-02-20T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Premium, 99.99m, "USD", upgradeTime.AddDays(30), null, upgradeTime);
-        var downgradeTime = DateTimeOffset.Parse("2026-03-25T10:00:00Z");
-
-        // Act - downgrade Premium back to Standard
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", downgradeTime.AddDays(30), null, downgradeTime);
-
-        // Assert - SubscribedSince must remain the original first activation date through both paid-plan changes
-        subscription.SubscribedSince.Should().Be(firstActivation);
-    }
-
-    [Fact]
-    public void SetStripeSubscription_WhenReactivatingAfterReset_ShouldCaptureNewSubscribedSince()
-    {
-        // Arrange
-        var subscription = Subscription.Create(TenantId.NewId());
-        var firstActivation = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_first"), SubscriptionPlan.Standard, 29.99m, "USD", firstActivation.AddDays(30), null, firstActivation);
-        subscription.ResetToFreePlan();
-        var reactivation = DateTimeOffset.Parse("2026-04-01T10:00:00Z");
-
-        // Act
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_second"), SubscriptionPlan.Standard, 29.99m, "USD", reactivation.AddDays(30), null, reactivation);
-
-        // Assert
-        subscription.SubscribedSince.Should().Be(reactivation);
-    }
-
-    [Fact]
-    public void SetSubscribedSinceFromStripe_WhenCalled_ShouldOverwriteExistingValue()
-    {
-        // Arrange
-        var subscription = Subscription.Create(TenantId.NewId());
-        var firstActivation = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "USD", firstActivation.AddDays(30), null, firstActivation);
-        var stripeCustomerCreated = DateTimeOffset.Parse("2025-08-01T00:00:00Z");
-
-        // Act
-        subscription.SetSubscribedSinceFromStripe(stripeCustomerCreated);
-
-        // Assert
-        subscription.SubscribedSince.Should().Be(stripeCustomerCreated);
     }
 }

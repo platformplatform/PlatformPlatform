@@ -37,7 +37,7 @@ public sealed class StripeEventReplayerTests
     {
         var subscription = Subscription.Create(TenantId.NewId());
         var now = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29m, "USD", now.AddDays(30), null, now);
+        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29m, "USD", now.AddDays(30), null);
         return subscription;
     }
 

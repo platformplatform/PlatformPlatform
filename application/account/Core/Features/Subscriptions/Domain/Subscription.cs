@@ -61,6 +61,14 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public string? CancellationFeedback { get; private set; }
 
+    /// <summary>
+    ///     Denormalized cache of <c>MIN(occurred_at)</c> across every <c>SubscriptionCreated</c> BillingEvent
+    ///     for this tenant. The BillingEvent log is the source of truth; this column exists so paginated reads
+    ///     don't have to walk history. Mutated only via <see cref="AdvanceSubscribedSinceBackwardFromBillingEvent" />,
+    ///     which is monotonic-backward — a late-arriving recovered event can rewind it earlier, but lifecycle
+    ///     transitions (cancel, expire, reactivate on a brand-new Stripe subscription) never move it forward.
+    ///     Null when no <c>SubscriptionCreated</c> event has yet been emitted for the tenant.
+    /// </summary>
     public DateTimeOffset? SubscribedSince { get; private set; }
 
     /// <summary>
@@ -102,33 +110,28 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         BillingInfo = billingInfo;
     }
 
-    public void SetStripeSubscription(StripeSubscriptionId? stripeSubscriptionId, SubscriptionPlan plan, decimal? currentPriceAmount, string? currentPriceCurrency, DateTimeOffset? currentPeriodEnd, PaymentMethod? paymentMethod, DateTimeOffset now)
+    public void SetStripeSubscription(StripeSubscriptionId? stripeSubscriptionId, SubscriptionPlan plan, decimal? currentPriceAmount, string? currentPriceCurrency, DateTimeOffset? currentPeriodEnd, PaymentMethod? paymentMethod)
     {
-        var previousPlan = Plan;
-
         StripeSubscriptionId = stripeSubscriptionId;
         Plan = plan;
         CurrentPriceAmount = currentPriceAmount;
         CurrentPriceCurrency = currentPriceCurrency;
         CurrentPeriodEnd = currentPeriodEnd;
         PaymentMethod = paymentMethod;
-
-        // Capture the start of a paid run only when transitioning from Basis (free) to a paid plan.
-        // Plan changes between paid plans (e.g., Standard <-> Premium) preserve the original SubscribedSince.
-        if (previousPlan == SubscriptionPlan.Basis && plan != SubscriptionPlan.Basis)
-        {
-            SubscribedSince = now;
-        }
     }
 
     /// <summary>
-    ///     Authoritative Stripe <c>Customer.Created</c> value. Supersedes the migration backfill of
-    ///     <c>created_at</c>. Called on every sync so the tenant's <c>SubscribedSince</c> converges
-    ///     to Stripe's customer-creation timestamp regardless of any earlier local value.
+    ///     Denormalized cache of <c>MIN(occurred_at)</c> across every <c>SubscriptionCreated</c> BillingEvent
+    ///     for this tenant. Monotonic backward: only assigns when the incoming event is older than the current
+    ///     value, so a late-arriving recovered event can rewind the date earlier but lifecycle transitions
+    ///     (cancel, expire, reactivate on a brand-new Stripe subscription) never move it forward. Idempotent.
     /// </summary>
-    public void SetSubscribedSinceFromStripe(DateTimeOffset stripeCustomerCreated)
+    public void AdvanceSubscribedSinceBackwardFromBillingEvent(DateTimeOffset eventOccurredAt)
     {
-        SubscribedSince = stripeCustomerCreated;
+        if (SubscribedSince is null || eventOccurredAt < SubscribedSince.Value)
+        {
+            SubscribedSince = eventOccurredAt;
+        }
     }
 
     /// <summary>
@@ -190,7 +193,6 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         FirstPaymentFailedAt = null;
         CancellationReason = null;
         CancellationFeedback = null;
-        SubscribedSince = null;
     }
 
     public bool HasActiveStripeSubscription()

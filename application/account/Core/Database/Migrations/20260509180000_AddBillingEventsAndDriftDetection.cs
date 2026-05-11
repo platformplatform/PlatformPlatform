@@ -18,41 +18,6 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
 
         migrationBuilder.CreateIndex("ix_subscriptions_has_drift_detected", "subscriptions", "has_drift_detected", filter: "has_drift_detected = true");
 
-        // Subscriptions created before this migration have no subscribed_since because the column did not
-        // exist when the Basis -> paid transition occurred. Best available proxy for the start of their paid
-        // run is the subscription row's created_at timestamp. Only backfill active paid subscriptions
-        // (those that have a Stripe subscription id and are not on the free Basis plan).
-        migrationBuilder.Sql(
-            """
-            UPDATE subscriptions
-            SET subscribed_since = created_at
-            WHERE subscribed_since IS NULL
-              AND stripe_subscription_id IS NOT NULL
-              AND plan <> 'Basis';
-            """
-        );
-
-        // PaymentTransaction.AmountExcludingTax and TaxAmount became non-nullable in the C# domain alongside
-        // this migration. Existing rows synced from Stripe before that change may have those keys missing or
-        // null. Default AmountExcludingTax to the gross Amount and TaxAmount to 0 so the CHECK constraint
-        // below passes. The next Stripe sync per tenant overwrites these with the real breakdown.
-        migrationBuilder.Sql(
-            """
-            UPDATE subscriptions
-            SET payment_transactions = (
-                SELECT jsonb_agg(
-                    e || jsonb_build_object(
-                        'AmountExcludingTax', COALESCE((e->>'AmountExcludingTax')::numeric, (e->>'Amount')::numeric, 0),
-                        'TaxAmount', COALESCE((e->>'TaxAmount')::numeric, 0)
-                    )
-                )
-                FROM jsonb_array_elements(payment_transactions) e
-            )
-            WHERE jsonb_array_length(payment_transactions) > 0
-              AND jsonb_path_exists(payment_transactions, '$[*] ? (!(@.AmountExcludingTax.type() == "number") || !(@.TaxAmount.type() == "number"))');
-            """
-        );
-
         migrationBuilder.AddCheckConstraint(
             "chk_subscriptions_payment_transactions_tax_breakdown",
             "subscriptions",
@@ -114,21 +79,6 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         migrationBuilder.AddColumn<DateTimeOffset>("stripe_created_at", "stripe_events", "timestamptz", nullable: true);
 
         migrationBuilder.CreateIndex("ix_stripe_events_recovered_at", "stripe_events", "recovered_at", filter: "recovered_at IS NOT NULL");
-
-        // Backfill stripe_created_at from the archived payload's "created" field (Stripe event epoch
-        // seconds — see https://docs.stripe.com/api/events). The replayer orders events and writes
-        // BillingEvent.OccurredAt from StripeCreatedAt ?? CreatedAt so legacy rows recorded before this
-        // column existed fall back to ingestion time; this backfill upgrades them to Stripe's authoritative
-        // event time wherever the payload was preserved.
-        migrationBuilder.Sql(
-            """
-            UPDATE stripe_events
-            SET stripe_created_at = to_timestamp((payload::jsonb ->> 'created')::numeric)
-            WHERE stripe_created_at IS NULL
-              AND payload IS NOT NULL
-              AND payload::jsonb ->> 'created' IS NOT NULL;
-            """
-        );
 
         // v1 stance: only DKK is supported. The dashboard MRR handlers sum decimal amounts across every
         // subscription / billing event without grouping by currency, so any non-DKK row corrupts the totals.

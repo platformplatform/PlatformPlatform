@@ -13,8 +13,6 @@ public sealed class MockStripeState
 
     public bool SimulateOpenInvoice { get; set; }
 
-    public DateTimeOffset? CustomerCreated { get; set; }
-
     // Production only supports DKK (enforced by the StripeClient boundary guard and the DB CHECK
     // constraints on subscriptions.current_price_currency and billing_events.currency). Override
     // on a per-test basis to simulate Stripe returning a non-DKK currency so the boundary guard
@@ -200,8 +198,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
         var billingInfo = new BillingInfo("Test Organization", new BillingAddress("Vestergade 12", null, "1456", "København K", null, "DK"), "billing@example.com", null);
         var paymentMethod = new PaymentMethod("visa", "4242", 12, 2026);
-        var customerCreated = state.CustomerCreated ?? timeProvider.GetUtcNow();
-        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false, paymentMethod, customerCreated));
+        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false, paymentMethod));
     }
 
     public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)

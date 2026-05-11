@@ -126,7 +126,7 @@ public sealed class BillingDriftDetectorTests
     {
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
-        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 99.00m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null, DateTimeOffset.UtcNow);
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 99.00m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null);
         subscription.SetCancellation(true, null, null);
 
         // Act

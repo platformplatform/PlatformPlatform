@@ -100,7 +100,7 @@ public sealed record SubscriptionSyncResult(
     string? SubscriptionStatus
 );
 
-public sealed record CustomerBillingResult(BillingInfo? BillingInfo, bool IsCustomerDeleted, PaymentMethod? PaymentMethod = null, DateTimeOffset? CustomerCreated = null);
+public sealed record CustomerBillingResult(BillingInfo? BillingInfo, bool IsCustomerDeleted, PaymentMethod? PaymentMethod = null);
 
 public sealed record OpenInvoiceResult(decimal AmountDue, string Currency);
 

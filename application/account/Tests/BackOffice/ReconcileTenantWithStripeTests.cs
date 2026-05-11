@@ -136,31 +136,4 @@ public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "StripeNonDkkSubscriptionRejected");
     }
-
-    [Fact]
-    public async Task ReconcileTenantWithStripe_WhenReconcileSucceeds_ShouldOverwriteSubscribedSinceWithStripeCustomerCreated()
-    {
-        // Arrange
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
-        using var client = CreateBackOfficeClientForIdentity(identity);
-        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
-        var stripeCustomerCreated = DateTimeOffset.Parse("2025-08-01T00:00:00Z");
-        StripeState.CustomerCreated = stripeCustomerCreated;
-        var migrationBackfill = DateTimeOffset.UtcNow.AddDays(-30);
-        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
-                ("stripe_customer_id", MockStripeClient.MockCustomerId),
-                ("subscribed_since", migrationBackfill)
-            ]
-        );
-
-        // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var storedSubscribedSince = Connection.ExecuteScalar<string>(
-            "SELECT subscribed_since FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
-        );
-        DateTimeOffset.Parse(storedSubscribedSince).Should().Be(stripeCustomerCreated);
-    }
 }
