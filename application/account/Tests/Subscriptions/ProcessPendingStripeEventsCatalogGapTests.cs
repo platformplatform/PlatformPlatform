@@ -28,7 +28,7 @@ public sealed class ProcessPendingStripeEventsCatalogGapTests : EndpointBaseTest
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );

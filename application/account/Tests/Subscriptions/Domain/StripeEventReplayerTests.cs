@@ -215,7 +215,7 @@ public sealed class StripeEventReplayerTests
         // Assert
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.SubscriptionImmediatelyCancelled);
-        emitted[0].Currency.Should().Be("DKK", "currency must come from the Stripe event payload, not the post-ResetToFreePlan subscription");
+        emitted[0].Currency.Should().Be(MockStripeClient.MockStandardCurrency, "currency must come from the Stripe event payload, not the post-ResetToFreePlan subscription");
     }
 
     [Fact]
@@ -247,7 +247,7 @@ public sealed class StripeEventReplayerTests
         // Assert
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.SubscriptionCreated);
-        emitted[0].Currency.Should().Be("DKK", "currency must come from items.data[0].price.currency when the top-level currency field is absent");
+        emitted[0].Currency.Should().Be(MockStripeClient.MockStandardCurrency, "currency must come from items.data[0].price.currency when the top-level currency field is absent");
     }
 
     [Fact]
@@ -274,12 +274,12 @@ public sealed class StripeEventReplayerTests
         };
 
         // Act
-        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan, currencyOverride: "DKK");
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan, currencyOverride: MockStripeClient.MockStandardCurrency);
 
         // Assert
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.PaymentMethodUpdated);
-        emitted[0].Currency.Should().Be("DKK");
+        emitted[0].Currency.Should().Be(MockStripeClient.MockStandardCurrency);
     }
 
     [Fact]

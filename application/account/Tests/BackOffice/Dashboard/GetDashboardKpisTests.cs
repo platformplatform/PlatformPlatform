@@ -7,6 +7,7 @@ using Account.Features.BackOffice.Dashboard.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Authentication.BackOfficeIdentity;
 using SharedKernel.Authentication.MockEasyAuth;
@@ -51,7 +52,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         payload.TrialTenants.Should().Be(2);
         payload.CanceledTenants.Should().Be(1);
         payload.BlendedMonthlyRecurringRevenue.Should().Be(49.99m);
-        payload.Currency.Should().Be("DKK");
+        payload.Currency.Should().Be(MockStripeClient.MockStandardCurrency);
         payload.Period.Should().Be(DashboardTrendPeriod.Last30Days);
     }
 
@@ -275,7 +276,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         var subscriptionCreatedAt = createdAt ?? DateTimeOffset.UtcNow.AddDays(-30);
         var paymentTransactionsJson = JsonSerializer.Serialize(new[]
             {
-                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, "DKK", PaymentTransactionStatus.Succeeded, subscriptionCreatedAt, null, null, null, plan)
+                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, subscriptionCreatedAt, null, null, null, plan)
             }
         );
 
@@ -289,7 +290,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", "cus_test"),
                 ("stripe_subscription_id", "sub_test"),
                 ("current_price_amount", currentPriceAmount),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", DateTimeOffset.UtcNow.AddDays(30)),
                 ("cancel_at_period_end", cancelAtPeriodEnd),
                 ("first_payment_failed_at", null),
@@ -311,7 +312,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         var paymentTransactionsJson = hasSucceededPayment
             ? JsonSerializer.Serialize(new[]
                 {
-                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, 49.99m, 0m, "DKK", PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
+                    new PaymentTransaction(PaymentTransactionId.NewId(), 49.99m, 49.99m, 0m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.UtcNow.AddDays(-30), null, null, null, SubscriptionPlan.Standard)
                 }
             )
             : "[]";
@@ -326,7 +327,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", currentPriceAmount is null ? null : "cus_test"),
                 ("stripe_subscription_id", currentPriceAmount is null ? null : "sub_test"),
                 ("current_price_amount", (object?)currentPriceAmount ?? DBNull.Value),
-                ("current_price_currency", currentPriceAmount is null ? null : "DKK"),
+                ("current_price_currency", currentPriceAmount is null ? null : MockStripeClient.MockStandardCurrency),
                 ("current_period_end", currentPriceAmount is null ? null : DateTimeOffset.UtcNow.AddDays(30)),
                 ("cancel_at_period_end", false),
                 ("first_payment_failed_at", null),

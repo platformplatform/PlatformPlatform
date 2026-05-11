@@ -19,11 +19,24 @@ public sealed class MockStripeState
 
     public bool SimulateOpenInvoice { get; set; }
 
-    // The platform's architectural promise is that every active Stripe price uses the same currency,
-    // derived from Stripe at startup. The mock returns this configured value from every method that
-    // surfaces a currency. Override on a per-test basis to simulate Stripe returning a currency that
-    // does not match the resolved platform currency so the boundary guard can be exercised.
-    public string SubscriptionCurrency { get; set; } = "DKK";
+    // Per-test override for the currency the mock emits from SyncSubscriptionStateAsync (and the rest
+    // of the methods that surface a currency). Left null so the mock's PlatformCurrency tracks the
+    // resolver-populated platform currency by default; set to a different ISO 4217 code in a test to
+    // simulate Stripe returning a currency that does not match the cached platform currency so the
+    // boundary guard can be exercised. Setting to MockStripeClient.MockStandardCurrency explicitly is
+    // equivalent to leaving it null when the resolver also resolves the default.
+    public string? SubscriptionCurrency { get; set; }
+
+    // Optional reference to the singleton populated by PlatformCurrencyStartupResolver. When set, the
+    // mock emits this currency on every method so the mock and the production resolver agree on the
+    // platform currency without each test having to wire SubscriptionCurrency explicitly. Left null in
+    // the UnconfiguredStripeClient path and in unit tests that construct MockStripeState directly.
+    public IPlatformCurrencyProvider? PlatformCurrencyProvider { get; init; }
+
+    // Resolves the currency the mock emits at request time. The per-test override wins so the mismatch
+    // guard can be exercised; otherwise the resolver-populated currency wins; otherwise fall back to
+    // the constant default so unit tests that construct MockStripeState directly don't observe null.
+    public string PlatformCurrency => SubscriptionCurrency ?? PlatformCurrencyProvider?.Currency ?? MockStripeClient.MockStandardCurrency;
 
     // Extra Stripe events the test wants the mock's events.list to return on top of the defaults.
     // Lets a test simulate the events.list view of the world for scenarios where the new
@@ -66,18 +79,34 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
     public const string MockApiVersion = "2025-09-30.preview";
 
-    // Mock plan amounts following the platform's ex-VAT convention for internal recurring-revenue numbers.
-    // MRR is revenue accounting, VAT is collected on behalf of tax authorities and never our revenue, so
-    // CurrentPriceAmount, ScheduledPriceAmount, and every BillingEvent amount column are ALWAYS ex-VAT.
+    // Default mock currency used both as MockStripeState.SubscriptionCurrency's seed value and as a
+    // searchable test constant. Tests reference MockStripeClient.MockStandardCurrency instead of a raw
+    // "DKK" literal so flipping the seed flips the entire mock and test surface in lock-step.
+    public const string MockStandardCurrency = "DKK";
+
+    // Mock plan amounts follow the platform's ex-VAT convention for internal recurring-revenue numbers.
+    // MRR is revenue accounting; VAT is collected on behalf of tax authorities and is never our revenue,
+    // so CurrentPriceAmount, ScheduledPriceAmount, and every BillingEvent amount column are ALWAYS ex-VAT.
     // PaymentTransaction is the one exception — it exposes the inc-VAT customer-facing display amount as
-    // Amount, plus AmountExcludingTax and TaxAmount for the invoice breakdown. Numbers chosen so the
-    // Danish 25% VAT math is unambiguous: 149.00 + 25% = 186.25; 299.00 + 25% = 373.75.
+    // Amount, plus AmountExcludingTax and TaxAmount for the invoice breakdown. The mock derives the tax
+    // and inc-VAT amounts at request time from the active platform currency via VatRatesByCurrency, so
+    // running the developer Stripe sandbox in any of the supported currencies stays internally consistent.
     public const decimal StandardAmountExcludingTax = 149.00m;
-    public const decimal StandardTaxAmount = 37.25m;
-    public const decimal StandardAmountIncludingTax = 186.25m;
     public const decimal PremiumAmountExcludingTax = 299.00m;
-    public const decimal PremiumTaxAmount = 74.75m;
-    public const decimal PremiumAmountIncludingTax = 373.75m;
+
+    // Per-currency VAT rates the mock applies when synthesising inc-VAT and tax amounts. Real-world
+    // VAT rates depend on merchant country plus customer country (B2B vs B2C), so production must read
+    // them off the Stripe invoice. For the mock these defaults are sufficient to keep the local-dev
+    // experience self-consistent across the four currencies developer sandboxes are likely to be in.
+    // EU rates vary across member states (17%-27%); 21% is the rough EU average and is approximate.
+    // TODO: configurable VAT rate per merchant/country once the platform onboards multiple jurisdictions.
+    private static readonly Dictionary<string, decimal> VatRatesByCurrency = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["DKK"] = 0.25m,
+        ["EUR"] = 0.21m,
+        ["USD"] = 0m,
+        ["GBP"] = 0.20m
+    };
 
     private readonly bool _isEnabled = ResolveIsEnabled(configuration);
 
@@ -103,14 +132,16 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         }
 
         var now = timeProvider.GetUtcNow();
+        var currency = state.PlatformCurrency;
+        var (standardIncludingTax, standardTaxAmount) = ComputeAmountBreakdown(StandardAmountExcludingTax, currency);
         var transactions = new[]
         {
             new PaymentTransaction(
                 PaymentTransactionId.NewId(),
-                StandardAmountIncludingTax,
+                standardIncludingTax,
                 StandardAmountExcludingTax,
-                StandardTaxAmount,
-                state.SubscriptionCurrency,
+                standardTaxAmount,
+                currency,
                 PaymentTransactionStatus.Succeeded,
                 now,
                 null,
@@ -125,7 +156,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             state.ScheduledPlan,
             StripeSubscriptionId.NewId(MockSubscriptionId),
             StandardAmountExcludingTax,
-            state.SubscriptionCurrency,
+            currency,
             now.AddDays(30),
             false,
             null,
@@ -177,10 +208,11 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
     {
         EnsureEnabled();
+        var currency = state.PlatformCurrency;
         var catalog = new List<PriceCatalogItem>
         {
-            new(SubscriptionPlan.Standard, StandardAmountExcludingTax, state.SubscriptionCurrency, "month", 1, false),
-            new(SubscriptionPlan.Premium, PremiumAmountExcludingTax, state.SubscriptionCurrency, "month", 1, false)
+            new(SubscriptionPlan.Standard, StandardAmountExcludingTax, currency, "month", 1, false),
+            new(SubscriptionPlan.Premium, PremiumAmountExcludingTax, currency, "month", 1, false)
         };
         catalog.RemoveAll(item => state.PriceCatalogOmittedPlans.Contains(item.Plan));
         return Task.FromResult(catalog.ToArray());
@@ -189,7 +221,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<string?>(state.SubscriptionCurrency);
+        // PlatformCurrencyStartupResolver calls this method exactly once at host startup to seed the
+        // platform-currency singleton. The per-test SubscriptionCurrency override is not the right
+        // source here because it represents Stripe drift from the seed; the resolver wants the seed
+        // itself. Fall through to PlatformCurrency so the same property the rest of the mock reads
+        // is also what the resolver caches — a non-null override therefore *does* flow through to the
+        // resolver when wired before host startup (this is what PlatformCurrencyProviderTests exercises).
+        return Task.FromResult<string?>(state.PlatformCurrency);
     }
 
     public Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
@@ -293,7 +331,9 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         EnsureEnabled();
         if (state.SimulateOpenInvoice)
         {
-            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(StandardAmountIncludingTax, state.SubscriptionCurrency));
+            var currency = state.PlatformCurrency;
+            var (standardIncludingTax, _) = ComputeAmountBreakdown(StandardAmountExcludingTax, currency);
+            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(standardIncludingTax, currency));
         }
 
         return Task.FromResult<OpenInvoiceResult?>(null);
@@ -314,19 +354,20 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         var now = timeProvider.GetUtcNow();
+        var currency = state.PlatformCurrency;
         var lineItems = new[]
         {
-            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, state.SubscriptionCurrency, true, false),
-            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, state.SubscriptionCurrency, true, false),
-            new UpgradePreviewLineItem("Tax", 1.55m, state.SubscriptionCurrency, false, true)
+            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, currency, true, false),
+            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, currency, true, false),
+            new UpgradePreviewLineItem("Tax", 1.55m, currency, false, true)
         };
-        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, state.SubscriptionCurrency, lineItems));
+        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, currency, lineItems));
     }
 
     public Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, state.SubscriptionCurrency, 0m));
+        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, state.PlatformCurrency, 0m));
     }
 
     public Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
@@ -339,9 +380,11 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         var now = timeProvider.GetUtcNow();
+        var currency = state.PlatformCurrency;
+        var (standardIncludingTax, standardTaxAmount) = ComputeAmountBreakdown(StandardAmountExcludingTax, currency);
         return Task.FromResult<PaymentTransaction[]?>(
             [
-                new PaymentTransaction(PaymentTransactionId.NewId(), StandardAmountIncludingTax, StandardAmountExcludingTax, StandardTaxAmount, state.SubscriptionCurrency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), standardIncludingTax, StandardAmountExcludingTax, standardTaxAmount, currency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
             ]
         );
     }
@@ -350,12 +393,19 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         var now = timeProvider.GetUtcNow();
-        // Stripe encodes invoice amounts in the smallest currency unit (øre for DKK); 18625 = 186.25 DKK
-        // and 14900 = 149.00 DKK. The amount_paid value is inc-VAT, amount_excluding_tax is ex-VAT, and
-        // tax is the difference — mirrors the PaymentTransaction triple the mock produces elsewhere so
-        // the replayer sees an internally consistent timeline. See https://docs.stripe.com/currencies.
+        // Stripe encodes invoice amounts in the smallest currency unit (øre for DKK, cents for USD/EUR).
+        // The amount_paid value is inc-VAT, amount_excluding_tax is ex-VAT, and tax is the difference —
+        // mirrors the PaymentTransaction triple the mock produces elsewhere so the replayer sees an
+        // internally consistent timeline. The currency code is the lowercase ISO 4217 platform currency.
+        // See https://docs.stripe.com/currencies.
+        var currency = state.PlatformCurrency;
+        var (standardIncludingTax, standardTaxAmount) = ComputeAmountBreakdown(StandardAmountExcludingTax, currency);
+        var amountPaidMinorUnits = (long)(standardIncludingTax * 100m);
+        var amountExcludingTaxMinorUnits = (long)(StandardAmountExcludingTax * 100m);
+        var taxMinorUnits = (long)(standardTaxAmount * 100m);
+        var currencyCodeForPayload = currency.ToLowerInvariant();
         var paymentMethodAttachedPayload = "{\"data\":{\"object\":{\"id\":\"" + MockPaymentMethodId + "\",\"type\":\"card\",\"customer\":\"" + MockCustomerId + "\"}}}";
-        var invoicePaymentSucceededPayload = "{\"data\":{\"object\":{\"id\":\"" + MockInvoiceId + "\",\"amount_paid\":18625,\"amount_excluding_tax\":14900,\"tax\":3725,\"currency\":\"dkk\",\"subscription\":\"" + MockSubscriptionId + "\",\"status\":\"paid\",\"billing_reason\":\"subscription_create\"}}}";
+        var invoicePaymentSucceededPayload = "{\"data\":{\"object\":{\"id\":\"" + MockInvoiceId + "\",\"amount_paid\":" + amountPaidMinorUnits + ",\"amount_excluding_tax\":" + amountExcludingTaxMinorUnits + ",\"tax\":" + taxMinorUnits + ",\"currency\":\"" + currencyCodeForPayload + "\",\"subscription\":\"" + MockSubscriptionId + "\",\"status\":\"paid\",\"billing_reason\":\"subscription_create\"}}}";
         var events = new List<StripeReplayEvent>
         {
             // The default timeline mirrors the state SyncSubscriptionStateAsync returns: an attached
@@ -416,6 +466,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         // to hide the "Open in Stripe" menu item entirely — clicking the link would otherwise land on a
         // 404 inside Stripe and confuse operators investigating a mock-mode tenant.
         return null;
+    }
+
+    private static (decimal AmountIncludingTax, decimal TaxAmount) ComputeAmountBreakdown(decimal amountExcludingTax, string currency)
+    {
+        // Unknown currencies fall back to 0% so the mock stays self-consistent in a developer sandbox
+        // configured for a currency outside the registry — the only observable effect is that inc-VAT
+        // equals ex-VAT and tax is zero, which production reconciliation handles via the same path as
+        // a B2B reverse-charge invoice with no tax line.
+        var vatRate = VatRatesByCurrency.GetValueOrDefault(currency, 0m);
+        var taxAmount = Math.Round(amountExcludingTax * vatRate, 2);
+        return (amountExcludingTax + taxAmount, taxAmount);
     }
 
     private static bool ResolveIsEnabled(IConfiguration configuration)

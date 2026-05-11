@@ -55,7 +55,7 @@ public sealed class ReplayArchivedTenantStripeEventsTests : BackOfficeEndpointBa
         // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
-                ("current_price_currency", "DKK")
+                ("current_price_currency", MockStripeClient.MockStandardCurrency)
             ]
         );
 
@@ -78,7 +78,7 @@ public sealed class ReplayArchivedTenantStripeEventsTests : BackOfficeEndpointBa
                 ("new_amount", 299m),
                 ("amount_delta", 299m),
                 ("committed_mrr", 299m),
-                ("currency", "DKK"),
+                ("currency", MockStripeClient.MockStandardCurrency),
                 ("occurred_at", seededOccurredAt),
                 ("cancellation_reason", null),
                 ("suspension_reason", null)

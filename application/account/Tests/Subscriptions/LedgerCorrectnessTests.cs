@@ -39,7 +39,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("last_synced_stripe_event_created_at", existingAnchor)
             ]
@@ -80,7 +80,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("scheduled_plan", nameof(SubscriptionPlan.Premium)),
                 ("scheduled_price_amount", null)
@@ -125,7 +125,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
@@ -135,7 +135,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
         // matters for the discrepancy assertion. The telemetry/log assertion uses a unit-level check on
         // the static helper because the production SyncPaymentTransactionsAsync path is keyed off live
         // Stripe invoice payloads which the MockStripeClient does not expose directly.
-        var paymentTransactionsJson = $$"""[{"Id":"{{PaymentTransactionId.NewId()}}","Amount":10.00,"AmountExcludingTax":0.00,"TaxAmount":16.11,"Currency":"DKK","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test","CreditNoteUrl":null,"Plan":"Standard","RefundedAt":null}]""";
+        var paymentTransactionsJson = $$"""[{"Id":"{{PaymentTransactionId.NewId()}}","Amount":10.00,"AmountExcludingTax":0.00,"TaxAmount":16.11,"Currency":"{{MockStripeClient.MockStandardCurrency}}","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test","CreditNoteUrl":null,"Plan":"Standard","RefundedAt":null}]""";
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("payment_transactions", paymentTransactionsJson)
             ]

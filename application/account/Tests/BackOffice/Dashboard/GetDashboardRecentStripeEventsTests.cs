@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Account.Features.BackOffice.Dashboard.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Domain;
@@ -23,7 +24,7 @@ public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBase
         var tenantId = SeedTenant("Stripe Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedBillingEvent(tenantId, subscriptionId, BillingEventType.SubscriptionCreated, now.AddHours(-3), "evt_created", toPlan: SubscriptionPlan.Standard);
-        SeedBillingEvent(tenantId, subscriptionId, BillingEventType.SubscriptionUpgraded, now.AddHours(-1), "evt_upgraded", SubscriptionPlan.Standard, SubscriptionPlan.Premium, 30m, currency: "DKK");
+        SeedBillingEvent(tenantId, subscriptionId, BillingEventType.SubscriptionUpgraded, now.AddHours(-1), "evt_upgraded", SubscriptionPlan.Standard, SubscriptionPlan.Premium, 30m, currency: MockStripeClient.MockStandardCurrency);
 
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);

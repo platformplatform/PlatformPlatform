@@ -1,6 +1,7 @@
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Domain;
@@ -77,7 +78,7 @@ public sealed class BillingEventRepositoryTests : EndpointBaseTest<AccountDbCont
                 ("new_amount", newAmount),
                 ("amount_delta", newAmount),
                 ("committed_mrr", newAmount),
-                ("currency", "DKK"),
+                ("currency", MockStripeClient.MockStandardCurrency),
                 ("occurred_at", occurredAt),
                 ("cancellation_reason", null),
                 ("suspension_reason", null)

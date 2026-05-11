@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using Account.Features.BackOffice.BillingDrift.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Domain;
@@ -132,7 +133,7 @@ public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointB
                 ("stripe_customer_id", "cus_test"),
                 ("stripe_subscription_id", "sub_test"),
                 ("current_price_amount", currentPriceAmount),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", DateTimeOffset.UtcNow.AddDays(30)),
                 ("cancel_at_period_end", cancelAtPeriodEnd),
                 ("first_payment_failed_at", null),
@@ -166,7 +167,7 @@ public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointB
                 ("new_amount", newAmount),
                 ("amount_delta", newAmount),
                 ("committed_mrr", newAmount),
-                ("currency", "DKK"),
+                ("currency", MockStripeClient.MockStandardCurrency),
                 ("occurred_at", occurredAt),
                 ("cancellation_reason", null),
                 ("suspension_reason", null)

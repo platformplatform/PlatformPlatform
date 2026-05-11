@@ -1,6 +1,7 @@
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Domain;
@@ -96,7 +97,7 @@ public sealed class SubscriptionRepositoryDriftScopeTests : EndpointBaseTest<Acc
                 ("stripe_customer_id", stripeCustomerId),
                 ("stripe_subscription_id", hasStripeSubscription ? "sub_test" : null),
                 ("current_price_amount", hasStripeSubscription ? 29.99m : (decimal?)null),
-                ("current_price_currency", hasStripeSubscription ? "DKK" : null),
+                ("current_price_currency", hasStripeSubscription ? MockStripeClient.MockStandardCurrency : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : (DateTimeOffset?)null),
                 ("cancel_at_period_end", false),
                 ("first_payment_failed_at", null),

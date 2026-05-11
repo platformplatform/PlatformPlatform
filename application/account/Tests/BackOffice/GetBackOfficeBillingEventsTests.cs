@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Account.Features.BackOffice.BillingEvents.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Domain;
@@ -265,7 +266,7 @@ public sealed class GetBackOfficeBillingEventsTests : BackOfficeEndpointBaseTest
         SubscriptionPlan? fromPlan = null,
         SubscriptionPlan? toPlan = null,
         decimal? amountDelta = null,
-        string? currency = "DKK"
+        string? currency = MockStripeClient.MockStandardCurrency
     )
     {
         Connection.Insert("billing_events", [

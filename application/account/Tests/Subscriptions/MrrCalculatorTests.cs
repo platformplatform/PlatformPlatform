@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Domain;
 using Xunit;
@@ -20,7 +21,7 @@ public sealed class MrrCalculatorTests
     {
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
-        subscription.SetStripeSubscription(null, SubscriptionPlan.Standard, 149m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null);
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Standard, 149m, MockStripeClient.MockStandardCurrency, DateTimeOffset.UtcNow.AddDays(30), null);
         subscription.SetCancellation(true, CancellationReason.NoLongerNeeded, null);
 
         // Act
@@ -35,7 +36,7 @@ public sealed class MrrCalculatorTests
     {
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
-        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 299m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null);
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 299m, MockStripeClient.MockStandardCurrency, DateTimeOffset.UtcNow.AddDays(30), null);
         subscription.SetScheduledPlan(SubscriptionPlan.Standard, 149m);
 
         // Act
@@ -50,7 +51,7 @@ public sealed class MrrCalculatorTests
     {
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
-        subscription.SetStripeSubscription(null, SubscriptionPlan.Standard, 149m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null);
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Standard, 149m, MockStripeClient.MockStandardCurrency, DateTimeOffset.UtcNow.AddDays(30), null);
 
         // Act
         var forwardMrr = MrrCalculator.ForwardMrr(subscription);
@@ -69,7 +70,7 @@ public sealed class MrrCalculatorTests
         // reconciliation now prevents the state from persisting beyond a single sync.
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
-        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 299m, "DKK", DateTimeOffset.UtcNow.AddDays(30), null);
+        subscription.SetStripeSubscription(null, SubscriptionPlan.Premium, 299m, MockStripeClient.MockStandardCurrency, DateTimeOffset.UtcNow.AddDays(30), null);
         subscription.SetScheduledPlan(SubscriptionPlan.Standard, null);
 
         // Act

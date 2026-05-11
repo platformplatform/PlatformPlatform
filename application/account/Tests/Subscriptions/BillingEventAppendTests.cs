@@ -21,7 +21,7 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", stripeSubscriptionId),
                 ("current_price_amount", hasStripeSubscription ? MockStripeClient.StandardAmountExcludingTax : null),
-                ("current_price_currency", hasStripeSubscription ? "DKK" : null),
+                ("current_price_currency", hasStripeSubscription ? MockStripeClient.MockStandardCurrency : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
                 ("first_payment_failed_at", firstPaymentFailedAt)
             ]

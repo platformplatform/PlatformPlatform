@@ -4,6 +4,7 @@ using System.Text.Json;
 using Account.Features.BackOffice.Dashboard.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Domain;
@@ -36,7 +37,7 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardMrrTrendResponse>();
         payload.Should().NotBeNull();
         payload.Period.Should().Be(DashboardTrendPeriod.Last7Days);
-        payload.Currency.Should().Be("DKK");
+        payload.Currency.Should().Be(MockStripeClient.MockStandardCurrency);
         payload.Points.Should().HaveCount(7);
         // Subscription started 5 days ago, so the last 5 of 7 daily points include the price; the first 2 points predate
         // the subscription and remain at zero.
@@ -123,7 +124,7 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
     {
         var paymentTransactions = JsonSerializer.Serialize(new[]
             {
-                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, "DKK", PaymentTransactionStatus.Succeeded, subscribedSince, null, null, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), currentPriceAmount, currentPriceAmount, 0m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, subscribedSince, null, null, null, SubscriptionPlan.Standard)
             }
         );
 
@@ -137,7 +138,7 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", "cus_test"),
                 ("stripe_subscription_id", "sub_test"),
                 ("current_price_amount", currentPriceAmount),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", subscribedSince.AddDays(30)),
                 ("cancel_at_period_end", false),
                 ("first_payment_failed_at", null),
@@ -171,7 +172,7 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
                 ("new_amount", newAmount),
                 ("amount_delta", newAmount),
                 ("committed_mrr", newAmount),
-                ("currency", "DKK"),
+                ("currency", MockStripeClient.MockStandardCurrency),
                 ("occurred_at", occurredAt),
                 ("cancellation_reason", null),
                 ("suspension_reason", null)

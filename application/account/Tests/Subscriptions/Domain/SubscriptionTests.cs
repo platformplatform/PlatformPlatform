@@ -1,4 +1,5 @@
 using Account.Features.Subscriptions.Domain;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Domain;
 using Xunit;
@@ -83,7 +84,7 @@ public sealed class SubscriptionTests
         var now = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
 
         // Act
-        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 149.00m, "DKK", now.AddDays(30), null);
+        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 149.00m, MockStripeClient.MockStandardCurrency, now.AddDays(30), null);
 
         // SubscribedSince is sourced exclusively from SubscriptionCreated BillingEvents, never from
         // the live Stripe state mutation. The cache stays null until the matching BillingEvent is appended.

@@ -29,7 +29,7 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", 299m),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("last_synced_stripe_event_created_at", TimeProvider.GetUtcNow().AddDays(-31))
             ]
@@ -54,7 +54,7 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
                 ("new_amount", 299m),
                 ("amount_delta", 299m),
                 ("committed_mrr", 299m),
-                ("currency", "DKK"),
+                ("currency", MockStripeClient.MockStandardCurrency),
                 ("occurred_at", seededOccurredAt),
                 ("cancellation_reason", null),
                 ("suspension_reason", null)
@@ -113,7 +113,7 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
@@ -149,7 +149,7 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
                 ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );

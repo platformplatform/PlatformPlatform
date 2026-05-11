@@ -6,6 +6,7 @@ using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.BackOffice.Queries;
 using Account.Features.Users.Domain;
+using Account.Integrations.Stripe;
 using Account.Tests.BackOffice;
 using FluentAssertions;
 using SharedKernel.Authentication.BackOfficeIdentity;
@@ -310,7 +311,7 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
                 ("stripe_customer_id", "cus_test"),
                 ("stripe_subscription_id", "sub_test"),
                 ("current_price_amount", 49.99m),
-                ("current_price_currency", "DKK"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", DateTimeOffset.UtcNow.AddDays(30)),
                 ("cancel_at_period_end", false),
                 ("first_payment_failed_at", null),

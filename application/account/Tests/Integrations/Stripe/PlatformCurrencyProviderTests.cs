@@ -1,3 +1,4 @@
+using Account.Features.Subscriptions.Domain;
 using Account.Integrations.Stripe;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,7 +27,7 @@ public sealed class PlatformCurrencyProviderTests
         // Happy path: the mock client returns its configured currency from GetPlatformCurrencyAsync,
         // the resolver caches it on the singleton provider for the process lifetime.
         // Arrange
-        const string expectedCurrency = "DKK";
+        const string expectedCurrency = MockStripeClient.MockStandardCurrency;
         var provider = new PlatformCurrencyProvider();
         var configuration = BuildConfiguration(("Stripe:AllowMockProvider", "true"));
         var services = BuildServiceProviderWithMockStripeClient(configuration, expectedCurrency);
@@ -58,6 +59,42 @@ public sealed class PlatformCurrencyProviderTests
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*multiple currencies*");
         provider.Currency.Should().BeNull("the provider must not be populated when the invariant is violated");
+    }
+
+    [Fact]
+    public async Task MockStripeClient_WhenResolverHasPopulatedCurrency_ShouldEmitProviderCurrencyFromSyncSubscriptionState()
+    {
+        // Prove the mock tracks the resolver-populated platform currency at request time rather than
+        // emitting its hardcoded default. Without this, a developer's Stripe sandbox configured with
+        // USD (or any non-default currency) would cache USD on the provider but the mock would still
+        // emit DKK from SyncSubscriptionStateAsync, tripping StripeSubscriptionCurrencyMismatchRejected
+        // on every mock-cookie subscribe attempt. Routes the resolver-driven seed through the public
+        // PlatformCurrencyStartupResolver path so the test does not poke at the provider's internal
+        // setter — the mock's GetPlatformCurrencyAsync returns "USD" because SubscriptionCurrency wins
+        // over the (still-null) PlatformCurrencyProvider.Currency.
+        // Arrange
+        var configuration = BuildConfiguration(("Stripe:AllowMockProvider", "true"));
+        var provider = new PlatformCurrencyProvider();
+        var mockState = new MockStripeState { SubscriptionCurrency = "USD", PlatformCurrencyProvider = provider };
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddSingleton(configuration);
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton(mockState);
+        services.AddKeyedScoped<IStripeClient, MockStripeClient>("mock-stripe");
+        var serviceProvider = services.BuildServiceProvider();
+        var resolver = new PlatformCurrencyStartupResolver(serviceProvider, configuration, provider, NullLogger<PlatformCurrencyStartupResolver>.Instance);
+        await resolver.StartAsync(CancellationToken.None);
+        mockState.SubscriptionCurrency = null;
+        var mockStripeClient = serviceProvider.GetRequiredKeyedService<IStripeClient>("mock-stripe");
+
+        // Act
+        var syncResult = await mockStripeClient.SyncSubscriptionStateAsync(StripeCustomerId.NewId(MockStripeClient.MockCustomerId), CancellationToken.None);
+
+        // Assert
+        provider.Currency.Should().Be("USD", "the resolver must have cached the mock's seed");
+        syncResult.Should().NotBeNull();
+        syncResult.CurrentPriceCurrency.Should().Be("USD", "the mock must surface the resolver-populated currency from SyncSubscriptionStateAsync so the boundary guard does not fire on every mock-cookie subscribe in a non-DKK Stripe sandbox");
     }
 
     [Fact]
