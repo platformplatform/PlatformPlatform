@@ -63,6 +63,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="SharedKernel.Tests"/>
+        <InternalsVisibleTo Include="Account.Tests"/>
     </ItemGroup>
 
 </Project>
