@@ -1,10 +1,17 @@
 extern alias workers;
+using System.Globalization;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
+using Account.Features.Tenants.Domain;
+using Account.Integrations.OAuth;
 using Account.Integrations.Stripe;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SharedKernel.Domain;
 using SharedKernel.Tests.Persistence;
 using Xunit;
 using BillingDriftWorker = workers::Account.Workers.BillingDriftWorker;
