@@ -8,52 +8,28 @@ if ! command -v jq &>/dev/null; then
   exit 0
 fi
 
-# State directory for cost tracking
+# State directory for daily cost tracking
 STATE_DIR="$HOME/.claude/statusline-state"
 mkdir -p "$STATE_DIR"
 
-# Model
+# Model — strip "(1M context)" / "(200K context)" suffix
 model=$(echo "$input" | jq -r '.model.display_name // "unknown"')
-model_id=$(echo "$input" | jq -r '.model.id // "unknown"')
+model=$(echo "$model" | sed 's/ ([^)]*context)$//; s/Claude //')
 
-# Shorten model display: "Opus 4.6 (1M context)" -> "Opus 4.6 (1M)"
-model=$(echo "$model" | sed 's/ context)/)/; s/Claude //')
-
-# CWD — show only the current folder name
+# CWD & transcript
 cwd_full=$(echo "$input" | jq -r '.cwd // ""')
 cwd=$(basename "$cwd_full")
+transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
 
-# Context window usage
+# Context window
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 ctx_window_size=$(echo "$input" | jq -r '.context_window.context_window_size // 0')
-
-# Session token totals
 total_in=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
 total_out=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
 
-# Cost estimation based on model pricing (per million tokens)
-# Prices: Opus $15/$75, Sonnet $3/$15, Haiku $0.80/$4
-case "$model_id" in
-  *opus*)   in_price=15;    out_price=75 ;;
-  *sonnet*) in_price=3;     out_price=15 ;;
-  *haiku*)  in_price=0.80;  out_price=4 ;;
-  *)        in_price=3;     out_price=15 ;;
-esac
-
-session_cost=$(echo "$total_in $total_out $in_price $out_price" | awk '{printf "%.2f", ($1 * $3 + $2 * $4) / 1000000}')
-
-# Session duration tracking
-session_id=$(echo "$input" | jq -r '.session_id // empty')
-if [ -z "$session_id" ]; then
-  session_id="default"
-fi
-session_start_file="$STATE_DIR/session_start_${session_id}"
-now=$(date +%s)
-if [ ! -f "$session_start_file" ]; then
-  echo "$now" > "$session_start_file"
-fi
-session_start=$(cat "$session_start_file")
-session_secs=$(( now - session_start ))
+# Exact session cost & duration (from Claude Code, not local estimation)
+session_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // 0' | awk '{printf "%.2f", $1}')
+session_secs=$(echo "$input" | jq -r '.cost.total_duration_ms // 0' | awk '{printf "%d", $1 / 1000}')
 session_hrs=$(( session_secs / 3600 ))
 session_mins=$(( (session_secs % 3600) / 60 ))
 if [ "$session_hrs" -gt 0 ]; then
@@ -62,43 +38,31 @@ else
   session_dur="${session_mins}m"
 fi
 
+# Session id for daily cost tracking
+session_id=$(echo "$input" | jq -r '.session_id // empty')
+[ -z "$session_id" ] && session_id="default"
+now=$(date +%s)
+
 # Daily cost tracking — accumulate deltas across sessions
 today=$(date +%Y-%m-%d)
 daily_file="$STATE_DIR/daily_${today}.txt"
 prev_file="$STATE_DIR/prev_session_${session_id}.txt"
-
 prev_cost=0
-if [ -f "$prev_file" ]; then
-  prev_cost=$(cat "$prev_file")
-fi
-
+[ -f "$prev_file" ] && prev_cost=$(cat "$prev_file")
 delta=$(echo "$session_cost $prev_cost" | awk '{printf "%.4f", $1 - $2}')
 echo "$session_cost" > "$prev_file"
-
 daily_total=0
-if [ -f "$daily_file" ]; then
-  daily_total=$(cat "$daily_file")
-fi
+[ -f "$daily_file" ] && daily_total=$(cat "$daily_file")
 daily_total=$(echo "$daily_total $delta" | awk '{v = $1 + $2; if (v < 0) v = 0; printf "%.4f", v}')
 echo "$daily_total" > "$daily_file"
-
-# Clean up old state files (older than 2 days)
 find "$STATE_DIR" -name "daily_*" -mtime +2 -delete 2>/dev/null
-find "$STATE_DIR" -name "session_start_*" -mtime +2 -delete 2>/dev/null
 find "$STATE_DIR" -name "prev_session_*" -mtime +2 -delete 2>/dev/null
 
-# Format token counts with k suffix
-fmt_tokens() {
-  local n=$1
-  if [ "$n" -ge 1000 ] 2>/dev/null; then
-    echo "$n" | awk '{printf "%.1fk", $1 / 1000}'
-  else
-    printf "%s" "$n"
-  fi
-}
-
-in_fmt=$(fmt_tokens "$total_in")
-out_fmt=$(fmt_tokens "$total_out")
+# Cumulative cached tokens — sum cache_read_input_tokens across the whole transcript
+cached_total=0
+if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
+  cached_total=$(jq -r '.message.usage.cache_read_input_tokens // 0' "$transcript_path" 2>/dev/null | awk '{s+=$1} END {print int(s)}')
+fi
 
 # Rate limits
 five_h=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
@@ -106,7 +70,7 @@ five_h_resets=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty
 seven_d=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
 seven_d_resets=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
-# Output style (omit if default)
+# Output style
 style=$(echo "$input" | jq -r '.output_style.name // empty')
 [ "$style" = "default" ] && style=""
 
@@ -116,13 +80,13 @@ DIM="\033[2m"
 BOLD="\033[1m"
 CYAN="\033[36m"
 GREEN="\033[32m"
-YELLOW="\033[33m"
+YELLOW="\033[38;2;246;195;68m"
 MAGENTA="\033[35m"
 RED="\033[31m"
-BLUE="\033[34m"
 BRIGHT_WHITE="\033[97m"
+GREY="\033[90m"
 
-# Rate limit color based on burn rate vs remaining time
+# Burn-rate-aware color for rate limits
 rate_color() {
   local usage_pct=$1 window_secs=$2 remaining_secs=$3
   local elapsed_frac=$(echo "$window_secs $remaining_secs" | awk '{printf "%.4f", ($1 - $2) / $1}')
@@ -140,9 +104,14 @@ rate_color() {
   fi
 }
 
-# Git info
+# Git info — repo name (main worktree) + branch + ahead/behind
+repo_name=""
 git_segment=""
+worktree_top=""
 if git -C "$cwd_full" rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
+  main_worktree=$(git -C "$cwd_full" worktree list --porcelain 2>/dev/null | awk '/^worktree / {print $2; exit}')
+  [ -n "$main_worktree" ] && repo_name=$(basename "$main_worktree")
+  worktree_top=$(git -C "$cwd_full" rev-parse --show-toplevel 2>/dev/null)
   branch=$(git -C "$cwd_full" rev-parse --abbrev-ref HEAD 2>/dev/null)
   [ "$branch" = "HEAD" ] && branch=$(git -C "$cwd_full" rev-parse --short HEAD 2>/dev/null)
   if [ -n "$branch" ]; then
@@ -158,38 +127,59 @@ if git -C "$cwd_full" rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
     [ "$behind" -gt 0 ] 2>/dev/null && git_segment="${git_segment}$(printf " ${RED}↓%s${RESET}" "$behind")"
   fi
 fi
+[ -z "$repo_name" ] && repo_name="$cwd"
 
-# --- Build individual segments ---
+# Format big numbers (k/M/B)
+fmt_big() {
+  echo "$1" | awk '{
+    if ($1 >= 1000000000) printf "%.1fB", $1 / 1000000000;
+    else if ($1 >= 1000000) printf "%.1fM", $1 / 1000000;
+    else if ($1 >= 1000) printf "%.0fk", $1 / 1000;
+    else printf "%d", $1
+  }'
+}
+
+# --- Build segments ---
 SEP="$(printf " ${DIM}|${RESET} ")"
 
-seg_cwd="$(printf "📂 ${BOLD}${BRIGHT_WHITE}%s${RESET}" "$cwd")"
-
+seg_cwd="$(printf "📂 ${BOLD}${BRIGHT_WHITE}%s${RESET}" "$repo_name")"
+port=""
+[ -n "$worktree_top" ] && [ -f "$worktree_top/.workspace/port.txt" ] && port=$(tr -d '[:space:]' < "$worktree_top/.workspace/port.txt" | head -c 8)
+[ -n "$port" ] && seg_cwd="${seg_cwd}$(printf " ${YELLOW}\033]8;;https://app.dev.localhost:%s\007%s\033]8;;\007${RESET}" "$port" "$port")"
 seg_git=""
 [ -n "$git_segment" ] && seg_git="${git_segment}"
-
 seg_model="$(printf "🤖 ${CYAN}%s${RESET}" "$model")"
 
-seg_tokens="$(printf "📥 ${GREEN}%s${RESET} 📤 ${MAGENTA}%s${RESET}" "$in_fmt" "$out_fmt")"
-
+# Context bar — green/yellow/red on absolute thresholds 600k/800k
 seg_ctx=""
+seg_ctx_compact=""
 if [ -n "$used_pct" ]; then
   used_int=$(printf "%.0f" "$used_pct")
-  if [ "$used_int" -ge 80 ]; then
+  if [ "$total_in" -ge 800000 ] 2>/dev/null; then
     ctx_color="$RED"
-  elif [ "$used_int" -ge 50 ]; then
+  elif [ "$total_in" -ge 600000 ] 2>/dev/null; then
     ctx_color="$YELLOW"
   else
-    ctx_color="$GREEN"
+    ctx_color="$GREY"
   fi
-  remaining_tokens=$(echo "$ctx_window_size $used_pct" | awk '{printf "%.0f", $1 * (100 - $2) / 100}')
-  if [ "$remaining_tokens" -ge 1000000 ] 2>/dev/null; then
-    remaining_fmt=$(echo "$remaining_tokens" | awk '{printf "%.1fM", $1 / 1000000}')
-  elif [ "$remaining_tokens" -ge 1000 ] 2>/dev/null; then
-    remaining_fmt=$(echo "$remaining_tokens" | awk '{printf "%.0fK", $1 / 1000}')
-  else
-    remaining_fmt="${remaining_tokens}"
-  fi
-  seg_ctx="$(printf "🧠 ${ctx_color}%d%% (%s left)${RESET}" "$used_int" "$remaining_fmt")"
+
+  bar_cells=16
+  filled=$(echo "$used_int $bar_cells" | awk '{f = int($1 * $2 / 100 + 0.5); if (f > $2) f = $2; if (f < 0) f = 0; print f}')
+  bar=""
+  for ((i=0; i<filled; i++)); do bar="${bar}█"; done
+  for ((i=filled; i<bar_cells; i++)); do bar="${bar}░"; done
+
+  used_fmt=$(fmt_big "$total_in")
+  window_fmt=$(fmt_big "$ctx_window_size")
+
+  seg_ctx="$(printf "[${ctx_color}%s${RESET}] %s/%s (%d%%)" "$bar" "$used_fmt" "$window_fmt" "$used_int")"
+  seg_ctx_compact="$(printf "[${ctx_color}%s${RESET}] %d%%" "$bar" "$used_int")"
+fi
+
+# Cached tokens segment (separate so it can be dropped progressively)
+seg_cached=""
+if [ "$cached_total" -gt 0 ] 2>/dev/null; then
+  seg_cached="$(printf "Cached: ${DIM}%s${RESET}" "$(fmt_big "$cached_total")")"
 fi
 
 seg_session_cost="$(printf "💰 ${GREEN}\$%s${RESET} ${DIM}(%s)${RESET}" "$session_cost" "$session_dur")"
@@ -246,11 +236,9 @@ seg_style=""
 get_display_width() {
   local stripped
   stripped=$(printf "%b" "$1" | sed 's/\x1b\[[0-9;]*m//g' 2>/dev/null || printf "%b" "$1" | sed $'s/\033\\[[0-9;]*m//g')
-  # wc -L is GNU only; use awk for cross-platform display width
   printf "%s" "$stripped" | awk '{print length}' | head -1
 }
 
-# Walk up process tree to find a real TTY and query its width
 get_term_width() {
   local pid=$$
   for _ in 1 2 3 4 5 6 7 8 9 10; do
@@ -275,51 +263,43 @@ term_width_compact=$term_width
 
 # --- Assemble with progressive removal ---
 # Drop order (least important first):
-# 1. output style
-# 2. context remaining "(XXK left)" — keeps percentage
-# 3. rate limit reset times — keeps percentages
-# 4. git info
-# 5. folder name
-# 6. daily cost
-# 7. session cost
-# Always keep: model, tokens, context %, rate limit %
-
+#   1. style, 2. rl_resets, 3. cached, 4. daily cost,
+#   5. session cost, 6. folder, 7. git, 8. ctx full (fall back to compact bar+%)
+# Always keep: model, context (at least compact form)
 assemble() {
   local out=""
-  # Args: cwd git ctx_rem session daily rl_resets style rl ctx tokens model
-  local show_cwd=$1 show_git=$2 show_ctx_remaining=$3
-  local show_session_cost=$4 show_daily_cost=$5 show_rl_resets=$6 show_style=$7
-  local show_rl=${8:-1} show_ctx=${9:-1} show_tokens=${10:-1} show_model=${11:-1}
+  local show_cwd=$1 show_git=$2 show_ctx_full=$3
+  local show_session_cost=$4 show_daily_cost=$5 show_cached=$6
+  local show_rl_resets=$7 show_style=$8
+  local show_rl=${9:-1} show_model=${10:-1}
 
   [ "$show_cwd" = "1" ] && out="${out}${seg_cwd}"
   if [ "$show_git" = "1" ] && [ -n "$seg_git" ]; then
-    if [ -n "$out" ]; then
-      out="${out} ${DIM}|${RESET} "
-    fi
+    [ -n "$out" ] && out="${out} ${DIM}|${RESET} "
     out="${out}${seg_git}"
   fi
   [ -n "$out" ] && out="${out}${SEP}"
 
   [ "$show_model" = "1" ] && out="${out}${seg_model}"
 
-  if [ "$show_ctx" = "1" ] && [ -n "$seg_ctx" ]; then
-    if [ "$show_ctx_remaining" = "1" ]; then
+  if [ -n "$seg_ctx" ]; then
+    if [ "$show_ctx_full" = "1" ]; then
       out="${out}${SEP}${seg_ctx}"
     else
-      out="${out}${SEP}$(printf "🧠 ${ctx_color}%d%%${RESET}" "$used_int")"
+      out="${out}${SEP}${seg_ctx_compact}"
     fi
   fi
 
-  [ "$show_tokens" = "1" ] && out="${out}${SEP}${seg_tokens}"
+  if [ "$show_cached" = "1" ] && [ -n "$seg_cached" ]; then
+    out="${out}${SEP}${seg_cached}"
+  fi
 
   if [ "$show_rl" = "1" ] && [ -n "$seg_rl" ]; then
     if [ "$show_rl_resets" = "1" ]; then
       out="${out}${SEP}${seg_rl}"
     else
       local rl_short=""
-      if [ -n "$five_h" ]; then
-        rl_short="$(printf "5h ${five_h_color}%d%%${RESET}" "$five_h_int")"
-      fi
+      [ -n "$five_h" ] && rl_short="$(printf "5h ${five_h_color}%d%%${RESET}" "$five_h_int")"
       if [ -n "$seven_d" ]; then
         [ -n "$rl_short" ] && rl_short="${rl_short}$(printf " ${DIM}|${RESET} ")"
         rl_short="${rl_short}$(printf "7d ${seven_d_color}%d%%${RESET}" "$seven_d_int")"
@@ -330,48 +310,34 @@ assemble() {
 
   [ "$show_session_cost" = "1" ] && out="${out}${SEP}${seg_session_cost}"
   [ "$show_daily_cost" = "1" ] && out="${out}${SEP}${seg_daily_cost}"
-
   [ "$show_style" = "1" ] && [ -n "$seg_style" ] && out="${out}${SEP}${seg_style}"
 
-  # Clean leading separator if model was hidden
   out=$(printf "%b" "$out" | sed 's/^ *| *//')
-
   printf "%b" "$out"
 }
 
-# Try full output, then progressively drop lowest-priority segments
-# Drop order: style, rl resets, git, folder, daily cost, session cost
-# ctx_remaining is always kept (most important after model/tokens/ctx%)
-# Progressive removal (least important dropped first):
-# 1. style, 2. rl resets, 3. daily cost, 4. session cost,
-# 5. folder, 6. git, 7. rate limits, 8. tokens, 9. ctx remaining
-# Never drop: model, context %
-#
-# Args: cwd git ctx_rem session daily rl_resets style rl ctx tokens model
+# Configs — progressive drop (most → least)
+# Args: cwd git ctx_full session daily cached rl_resets style rl model
 configs=(
-  "1 1 1 1 1 1 1 1 1 1 1"
-  "1 1 1 1 1 1 0 1 1 1 1"
-  "1 1 1 1 1 0 0 1 1 1 1"
-  "1 1 1 1 0 0 0 1 1 1 1"
-  "1 1 1 0 0 0 0 1 1 1 1"
-  "0 1 1 0 0 0 0 1 1 1 1"
-  "0 0 1 0 0 0 0 1 1 1 1"
-  "0 0 1 0 0 0 0 0 1 1 1"
-  "0 0 1 0 0 0 0 0 1 0 1"
+  "1 1 1 1 1 1 1 1 1 1"
+  "1 1 1 1 1 1 1 0 1 1"
+  "1 1 1 1 1 1 0 0 1 1"
+  "1 1 1 1 1 0 0 0 1 1"
+  "1 1 1 1 0 0 0 0 1 1"
+  "1 1 1 0 0 0 0 0 1 1"
+  "0 1 1 0 0 0 0 0 1 1"
+  "0 0 1 0 0 0 0 0 1 1"
+  "0 0 0 0 0 0 0 0 1 1"
+  "0 0 0 0 0 0 0 0 0 1"
 )
 
 for config in "${configs[@]}"; do
   result=$(assemble $config)
   width=$(get_display_width "$result")
-  # Use full reserve (30 chars) once tokens are shown (arg 10), compact otherwise
-  local_tw=$term_width_compact
-  show_tokens=$(echo "$config" | awk '{print $10}')
-  [ "$show_tokens" = "1" ] && local_tw=$term_width_full
-  if [ "$width" -le "$local_tw" ]; then
+  if [ "$width" -le "$term_width_full" ]; then
     printf "%b" "$result"
     exit 0
   fi
 done
 
-# Always show model + context with remaining, even if it doesn't fit
-printf "%b" "$(assemble 0 0 1 0 0 0 0 0 1 0 1)"
+printf "%b" "$(assemble 0 0 0 0 0 0 0 0 0 1)"
