@@ -77,11 +77,14 @@ public static class StripeEventReplayer
         return emitted;
     }
 
-    private static bool RequiresCurrency(string eventType) => eventType switch
+    private static bool RequiresCurrency(string eventType)
     {
-        "customer.created" or "customer.updated" or "payment_method.attached" => false,
-        _ => true
-    };
+        return eventType switch
+        {
+            "customer.created" or "customer.updated" or "payment_method.attached" => false,
+            _ => true
+        };
+    }
 
     private static BillingEvent? MapEvent(
         StripeReplayEvent stripeEvent,
