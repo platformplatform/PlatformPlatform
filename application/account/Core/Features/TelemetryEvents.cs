@@ -106,6 +106,9 @@ public sealed class StripeEventPayloadMismatch(string eventId, string eventType,
 public sealed class StripeNonDkkSubscriptionRejected(SubscriptionId subscriptionId, string observedCurrency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("observed_currency", observedCurrency));
 
+public sealed class StripePriceCatalogLookupMissed(SubscriptionId subscriptionId, SubscriptionPlan scheduledPlan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("scheduled_plan", scheduledPlan));
+
 public sealed class SubscriptionCancelled(
     SubscriptionId subscriptionId,
     SubscriptionPlan plan,

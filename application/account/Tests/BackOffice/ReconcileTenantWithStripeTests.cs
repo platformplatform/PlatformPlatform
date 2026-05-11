@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.BackOffice.Commands;
 using Account.Integrations.OAuth;
 using Account.Integrations.Stripe;
@@ -114,6 +115,36 @@ public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenCatalogEmpty_ReturnsSuccessNotInvalidOperationException()
+    {
+        // Admin reconcile must not 500 on a catalog gap. Before the fix, the .Single() catalog lookup
+        // in ProcessPendingStripeEvents threw InvalidOperationException when Stripe's upstream
+        // price-list cache was empty, which surfaced to the operator as an opaque 500 at exactly the
+        // moment they needed the reconcile button. The fix swaps to .SingleOrDefault, skips the
+        // ScheduledPriceAmount write on miss, and lets the reconcile complete successfully.
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("scheduled_plan", nameof(SubscriptionPlan.Premium)),
+                ("scheduled_price_amount", null)
+            ]
+        );
+        StripeState.ScheduledPlan = SubscriptionPlan.Premium;
+        StripeState.PriceCatalogOmittedPlans.Add(SubscriptionPlan.Standard);
+        StripeState.PriceCatalogOmittedPlans.Add(SubscriptionPlan.Premium);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK, "the admin reconcile must complete successfully even when the Stripe price catalog is empty");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "StripePriceCatalogLookupMissed", "the catalog-gap telemetry event must surface the failure to operators without breaking the reconcile");
     }
 
     [Fact]

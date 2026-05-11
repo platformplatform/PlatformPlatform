@@ -29,6 +29,11 @@ public sealed class MockStripeState
     // cancel-then-reschedule edge case where local pre-sync ScheduledPlan equals Stripe post-sync
     // ScheduledPlan and the diff-based transition detector therefore doesn't fire.
     public SubscriptionPlan? ScheduledPlan { get; set; }
+
+    // Plans to omit from the GetPriceCatalogAsync result. Used to simulate the upstream Stripe
+    // price-list call returning a partial or empty catalog, so the SingleOrDefault catalog-gap
+    // guard in ProcessPendingStripeEvents can be exercised without rolling back the transaction.
+    public HashSet<SubscriptionPlan> PriceCatalogOmittedPlans { get; } = [];
 }
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider, MockStripeState state) : IStripeClient
@@ -144,11 +149,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<PriceCatalogItem[]>([
-                new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1, false),
-                new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1, false)
-            ]
-        );
+        var catalog = new List<PriceCatalogItem>
+        {
+            new(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1, false),
+            new(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1, false)
+        };
+        catalog.RemoveAll(item => state.PriceCatalogOmittedPlans.Contains(item.Plan));
+        return Task.FromResult(catalog.ToArray());
     }
 
     public Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)

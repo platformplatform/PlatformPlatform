@@ -203,22 +203,49 @@ public sealed class ProcessPendingStripeEvents(
 
         if (downgradeScheduled)
         {
+            var scheduledPlan = stripeState!.ScheduledPlan!.Value;
             var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
-            var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == stripeState!.ScheduledPlan!.Value).UnitAmount;
-            subscription.SetScheduledPlan(stripeState!.ScheduledPlan, scheduledPlanPrice);
+            // SingleOrDefault (not FirstOrDefault) so duplicate plan entries still surface as errors; the
+            // catalog-gap path emits StripePriceCatalogLookupMissed telemetry + a structured warning and
+            // skips the ScheduledPriceAmount write so the empty-cache scenario does not roll back the
+            // transaction and poison the webhook hot path.
+            var scheduledPlanPrice = priceCatalog.SingleOrDefault(p => p.Plan == scheduledPlan)?.UnitAmount;
             var daysUntilDowngrade = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
-            events.CollectEvent(new SubscriptionDowngradeScheduled(subscription.Id, subscription.Plan, subscription.ScheduledPlan!.Value, daysUntilDowngrade, subscription.CurrentPriceAmount!.Value, scheduledPlanPrice - subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
+            if (scheduledPlanPrice is null)
+            {
+                logger.LogWarning(
+                    "Stripe price catalog missing entry for scheduled plan '{ScheduledPlan}' on subscription '{SubscriptionId}', ScheduledPriceAmount write skipped",
+                    scheduledPlan, subscription.Id
+                );
+                events.CollectEvent(new StripePriceCatalogLookupMissed(subscription.Id, scheduledPlan));
+            }
+            else
+            {
+                subscription.SetScheduledPlan(scheduledPlan, scheduledPlanPrice);
+                events.CollectEvent(new SubscriptionDowngradeScheduled(subscription.Id, subscription.Plan, scheduledPlan, daysUntilDowngrade, subscription.CurrentPriceAmount!.Value, scheduledPlanPrice.Value - subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
+            }
         }
 
         if (downgradeCancelled)
         {
-            var previousScheduledPlan = subscription.ScheduledPlan;
+            var previousScheduledPlan = subscription.ScheduledPlan!.Value;
             var daysSinceDowngradeScheduled = (int)(now - (subscription.ModifiedAt ?? subscription.CreatedAt)).TotalDays;
             subscription.SetScheduledPlan(stripeState!.ScheduledPlan, null);
             var daysUntilDowngrade = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
             var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
-            var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == previousScheduledPlan!.Value).UnitAmount;
-            events.CollectEvent(new SubscriptionDowngradeCancelled(subscription.Id, subscription.Plan, previousScheduledPlan!.Value, daysUntilDowngrade, daysSinceDowngradeScheduled, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - scheduledPlanPrice, subscription.CurrentPriceCurrency!));
+            var scheduledPlanPrice = priceCatalog.SingleOrDefault(p => p.Plan == previousScheduledPlan)?.UnitAmount;
+            if (scheduledPlanPrice is null)
+            {
+                logger.LogWarning(
+                    "Stripe price catalog missing entry for previously scheduled plan '{ScheduledPlan}' on subscription '{SubscriptionId}', SubscriptionDowngradeCancelled telemetry skipped",
+                    previousScheduledPlan, subscription.Id
+                );
+                events.CollectEvent(new StripePriceCatalogLookupMissed(subscription.Id, previousScheduledPlan));
+            }
+            else
+            {
+                events.CollectEvent(new SubscriptionDowngradeCancelled(subscription.Id, subscription.Plan, previousScheduledPlan, daysUntilDowngrade, daysSinceDowngradeScheduled, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - scheduledPlanPrice.Value, subscription.CurrentPriceCurrency!));
+            }
         }
 
         if (subscriptionDowngraded)
@@ -238,8 +265,19 @@ public sealed class ProcessPendingStripeEvents(
         if (stripeState?.ScheduledPlan is not null)
         {
             var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
-            var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == stripeState.ScheduledPlan.Value).UnitAmount;
-            subscription.SetScheduledPlan(stripeState.ScheduledPlan, scheduledPlanPrice);
+            var scheduledPlanPrice = priceCatalog.SingleOrDefault(p => p.Plan == stripeState.ScheduledPlan.Value)?.UnitAmount;
+            if (scheduledPlanPrice is null)
+            {
+                logger.LogWarning(
+                    "Stripe price catalog missing entry for scheduled plan '{ScheduledPlan}' on subscription '{SubscriptionId}', unconditional ScheduledPriceAmount reconciliation skipped",
+                    stripeState.ScheduledPlan.Value, subscription.Id
+                );
+                events.CollectEvent(new StripePriceCatalogLookupMissed(subscription.Id, stripeState.ScheduledPlan.Value));
+            }
+            else
+            {
+                subscription.SetScheduledPlan(stripeState.ScheduledPlan, scheduledPlanPrice);
+            }
         }
 
         if (subscriptionCancelled)
