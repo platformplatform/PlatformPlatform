@@ -488,9 +488,9 @@ public sealed class StripeClient(
     {
         try
         {
-            if (_webhookSecret is null)
+            if (string.IsNullOrWhiteSpace(_webhookSecret))
             {
-                logger.LogError("Webhook secret is not configured");
+                logger.LogCritical("Stripe webhook secret is missing or whitespace; all webhooks will be rejected");
                 return null;
             }
 

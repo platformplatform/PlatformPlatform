@@ -57,7 +57,7 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
 }
 
-internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
+public sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
     : SoftDeletableRepositoryBase<Tenant, TenantId>(accountDbContext), ITenantRepository
 {
     public async Task<Tenant?> GetCurrentTenantAsync(CancellationToken cancellationToken)

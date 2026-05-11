@@ -50,7 +50,7 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     Task<StripeEvent[]> GetArchivedEventsOlderThanAsync(StripeCustomerId stripeCustomerId, DateTimeOffset cutoff, CancellationToken cancellationToken);
 }
 
-internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
+public sealed class StripeEventRepository(AccountDbContext accountDbContext)
     : RepositoryBase<StripeEvent, StripeEventId>(accountDbContext), IStripeEventRepository
 {
     public async Task<bool> ExistsAsync(string stripeEventId, CancellationToken cancellationToken)

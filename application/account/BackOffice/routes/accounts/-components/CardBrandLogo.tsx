@@ -14,7 +14,7 @@ export function CardBrandLogo({ brand }: Readonly<{ brand: string }>) {
   }
   if (normalized === "mastercard") {
     return (
-      <span className="inline-flex items-center" aria-label="Mastercard">
+      <span role="img" className="inline-flex items-center" aria-label="Mastercard">
         <span className="block size-3.5 rounded-full bg-[#EB001B]" />
         <span className="-ml-1.5 block size-3.5 rounded-full bg-[#F79E1B] mix-blend-multiply" />
       </span>

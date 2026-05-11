@@ -117,6 +117,9 @@ msgstr "Accounts"
 msgid "Accounts will appear here as they are created."
 msgstr "Accounts will appear here as they are created."
 
+msgid "Actions"
+msgstr "Actions"
+
 msgid "Active"
 msgstr "Active"
 

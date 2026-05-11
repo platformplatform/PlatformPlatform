@@ -106,7 +106,7 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 }
 
-internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
+public sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
     : SoftDeletableRepositoryBase<User, UserId>(accountDbContext), IUserRepository
 {
     /// <summary>

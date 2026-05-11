@@ -117,6 +117,9 @@ msgstr "Konti"
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
 
+msgid "Actions"
+msgstr ""
+
 msgid "Active"
 msgstr "Aktiv"
 

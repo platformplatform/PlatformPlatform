@@ -85,7 +85,7 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     Task<int> CountWithoutBillingEventsUnfilteredAsync(CancellationToken cancellationToken);
 }
 
-internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
+public sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
     : RepositoryBase<Subscription, SubscriptionId>(accountDbContext), ISubscriptionRepository
 {
     public async Task<Subscription> GetCurrentAsync(CancellationToken cancellationToken)

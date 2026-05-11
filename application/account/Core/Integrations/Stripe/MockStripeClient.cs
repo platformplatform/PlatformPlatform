@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Configuration;
+using SharedKernel.Configuration;
 
 namespace Account.Integrations.Stripe;
 
@@ -61,7 +62,19 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
     public const string MockApiVersion = "2025-09-30.preview";
 
-    private readonly bool _isEnabled = configuration.GetValue<bool>("Stripe:AllowMockProvider");
+    private readonly bool _isEnabled = ResolveIsEnabled(configuration);
+
+    private static bool ResolveIsEnabled(IConfiguration configuration)
+    {
+        var allowMockProvider = configuration.GetValue<bool>("Stripe:AllowMockProvider");
+
+        if (allowMockProvider && SharedInfrastructureConfiguration.IsRunningInAzure)
+        {
+            throw new InvalidOperationException("Mock Stripe provider cannot be enabled in Azure environments.");
+        }
+
+        return allowMockProvider;
+    }
 
     public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {

@@ -214,6 +214,9 @@ public sealed class SubscriptionUpgraded(
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
+public sealed class TenantBillingDriftAcknowledged(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
@@ -225,9 +228,6 @@ public sealed class TenantLogoRemoved
 
 public sealed class TenantLogoUpdated(string contentType, long size)
     : TelemetryEvent(("content_type", contentType), ("size", size));
-
-public sealed class TenantBillingDriftAcknowledged(SubscriptionId subscriptionId)
-    : TelemetryEvent(("subscription_id", subscriptionId));
 
 public sealed class TenantReconciledWithStripe(SubscriptionId subscriptionId, int billingEventsAppended)
     : TelemetryEvent(("subscription_id", subscriptionId), ("billing_events_appended", billingEventsAppended));

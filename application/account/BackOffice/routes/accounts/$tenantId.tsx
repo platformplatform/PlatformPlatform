@@ -64,19 +64,19 @@ function AccountDetailPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList>
                 <TabsTrigger value="overview">
-                  <LayoutGridIcon className="size-4" />
+                  <LayoutGridIcon className="size-4" aria-hidden={true} />
                   <Trans>Overview</Trans>
                 </TabsTrigger>
                 <TabsTrigger value="users">
-                  <UsersIcon className="size-4" />
+                  <UsersIcon className="size-4" aria-hidden={true} />
                   <Trans>Users</Trans>
                 </TabsTrigger>
                 <TabsTrigger value="invoices">
-                  <ReceiptIcon className="size-4" />
+                  <ReceiptIcon className="size-4" aria-hidden={true} />
                   <Trans>Invoices</Trans>
                 </TabsTrigger>
                 <TabsTrigger value="billing-events">
-                  <ActivityIcon className="size-4" />
+                  <ActivityIcon className="size-4" aria-hidden={true} />
                   <Trans>Billing events</Trans>
                 </TabsTrigger>
               </TabsList>

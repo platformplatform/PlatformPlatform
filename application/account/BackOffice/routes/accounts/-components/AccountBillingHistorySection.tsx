@@ -104,7 +104,13 @@ export function AccountBillingHistorySection({
               <TableHead>
                 <Trans>Status</Trans>
               </TableHead>
-              {!isCompact && <TableHead className="text-right" />}
+              {!isCompact && (
+                <TableHead className="text-right">
+                  <span className="sr-only">
+                    <Trans>Actions</Trans>
+                  </span>
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
