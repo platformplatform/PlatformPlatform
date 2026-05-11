@@ -84,6 +84,15 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
     public string? PayloadHash { get; private set; }
 
     /// <summary>
+    ///     Stripe's authoritative <c>Event.Created</c> timestamp (see https://docs.stripe.com/api/events).
+    ///     Captured at ingestion from both webhook deliveries and reconciliation sources so the replayer
+    ///     can order events and stamp <c>BillingEvent.OccurredAt</c> from the time Stripe says the event
+    ///     occurred — never our ingestion time. Null only on rows recorded before this column existed;
+    ///     the replayer falls back to <c>CreatedAt</c> (ingestion time) in that case.
+    /// </summary>
+    public DateTimeOffset? StripeCreatedAt { get; private set; }
+
+    /// <summary>
     ///     Factory method for phase 1 webhook acknowledgment. Creates a Pending event that will be
     ///     batch-processed in phase 2. TenantId and StripeSubscriptionId are filled in by phase 2 via
     ///     <see cref="MarkProcessed" />.
@@ -94,7 +103,8 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
         StripeCustomerId? stripeCustomerId,
         string? payload,
         string? apiVersion,
-        string? payloadHash
+        string? payloadHash,
+        DateTimeOffset? stripeCreatedAt = null
     )
     {
         return new StripeEvent(StripeEventId.NewId(stripeEventId))
@@ -103,7 +113,8 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
             StripeCustomerId = stripeCustomerId,
             Payload = payload,
             ApiVersion = apiVersion,
-            PayloadHash = payloadHash
+            PayloadHash = payloadHash,
+            StripeCreatedAt = stripeCreatedAt
         };
     }
 
@@ -122,7 +133,8 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
         string? apiVersion,
         string? payloadHash,
         DateTimeOffset recoveredAt,
-        string recoverySource
+        string recoverySource,
+        DateTimeOffset? stripeCreatedAt = null
     )
     {
         return new StripeEvent(StripeEventId.NewId(stripeEventId))
@@ -135,7 +147,8 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
             ApiVersion = apiVersion,
             PayloadHash = payloadHash,
             RecoveredAt = recoveredAt,
-            RecoverySource = recoverySource
+            RecoverySource = recoverySource,
+            StripeCreatedAt = stripeCreatedAt
         };
     }
 

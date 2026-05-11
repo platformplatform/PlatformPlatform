@@ -146,4 +146,97 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         );
         recoveredAt.Should().NotBeNullOrEmpty("recovered_at marks this row as a webhook we didn't receive in real-time");
     }
+
+    [Fact]
+    public async Task Reconcile_WhenEventsListReturnsEventsWithOlderStripeCreated_ShouldStampBillingEventOccurredAtFromStripeCreated()
+    {
+        // Arrange — two recovered events whose Stripe Event.Created is hours older than `now`. The replayer
+        // must source BillingEvent.OccurredAt from the Stripe-authoritative timestamp surfaced via
+        // StripeReplayEvent.CreatedAt (StripeEvent.StripeCreatedAt ?? CreatedAt) so dashboards surface the
+        // event at the moment Stripe says it occurred, not at our ingestion time.
+        SetupSubscription();
+
+        var now = TimeProvider.GetUtcNow();
+        var createdEventId = "evt_stripe_created_subscription_created";
+        var createdStripeCreated = now.AddHours(-3);
+        var createdPayload = """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard"}}]}}}}""";
+
+        var renewedEventId = "evt_stripe_created_invoice_payment_succeeded";
+        var renewedStripeCreated = now.AddHours(-1);
+        var renewedPayload = """{"data":{"object":{"attempt_count":1,"billing_reason":"subscription_cycle"}}}""";
+
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(createdEventId, "customer.subscription.created", createdStripeCreated, createdPayload, MockStripeClient.MockApiVersion));
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(renewedEventId, "invoice.payment_succeeded", renewedStripeCreated, renewedPayload, MockStripeClient.MockApiVersion));
+
+        // Act — webhook arrives, triggers ProcessPendingStripeEvents which runs reconciliation and replay.
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:checkout.session.completed");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert — BillingEvent.OccurredAt matches Stripe's Created for both recovered events, not `now`.
+        response.EnsureSuccessStatusCode();
+
+        var createdOccurredAt = ParseTimestamp(Connection.ExecuteScalar<string>(
+                "SELECT occurred_at FROM billing_events WHERE stripe_event_id = @id", [new { id = createdEventId }]
+            )
+        );
+        createdOccurredAt.Should().BeCloseTo(createdStripeCreated, TimeSpan.FromSeconds(1), "OccurredAt must reflect Stripe Event.Created, not our ingestion time");
+
+        var renewedOccurredAt = ParseTimestamp(Connection.ExecuteScalar<string>(
+                "SELECT occurred_at FROM billing_events WHERE stripe_event_id = @id", [new { id = renewedEventId }]
+            )
+        );
+        renewedOccurredAt.Should().BeCloseTo(renewedStripeCreated, TimeSpan.FromSeconds(1), "OccurredAt must reflect Stripe Event.Created, not our ingestion time");
+
+        // Assert — the recovered stripe_events rows carry stripe_created_at sourced from events.list.
+        var createdStripeCreatedAtPersisted = ParseTimestamp(Connection.ExecuteScalar<string>(
+                "SELECT stripe_created_at FROM stripe_events WHERE id = @id", [new { id = createdEventId }]
+            )
+        );
+        createdStripeCreatedAtPersisted.Should().BeCloseTo(createdStripeCreated, TimeSpan.FromSeconds(1));
+    }
+
+    [Fact]
+    public async Task AcknowledgeWebhook_WhenWebhookDeliveryArrives_ShouldPersistStripeCreatedAtFromWebhookEvent()
+    {
+        // Arrange — a webhook delivery's Stripe Event.Created timestamp must be threaded from
+        // StripeWebhookEventResult.Created into StripeEvent.StripeCreatedAt so the replayer can later order
+        // events and write BillingEvent.OccurredAt from Stripe's authoritative time rather than ingestion
+        // time. MockStripeClient.VerifyWebhookSignature sources Created from the same TimeProvider the
+        // production handler injects, so capturing the window around the webhook call brackets the
+        // persisted timestamp.
+        SetupSubscription();
+
+        var eventId = $"evt_stripe_created_webhook_{Guid.NewGuid():N}";
+        var before = TimeProvider.GetUtcNow();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", $"event_type:customer.subscription.updated,event_id:{eventId}");
+        var response = await AnonymousHttpClient.SendAsync(request);
+        var after = TimeProvider.GetUtcNow();
+
+        // Assert — the persisted row's stripe_created_at column matches the webhook event's Stripe Created
+        // timestamp (within the request window), proving the field is populated from
+        // StripeWebhookEventResult.Created rather than left null.
+        response.EnsureSuccessStatusCode();
+
+        var persistedStripeCreatedAt = ParseTimestamp(Connection.ExecuteScalar<string>(
+                "SELECT stripe_created_at FROM stripe_events WHERE id = @id", [new { id = eventId }]
+            )
+        );
+        persistedStripeCreatedAt.Should().BeOnOrAfter(before.AddSeconds(-1));
+        persistedStripeCreatedAt.Should().BeOnOrBefore(after.AddSeconds(1));
+    }
+
+    private static DateTimeOffset ParseTimestamp(string value)
+    {
+        return DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+    }
 }

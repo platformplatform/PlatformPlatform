@@ -111,8 +111,24 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         migrationBuilder.AddColumn<DateTimeOffset>("recovered_at", "stripe_events", "timestamptz", nullable: true);
         migrationBuilder.AddColumn<string>("recovery_source", "stripe_events", "text", nullable: true);
         migrationBuilder.AddColumn<string>("payload_hash", "stripe_events", "text", nullable: true);
+        migrationBuilder.AddColumn<DateTimeOffset>("stripe_created_at", "stripe_events", "timestamptz", nullable: true);
 
         migrationBuilder.CreateIndex("ix_stripe_events_recovered_at", "stripe_events", "recovered_at", filter: "recovered_at IS NOT NULL");
+
+        // Backfill stripe_created_at from the archived payload's "created" field (Stripe event epoch
+        // seconds — see https://docs.stripe.com/api/events). The replayer orders events and writes
+        // BillingEvent.OccurredAt from StripeCreatedAt ?? CreatedAt so legacy rows recorded before this
+        // column existed fall back to ingestion time; this backfill upgrades them to Stripe's authoritative
+        // event time wherever the payload was preserved.
+        migrationBuilder.Sql(
+            """
+            UPDATE stripe_events
+            SET stripe_created_at = to_timestamp((payload::jsonb ->> 'created')::numeric)
+            WHERE stripe_created_at IS NULL
+              AND payload IS NOT NULL
+              AND payload::jsonb ->> 'created' IS NOT NULL;
+            """
+        );
 
         // v1 stance: only DKK is supported. The dashboard MRR handlers sum decimal amounts across every
         // subscription / billing event without grouping by currency, so any non-DKK row corrupts the totals.

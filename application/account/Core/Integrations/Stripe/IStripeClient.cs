@@ -79,7 +79,8 @@ public sealed record StripeWebhookEventResult(
     string EventId,
     string EventType,
     StripeCustomerId? CustomerId,
-    string? ApiVersion
+    string? ApiVersion,
+    DateTimeOffset Created
 );
 
 public sealed record CheckoutSessionResult(string SessionId, string ClientSecret);

@@ -181,7 +181,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var customerIdString = payload.StartsWith("customer:") ? payload.Split(':')[1] : payload == "no_customer" ? null : MockCustomerId;
         StripeCustomerId.TryParse(customerIdString, out var customerId);
 
-        return new StripeWebhookEventResult(eventId, eventType, customerId, MockApiVersion);
+        return new StripeWebhookEventResult(eventId, eventType, customerId, MockApiVersion, timeProvider.GetUtcNow());
     }
 
     public Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)

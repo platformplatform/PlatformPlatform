@@ -468,7 +468,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
             var customerId = ExtractCustomerId(payload);
 
-            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, stripeEvent.ApiVersion);
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, stripeEvent.ApiVersion, stripeEvent.Created);
         }
         catch (StripeException ex)
         {

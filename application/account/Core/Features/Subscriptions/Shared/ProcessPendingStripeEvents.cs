@@ -326,7 +326,11 @@ public sealed class ProcessPendingStripeEvents(
             if (unioned.ContainsKey(pending.Id.Value)) continue;
             // pending.Payload is the webhook body posted to AcknowledgeStripeWebhook — carried in-memory
             // from the same request, not read from the cold durable archive.
-            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.CreatedAt, pending.Payload ?? "", pending.ApiVersion);
+            // Source the replay timestamp from Stripe's authoritative Event.Created (captured at ingestion
+            // into StripeCreatedAt) so the replayer orders events and writes BillingEvent.OccurredAt at the
+            // moment Stripe says the event occurred. Legacy rows recorded before StripeCreatedAt existed
+            // fall back to AuditableEntity.CreatedAt (ingestion time).
+            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt ?? pending.CreatedAt, pending.Payload ?? "", pending.ApiVersion);
         }
 
         if (unioned.Count == 0)
@@ -604,7 +608,8 @@ public sealed class ProcessPendingStripeEvents(
                 stripeEvent.ApiVersion,
                 payloadHash,
                 now,
-                "events_list"
+                "events_list",
+                stripeEvent.CreatedAt
             );
             await stripeEventRepository.AddAsync(recoveredEvent, cancellationToken);
 

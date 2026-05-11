@@ -55,7 +55,7 @@ public sealed class AcknowledgeStripeWebhookHandler(
         var now = timeProvider.GetUtcNow();
         var customerId = webhookEvent.CustomerId;
 
-        var stripeEvent = StripeEvent.Create(webhookEvent.EventId, webhookEvent.EventType, customerId, command.Payload, webhookEvent.ApiVersion, payloadHash);
+        var stripeEvent = StripeEvent.Create(webhookEvent.EventId, webhookEvent.EventType, customerId, command.Payload, webhookEvent.ApiVersion, payloadHash, webhookEvent.Created);
 
         if (customerId is null)
         {
