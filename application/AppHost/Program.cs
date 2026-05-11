@@ -82,6 +82,14 @@ var accountWorkers = builder
     .WithEnvironment("KESTREL_PORT", ports.AccountWorkers.ToString())
     .WithReference(accountDatabase)
     .WithReference(azureStorage)
+    // The BillingDriftWorker resolves StripeClientFactory which reads these. Without them the worker
+    // process sees UnconfiguredStripeClient even when Stripe is configured at the API level, and every
+    // stale subscription logs a warn + fail line through ProcessPendingStripeEvents on every worker start.
+    .WithEnvironment("Stripe__SubscriptionEnabled", stripeFullyConfigured ? "true" : "false")
+    .WithEnvironment("Stripe__ApiKey", stripeApiKey)
+    .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
+    .WithEnvironment("Stripe__PublishableKey", stripePublishableKey)
+    .WithEnvironment("Stripe__AllowMockProvider", "true")
     .WaitFor(accountDatabase);
 
 var accountApi = builder
