@@ -41,7 +41,18 @@ public sealed class ProcessPendingStripeEvents(
 
     public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, SyncMode syncMode, CancellationToken cancellationToken)
     {
-        // Pessimistic lock serializes concurrent webhook processing for the same customer
+        // Detect mode is the BillingDriftWorker tripwire: it must NOT acquire a FOR UPDATE row lock on the
+        // subscription, because the worker iterates across every stale row and would otherwise serialize
+        // each Stripe roundtrip against the webhook hot path on the same row. Read non-locking, do the
+        // in-memory drift computation, then write drift status via a column-only UPDATE that takes a brief
+        // lock for the write itself.
+        if (syncMode == SyncMode.Detect)
+        {
+            await ExecuteDetectAsync(stripeCustomerId, forceSync, cancellationToken);
+            return;
+        }
+
+        // Apply mode acquires a pessimistic lock to serialize concurrent webhook processing for the same customer.
         var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
         await using var transaction = isSqlite
             ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
@@ -58,22 +69,42 @@ public sealed class ProcessPendingStripeEvents(
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
         var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
-        // forceSync runs the Stripe sync even with no pending events (used by the back-office reconcile admin
-        // action and by the detect-only BillingDriftWorker which must compute drift on every pass).
+        // forceSync runs the Stripe sync even with no pending events (used by the back-office reconcile admin action).
         if (pendingEvents.Length > 0 || forceSync)
         {
-            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, syncMode, cancellationToken);
-            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, syncMode, cancellationToken);
-            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, syncMode, cancellationToken);
+            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Apply, cancellationToken);
+            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, SyncMode.Apply, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, SyncMode.Apply, cancellationToken);
 
-            if (syncMode == SyncMode.Apply)
-            {
-                MarkAllEventsAsProcessed(pendingEvents, subscription);
-            }
+            MarkAllEventsAsProcessed(pendingEvents, subscription);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+
+        SendTelemetryEvents(tenant, subscription);
+    }
+
+    private async Task ExecuteDetectAsync(StripeCustomerId stripeCustomerId, bool forceSync, CancellationToken cancellationToken)
+    {
+        var subscription = await subscriptionRepository.GetByStripeCustomerIdUnfilteredAsync(stripeCustomerId, cancellationToken);
+        if (subscription is null)
+        {
+            logger.LogWarning("Subscription not found for Stripe customer '{StripeCustomerId}', drift detection skipped", stripeCustomerId);
+            return;
+        }
+
+        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
+        var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
+
+        // forceSync runs the Stripe sync even with no pending events; the detect-only BillingDriftWorker
+        // sets it so every stale subscription is audited regardless of webhook activity.
+        if (pendingEvents.Length > 0 || forceSync)
+        {
+            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Detect, cancellationToken);
+            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, SyncMode.Detect, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, SyncMode.Detect, cancellationToken);
+        }
 
         // Detect mode normally collects nothing because the mutation branches that drive telemetry are
         // skipped. The Stripe-unavailable drift-skipped event in DetectDrift is the one Detect-mode
@@ -403,7 +434,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (unioned.Count == 0)
         {
-            DetectDrift(subscription, driftSnapshots, 0, false, [], [], [], [], syncMode);
+            await DetectDriftAsync(subscription, driftSnapshots, 0, false, [], [], [], [], syncMode, cancellationToken);
             return;
         }
 
@@ -506,10 +537,10 @@ public sealed class ProcessPendingStripeEvents(
         var billingEventTypesPresent = persistedRows.Select(r => r.EventType)
             .Concat(replayedEvents.Select(r => r.EventType))
             .ToHashSet();
-        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents, syncMode);
+        await DetectDriftAsync(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents, syncMode, cancellationToken);
     }
 
-    private void DetectDrift(
+    private async Task DetectDriftAsync(
         Subscription subscription,
         DriftSnapshots driftSnapshots,
         int billingEventCount,
@@ -518,7 +549,8 @@ public sealed class ProcessPendingStripeEvents(
         HashSet<string> eventTypesPresent,
         HashSet<BillingEventType> billingEventTypesPresent,
         IReadOnlyList<BillingEvent> staleBillingEvents,
-        SyncMode syncMode
+        SyncMode syncMode,
+        CancellationToken cancellationToken
     )
     {
         // Detect mode is the BillingDriftWorker tripwire. When the Stripe view is unavailable (the integration
@@ -580,11 +612,20 @@ public sealed class ProcessPendingStripeEvents(
             discrepancies = discrepancies.AddRange(coverageDiscrepancies);
 
             subscription.SetDriftStatus(discrepancies, now);
-            // Detect mode reaches this method without any earlier subscriptionRepository.Update(subscription)
-            // call (the mutating Apply-mode path in SyncStateFromStripe is skipped). EF Core's NoTracking
-            // default means the SetDriftStatus mutation would be invisible to SaveChanges without this. The
-            // call is idempotent in Apply mode where Update has already been invoked upstream.
-            subscriptionRepository.Update(subscription);
+            if (syncMode == SyncMode.Detect)
+            {
+                // Detect mode read the subscription untracked (no FOR UPDATE) so the BillingDriftWorker does
+                // not block the webhook hot path on the same row for the full Stripe roundtrip. Persist drift
+                // status via a column-only UPDATE that takes its own brief row lock only for the write itself.
+                await subscriptionRepository.UpdateDriftStatusAsync(subscription.Id, subscription.HasDriftDetected, now, discrepancies, cancellationToken);
+            }
+            else
+            {
+                // Apply mode loaded the subscription tracked under FOR UPDATE; SetDriftStatus rides along with
+                // the other mutations and is flushed by the surrounding SaveChangesAsync. Update is idempotent
+                // when an earlier branch already marked the aggregate dirty.
+                subscriptionRepository.Update(subscription);
+            }
         }
         catch (Exception ex)
         {

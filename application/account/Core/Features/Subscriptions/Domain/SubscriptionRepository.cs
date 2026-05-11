@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Account.Database;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
@@ -17,6 +18,25 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     ///     This method bypasses tenant query filters since webhooks have no tenant context.
     /// </summary>
     Task<Subscription?> GetByStripeCustomerIdWithLockUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves a subscription by Stripe customer ID without acquiring a row lock and without applying
+    ///     tenant query filters. Used by the detect-only <c>BillingDriftWorker</c> tripwire: a Stripe roundtrip
+    ///     under a <c>FOR UPDATE</c> lock would needlessly serialize the worker with the webhook hot path on
+    ///     the same row for the full duration of the Stripe call. The result is returned untracked because
+    ///     Detect mode never mutates the aggregate via the change tracker — drift status is written through
+    ///     <see cref="UpdateDriftStatusAsync" /> as a column-only update.
+    /// </summary>
+    Task<Subscription?> GetByStripeCustomerIdUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Persists the drift status fields (<c>has_drift_detected</c>, <c>drift_checked_at</c>,
+    ///     <c>drift_discrepancies</c>) for a single subscription via a column-only UPDATE. Bypasses the
+    ///     change tracker so the underlying row is never loaded under a <c>FOR UPDATE</c> lock first, which
+    ///     keeps the detect-only <c>BillingDriftWorker</c> from blocking the webhook hot path on the same row.
+    ///     Bypasses tenant query filters because the worker has no tenant context.
+    /// </summary>
+    Task UpdateDriftStatusAsync(SubscriptionId subscriptionId, bool hasDriftDetected, DateTimeOffset driftCheckedAt, ImmutableArray<DriftDiscrepancy> driftDiscrepancies, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Retrieves a subscription by tenant ID without applying tenant query filters.
@@ -90,6 +110,42 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
             .FromSqlInterpolated($"SELECT * FROM subscriptions WHERE stripe_customer_id = {stripeCustomerId.Value} FOR UPDATE")
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves a subscription by Stripe customer ID without acquiring a row lock and without applying
+    ///     tenant query filters. Used by the detect-only <c>BillingDriftWorker</c> tripwire: a Stripe roundtrip
+    ///     under a <c>FOR UPDATE</c> lock would needlessly serialize the worker with the webhook hot path on
+    ///     the same row for the full duration of the Stripe call. The result is returned untracked because
+    ///     Detect mode never mutates the aggregate via the change tracker — drift status is written through
+    ///     <see cref="UpdateDriftStatusAsync" /> as a column-only update.
+    /// </summary>
+    public async Task<Subscription?> GetByStripeCustomerIdUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .AsNoTracking()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .SingleOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Persists the drift status fields (<c>has_drift_detected</c>, <c>drift_checked_at</c>,
+    ///     <c>drift_discrepancies</c>) for a single subscription via a column-only UPDATE. Bypasses the
+    ///     change tracker so the underlying row is never loaded under a <c>FOR UPDATE</c> lock first, which
+    ///     keeps the detect-only <c>BillingDriftWorker</c> from blocking the webhook hot path on the same row.
+    ///     Bypasses tenant query filters because the worker has no tenant context.
+    /// </summary>
+    public async Task UpdateDriftStatusAsync(SubscriptionId subscriptionId, bool hasDriftDetected, DateTimeOffset driftCheckedAt, ImmutableArray<DriftDiscrepancy> driftDiscrepancies, CancellationToken cancellationToken)
+    {
+        await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(s => s.Id == subscriptionId)
+            .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.HasDriftDetected, hasDriftDetected)
+                    .SetProperty(x => x.DriftCheckedAt, driftCheckedAt)
+                    .SetProperty(x => x.DriftDiscrepancies, driftDiscrepancies),
+                cancellationToken
+            );
     }
 
     public async Task<Subscription?> GetByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken)

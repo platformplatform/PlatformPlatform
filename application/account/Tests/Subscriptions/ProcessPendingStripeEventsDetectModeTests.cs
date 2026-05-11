@@ -198,6 +198,60 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
         ReadDriftCheckedAt().Should().BeOnOrAfter(before.AddSeconds(-1), "Detect mode must advance DriftCheckedAt on the happy path so the worker can prove it has visited the row");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_AdvancesDriftCheckedAtWithoutLockingRow()
+    {
+        // Detect mode is the BillingDriftWorker tripwire. It must read the subscription without acquiring a
+        // FOR UPDATE row lock — otherwise the worker holds the lock for the duration of the Stripe roundtrip
+        // and blocks the webhook hot path on every subscription it iterates over. The targeted column-only
+        // UPDATE for drift status must still land: drift_checked_at advances, drift_discrepancies persists,
+        // and no other column on the row is rewritten.
+        // Arrange
+        var existingDriftCheckedAt = TimeProvider.GetUtcNow().AddHours(-25);
+        var existingCurrentPeriodEnd = TimeProvider.GetUtcNow().AddDays(30);
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Premium)),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("current_price_amount", 99.99m),
+                ("current_price_currency", "DKK"),
+                ("current_period_end", existingCurrentPeriodEnd),
+                ("drift_checked_at", existingDriftCheckedAt)
+            ]
+        );
+
+        var before = TimeProvider.GetUtcNow();
+
+        using var scope = WebApplicationServices.CreateScope();
+        SetUseMockStripeCookieOnAmbientHttpContext(scope.ServiceProvider);
+        var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeCustomerId = StripeCustomerId.NewId(MockStripeClient.MockCustomerId);
+
+        // Act
+        await processor.ExecuteAsync(stripeCustomerId, true, SyncMode.Detect, CancellationToken.None);
+
+        // Assert
+        ReadDriftCheckedAt().Should().BeOnOrAfter(before.AddSeconds(-1), "the targeted column-only update must advance DriftCheckedAt even though the read did not acquire a row lock");
+
+        var hasDriftDetected = Connection.ExecuteScalar<long>(
+            "SELECT has_drift_detected FROM subscriptions WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        hasDriftDetected.Should().Be(1, "local Plan=Premium differs from Stripe Plan=Standard so the targeted UPDATE must persist the discrepancy list");
+
+        var plan = Connection.ExecuteScalar<string>(
+            "SELECT plan FROM subscriptions WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        plan.Should().Be(nameof(SubscriptionPlan.Premium), "the targeted column-only UPDATE must rewrite only the drift status fields — Plan must keep the local pre-detect value");
+
+        var currentPriceAmount = Connection.ExecuteScalar<string>(
+            "SELECT current_price_amount FROM subscriptions WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        decimal.Parse(currentPriceAmount, CultureInfo.InvariantCulture).Should().Be(99.99m, "the targeted column-only UPDATE must not rewrite CurrentPriceAmount");
+    }
+
     // ProcessPendingStripeEvents runs through StripeClientFactory.GetClient(), which gates the mock provider
     // behind an HTTP cookie. The detect-mode worker has no HTTP context in production, but the tests need to
     // exercise the mock client without standing up a webhook request — so an in-memory HttpContext carrying
