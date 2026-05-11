@@ -45,7 +45,10 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     ///     Pending (not yet processed), Ignored (no customer match), and Failed; orders ASC by
     ///     <c>StripeCreatedAt</c> so the replayer state machine consumes them in the order Stripe produced
     ///     them. Bypasses the tenant query filter because reconciliation runs outside an authenticated
-    ///     tenant context.
+    ///     tenant context. <c>StripeCreatedAt</c> is nullable on the aggregate because legacy rows from
+    ///     before the column existed have NULL there; rows with NULL <c>StripeCreatedAt</c> are excluded by
+    ///     SQL semantics of the <c>&lt; cutoff</c> filter (NULL comparisons yield NULL, which is filtered
+    ///     out) so every row returned from this method has a non-null <c>StripeCreatedAt</c>.
     /// </summary>
     Task<StripeEvent[]> GetArchivedEventsOlderThanAsync(StripeCustomerId stripeCustomerId, DateTimeOffset cutoff, CancellationToken cancellationToken);
 }
@@ -103,9 +106,12 @@ public sealed class StripeEventRepository(AccountDbContext accountDbContext)
             .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Processed)
             .ToArrayAsync(cancellationToken);
 
+        // StripeCreatedAt is nullable on the aggregate; the `< cutoff` filter excludes rows with NULL
+        // (NULL comparisons yield false in LINQ-to-Objects after materialization, mirroring SQL's
+        // NULL-tri-state semantics). Every row reaching the OrderBy therefore has a non-null value.
         var olderThanCutoff = candidateEvents
             .Where(e => e.StripeCreatedAt < cutoff)
-            .OrderBy(e => e.StripeCreatedAt)
+            .OrderBy(e => e.StripeCreatedAt!.Value)
             .ToArray();
 
         if (olderThanCutoff.Length == 0) return [];

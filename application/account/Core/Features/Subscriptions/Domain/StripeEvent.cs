@@ -20,21 +20,27 @@ public sealed record StripeEventId(string Value) : StronglyTypedString<StripeEve
 ///     (1) inbox for two-phase webhook processing (Pending → Processed), and
 ///     (2) authoritative source for replaying BillingEvents beyond Stripe's 30-day events.list retention
 ///     (see https://docs.stripe.com/api/events).
-///     Rows are immutable after <see cref="MarkProcessed" />. The state machine is one-way:
-///     Pending → Processed (or Ignored when no customer match, or Failed on processing error). Subsequent
-///     redeliveries of the same event id are deduplicated at insert time and never overwrite an existing row.
-///     If the same event id is observed with a different payload, it is logged as a forensic anomaly and the
-///     existing row is preserved unchanged.
-///     Hard rule: rows in this table are never deleted. Schema changes use ALTER TABLE ADD/DROP COLUMN,
-///     never DROP/TRUNCATE/DELETE FROM.
+///     This table is INSERT-only. The <em>state machine columns</em> (<see cref="Status" />,
+///     <see cref="ProcessedAt" />, <see cref="Error" />, <see cref="TenantId" />,
+///     <see cref="StripeSubscriptionId" />) are mutable as the row progresses Pending → Processed (or
+///     Ignored / Failed). The <em>payload and payload-derived columns</em> (<see cref="Payload" />,
+///     <see cref="ApiVersion" />, <see cref="PayloadHash" />, <see cref="StripeCreatedAt" />,
+///     <see cref="RecoveredAt" />, <see cref="RecoverySource" />) are immutable after insert — written
+///     once at ingestion and never re-hashed, backfilled, or recomputed from the stored payload. Stripe
+///     owns the payload schema and is free to send null, omit fields, or change shape, so every
+///     payload-derived column is nullable and tolerant of null on read.
+///     Subsequent redeliveries of the same event id are deduplicated at insert time and never overwrite
+///     an existing row. If the same event id is observed with a different payload, it is logged as a
+///     forensic anomaly and the existing row is preserved unchanged.
+///     Hard rule: rows in this table are never updated (except for the state machine transitions noted
+///     above), deleted, or truncated. Schema changes use ALTER TABLE ADD/DROP COLUMN, never
+///     DROP/TRUNCATE/DELETE FROM.
 /// </summary>
 public sealed class StripeEvent : AggregateRoot<StripeEventId>
 {
     private StripeEvent(StripeEventId id) : base(id)
     {
         EventType = string.Empty;
-        ApiVersion = string.Empty;
-        PayloadHash = string.Empty;
         Status = StripeEventStatus.Pending;
     }
 
@@ -58,9 +64,10 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
     ///     The Stripe API version active when Stripe created this event. Pinned at event creation time and
     ///     never changes (see https://docs.stripe.com/api/events). The replayer uses this to dispatch to
     ///     the correct <c>IStripeEventPayloadResolver</c> when the JSON shape changes between Stripe API
-    ///     versions.
+    ///     versions. Nullable because Stripe owns the payload schema and may omit the field; readers fall
+    ///     back to the resolver's default behavior for unknown versions.
     /// </summary>
-    public string ApiVersion { get; private set; }
+    public string? ApiVersion { get; private set; }
 
     /// <summary>
     ///     When this event was recovered from a reconciliation source (events.list or
@@ -81,17 +88,19 @@ public sealed class StripeEvent : AggregateRoot<StripeEventId>
     ///     SHA-256 hash of the raw payload when this row was first stored. Used by AcknowledgeStripeWebhook
     ///     to detect StripeEventPayloadDivergence: if the same event id arrives twice with different
     ///     payloads, the existing row is preserved unchanged and the divergence is surfaced as a drift
-    ///     discrepancy.
+    ///     discrepancy. Nullable because legacy rows from before this column existed have NULL here; the
+    ///     stored payload is never re-hashed to backfill (the hash is computed exactly once at ingestion).
     /// </summary>
-    public string PayloadHash { get; private set; }
+    public string? PayloadHash { get; private set; }
 
     /// <summary>
     ///     Stripe's authoritative <c>Event.Created</c> timestamp (see https://docs.stripe.com/api/events).
     ///     Captured at ingestion from both webhook deliveries and reconciliation sources so the replayer
     ///     can order events and stamp <c>BillingEvent.OccurredAt</c> from the time Stripe says the event
-    ///     occurred — never our ingestion time.
+    ///     occurred — never our ingestion time. Nullable because legacy rows from before this column
+    ///     existed have NULL here and Stripe is free to omit the field on a future payload shape change.
     /// </summary>
-    public DateTimeOffset StripeCreatedAt { get; private set; }
+    public DateTimeOffset? StripeCreatedAt { get; private set; }
 
     /// <summary>
     ///     Factory method for phase 1 webhook acknowledgment. Creates a Pending event that will be

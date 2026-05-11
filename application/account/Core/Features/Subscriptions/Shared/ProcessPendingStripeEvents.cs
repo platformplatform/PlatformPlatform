@@ -438,8 +438,13 @@ public sealed class ProcessPendingStripeEvents(
             // from the same request, not read from the cold durable archive.
             // Source the replay timestamp from Stripe's authoritative Event.Created (captured at ingestion
             // into StripeCreatedAt) so the replayer orders events and writes BillingEvent.OccurredAt at the
-            // moment Stripe says the event occurred.
-            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt, pending.Payload ?? "", pending.ApiVersion);
+            // moment Stripe says the event occurred. Skip pending rows with a null StripeCreatedAt — the
+            // replayer cannot order them and a Pending row should never have a null timestamp in practice,
+            // but stripe_events is a passive archive so guard defensively at the boundary. For null
+            // ApiVersion, pass empty so the unsupported-version code path surfaces it as drift instead of
+            // matching a real resolver.
+            if (pending.StripeCreatedAt is null) continue;
+            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt.Value, pending.Payload ?? "", pending.ApiVersion ?? "");
         }
 
         if (unioned.Count == 0)

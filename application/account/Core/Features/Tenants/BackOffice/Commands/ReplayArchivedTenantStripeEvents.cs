@@ -86,8 +86,12 @@ public sealed class ReplayArchivedTenantStripeEventsHandler(
             .FirstOrDefault();
         var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersistedBillingEvent);
 
+        // GetArchivedEventsOlderThanAsync filters on `StripeCreatedAt < cutoff`, which excludes NULLs by
+        // SQL/LINQ semantics, so every row returned is guaranteed to have a non-null StripeCreatedAt. A
+        // null ApiVersion (Stripe omitted the field on a legacy row) is passed as empty so the unsupported-
+        // version code path surfaces it as drift instead of matching a real resolver.
         var replayInputs = archivedEvents
-            .Select(e => new StripeReplayEvent(e.Id.Value, e.EventType, e.StripeCreatedAt, e.Payload ?? "", e.ApiVersion))
+            .Select(e => new StripeReplayEvent(e.Id.Value, e.EventType, e.StripeCreatedAt!.Value, e.Payload ?? "", e.ApiVersion ?? ""))
             .ToArray();
 
         var existingStripeEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);

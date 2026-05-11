@@ -112,11 +112,13 @@ public sealed class ReconcileTenantWithStripeHandler(
         var now = timeProvider.GetUtcNow();
         var archiveCutoff = now - StripeEventsListRetentionWindow;
         var archivedAwaitingReplay = await stripeEventRepository.GetArchivedEventsOlderThanAsync(subscription.StripeCustomerId, archiveCutoff, cancellationToken);
+        // GetArchivedEventsOlderThanAsync filters on `StripeCreatedAt < cutoff`, which excludes NULLs by
+        // SQL/LINQ semantics, so every row returned is guaranteed to have a non-null StripeCreatedAt.
         var archivedEventsAwaitingConfirmation = archivedAwaitingReplay.Length > 0
             ? new ArchivedEventsAwaitingConfirmation(
                 archivedAwaitingReplay.Length,
-                archivedAwaitingReplay.Min(e => e.StripeCreatedAt),
-                archivedAwaitingReplay.Max(e => e.StripeCreatedAt)
+                archivedAwaitingReplay.Min(e => e.StripeCreatedAt!.Value),
+                archivedAwaitingReplay.Max(e => e.StripeCreatedAt!.Value)
             )
             : null;
 

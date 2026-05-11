@@ -64,7 +64,13 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         migrationBuilder.CreateIndex("ix_billing_events_occurred_at", "billing_events", "occurred_at", descending: [true]);
         migrationBuilder.CreateIndex("ix_billing_events_subscription_id", "billing_events", "subscription_id");
 
-        // stripe_events extensions for the multi-source reconciliation architecture:
+        // stripe_events extensions for the multi-source reconciliation architecture. stripe_events is a
+        // passive archive of Stripe's webhook payloads — Stripe owns the payload schema, so we cannot
+        // constrain any column derived from payload content. Every column added here is nullable: Stripe
+        // is free to send null, omit fields, or change shape, and we never re-hash or backfill stored
+        // payloads. Rows are INSERT-only; the *state machine columns* (status, processed_at, error,
+        // tenant_id, stripe_subscription_id) are mutable as the row progresses Pending → Processed, but
+        // the *payload and payload-derived columns* below are immutable after insert.
         // - api_version: pinned at event creation per https://docs.stripe.com/api/events; lets the
         //   replayer dispatch to the correct payload resolver when Stripe ships a new API version.
         // - payload_hash: SHA-256 of the raw payload at first observation; lets AcknowledgeStripeWebhook
@@ -72,11 +78,13 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         // - recovered_at / recovery_source: non-null when the event was added by reconciliation
         //   (events.list or webhook_endpoint_deliveries) rather than via webhook delivery — forensic
         //   marker that a webhook delivery was missed.
-        migrationBuilder.AddColumn<string>("api_version", "stripe_events", "text", nullable: false);
+        // - stripe_created_at: Stripe's authoritative Event.Created timestamp; legacy rows from before
+        //   this column existed have NULL here and are never backfilled.
+        migrationBuilder.AddColumn<string>("api_version", "stripe_events", "text", nullable: true);
         migrationBuilder.AddColumn<DateTimeOffset>("recovered_at", "stripe_events", "timestamptz", nullable: true);
         migrationBuilder.AddColumn<string>("recovery_source", "stripe_events", "text", nullable: true);
-        migrationBuilder.AddColumn<string>("payload_hash", "stripe_events", "text", nullable: false);
-        migrationBuilder.AddColumn<DateTimeOffset>("stripe_created_at", "stripe_events", "timestamptz", nullable: false);
+        migrationBuilder.AddColumn<string>("payload_hash", "stripe_events", "text", nullable: true);
+        migrationBuilder.AddColumn<DateTimeOffset>("stripe_created_at", "stripe_events", "timestamptz", nullable: true);
 
         migrationBuilder.CreateIndex("ix_stripe_events_recovered_at", "stripe_events", "recovered_at", filter: "recovered_at IS NOT NULL");
 
