@@ -212,6 +212,21 @@ public sealed class ProcessPendingStripeEvents(
             events.CollectEvent(new SubscriptionDowngraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value, subscription.CurrentPriceCurrency!));
         }
 
+        // Unconditional reconciliation of the scheduled-plan price from the catalog. Mirrors how
+        // SetStripeSubscription above unconditionally reconciles CurrentPriceAmount on every sync. Without
+        // this, a cancel-then-reschedule pair landing in the same sync window leaves both diff flags
+        // (downgradeScheduled, downgradeCancelled) false — the local pre-sync ScheduledPlan equals the
+        // Stripe post-sync ScheduledPlan — and scheduled_price_amount stays NULL from an earlier transition
+        // (e.g. the downgradeCancelled call to SetScheduledPlan(..., null)). MrrCalculator.ForwardMrr then
+        // falls back to CurrentPriceAmount, overstating BLENDED MRR. The reconciliation is idempotent:
+        // when the diff detector already set the correct price, this re-applies the same value.
+        if (stripeState?.ScheduledPlan is not null)
+        {
+            var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
+            var scheduledPlanPrice = priceCatalog.Single(p => p.Plan == stripeState.ScheduledPlan.Value).UnitAmount;
+            subscription.SetScheduledPlan(stripeState.ScheduledPlan, scheduledPlanPrice);
+        }
+
         if (subscriptionCancelled)
         {
             subscription.SetCancellation(stripeState!.CancelAtPeriodEnd, stripeState.CancellationReason, stripeState.CancellationFeedback);

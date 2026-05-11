@@ -26,6 +26,11 @@ public sealed class MockStripeState
     // events.list-driven emission must see historical events that aren't part of the default mock
     // timeline (e.g. drift detection across earlier customer.subscription.created/deleted pairs).
     public List<StripeReplayEvent> EventsListAdditionalEvents { get; } = [];
+
+    // Override the scheduled plan returned by SyncSubscriptionStateAsync. Used to simulate the
+    // cancel-then-reschedule edge case where local pre-sync ScheduledPlan equals Stripe post-sync
+    // ScheduledPlan and the diff-based transition detector therefore doesn't fire.
+    public SubscriptionPlan? ScheduledPlan { get; set; }
 }
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider, MockStripeState state) : IStripeClient
@@ -86,7 +91,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
         var result = new SubscriptionSyncResult(
             SubscriptionPlan.Standard,
-            null,
+            state.ScheduledPlan,
             StripeSubscriptionId.NewId(MockSubscriptionId),
             29.99m,
             state.SubscriptionCurrency,

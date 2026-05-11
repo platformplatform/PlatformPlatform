@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
@@ -238,6 +239,43 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
             [new { tenantId = DatabaseSeeder.Tenant1.Id.Value, stripeEventId = uniqueEventId }]
         );
         eventType.Should().Be(nameof(BillingEventType.SubscriptionPastDue), "the active → past_due payload should classify as SubscriptionPastDue");
+    }
+
+    [Fact]
+    public async Task SyncStateFromStripe_WhenLocalScheduledPlanMatchesStripeWithNullPrice_ShouldReconcileScheduledPriceFromCatalog()
+    {
+        // Arrange — regression for the cancel-then-reschedule bug. A customer cancels a downgrade and
+        // immediately re-schedules a new one within the same sync window:
+        //   pre-sync local:  ScheduledPlan=Premium, ScheduledPriceAmount=NULL (the broken state from a
+        //                    previous downgradeCancelled call that set both to null)
+        //   post-sync Stripe: ScheduledPlan=Premium (the re-scheduled downgrade)
+        // Neither downgradeScheduled (local ScheduledPlan is not null) nor downgradeCancelled (Stripe
+        // ScheduledPlan is not null) fires, so the diff-based pricing path is skipped. Before the fix,
+        // scheduled_price_amount stayed NULL and MrrCalculator.ForwardMrr fell back to current price
+        // (29.99) instead of catalog Premium price (99), overstating BLENDED MRR.
+        SetupSubscription();
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("scheduled_plan", nameof(SubscriptionPlan.Premium)),
+                ("scheduled_price_amount", null)
+            ]
+        );
+        StripeState.ScheduledPlan = SubscriptionPlan.Premium;
+
+        // Act — any webhook triggers ProcessPendingStripeEvents which runs SyncStateFromStripe
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.updated");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert — scheduled_price_amount is now the catalog Premium price (99), not NULL
+        response.EnsureSuccessStatusCode();
+        var scheduledPriceAmount = Connection.ExecuteScalar<string>(
+            $"SELECT scheduled_price_amount FROM subscriptions WHERE tenant_id = {DatabaseSeeder.Tenant1.Id.Value}", []
+        );
+        scheduledPriceAmount.Should().NotBeNullOrEmpty("the unconditional reconciliation must populate scheduled_price_amount whenever Stripe reports a ScheduledPlan");
+        decimal.Parse(scheduledPriceAmount, CultureInfo.InvariantCulture).Should().Be(99.00m, "the catalog Premium price (99) must be written back, not NULL, healing the cancel-then-reschedule bug");
     }
 
     [Fact]

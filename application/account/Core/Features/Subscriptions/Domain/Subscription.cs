@@ -313,7 +313,17 @@ public enum DriftDiscrepancyKind
     ///     newer event was already classified and persisted. The persisted row is left untouched per the
     ///     append-only invariant; this discrepancy surfaces the wrongness for operator review.
     /// </summary>
-    BillingEventDenormalizationStale
+    BillingEventDenormalizationStale,
+
+    /// <summary>
+    ///     The subscription has a <c>ScheduledPlan</c> set but <c>ScheduledPriceAmount</c> is null. The
+    ///     MRR KPI falls back to the current (higher) price in this state, silently distorting BLENDED MRR.
+    ///     Originates from edge cases in <c>SyncStateFromStripe</c> where a cancel-then-reschedule pair
+    ///     landed in the same sync window and the diff-based transition detector did not fire; the
+    ///     unconditional reconciliation in <c>SyncStateFromStripe</c> now prevents this, and this drift
+    ///     check stands as defence-in-depth so any future regression surfaces on the next sync.
+    /// </summary>
+    ScheduledPriceMissing
 }
 
 [PublicAPI]

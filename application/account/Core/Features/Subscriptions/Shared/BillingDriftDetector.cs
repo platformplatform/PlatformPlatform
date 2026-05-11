@@ -87,6 +87,21 @@ public static class BillingDriftDetector
             );
         }
 
+        // ScheduledPlan without ScheduledPriceAmount distorts the BLENDED MRR KPI: MrrCalculator.ForwardMrr
+        // falls back from the missing scheduled price to the current (higher) price, overstating forward MRR.
+        // The unconditional reconciliation pass in SyncStateFromStripe prevents this from being written;
+        // this check stands as defence-in-depth so any future regression surfaces on the next sync.
+        if (localSnapshot.ScheduledPlan is not null && localSnapshot.ScheduledPriceAmount is null)
+        {
+            discrepancies.Add(new DriftDiscrepancy(
+                    DriftDiscrepancyKind.ScheduledPriceMissing,
+                    "Subscription has a scheduled plan but the scheduled price amount is missing. The MRR KPI falls back to the current price instead, distorting BLENDED MRR.",
+                    DriftSeverity.Critical,
+                    ExpectedValue: localSnapshot.ScheduledPlan.ToString()
+                )
+            );
+        }
+
         return discrepancies.ToImmutable();
     }
 }
@@ -103,7 +118,9 @@ public sealed record StripeSyncSnapshot(
     SubscriptionPlan Plan,
     bool CancelAtPeriodEnd,
     decimal? CurrentPriceAmount,
-    string? CurrentPriceCurrency
+    string? CurrentPriceCurrency,
+    SubscriptionPlan? ScheduledPlan = null,
+    decimal? ScheduledPriceAmount = null
 )
 {
     public static StripeSyncSnapshot FromSubscription(Subscription subscription)
@@ -112,7 +129,9 @@ public sealed record StripeSyncSnapshot(
             subscription.Plan,
             subscription.CancelAtPeriodEnd,
             subscription.CurrentPriceAmount,
-            subscription.CurrentPriceCurrency
+            subscription.CurrentPriceCurrency,
+            subscription.ScheduledPlan,
+            subscription.ScheduledPriceAmount
         );
     }
 }

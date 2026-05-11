@@ -140,6 +140,40 @@ public sealed class BillingDriftDetectorTests
     }
 
     [Fact]
+    public void Detect_WhenLocalHasScheduledPlanButScheduledPriceIsNull_ShouldReturnScheduledPriceMissingDiscrepancy()
+    {
+        // Arrange — defends MrrCalculator.ForwardMrr's ScheduledPriceAmount ?? CurrentPriceAmount rule.
+        // A subscription with ScheduledPlan set but ScheduledPriceAmount null silently distorts BLENDED MRR
+        // (falls back to the higher current price). Surfaces the bug that motivated this check: the
+        // cancel-then-reschedule pair in a single sync window left scheduled_price_amount NULL.
+        var localSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK", SubscriptionPlan.Standard);
+        var stripeSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
+
+        // Act
+        var discrepancies = BillingDriftDetector.Detect(localSnapshot, stripeSnapshot, 0, 0);
+
+        // Assert
+        discrepancies.Should().ContainSingle();
+        discrepancies[0].Kind.Should().Be(DriftDiscrepancyKind.ScheduledPriceMissing);
+        discrepancies[0].Severity.Should().Be(DriftSeverity.Critical);
+        discrepancies[0].ExpectedValue.Should().Be(nameof(SubscriptionPlan.Standard));
+    }
+
+    [Fact]
+    public void Detect_WhenLocalHasScheduledPlanAndScheduledPrice_ShouldNotReturnScheduledPriceMissingDiscrepancy()
+    {
+        // Arrange — happy path: scheduled plan and price are both set.
+        var localSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK", SubscriptionPlan.Standard, 29.00m);
+        var stripeSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
+
+        // Act
+        var discrepancies = BillingDriftDetector.Detect(localSnapshot, stripeSnapshot, 0, 0);
+
+        // Assert
+        discrepancies.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Detect_WhenSubscriptionHasDriftSet_AndAcknowledged_ShouldClearFlag()
     {
         // Arrange
