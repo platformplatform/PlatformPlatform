@@ -21,6 +21,11 @@ public class SinglePageAppConfiguration
     // construct one SinglePageAppConfiguration per SPA via the WebAppProjectName parameter.
     public static readonly string BuildRootPath = GetWebAppDistRoot(DefaultWebAppProjectName, "dist");
 
+    // Source directory for SPA static assets that rsbuild copies into BuildRootPath at build time.
+    // Used by UseSinglePageAppFallback to layer public/ assets over the bundle in local dev where
+    // rsbuild's dev server holds them.
+    public static readonly string PublicRootPath = GetWebAppDistRoot(DefaultWebAppProjectName, "public");
+
     public static readonly JsonSerializerOptions JsonHtmlEncodingOptions =
         new(SharedDependencyConfiguration.DefaultJsonSerializerOptions)
         {
@@ -77,6 +82,7 @@ public class SinglePageAppConfiguration
 
         _isDevelopment = isDevelopment;
         BundleDirectory = webAppProjectName == DefaultWebAppProjectName ? BuildRootPath : GetWebAppDistRoot(webAppProjectName, "dist");
+        PublicDirectory = GetWebAppDistRoot(webAppProjectName, "public");
         _htmlTemplatePath = Path.Combine(BundleDirectory, "index.html");
         _remoteEntryJsPath = Path.Combine(BundleDirectory, "remoteEntry.js");
         PermissionPolicies = GetPermissionsPolicies();
@@ -84,6 +90,12 @@ public class SinglePageAppConfiguration
     }
 
     public string BundleDirectory { get; }
+
+    // Source directory for SPA static assets that rsbuild copies into BundleDirectory at build time
+    // (manifest.json, favicon.ico, apple-touch-icon.png, etc.). In Azure these assets live alongside
+    // the bundle, but in local dev rsbuild's dev server holds them and they never reach BundleDirectory.
+    // Layering this directory under the bundle file provider closes that gap without per-asset rules.
+    public string PublicDirectory { get; }
 
     private string CdnUrl { get; }
 
