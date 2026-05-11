@@ -26,10 +26,6 @@ export interface GetFeatureFlagsResponse {
 
 export type FeatureFlagTenantInfo = components["schemas"]["FeatureFlagTenantInfo"];
 
-export type GetFeatureFlagTenantsResponse = components["schemas"]["GetFeatureFlagTenantsResponse"];
-
 export type FeatureFlagUserInfo = components["schemas"]["FeatureFlagUserInfo"];
-
-export type GetFeatureFlagUsersResponse = components["schemas"]["GetFeatureFlagUsersResponse"];
 
 export type FeatureFlagSourceLiteral = "manual_override" | "ab_rollout" | "plan" | "default";

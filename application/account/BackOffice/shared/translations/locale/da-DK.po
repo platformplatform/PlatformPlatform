@@ -21,11 +21,6 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 
-#. placeholder {0}: group.plan
-#. placeholder {1}: group.tenants.length
-msgid "{0} ({1})"
-msgstr "{0} ({1})"
-
 #. placeholder {0}: formatCurrency(blended, currency)
 msgid "{0} blended"
 msgstr "{0} samlet"
@@ -154,6 +149,9 @@ msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug til
 
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
+
+msgid "Accounts will appear here as they become available."
+msgstr "Konti vises her, når de bliver tilgængelige."
 
 msgid "Active"
 msgstr "Aktiv"
@@ -353,11 +351,6 @@ msgstr "Enhed"
 msgid "Disabled"
 msgstr "Deaktiveret"
 
-#. placeholder {0}: disabledTenants.length
-#. placeholder {0}: disabledUsers.length
-msgid "Disabled ({0})"
-msgstr "Deaktiveret ({0})"
-
 msgid "Disaster recovery complete"
 msgstr "Katastrofegendannelse fuldført"
 
@@ -396,11 +389,6 @@ msgstr "E-mail afventer"
 
 msgid "Enabled"
 msgstr "Aktiveret"
-
-#. placeholder {0}: enabledTenants.length
-#. placeholder {0}: enabledUsers.length
-msgid "Enabled ({0})"
-msgstr "Aktiveret ({0})"
 
 #. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
 #. placeholder {1}: formatTimestamp(featureFlag.disabledAt)
@@ -606,8 +594,8 @@ msgstr "Næste"
 msgid "No account memberships"
 msgstr "Ingen kontomedlemskaber"
 
-msgid "No accounts in this group."
-msgstr "Ingen konti i denne gruppe."
+msgid "No accounts match these filters"
+msgstr "Ingen konti matcher disse filtre"
 
 msgid "No accounts match your filters"
 msgstr "Ingen konti matcher dine filtre"
@@ -632,6 +620,18 @@ msgstr "Ingen faktureringshændelser endnu"
 
 msgid "No change"
 msgstr "Ingen ændring"
+
+msgid "No disabled accounts"
+msgstr "Ingen deaktiverede konti"
+
+msgid "No disabled users"
+msgstr "Ingen deaktiverede brugere"
+
+msgid "No enabled accounts"
+msgstr "Ingen aktiverede konti"
+
+msgid "No enabled users"
+msgstr "Ingen aktiverede brugere"
 
 msgid "No feature flags"
 msgstr "Ingen feature flags"
@@ -708,8 +708,8 @@ msgstr "Der er ingen brugeromfattede feature flags defineret."
 msgid "No users"
 msgstr "Ingen brugere"
 
-msgid "No users found"
-msgstr "Ingen brugere fundet"
+msgid "No users match these filters"
+msgstr "Ingen brugere matcher disse filtre"
 
 msgid "No users match your filters."
 msgstr "Ingen brugere matcher dine filtre."
@@ -1019,8 +1019,8 @@ msgstr "Søg efter kontonavn"
 msgid "Search by account name or ID"
 msgstr "Søg efter kontonavn eller ID"
 
-msgid "Search by email"
-msgstr "Søg efter e-mail"
+msgid "Search by account name or owner email"
+msgstr "Søg efter kontonavn eller ejer-e-mail"
 
 msgid "Search by email, name, or account"
 msgstr "Søg på e-mail, navn eller konto"
@@ -1030,12 +1030,6 @@ msgstr "Søg efter navn"
 
 msgid "Search by name or email"
 msgstr "Søg efter navn eller e-mail"
-
-msgid "Search for users"
-msgstr "Søg efter brugere"
-
-msgid "Search for users by email and toggle the override switch to enable this feature."
-msgstr "Søg efter brugere via e-mail og slå tilsidesættelsesknappen til for at aktivere denne funktion."
 
 msgid "Search results"
 msgstr "Søgeresultater"
@@ -1081,6 +1075,9 @@ msgstr "Kilde"
 
 msgid "Standard"
 msgstr "Standard"
+
+msgid "State"
+msgstr "Tilstand"
 
 msgid "Status"
 msgstr "Status"
@@ -1167,6 +1164,9 @@ msgstr "Slå {0} til/fra"
 msgid "Toggle the override switch to enable this feature for specific accounts."
 msgstr "Slå tilsidesættelsesknappen til for at aktivere denne funktion for specifikke konti."
 
+msgid "Toggle the override switch to enable this feature for specific users."
+msgstr "Skift tilsidesættelse for at aktivere denne funktion for specifikke brugere."
+
 msgid "Total"
 msgstr "I alt"
 
@@ -1178,9 +1178,6 @@ msgstr "Omsætning i alt"
 
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
-
-msgid "Try adjusting your search"
-msgstr "Prøv at justere din søgning"
 
 msgid "Try again"
 msgstr "Prøv igen"
@@ -1196,9 +1193,6 @@ msgstr "Afprøv eksperimentelle brugergrænsefladekomponenter"
 
 msgid "Type"
 msgstr "Type"
-
-msgid "Type an email address above to find users and manage their overrides"
-msgstr "Indtast en e-mailadresse ovenfor for at finde brugere og styre deres tilsidesættelser"
 
 msgid "Unclassified"
 msgstr "Uklassificeret"
@@ -1238,6 +1232,9 @@ msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug t
 
 msgid "Users will appear here as accounts are created."
 msgstr "Brugere vises her efterhånden som konti oprettes."
+
+msgid "Users will appear here as they become available."
+msgstr "Brugere vises her, når de bliver tilgængelige."
 
 msgid "VAT"
 msgstr "Moms"

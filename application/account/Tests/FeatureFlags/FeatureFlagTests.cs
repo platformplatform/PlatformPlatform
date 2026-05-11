@@ -4,7 +4,10 @@ using Account.Database;
 using Account.Features.FeatureFlags.Commands;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.FeatureFlags.Queries;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Users.Domain;
 using FluentAssertions;
+using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
@@ -470,7 +473,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFeatureFlagUsers_WhenNoSearchProvided_ShouldReturnEmptyArray()
+    public async Task GetFeatureFlagUsers_WhenNoSearchProvided_ShouldReturnAllUsersPaginated()
     {
         // Arrange
         var flagKey = "compact-view";
@@ -482,7 +485,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
-        result.Users.Should().BeEmpty();
+        result.Users.Should().NotBeEmpty();
+        result.TotalCount.Should().BeGreaterThan(0);
+        result.PageSize.Should().Be(25);
+        result.CurrentPageOffset.Should().Be(0);
+        result.TotalPages.Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -882,6 +889,311 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    // Pagination + filtering tests
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenSearchMatchesOwnerEmail_ShouldReturnMatchingTenants()
+    {
+        // Arrange
+        var flagKey = "sso";
+
+        // Act - DatabaseSeeder.Tenant1Owner email is "owner@tenant-1.com", so search by "tenant-1" hits owner email
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?Search=tenant-1");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().NotBeEmpty();
+        result.Tenants.Should().OnlyContain(t => t.Owner!.Email.Contains("tenant-1"));
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenSearchHasNoMatches_ShouldReturnEmpty()
+    {
+        // Arrange
+        var flagKey = "sso";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?Search=does-not-exist-anywhere");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenPlansFilterMatches_ShouldReturnOnlyTenantsOnSelectedPlans()
+    {
+        // Arrange - DatabaseSeeder.Tenant1 is on the Basis plan
+        var flagKey = "sso";
+
+        // Act
+        var matchResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?Plans=Basis");
+        var noMatchResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?Plans=Premium");
+
+        // Assert
+        matchResponse.ShouldBeSuccessfulGetRequest();
+        noMatchResponse.ShouldBeSuccessfulGetRequest();
+        var matchResult = await matchResponse.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        var noMatchResult = await noMatchResponse.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        matchResult.Should().NotBeNull();
+        noMatchResult.Should().NotBeNull();
+        matchResult.Tenants.Should().OnlyContain(t => t.Plan == SubscriptionPlan.Basis);
+        matchResult.TotalCount.Should().BeGreaterThan(0);
+        noMatchResult.Tenants.Should().BeEmpty();
+        noMatchResult.TotalCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenStateEnabledAndTenantHasManualOverride_ShouldReturnOnlyEnabledTenants()
+    {
+        // Arrange - tenant-1 gets a manual enable for `sso`; all other tenants remain disabled by default
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertTenantOverride(flagKey, tenantId, enabled: true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?State=Enabled");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().OnlyContain(t => t.IsEnabled);
+        result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenStateDisabledAndTenantIsEnabledViaOverride_ShouldExcludeTenant()
+    {
+        // Arrange
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertTenantOverride(flagKey, tenantId, enabled: true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?State=Disabled");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().NotContain(t => t.Id.Value == tenantId);
+        result.Tenants.Where(t => t.IsEnabled).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenStateOmitted_ShouldNotFilterByState()
+    {
+        // Arrange - tenant-1 gets enabled, then ask without State (omitted = no filter)
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertTenantOverride(flagKey, tenantId, enabled: true);
+
+        // Act
+        var omittedResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+        var enabledResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?State=Enabled");
+
+        // Assert
+        omittedResponse.ShouldBeSuccessfulGetRequest();
+        enabledResponse.ShouldBeSuccessfulGetRequest();
+        var omitted = await omittedResponse.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        var enabled = await enabledResponse.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        omitted.Should().NotBeNull();
+        enabled.Should().NotBeNull();
+        omitted.TotalCount.Should().BeGreaterThanOrEqualTo(enabled.TotalCount);
+        omitted.Tenants.Should().Contain(t => t.Id.Value == tenantId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenPaginated_ShouldReturnCorrectPagingMetadata()
+    {
+        // Arrange
+        var flagKey = "sso";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?PageSize=1&PageOffset=0");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.PageSize.Should().Be(1);
+        result.CurrentPageOffset.Should().Be(0);
+        result.Tenants.Length.Should().BeLessOrEqualTo(1);
+        result.TotalPages.Should().Be(result.TotalCount);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenSortedByName_ShouldReturnTenantsInAscendingNameOrder()
+    {
+        // Arrange
+        var flagKey = "sso";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().BeInAscendingOrder(t => t.Name);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenSearchMatchesEmail_ShouldReturnOnlyMatchingUsers()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?Search=owner@tenant-1");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().NotBeEmpty();
+        result.Users.Should().OnlyContain(u => u.Email.Contains("owner@tenant-1"));
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenRolesFilterApplied_ShouldReturnOnlyUsersWithSelectedRoles()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?Roles=Owner");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().NotBeEmpty();
+        result.Users.Should().OnlyContain(u => u.Role == UserRole.Owner);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenStateEnabledAndUserHasManualOverride_ShouldReturnOnlyEnabledUsers()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertUserOverride(flagKey, tenantId, userId, enabled: true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?State=Enabled");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().OnlyContain(u => u.IsEnabled);
+        result.Users.Should().Contain(u => u.Id.Value == userId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenStateDisabled_ShouldReturnOnlyDisabledUsers()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertUserOverride(flagKey, tenantId, userId, enabled: true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?State=Disabled");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().OnlyContain(u => !u.IsEnabled);
+        result.Users.Should().NotContain(u => u.Id.Value == userId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenPaginated_ShouldReturnCorrectPagingMetadata()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?PageSize=1&PageOffset=0");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.PageSize.Should().Be(1);
+        result.CurrentPageOffset.Should().Be(0);
+        result.Users.Length.Should().BeLessOrEqualTo(1);
+        result.TotalPages.Should().Be(result.TotalCount);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenPageOffsetExceedsTotalPages_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?PageOffset=100");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    private void InsertTenantOverride(string flagKey, TenantId tenantId, bool enabled)
+    {
+        var overrideId = FeatureFlagId.NewId().ToString();
+        var now = TimeProvider.System.GetUtcNow();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId.Value),
+                ("user_id", null),
+                ("enabled_at", enabled ? now : null),
+                ("disabled_at", enabled ? null : now),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false),
+                ("source", "Manual")
+            ]
+        );
+    }
+
+    private void InsertUserOverride(string flagKey, TenantId tenantId, string userId, bool enabled)
+    {
+        var overrideId = FeatureFlagId.NewId().ToString();
+        var now = TimeProvider.System.GetUtcNow();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId.Value),
+                ("user_id", userId),
+                ("enabled_at", enabled ? now : null),
+                ("disabled_at", enabled ? null : now),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false),
+                ("source", "Manual")
+            ]
+        );
     }
 
     // Query tests

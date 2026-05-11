@@ -18,8 +18,8 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(new GetFeatureFlagsQuery())
         ).Produces<GetFeatureFlagsResponse>();
 
-        internalGroup.MapGet("/{flagKey}/tenants", async Task<ApiResult<GetFeatureFlagTenantsResponse>> (string flagKey, IMediator mediator)
-            => await mediator.Send(new GetFeatureFlagTenantsQuery { FlagKey = flagKey })
+        internalGroup.MapGet("/{flagKey}/tenants", async Task<ApiResult<GetFeatureFlagTenantsResponse>> (string flagKey, [AsParameters] GetFeatureFlagTenantsQuery query, IMediator mediator)
+            => await mediator.Send(query with { FlagKey = flagKey })
         ).Produces<GetFeatureFlagTenantsResponse>();
 
         internalGroup.MapPut("/{flagKey}/activate", async Task<ApiResult> (string flagKey, IMediator mediator)
@@ -42,8 +42,8 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
         ).DisableAntiforgery();
 
-        internalGroup.MapGet("/{flagKey}/users", async Task<ApiResult<GetFeatureFlagUsersResponse>> (string flagKey, string? search, IMediator mediator)
-            => await mediator.Send(new GetFeatureFlagUsersQuery { FlagKey = flagKey, Search = search })
+        internalGroup.MapGet("/{flagKey}/users", async Task<ApiResult<GetFeatureFlagUsersResponse>> (string flagKey, [AsParameters] GetFeatureFlagUsersQuery query, IMediator mediator)
+            => await mediator.Send(query with { FlagKey = flagKey })
         ).Produces<GetFeatureFlagUsersResponse>();
 
         internalGroup.MapPut("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, SetUserFeatureFlagInternalCommand command, IMediator mediator)

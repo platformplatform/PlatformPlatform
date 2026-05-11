@@ -1,73 +1,82 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
-import { TextField } from "@repo/ui/components/TextField";
-import { ChevronDown } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Skeleton } from "@repo/ui/components/Skeleton";
+import { TablePagination } from "@repo/ui/components/TablePagination";
+import { keepPreviousData } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { UsersIcon } from "lucide-react";
+import { useCallback } from "react";
 
-import { api } from "@/shared/lib/api/client";
+import type { UserRole } from "@/shared/lib/api/client";
 
-import type { RolloutBucketRange } from "./rolloutBucket";
-import type { FeatureFlagUserInfo } from "./types";
+import { api, FeatureFlagAudienceState } from "@/shared/lib/api/client";
 
-import { sortBySourceThenRolloutBucket } from "./rolloutBucket";
-import { UserEmptyState } from "./UserEmptyState";
-import { UserOverrideRow } from "./UserOverrideRow";
+import type { StateFilter } from "./stateFilter";
+
+import { FeatureFlagUsersToolbar } from "./FeatureFlagUsersToolbar";
+import { DEFAULT_STATE_FILTER, ALL_STATE_FILTER, toApiState } from "./stateFilter";
+import { UserOverridesTable } from "./UserOverridesTable";
+
+interface UserOverridesSectionProps {
+  flagKey: string;
+  featureFlagDescription: string;
+  showRolloutBucket: boolean;
+  isFeatureFlagActive: boolean;
+  search: string | undefined;
+  roles: UserRole[];
+  state: StateFilter | undefined;
+  pageOffset: number | undefined;
+}
 
 export function UserOverridesSection({
   flagKey,
   featureFlagDescription,
   showRolloutBucket,
-  rolloutBucketRange,
-  isFeatureFlagActive
-}: Readonly<{
-  flagKey: string;
-  featureFlagDescription: string;
-  showRolloutBucket: boolean;
-  rolloutBucketRange: RolloutBucketRange | null;
-  isFeatureFlagActive: boolean;
-}>) {
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  isFeatureFlagActive,
+  search,
+  roles,
+  state,
+  pageOffset
+}: Readonly<UserOverridesSectionProps>) {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 300);
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  const { data: usersData, isLoading } = api.useQuery(
+  const { data, isLoading } = api.useQuery(
     "get",
     "/api/back-office/feature-flags/{flagKey}/users",
     {
-      params: { path: { flagKey }, query: { search: debouncedSearch } }
+      params: {
+        path: { flagKey },
+        query: {
+          Search: search,
+          Roles: roles.length === 0 ? undefined : roles,
+          State: toApiState(state),
+          PageOffset: pageOffset
+        }
+      }
     },
-    { enabled: debouncedSearch.length > 0 }
+    { placeholderData: keepPreviousData }
   );
 
-  const { enabledUsers, disabledUsers } = useMemo(() => {
-    const all = usersData?.users ?? [];
-    const enabled = all.filter((u) => u.isEnabled);
-    const disabled = all.filter((u) => !u.isEnabled);
-    return {
-      enabledUsers: sortBySourceThenRolloutBucket(
-        enabled,
-        (u) => u.source,
-        (u) => u.rolloutBucket,
-        "enabled",
-        rolloutBucketRange
-      ),
-      disabledUsers: sortBySourceThenRolloutBucket(
-        disabled,
-        (u) => u.source,
-        (u) => u.rolloutBucket,
-        "disabled",
-        rolloutBucketRange
-      )
-    };
-  }, [usersData?.users, rolloutBucketRange]);
+  const users = data?.users ?? [];
+  const totalPages = data?.totalPages ?? 0;
+  const currentPage = (data?.currentPageOffset ?? 0) + 1;
+  const effectiveState = state ?? DEFAULT_STATE_FILTER;
+  const hasFilters = Boolean(search) || roles.length > 0 || effectiveState !== DEFAULT_STATE_FILTER;
 
-  const hasSearched = debouncedSearch.length > 0;
+  const handlePageChange = useCallback(
+    (page: number) => {
+      navigate({
+        to: "/feature-flags/$flagKey",
+        params: { flagKey },
+        search: (previous) => ({
+          ...previous,
+          usersPageOffset: page === 1 ? undefined : page - 1
+        })
+      });
+    },
+    [navigate, flagKey]
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,127 +91,73 @@ export function UserOverridesSection({
               exclude specific users.
             </Trans>
           ) : (
-            <Trans>Search for users by email and toggle the override switch to enable this feature.</Trans>
+            <Trans>Toggle the override switch to enable this feature for specific users.</Trans>
           )}
         </p>
       </div>
-      <TextField
-        name="search"
-        placeholder={t`Search by email`}
-        value={search}
-        onChange={(value) => setSearch(value)}
-        className="max-w-[20rem]"
-      />
-      {!hasSearched ? (
-        <UserEmptyState variant="no-users" />
-      ) : isLoading ? (
-        <UserEmptyState variant="loading" />
-      ) : enabledUsers.length + disabledUsers.length > 0 ? (
-        <>
-          <CollapsibleUserGroup
-            label={t`Enabled (${enabledUsers.length})`}
-            users={enabledUsers}
-            flagKey={flagKey}
-            featureFlagDescription={featureFlagDescription}
-            showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
-          />
-          <CollapsibleUserGroup
-            label={t`Disabled (${disabledUsers.length})`}
-            users={disabledUsers}
-            flagKey={flagKey}
-            featureFlagDescription={featureFlagDescription}
-            showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
-          />
-        </>
+      <FeatureFlagUsersToolbar flagKey={flagKey} search={search} roles={roles} state={state} />
+      {isLoading && users.length === 0 ? (
+        <UserOverridesSkeleton />
+      ) : users.length === 0 ? (
+        <UserOverridesEmpty hasFilters={hasFilters} state={effectiveState} />
       ) : (
-        <UserEmptyState variant="no-results" />
+        <>
+          <UserOverridesTable
+            ariaLabel={t`Users`}
+            users={users}
+            flagKey={flagKey}
+            featureFlagDescription={featureFlagDescription}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
+          />
+          {totalPages > 1 && (
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              previousLabel={t`Previous`}
+              nextLabel={t`Next`}
+              trackingTitle="Feature flag users"
+              className="w-full"
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
 
-interface UserTableProps {
-  ariaLabel: string;
-  users: FeatureFlagUserInfo[];
-  flagKey: string;
-  featureFlagDescription: string;
-  showRolloutBucket: boolean;
-  isFeatureFlagActive: boolean;
-}
-
-function UserTable({
-  ariaLabel,
-  users,
-  flagKey,
-  featureFlagDescription,
-  showRolloutBucket,
-  isFeatureFlagActive
-}: Readonly<UserTableProps>) {
+function UserOverridesSkeleton() {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel}>
-      <TableHeader>
-        <TableRow>
-          <TableHead>
-            <Trans>User</Trans>
-          </TableHead>
-          <TableHead className="hidden md:table-cell">
-            <Trans>Account</Trans>
-          </TableHead>
-          <TableHead className="hidden lg:table-cell">
-            <Trans>Role</Trans>
-          </TableHead>
-          <TableHead className="hidden lg:table-cell">
-            <Trans>Last seen</Trans>
-          </TableHead>
-          <TableHead className="hidden sm:table-cell">
-            <Trans>Source</Trans>
-          </TableHead>
-          {showRolloutBucket && (
-            <TableHead className="hidden sm:table-cell">
-              <Trans>Bucket</Trans>
-            </TableHead>
-          )}
-          <TableHead className="text-right">
-            <Trans>Override</Trans>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {users.map((user) => (
-          <UserOverrideRow
-            key={user.id}
-            flagKey={flagKey}
-            featureFlagDescription={featureFlagDescription}
-            user={user}
-            showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="flex flex-col gap-2">
+      <Skeleton className="h-10 w-full rounded-md" />
+      <Skeleton className="h-14 w-full rounded-md" />
+      <Skeleton className="h-14 w-full rounded-md" />
+    </div>
   );
 }
 
-function CollapsibleUserGroup({
-  label,
-  ...tableProps
-}: Readonly<{ label: string } & Omit<UserTableProps, "ariaLabel">>) {
-  const [isOpen, setIsOpen] = useState(true);
-
+function UserOverridesEmpty({ hasFilters, state }: Readonly<{ hasFilters: boolean; state: StateFilter }>) {
+  const title =
+    state === FeatureFlagAudienceState.Enabled
+      ? t`No enabled users`
+      : state === FeatureFlagAudienceState.Disabled
+        ? t`No disabled users`
+        : state === ALL_STATE_FILTER
+          ? t`No users yet`
+          : t`No users match these filters`;
+  const description = hasFilters
+    ? t`Try clearing the search or filters to see more results.`
+    : t`Users will appear here as they become available.`;
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex flex-col gap-1">
-      <CollapsibleTrigger className="flex cursor-pointer items-center gap-1 text-left">
-        <ChevronDown
-          className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
-          aria-hidden={true}
-        />
-        <h4 className="text-muted-foreground">{label}</h4>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <UserTable ariaLabel={label} {...tableProps} />
-      </CollapsibleContent>
-    </Collapsible>
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <UsersIcon />
+        </EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{description}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }

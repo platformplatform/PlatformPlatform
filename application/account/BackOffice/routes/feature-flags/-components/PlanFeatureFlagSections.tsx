@@ -2,12 +2,20 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { api, SubscriptionPlan } from "@/shared/lib/api/client";
+import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+
 import type { FeatureFlagInfo, FeatureFlagTenantInfo } from "./types";
+
+// Plan-managed flags display every tenant grouped by plan; the section is not paginated because the plan
+// inheritance view needs the full picture at a glance. Cap is high enough for current tenant counts.
+const PLAN_TENANT_LIST_CAP = 1000;
 
 export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   return (
@@ -35,18 +43,28 @@ export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFl
   );
 }
 
-export function PlanFeatureFlagTenantsSection({ tenants }: Readonly<{ tenants: FeatureFlagTenantInfo[] }>) {
+export function PlanFeatureFlagTenantsSection({ flagKey }: Readonly<{ flagKey: string }>) {
   const [search, setSearch] = useState("");
 
+  const { data, isLoading } = api.useQuery("get", "/api/back-office/feature-flags/{flagKey}/tenants", {
+    params: {
+      path: { flagKey },
+      query: {
+        PageSize: PLAN_TENANT_LIST_CAP
+      }
+    }
+  });
+
   const filtered = useMemo(() => {
+    const tenants = data?.tenants ?? [];
     const lowerSearch = search.toLowerCase();
     return search
       ? tenants.filter((tenant) => tenant.name.toLowerCase().includes(lowerSearch) || tenant.id.includes(lowerSearch))
       : tenants;
-  }, [tenants, search]);
+  }, [data?.tenants, search]);
 
   const planGroups = useMemo(() => {
-    const groupMap = new Map<string, FeatureFlagTenantInfo[]>();
+    const groupMap = new Map<SubscriptionPlan, FeatureFlagTenantInfo[]>();
     for (const tenant of filtered) {
       const existing = groupMap.get(tenant.plan);
       if (existing) {
@@ -55,7 +73,11 @@ export function PlanFeatureFlagTenantsSection({ tenants }: Readonly<{ tenants: F
         groupMap.set(tenant.plan, [tenant]);
       }
     }
-    const planOrder: Record<string, number> = { Premium: 0, Standard: 1, Free: 2 };
+    const planOrder: Record<SubscriptionPlan, number> = {
+      [SubscriptionPlan.Premium]: 0,
+      [SubscriptionPlan.Standard]: 1,
+      [SubscriptionPlan.Basis]: 2
+    };
     return [...groupMap.entries()]
       .sort(([a], [b]) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99))
       .map(([plan, members]) => ({ plan, tenants: members }));
@@ -83,16 +105,15 @@ export function PlanFeatureFlagTenantsSection({ tenants }: Readonly<{ tenants: F
         onChange={(value) => setSearch(value)}
         className="max-w-[20rem]"
       />
-      {isSearching ? (
+      {isLoading ? (
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-10 w-full rounded-md" />
+          <Skeleton className="h-14 w-full rounded-md" />
+        </div>
+      ) : isSearching ? (
         <PlanFeatureFlagTenantTable ariaLabel={t`Search results`} tenants={filtered} />
       ) : (
-        planGroups.map((group) => (
-          <CollapsiblePlanGroup
-            key={group.plan}
-            label={t`${group.plan} (${group.tenants.length})`}
-            tenants={group.tenants}
-          />
-        ))
+        planGroups.map((group) => <CollapsiblePlanGroup key={group.plan} plan={group.plan} tenants={group.tenants} />)
       )}
     </div>
   );
@@ -138,8 +159,12 @@ function PlanFeatureFlagTenantTable({
   );
 }
 
-function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tenants: FeatureFlagTenantInfo[] }>) {
+function CollapsiblePlanGroup({
+  plan,
+  tenants
+}: Readonly<{ plan: SubscriptionPlan; tenants: FeatureFlagTenantInfo[] }>) {
   const [isOpen, setIsOpen] = useState(true);
+  const planLabel = getSubscriptionPlanLabel(plan);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex flex-col gap-1">
@@ -148,10 +173,12 @@ function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tena
           className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
           aria-hidden={true}
         />
-        <h4 className="text-muted-foreground">{label}</h4>
+        <h4 className="text-muted-foreground">
+          {planLabel} ({tenants.length})
+        </h4>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <PlanFeatureFlagTenantTable ariaLabel={label} tenants={tenants} />
+        <PlanFeatureFlagTenantTable ariaLabel={planLabel} tenants={tenants} />
       </CollapsibleContent>
     </Collapsible>
   );

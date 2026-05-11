@@ -4,26 +4,56 @@ import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";
+import { z } from "zod";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
-import { api } from "@/shared/lib/api/client";
+import { api, FeatureFlagAudienceState, SubscriptionPlan, UserRole } from "@/shared/lib/api/client";
 
-import type { GetFeatureFlagsResponse, GetFeatureFlagTenantsResponse } from "./-components/types";
+import type { GetFeatureFlagsResponse } from "./-components/types";
 
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
 import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
 import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
 import { ScopeIcon } from "./-components/ScopeIcon";
+import { ALL_STATE_FILTER } from "./-components/stateFilter";
 import { TenantOverridesSection } from "./-components/TenantOverridesSection";
 import { UserOverridesSection } from "./-components/UserOverridesSection";
 
+const stateFilterSchema = z.enum([
+  FeatureFlagAudienceState.Enabled,
+  FeatureFlagAudienceState.Disabled,
+  ALL_STATE_FILTER
+]);
+
+const flagKeySearchSchema = z.object({
+  tenantsSearch: z.string().optional(),
+  tenantsPlans: z.array(z.nativeEnum(SubscriptionPlan)).max(10).optional(),
+  tenantsState: stateFilterSchema.optional(),
+  tenantsPageOffset: z.number().int().nonnegative().optional(),
+  usersSearch: z.string().optional(),
+  usersRoles: z.array(z.nativeEnum(UserRole)).max(10).optional(),
+  usersState: stateFilterSchema.optional(),
+  usersPageOffset: z.number().int().nonnegative().optional()
+});
+
 export const Route = createFileRoute("/feature-flags/$flagKey")({
   staticData: { trackingTitle: "Feature flag detail" },
+  validateSearch: flagKeySearchSchema,
   component: FeatureFlagDetailPage
 });
 
 export default function FeatureFlagDetailPage() {
   const { flagKey } = Route.useParams();
+  const {
+    tenantsSearch,
+    tenantsPlans,
+    tenantsState,
+    tenantsPageOffset,
+    usersSearch,
+    usersRoles,
+    usersState,
+    usersPageOffset
+  } = Route.useSearch();
 
   const { data: featureFlagsData, isLoading: isLoadingFeatureFlags } = api.useQuery(
     "get",
@@ -35,18 +65,8 @@ export default function FeatureFlagDetailPage() {
 
   const featureFlag = featureFlagsData?.flags?.find((f) => f.key === flagKey);
 
-  const { data: tenantsData, isLoading: isLoadingTenants } = api.useQuery(
-    "get",
-    "/api/back-office/feature-flags/{flagKey}/tenants",
-    { params: { path: { flagKey } } },
-    { enabled: featureFlag?.scope === "Tenant" }
-  ) as {
-    data: GetFeatureFlagTenantsResponse | undefined;
-    isLoading: boolean;
-  };
-
   const isPlanFeatureFlag = featureFlag?.requiredPlan != null;
-  const isLoading = isLoadingFeatureFlags || (featureFlag?.scope === "Tenant" && isLoadingTenants);
+  const isLoading = isLoadingFeatureFlags;
   const featureFlagName = featureFlag ? getFeatureFlagName(featureFlag.key) : flagKey;
   const description = featureFlag ? getFeatureFlagDescription(featureFlag.key) || featureFlag.description : "";
 
@@ -82,30 +102,27 @@ export default function FeatureFlagDetailPage() {
                 <TenantOverridesSection
                   flagKey={featureFlag.key}
                   featureFlagDescription={featureFlagName}
-                  tenants={tenantsData?.tenants ?? []}
                   showRolloutBucket={featureFlag.isAbTestEligible}
-                  rolloutBucketRange={
-                    featureFlag.bucketStart != null && featureFlag.bucketEnd != null
-                      ? { bucketStart: featureFlag.bucketStart, bucketEnd: featureFlag.bucketEnd }
-                      : null
-                  }
                   isFeatureFlagActive={featureFlag.isActive}
+                  search={tenantsSearch}
+                  plans={tenantsPlans ?? []}
+                  state={tenantsState}
+                  pageOffset={tenantsPageOffset}
                 />
               )}
               {featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
-                <PlanFeatureFlagTenantsSection tenants={tenantsData?.tenants ?? []} />
+                <PlanFeatureFlagTenantsSection flagKey={featureFlag.key} />
               )}
               {featureFlag.scope === "User" && (
                 <UserOverridesSection
                   flagKey={featureFlag.key}
                   featureFlagDescription={featureFlagName}
                   showRolloutBucket={featureFlag.isAbTestEligible}
-                  rolloutBucketRange={
-                    featureFlag.bucketStart != null && featureFlag.bucketEnd != null
-                      ? { bucketStart: featureFlag.bucketStart, bucketEnd: featureFlag.bucketEnd }
-                      : null
-                  }
                   isFeatureFlagActive={featureFlag.isActive}
+                  search={usersSearch}
+                  roles={usersRoles ?? []}
+                  state={usersState}
+                  pageOffset={usersPageOffset}
                 />
               )}
             </div>

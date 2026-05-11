@@ -1,6 +1,7 @@
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
+using Account.Features.Users.BackOffice.Queries;
 using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
@@ -8,20 +9,29 @@ using Mapster;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
+using SharedKernel.Persistence;
 
 namespace Account.Features.FeatureFlags.Queries;
 
 [PublicAPI]
-public sealed record GetFeatureFlagUsersQuery : IRequest<Result<GetFeatureFlagUsersResponse>>
+public sealed record GetFeatureFlagUsersQuery(
+    string? Search = null,
+    UserRole[]? Roles = null,
+    FeatureFlagAudienceState? State = null,
+    int PageOffset = 0,
+    int PageSize = 25
+) : IRequest<Result<GetFeatureFlagUsersResponse>>
 {
     [JsonIgnore] // Removes from API contract
     public string FlagKey { get; init; } = null!;
 
-    public string? Search { get; init; }
+    public string? Search { get; } = Search?.Trim().ToLower();
+
+    public UserRole[] Roles { get; } = Roles ?? [];
 }
 
 [PublicAPI]
-public sealed record GetFeatureFlagUsersResponse(FeatureFlagUserInfo[] Users);
+public sealed record GetFeatureFlagUsersResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, FeatureFlagUserInfo[] Users);
 
 // Field names mirror the User aggregate so Mapster's convention-based mapping covers the user subset. Tenant-derived
 // fields (TenantName, TenantPlan) and override fields (RolloutBucket, IsEnabled, Source) are applied via `with`.
@@ -53,10 +63,13 @@ public sealed class GetFeatureFlagUsersValidator : AbstractValidator<GetFeatureF
             .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Feature flag must have user scope.");
 
         RuleFor(x => x.Search).MaximumLength(100).WithMessage("The search term must be at most 100 characters.");
+        RuleFor(x => x.Roles.Length).LessThanOrEqualTo(10).WithMessage("Roles filter must contain no more than 10 values.");
+        RuleFor(x => x.PageSize).InclusiveBetween(1, 100).WithMessage("Page size must be between 1 and 100.");
+        RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("Page offset must be greater than or equal to 0.");
     }
 }
 
-public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFlagRepository, IUserRepository userRepository, ITenantRepository tenantRepository)
+public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFlagRepository, IUserRepository userRepository, ITenantRepository tenantRepository, TimeProvider timeProvider)
     : IRequestHandler<GetFeatureFlagUsersQuery, Result<GetFeatureFlagUsersResponse>>
 {
     public async Task<Result<GetFeatureFlagUsersResponse>> Handle(GetFeatureFlagUsersQuery query, CancellationToken cancellationToken)
@@ -64,9 +77,18 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
         if (definition is null) return Result<GetFeatureFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
 
-        if (string.IsNullOrWhiteSpace(query.Search)) return new GetFeatureFlagUsersResponse([]);
+        var (users, _, _) = await userRepository.SearchAllUsersUnfilteredAsync(
+            query.Search ?? string.Empty,
+            query.Roles,
+            null,
+            timeProvider.GetUtcNow(),
+            SortableBackOfficeUserProperties.Name,
+            SortOrder.Ascending,
+            0,
+            int.MaxValue,
+            cancellationToken
+        );
 
-        var users = await userRepository.SearchByEmailUnfilteredAsync(query.Search.Trim(), cancellationToken);
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FlagKey, cancellationToken);
         var overridesByUserId = userOverrides.ToDictionary(f => f.UserId!);
 
@@ -92,7 +114,24 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
             }
         ).ToArray();
 
-        return new GetFeatureFlagUsersResponse(featureFlagUsers);
+        // featureFlagUsers is already name-ascending from SearchAllUsersUnfilteredAsync; state filtering preserves order.
+        var ordered = query.State switch
+        {
+            FeatureFlagAudienceState.Enabled => featureFlagUsers.Where(u => u.IsEnabled).ToArray(),
+            FeatureFlagAudienceState.Disabled => featureFlagUsers.Where(u => !u.IsEnabled).ToArray(),
+            _ => featureFlagUsers
+        };
+
+        var totalCount = ordered.Length;
+        var totalPages = totalCount == 0 ? 0 : (totalCount - 1) / query.PageSize + 1;
+        if (query.PageOffset > 0 && query.PageOffset >= totalPages)
+        {
+            return Result<GetFeatureFlagUsersResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
+        }
+
+        var paged = ordered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
+
+        return new GetFeatureFlagUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
     }
 
     private static (bool IsEnabled, string Source) EvaluateOverride(
