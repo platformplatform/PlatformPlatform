@@ -39,7 +39,7 @@ public sealed class ProcessPendingStripeEvents(
         return ExecuteAsync(stripeCustomerId, false, SyncMode.Apply, cancellationToken);
     }
 
-    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, SyncMode mode, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, SyncMode syncMode, CancellationToken cancellationToken)
     {
         // Pessimistic lock serializes concurrent webhook processing for the same customer
         var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
@@ -62,11 +62,11 @@ public sealed class ProcessPendingStripeEvents(
         // action and by the detect-only BillingDriftWorker which must compute drift on every pass).
         if (pendingEvents.Length > 0 || forceSync)
         {
-            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, mode, cancellationToken);
-            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, mode, cancellationToken);
-            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, mode, cancellationToken);
+            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, syncMode, cancellationToken);
+            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, syncMode, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, syncMode, cancellationToken);
 
-            if (mode == SyncMode.Apply)
+            if (syncMode == SyncMode.Apply)
             {
                 MarkAllEventsAsProcessed(pendingEvents, subscription);
             }
@@ -75,13 +75,13 @@ public sealed class ProcessPendingStripeEvents(
         await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        if (mode == SyncMode.Apply)
+        if (syncMode == SyncMode.Apply)
         {
             SendTelemetryEvents(tenant, subscription);
         }
     }
 
-    private async Task<DriftSnapshots> SyncStateFromStripe(Tenant tenant, Subscription subscription, SyncMode mode, CancellationToken cancellationToken)
+    private async Task<DriftSnapshots> SyncStateFromStripe(Tenant tenant, Subscription subscription, SyncMode syncMode, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
         var customerResult = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId!, cancellationToken);
@@ -101,7 +101,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (customerResult.IsCustomerDeleted)
         {
-            if (mode == SyncMode.Apply)
+            if (syncMode == SyncMode.Apply)
             {
                 var nowAtCustomerDeleted = timeProvider.GetUtcNow();
                 subscription.ResetToFreePlan();
@@ -118,7 +118,7 @@ public sealed class ProcessPendingStripeEvents(
 
         var stripeState = await stripeClient.SyncSubscriptionStateAsync(subscription.StripeCustomerId!, cancellationToken);
 
-        if (mode == SyncMode.Detect)
+        if (syncMode == SyncMode.Detect)
         {
             // Detect mode is a tripwire: read paths run, but no Subscription/Tenant mutation, no telemetry events,
             // and no payment-transaction reconciliation. The downstream emitter still computes the discrepancy list
@@ -336,7 +336,7 @@ public sealed class ProcessPendingStripeEvents(
         StripeEvent[] pendingEvents,
         StripeReplayEvent[] eventsListResults,
         DriftSnapshots driftSnapshots,
-        SyncMode mode,
+        SyncMode syncMode,
         CancellationToken cancellationToken
     )
     {
@@ -408,7 +408,7 @@ public sealed class ProcessPendingStripeEvents(
         foreach (var billingEvent in replayedEvents)
         {
             if (existingStripeEventIds.Contains(billingEvent.StripeEventId)) continue;
-            if (mode == SyncMode.Apply)
+            if (syncMode == SyncMode.Apply)
             {
                 await billingEventRepository.AddAsync(billingEvent, cancellationToken);
 
@@ -428,7 +428,7 @@ public sealed class ProcessPendingStripeEvents(
         // Advance the events.list anchor to the most recent event we just consumed so the next sync only
         // pulls events Stripe produced after this point. Pending-source events whose Created is older than
         // an already-applied anchor cannot rewind it (AdvanceLastSyncedStripeEventCreatedAt is monotonic).
-        if (mode == SyncMode.Apply && supportedEvents.Count > 0)
+        if (syncMode == SyncMode.Apply && supportedEvents.Count > 0)
         {
             var latestEventCreated = supportedEvents.Max(e => e.CreatedAt);
             subscription.AdvanceLastSyncedStripeEventCreatedAt(latestEventCreated);
@@ -642,7 +642,7 @@ public sealed class ProcessPendingStripeEvents(
     ///     is never read in the hot path. Returns the events.list response so the emitter can consume
     ///     it directly.
     /// </summary>
-    private async Task<StripeReplayEvent[]> PullEventsListAndArchiveRecoveredAsync(Subscription subscription, StripeCustomerId stripeCustomerId, SyncMode mode, CancellationToken cancellationToken)
+    private async Task<StripeReplayEvent[]> PullEventsListAndArchiveRecoveredAsync(Subscription subscription, StripeCustomerId stripeCustomerId, SyncMode syncMode, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
         var stripeEvents = await stripeClient.GetEventsForCustomerAsync(stripeCustomerId, subscription.LastSyncedStripeEventCreatedAt, cancellationToken);
@@ -650,7 +650,7 @@ public sealed class ProcessPendingStripeEvents(
 
         // Detect mode is a tripwire: read paths run, but no recovered stripe_events rows are inserted. The
         // webhook hot path and the reconcile admin action own remediation; the worker only flags drift.
-        if (mode == SyncMode.Detect) return stripeEvents;
+        if (syncMode == SyncMode.Detect) return stripeEvents;
 
         var existingIds = await stripeEventRepository.GetExistingEventIdsByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
         var now = timeProvider.GetUtcNow();

@@ -22,7 +22,8 @@ public sealed class StripeEventPayloadDivergenceTests : EndpointBaseTest<Account
     [Fact]
     public async Task AcknowledgeStripeWebhook_WhenSameEventArrivesWithDifferentPayload_ShouldNotOverwriteExistingRow()
     {
-        // Arrange — pre-insert a Stripe event with a known payload hash
+        // pre-insert a Stripe event with a known payload hash
+        // Arrange
         var eventId = $"{MockStripeClient.MockWebhookEventId}_divergence";
         var originalPayload = "customer:cus_original_payload";
         var originalHash = StripeEventPayloadHasher.Hash(originalPayload);
@@ -47,7 +48,8 @@ public sealed class StripeEventPayloadDivergenceTests : EndpointBaseTest<Account
             ]
         );
 
-        // Act — same event_id arrives again with a different body (divergent payload)
+        // same event_id arrives again with a different body (divergent payload)
+        // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
             Content = new StringContent("customer:cus_DIFFERENT_payload", Encoding.UTF8, "application/json")
@@ -55,7 +57,8 @@ public sealed class StripeEventPayloadDivergenceTests : EndpointBaseTest<Account
         request.Headers.Add("Stripe-Signature", $"event_type:customer.subscription.updated,event_id:{eventId}");
         var response = await AnonymousHttpClient.SendAsync(request);
 
-        // Assert — the existing row's payload and hash must be unchanged
+        // the existing row's payload and hash must be unchanged
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var preservedPayload = Connection.ExecuteScalar<string>("SELECT payload FROM stripe_events WHERE id = @id", [new { id = eventId }]);

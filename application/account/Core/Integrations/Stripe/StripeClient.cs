@@ -1029,7 +1029,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 {
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
-                    var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var rAt) ? (DateTimeOffset?)rAt : null;
+                    var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var refundedTimestamp) ? (DateTimeOffset?)refundedTimestamp : null;
                     var (displayAmount, amountExcludingTax, taxAmount) = ComputeInvoiceAmountBreakdown(invoice);
                     var plan = ResolvePlanForInvoice(invoice, planByPriceId);
 

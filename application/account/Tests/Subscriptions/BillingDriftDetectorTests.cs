@@ -43,8 +43,8 @@ public sealed class BillingDriftDetectorTests
     [Fact]
     public void Detect_WhenStripeSaysPremiumButLocalSaysStandard_ShouldFireSubscriptionStateMismatch()
     {
-        // Arrange — proves Stripe-truth vs local-state mismatch fires (the regression check for the
-        // bug where the snapshot was built from the just-mutated subscription, making mismatch unreachable).
+        // Regression: snapshot used to be built from the just-mutated subscription, making mismatch unreachable.
+        // Arrange
         var localSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Standard, false, 49.00m, "DKK");
         var stripeSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
 
@@ -142,10 +142,11 @@ public sealed class BillingDriftDetectorTests
     [Fact]
     public void Detect_WhenLocalHasScheduledPlanButScheduledPriceIsNull_ShouldReturnScheduledPriceMissingDiscrepancy()
     {
-        // Arrange — defends MrrCalculator.ForwardMrr's ScheduledPriceAmount ?? CurrentPriceAmount rule.
-        // A subscription with ScheduledPlan set but ScheduledPriceAmount null silently distorts BLENDED MRR
-        // (falls back to the higher current price). Surfaces the bug that motivated this check: the
-        // cancel-then-reschedule pair in a single sync window left scheduled_price_amount NULL.
+        // Defends MrrCalculator.ForwardMrr's ScheduledPriceAmount ?? CurrentPriceAmount rule. A subscription
+        // with ScheduledPlan set but ScheduledPriceAmount null silently distorts BLENDED MRR (falls back to the
+        // higher current price). The cancel-then-reschedule pair in a single sync window left scheduled_price
+        // _amount NULL, motivating this check.
+        // Arrange
         var localSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK", SubscriptionPlan.Standard);
         var stripeSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
 
@@ -162,7 +163,8 @@ public sealed class BillingDriftDetectorTests
     [Fact]
     public void Detect_WhenLocalHasScheduledPlanAndScheduledPrice_ShouldNotReturnScheduledPriceMissingDiscrepancy()
     {
-        // Arrange — happy path: scheduled plan and price are both set.
+        // Happy path: scheduled plan and price are both set.
+        // Arrange
         var localSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK", SubscriptionPlan.Standard, 29.00m);
         var stripeSnapshot = new StripeSyncSnapshot(SubscriptionPlan.Premium, false, 99.00m, "DKK");
 

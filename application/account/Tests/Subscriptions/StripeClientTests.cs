@@ -52,7 +52,8 @@ public sealed class StripeClientTests
     [Fact]
     public void ResolvePlanForInvoice_WithUnknownPriceId_ShouldReturnNull()
     {
-        // Arrange — priceId exists on the invoice but is not in the catalog (e.g., archived price).
+        // priceId exists on the invoice but is not in the catalog (e.g., archived price).
+        // Arrange
         var invoice = BuildInvoiceWithPriceId("price_legacy_archived");
         IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId = new Dictionary<string, SubscriptionPlan>
         {
@@ -62,14 +63,16 @@ public sealed class StripeClientTests
         // Act
         var plan = AccountStripeClient.ResolvePlanForInvoice(invoice, planByPriceId);
 
-        // Assert — historical / archived priceIds resolve to null rather than throwing or falling back to Basis.
+        // historical / archived priceIds resolve to null rather than throwing or falling back to Basis.
+        // Assert
         plan.Should().BeNull();
     }
 
     [Fact]
     public void ResolvePlanForInvoice_WithEmptyLookupTable_ShouldReturnNull()
     {
-        // Arrange — defensive case: the price catalog cache could legitimately be empty if Stripe is unreachable.
+        // defensive case: the price catalog cache could legitimately be empty if Stripe is unreachable.
+        // Arrange
         var invoice = BuildInvoiceWithPriceId("price_standard");
         IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId = new Dictionary<string, SubscriptionPlan>();
 
@@ -83,7 +86,8 @@ public sealed class StripeClientTests
     [Fact]
     public void ResolvePlanForInvoice_WithoutLineItems_ShouldReturnNull()
     {
-        // Arrange — invoice with no line items (rare but possible for zero-amount invoices).
+        // invoice with no line items (rare but possible for zero-amount invoices).
+        // Arrange
         var invoice = new Invoice { Lines = new StripeList<InvoiceLineItem> { Data = [] } };
         IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId = new Dictionary<string, SubscriptionPlan>
         {
@@ -100,9 +104,10 @@ public sealed class StripeClientTests
     [Fact]
     public void ResolvePlanForInvoice_WithProrationUpgrade_ShouldReturnNewPlan()
     {
-        // Arrange — proration invoice for an upgrade has two lines: a negative credit on the old plan and a
+        // proration invoice for an upgrade has two lines: a negative credit on the old plan and a
         // positive charge on the new plan. Stripe may return the credit line first; we must still resolve
         // to the new plan being charged for, not the old one being credited.
+        // Arrange
         var invoice = new Invoice
         {
             Lines = new StripeList<InvoiceLineItem>
@@ -144,7 +149,8 @@ public sealed class StripeClientTests
     [Fact]
     public void ResolvePlanForInvoice_WithMissingPricing_ShouldReturnNull()
     {
-        // Arrange — line item without Pricing populated (e.g., manual line items).
+        // line item without Pricing populated (e.g., manual line items).
+        // Arrange
         var invoice = new Invoice
         {
             Lines = new StripeList<InvoiceLineItem>
@@ -167,9 +173,10 @@ public sealed class StripeClientTests
     [Fact]
     public void ComputeInvoiceAmountBreakdown_WhenZeroNetWithPositiveTax_ShouldClampAmountExcludingTaxAtZero()
     {
-        // Arrange — Stripe auto-tax can produce a zero-net paid invoice (proration credit fully offsets a new charge)
+        // Stripe auto-tax can produce a zero-net paid invoice (proration credit fully offsets a new charge)
         // alongside a positive total_taxes. Without the clamp, AmountExcludingTax would go negative and silently
         // subtract from LTV.
+        // Arrange
         var invoice = new Invoice
         {
             Status = "paid",
@@ -190,7 +197,8 @@ public sealed class StripeClientTests
     [Fact]
     public void ComputeInvoiceAmountBreakdown_WhenPaidWithTax_ShouldSplitDisplayAmountAcrossTaxAndExcludingTax()
     {
-        // Arrange — normal paid invoice with positive amount and tax.
+        // normal paid invoice with positive amount and tax.
+        // Arrange
         var invoice = new Invoice
         {
             Status = "paid",

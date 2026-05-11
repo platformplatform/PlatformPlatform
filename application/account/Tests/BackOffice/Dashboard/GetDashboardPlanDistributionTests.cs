@@ -16,7 +16,8 @@ public sealed class GetDashboardPlanDistributionTests : BackOfficeEndpointBaseTe
     [Fact]
     public async Task GetDashboardPlanDistribution_WhenCalled_ShouldReturnEntryPerPlan()
     {
-        // Arrange — DatabaseSeeder seeds one Basis tenant; we add one Standard and one Premium.
+        // DatabaseSeeder seeds one Basis tenant; we add one Standard and one Premium.
+        // Arrange
         SeedTenant("Standard Inc", SubscriptionPlan.Standard);
         SeedTenant("Premium Ltd", SubscriptionPlan.Premium);
 

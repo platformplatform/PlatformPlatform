@@ -37,13 +37,14 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
     [Fact]
     public async Task Reconcile_WhenPersistedBillingEventHasStaleDenormalizedFields_ShouldFlagDriftAndPreservePersistedRow()
     {
-        // Arrange — a customer.subscription.deleted event was classified and persisted while the local
+        // a customer.subscription.deleted event was classified and persisted while the local
         // state machine was wrong (e.g. an earlier customer.subscription.created webhook had been missed
         // and the row was emitted with CommittedMrr=0). The persisted row therefore carries
         // AmountDelta=0/PreviousAmount=0/NewAmount=0. The events.list view of the world now exposes the
         // created event ahead of the deleted event, so a fresh classification produces a correct deleted
         // row (AmountDelta=-29, PreviousAmount=29), but the append-only invariant forbids mutating the
         // persisted row.
+        // Arrange
         SetupSubscription();
 
         var now = TimeProvider.GetUtcNow();
@@ -82,9 +83,10 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
             ]
         );
 
-        // Act — any subsequent webhook triggers ProcessPendingStripeEvents, which now consumes the
+        // any subsequent webhook triggers ProcessPendingStripeEvents, which now consumes the
         // events.list view of the world. The classifier reads the created+deleted pair and produces
         // deleted-row denormalized values that differ from what is persisted.
+        // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
             Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
@@ -92,7 +94,8 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.updated");
         var response = await AnonymousHttpClient.SendAsync(request);
 
-        // Assert — append-only invariant: the persisted row's denormalized fields are untouched.
+        // append-only invariant: the persisted row's denormalized fields are untouched.
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var persistedAmountDelta = Connection.ExecuteScalar<string>(
@@ -100,7 +103,8 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         );
         decimal.Parse(persistedAmountDelta, CultureInfo.InvariantCulture).Should().Be(0m, "the append-only invariant forbids mutating the persisted billing_event row even when classification would produce different values");
 
-        // Assert — drift surfaces the staleness for operator review.
+        // drift surfaces the staleness for operator review.
+        // Assert
         var driftDiscrepanciesJson = Connection.ExecuteScalar<string>(
             "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
         );
@@ -113,11 +117,13 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
     [Fact]
     public async Task Reconcile_WhenEventsListReturnsEventNotInLocalArchive_ShouldInsertAsRecovered()
     {
-        // Arrange — fresh subscription with no recorded events. The MockStripeClient.GetEventsForCustomerAsync
+        // fresh subscription with no recorded events. The MockStripeClient.GetEventsForCustomerAsync
         // returns a default customer.subscription.created event (id = MockStripeClient.MockSubscriptionCreatedEventId).
+        // Arrange
         SetupSubscription(null, nameof(SubscriptionPlan.Basis));
 
-        // Act — webhook arrives, triggers ProcessPendingStripeEvents which runs reconciliation
+        // webhook arrives, triggers ProcessPendingStripeEvents which runs reconciliation
+        // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
             Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
@@ -125,7 +131,8 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         request.Headers.Add("Stripe-Signature", "event_type:checkout.session.completed");
         var response = await AnonymousHttpClient.SendAsync(request);
 
-        // Assert — the missing customer.subscription.created event should be inserted as recovered
+        // the missing customer.subscription.created event should be inserted as recovered
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var recoveredCount = Connection.ExecuteScalar<long>(
@@ -150,10 +157,11 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
     [Fact]
     public async Task Reconcile_WhenEventsListReturnsEventsWithOlderStripeCreated_ShouldStampBillingEventOccurredAtFromStripeCreated()
     {
-        // Arrange — two recovered events whose Stripe Event.Created is hours older than `now`. The replayer
+        // two recovered events whose Stripe Event.Created is hours older than `now`. The replayer
         // must source BillingEvent.OccurredAt from the Stripe-authoritative timestamp surfaced via
         // StripeReplayEvent.CreatedAt (StripeEvent.StripeCreatedAt ?? CreatedAt) so dashboards surface the
         // event at the moment Stripe says it occurred, not at our ingestion time.
+        // Arrange
         SetupSubscription();
 
         var now = TimeProvider.GetUtcNow();
@@ -168,7 +176,8 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(createdEventId, "customer.subscription.created", createdStripeCreated, createdPayload, MockStripeClient.MockApiVersion));
         StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(renewedEventId, "invoice.payment_succeeded", renewedStripeCreated, renewedPayload, MockStripeClient.MockApiVersion));
 
-        // Act — webhook arrives, triggers ProcessPendingStripeEvents which runs reconciliation and replay.
+        // webhook arrives, triggers ProcessPendingStripeEvents which runs reconciliation and replay.
+        // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
             Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
@@ -176,7 +185,8 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         request.Headers.Add("Stripe-Signature", "event_type:checkout.session.completed");
         var response = await AnonymousHttpClient.SendAsync(request);
 
-        // Assert — BillingEvent.OccurredAt matches Stripe's Created for both recovered events, not `now`.
+        // BillingEvent.OccurredAt matches Stripe's Created for both recovered events, not `now`.
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var createdOccurredAt = ParseTimestamp(Connection.ExecuteScalar<string>(
@@ -191,7 +201,8 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         );
         renewedOccurredAt.Should().BeCloseTo(renewedStripeCreated, TimeSpan.FromSeconds(1), "OccurredAt must reflect Stripe Event.Created, not our ingestion time");
 
-        // Assert — the recovered stripe_events rows carry stripe_created_at sourced from events.list.
+        // the recovered stripe_events rows carry stripe_created_at sourced from events.list.
+        // Assert
         var createdStripeCreatedAtPersisted = ParseTimestamp(Connection.ExecuteScalar<string>(
                 "SELECT stripe_created_at FROM stripe_events WHERE id = @id", [new { id = createdEventId }]
             )
@@ -202,12 +213,13 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
     [Fact]
     public async Task AcknowledgeWebhook_WhenWebhookDeliveryArrives_ShouldPersistStripeCreatedAtFromWebhookEvent()
     {
-        // Arrange — a webhook delivery's Stripe Event.Created timestamp must be threaded from
+        // a webhook delivery's Stripe Event.Created timestamp must be threaded from
         // StripeWebhookEventResult.Created into StripeEvent.StripeCreatedAt so the replayer can later order
         // events and write BillingEvent.OccurredAt from Stripe's authoritative time rather than ingestion
         // time. MockStripeClient.VerifyWebhookSignature sources Created from the same TimeProvider the
         // production handler injects, so capturing the window around the webhook call brackets the
         // persisted timestamp.
+        // Arrange
         SetupSubscription();
 
         var eventId = $"evt_stripe_created_webhook_{Guid.NewGuid():N}";
@@ -222,9 +234,10 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         var response = await AnonymousHttpClient.SendAsync(request);
         var after = TimeProvider.GetUtcNow();
 
-        // Assert — the persisted row's stripe_created_at column matches the webhook event's Stripe Created
+        // the persisted row's stripe_created_at column matches the webhook event's Stripe Created
         // timestamp (within the request window), proving the field is populated from
         // StripeWebhookEventResult.Created rather than left null.
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var persistedStripeCreatedAt = ParseTimestamp(Connection.ExecuteScalar<string>(

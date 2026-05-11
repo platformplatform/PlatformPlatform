@@ -24,10 +24,11 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
     [Fact]
     public async Task ProcessPendingStripeEvents_WhenDetectMode_AndSubscriptionDriftsFromStripe_ShouldRecordDriftWithoutMutatingOtherFields()
     {
-        // Arrange — local subscription is on Premium, but Stripe's mock reports Standard. The drift detector
-        // must fire on the Plan mismatch (SubscriptionStateMismatch) and the discrepancy list must be persisted
-        // via SetDriftStatus — and that must be the ONLY mutation: Plan stays Premium (no SetStripeSubscription
-        // in Detect), no billing_events appear, no recovered stripe_events appear, last_synced anchor stays NULL.
+        // Local subscription is on Premium, but Stripe's mock reports Standard. The drift detector must fire on
+        // the Plan mismatch (SubscriptionStateMismatch) and the discrepancy list must be persisted via
+        // SetDriftStatus — that must be the ONLY mutation: Plan stays Premium (no SetStripeSubscription in
+        // Detect), no billing_events appear, no recovered stripe_events appear, last_synced anchor stays NULL.
+        // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("plan", nameof(SubscriptionPlan.Premium)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
@@ -49,7 +50,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
         // Act
         await processor.ExecuteAsync(stripeCustomerId, true, SyncMode.Detect, CancellationToken.None);
 
-        // Assert — drift recorded.
+        // Assert
         var driftDiscrepanciesJson = Connection.ExecuteScalar<string>(
             "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
@@ -64,7 +65,6 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
 
         ReadDriftCheckedAt().Should().NotBeNull("SetDriftStatus must advance DriftCheckedAt on every detect pass");
 
-        // Assert — no other Subscription fields mutated.
         var plan = Connection.ExecuteScalar<string>(
             "SELECT plan FROM subscriptions WHERE tenant_id = @tenantId",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
@@ -77,11 +77,9 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
         );
         lastSyncedStripeEventCreatedAt.Should().BeNullOrEmpty("Detect mode must not advance the events.list anchor");
 
-        // Assert — no billing_events rows appended.
         var billingEventsAfter = ReadBillingEventCountForTenant1();
         billingEventsAfter.Should().Be(billingEventsBefore, "Detect mode must not append billing_events rows");
 
-        // Assert — no recovered stripe_events rows inserted.
         var stripeEventsAfter = ReadStripeEventCount();
         stripeEventsAfter.Should().Be(stripeEventsBefore, "Detect mode must not insert recovered stripe_events rows");
     }
@@ -89,9 +87,10 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
     [Fact]
     public async Task ProcessPendingStripeEvents_WhenDetectMode_AndSubscriptionInSyncWithStripe_ShouldRecordEmptyDriftAndAdvanceCheckedAt()
     {
-        // Arrange — local subscription matches Stripe's mock state (Standard / 29.99 DKK) so the detector
-        // finds zero discrepancies. SetDriftStatus must still fire so DriftCheckedAt advances — that's how
-        // the worker proves it has visited every stale row.
+        // Local subscription matches Stripe's mock state (Standard / 29.99 DKK) so the detector finds zero
+        // discrepancies. SetDriftStatus must still fire so DriftCheckedAt advances — that's how the worker
+        // proves it has visited every stale row.
+        // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
@@ -114,7 +113,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
         // Act
         await processor.ExecuteAsync(stripeCustomerId, true, SyncMode.Detect, CancellationToken.None);
 
-        // Assert — no drift detected, DriftCheckedAt advanced.
+        // Assert
         var hasDriftDetected = Connection.ExecuteScalar<long>(
             "SELECT has_drift_detected FROM subscriptions WHERE tenant_id = @tenantId",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
@@ -123,11 +122,9 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
 
         ReadDriftCheckedAt().Should().BeOnOrAfter(before.AddSeconds(-1), "SetDriftStatus must advance DriftCheckedAt even when the discrepancy list is empty");
 
-        // Assert — no billing_events rows appended.
         var billingEventsAfter = ReadBillingEventCountForTenant1();
         billingEventsAfter.Should().Be(billingEventsBefore, "Detect mode must not append billing_events rows on the happy path");
 
-        // Assert — no recovered stripe_events rows inserted.
         var stripeEventsAfter = ReadStripeEventCount();
         stripeEventsAfter.Should().Be(stripeEventsBefore, "Detect mode must not insert recovered stripe_events rows on the happy path");
     }

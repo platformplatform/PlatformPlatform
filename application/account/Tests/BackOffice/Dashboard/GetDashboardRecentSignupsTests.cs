@@ -16,8 +16,9 @@ public sealed class GetDashboardRecentSignupsTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetDashboardRecentSignups_WhenCalled_ShouldReturnMostRecentTenantsFirst()
     {
-        // Arrange — three tenants seeded into the far future so they sort newer than any tenant DatabaseSeeder
+        // three tenants seeded into the far future so they sort newer than any tenant DatabaseSeeder
         // creates at test setup. The response should list them in reverse chronological order.
+        // Arrange
         var future = DateTimeOffset.UtcNow.AddYears(1);
         SeedTenant("Newest", future);
         SeedTenant("Middle", future.AddDays(-1));

@@ -24,8 +24,9 @@ public sealed class SubscriptionTests
     [Fact]
     public void AdvanceSubscribedSinceBackwardFromBillingEvent_WhenOlderEventArrivesLate_ShouldRewindBackward()
     {
-        // Arrange — subscription has SubscribedSince=T1 from a SubscriptionCreated event; a reconcile then
+        // subscription has SubscribedSince=T1 from a SubscriptionCreated event; a reconcile then
         // recovers an older SubscriptionCreated event at T0 < T1.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         var t1 = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
         subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t1);
@@ -41,8 +42,9 @@ public sealed class SubscriptionTests
     [Fact]
     public void AdvanceSubscribedSinceBackwardFromBillingEvent_WhenSameTenantStartsNewSubscriptionLater_ShouldPreserveOriginal()
     {
-        // Arrange — tenant cancels original subscription, then starts a brand-new Stripe subscription on the
+        // tenant cancels original subscription, then starts a brand-new Stripe subscription on the
         // same tenant. The new SubscriptionCreated event at T2 > T0 must not move SubscribedSince forward.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         var t0 = DateTimeOffset.Parse("2025-08-01T00:00:00Z");
         subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(t0);
@@ -67,8 +69,9 @@ public sealed class SubscriptionTests
         // Act
         subscription.ResetToFreePlan();
 
-        // Assert — a cancellation must never clear SubscribedSince. Gaps in subscription coverage are
+        // a cancellation must never clear SubscribedSince. Gaps in subscription coverage are
         // irrelevant to the tenant-scoped invariant.
+        // Assert
         subscription.SubscribedSince.Should().Be(t0);
     }
 
@@ -82,8 +85,9 @@ public sealed class SubscriptionTests
         // Act
         subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Standard, 29.99m, "DKK", now.AddDays(30), null);
 
-        // Assert — SubscribedSince is sourced exclusively from SubscriptionCreated BillingEvents, never from
+        // SubscribedSince is sourced exclusively from SubscriptionCreated BillingEvents, never from
         // the live Stripe state mutation. The cache stays null until the matching BillingEvent is appended.
+        // Assert
         subscription.SubscribedSince.Should().BeNull();
     }
 }

@@ -77,8 +77,8 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
             ? new BillingAddressResponse(address.Line1, address.Line2, address.PostalCode, address.City, address.State, address.Country)
             : null;
 
-        var paymentMethod = subscription?.PaymentMethod is { } pm
-            ? new PaymentMethodResponse(pm.Brand, pm.Last4, pm.ExpMonth, pm.ExpYear)
+        var paymentMethod = subscription?.PaymentMethod is { } currentPaymentMethod
+            ? new PaymentMethodResponse(currentPaymentMethod.Brand, currentPaymentMethod.Last4, currentPaymentMethod.ExpMonth, currentPaymentMethod.ExpYear)
             : null;
 
         return new TenantDetailResponse(

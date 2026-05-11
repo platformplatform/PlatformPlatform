@@ -44,8 +44,9 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenInvoicePaymentFailedHasFirstAttemptOnRecurringCycle_ShouldEmitPaymentFailed()
     {
-        // Arrange — the classification fix drops the attempt_count > 1 guard so first-attempt failures on a
+        // the classification fix drops the attempt_count > 1 guard so first-attempt failures on a
         // recurring billing cycle now emit PaymentFailed (previously they were silently dropped to NoOp).
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -71,9 +72,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionUpdatedCarriesOnlyLatestInvoiceChange_ShouldEmitNoOp()
     {
-        // Arrange — the classification fix routes the latest_invoice-only branch to NoOp. The renewal signal lives
+        // the classification fix routes the latest_invoice-only branch to NoOp. The renewal signal lives
         // on the paired invoice.payment_succeeded event (covered by the next test), so emitting
         // SubscriptionRenewed here would double-count a normal recurring renewal.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -90,7 +92,8 @@ public sealed class StripeEventReplayerTests
         // Act
         var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
 
-        // Assert — exactly one row (the 1:1 invariant) and it's a NoOp so it doesn't pollute the timeline.
+        // exactly one row (the 1:1 invariant) and it's a NoOp so it doesn't pollute the timeline.
+        // Assert
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.NoOp);
         emitted[0].StripeEventId.Should().Be("evt_subscription_updated_latest_invoice");
@@ -99,9 +102,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenInvoicePaymentSucceededOnRecurringCycle_ShouldEmitSubscriptionRenewed()
     {
-        // Arrange — happy-path renewal: invoice.payment_succeeded with billing_reason=subscription_cycle
+        // happy-path renewal: invoice.payment_succeeded with billing_reason=subscription_cycle
         // and a single attempt is the canonical SubscriptionRenewed signal (PaymentRecovered fires only
         // when attempt_count > 1).
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -126,9 +130,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionUpdatedTransitionsActiveToPastDue_ShouldEmitSubscriptionPastDue()
     {
-        // Arrange — status: active → past_due is the dedicated SubscriptionPastDue signal introduced by PR 6.
+        // status: active → past_due is the dedicated SubscriptionPastDue signal introduced by PR 6.
         // Pairs with the PaymentFailed row from the corresponding invoice.payment_failed event at the same
         // timestamp; both rows describe different facets of the same business event.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -154,8 +159,9 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionUpdatedTransitionsActiveToUnpaid_ShouldEmitSubscriptionPastDue()
     {
-        // Arrange — Stripe escalates past_due to unpaid further into the dunning cycle. From our perspective
+        // Stripe escalates past_due to unpaid further into the dunning cycle. From our perspective
         // both statuses are the same business state, so they share the SubscriptionPastDue event type.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -180,11 +186,12 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionDeletedAfterResetToFreePlan_ShouldStampCurrencyFromPayload()
     {
-        // Arrange — reproduces the C1 terminal-state currency bug. The sync flow runs
+        // reproduces the C1 terminal-state currency bug. The sync flow runs
         // SyncStateFromStripe BEFORE SyncBillingEventsAsync; for terminal-state branches that flow nulls
         // Subscription.CurrentPriceCurrency via ResetToFreePlan. By the time the replayer reads the live
         // subscription, the currency is gone and the old "?? "USD"" fallback would mis-stamp DKK rows
         // with USD. The fix sources the currency from the Stripe event payload itself.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         // Explicitly null — represents the post-ResetToFreePlan state at the moment Replay runs.
         subscription.ResetToFreePlan();
@@ -214,10 +221,11 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionCreatedHasItemsPriceCurrency_ShouldStampCurrencyFromPriceItem()
     {
-        // Arrange — pre-subscription customer events (BillingInfoAdded, PaymentMethodUpdated) and the
+        // pre-subscription customer events (BillingInfoAdded, PaymentMethodUpdated) and the
         // initial customer.subscription.created event fire BEFORE the local subscription has any
         // CurrentPriceCurrency value, so the payload's items.data[0].price.currency is the only
         // authoritative source.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         subscription.CurrentPriceCurrency.Should().BeNull();
 
@@ -245,9 +253,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenPayloadHasNoCurrencyButOverrideProvided_ShouldStampCurrencyFromOverride()
     {
-        // Arrange — fallback path: payload doesn't carry currency (e.g. customer.created, payment_method.attached)
+        // fallback path: payload doesn't carry currency (e.g. customer.created, payment_method.attached)
         // and the live subscription has been reset by an earlier branch in the same sync transaction. The
         // caller passes a snapshot of CurrentPriceCurrency captured BEFORE the mutation as currencyOverride.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         subscription.ResetToFreePlan();
         subscription.CurrentPriceCurrency.Should().BeNull();
@@ -276,11 +285,12 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionDeletedFollowsCancelAtPeriodEndToggle_ShouldEmitSubscriptionExpired()
     {
-        // Arrange — voluntary period-end cancel. The customer.subscription.updated event flips
+        // voluntary period-end cancel. The customer.subscription.updated event flips
         // cancel_at_period_end from false to true (which the replayer tracks via state.CancelAtPeriodEnd),
         // and Stripe later emits customer.subscription.deleted at period end. Stripe clears cape on the
         // deletion payload, so the period-end-vs-immediate distinction must come from prior state, not
         // the deletion payload itself.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var cancelToggledAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var expiredAt = DateTimeOffset.Parse("2026-03-15T10:00:00Z");
@@ -305,7 +315,8 @@ public sealed class StripeEventReplayerTests
         // Act
         var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
 
-        // Assert — first row is the cancellation toggle, second row is the period-end expiry.
+        // first row is the cancellation toggle, second row is the period-end expiry.
+        // Assert
         emitted.Should().HaveCount(2);
         emitted[0].EventType.Should().Be(BillingEventType.SubscriptionCancelled);
         emitted[1].EventType.Should().Be(BillingEventType.SubscriptionExpired);
@@ -315,9 +326,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionDeletedHasPaymentFailedReason_ShouldEmitSubscriptionSuspended()
     {
-        // Arrange — dunning termination. Stripe escalates a past_due/unpaid subscription to canceled and
+        // dunning termination. Stripe escalates a past_due/unpaid subscription to canceled and
         // sets cancellation_details.reason=payment_failed on the deletion payload. The audit ledger must
         // attribute this to involuntary churn, not voluntary cancellation.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -344,9 +356,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionDeletedWithoutCancelAtPeriodEndOrPaymentFailed_ShouldEmitSubscriptionImmediatelyCancelled()
     {
-        // Arrange — admin-initiated immediate cancel: no prior cape=true update event in the replay
+        // admin-initiated immediate cancel: no prior cape=true update event in the replay
         // sequence and reason=cancellation_requested rather than payment_failed. The classification falls
         // through to SubscriptionImmediatelyCancelled.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var occurredAt = DateTimeOffset.Parse("2026-02-15T10:00:00Z");
         var stripeEvents = new[]
@@ -373,11 +386,12 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionUpdatedPlanChangeCarriesUnitAmount_ShouldEmitNewAmountFromPayload()
     {
-        // Arrange — admin archives the active Premium price and replaces it with a new active price for the
+        // admin archives the active Premium price and replaces it with a new active price for the
         // same plan. priceByPlan[Premium] now reflects the new catalog price (159.00), but this specific
         // subscription is on the old locked-in price (149.00) carried by the payload itself. The payload
         // must win — otherwise replayed BillingEvent.NewAmount diverges from Subscription.CurrentPriceAmount
         // and the drift banner fires permanently for legacy subscriptions.
+        // Arrange
         var subscription = CreateActiveSubscription();
         var priceByPlanWithRecatalogedPremium = new Dictionary<SubscriptionPlan, decimal>
         {
@@ -399,7 +413,8 @@ public sealed class StripeEventReplayerTests
         // Act
         var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, priceByPlanWithRecatalogedPremium);
 
-        // Assert — NewAmount comes from the payload's unit_amount (14900 / 100 = 149.00), NOT priceByPlan[Premium] (159.00).
+        // NewAmount comes from the payload's unit_amount (14900 / 100 = 149.00), NOT priceByPlan[Premium] (159.00).
+        // Assert
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.SubscriptionUpgraded);
         emitted[0].NewAmount.Should().Be(149.00m, "the payload's locked-in unit_amount is authoritative over the live catalog");
@@ -408,9 +423,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenSubscriptionCreatedPayloadHasNoUnitAmount_ShouldFallBackToPriceByPlan()
     {
-        // Arrange — older subscription events (or schedule events) may omit unit_amount on the embedded
+        // older subscription events (or schedule events) may omit unit_amount on the embedded
         // price object. In that case the catalog priceByPlan remains the fallback so NewAmount is still
         // populated rather than zeroed out.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         var priceByPlanWithStandard = new Dictionary<SubscriptionPlan, decimal>
         {
@@ -432,7 +448,8 @@ public sealed class StripeEventReplayerTests
         // Act
         var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, priceByPlanWithStandard);
 
-        // Assert — NewAmount falls back to priceByPlan[Standard] = 29.99 since the payload has no unit_amount.
+        // NewAmount falls back to priceByPlan[Standard] = 29.99 since the payload has no unit_amount.
+        // Assert
         emitted.Should().HaveCount(1);
         emitted[0].EventType.Should().Be(BillingEventType.SubscriptionCreated);
         emitted[0].NewAmount.Should().Be(29.99m, "without unit_amount in the payload, the catalog lookup is the fallback");
@@ -441,9 +458,10 @@ public sealed class StripeEventReplayerTests
     [Fact]
     public void Replay_WhenNoCurrencyResolvable_ShouldSkipEventWithoutEmitting()
     {
-        // Arrange — every source is exhausted: payload has no currency, no override, and the subscription
+        // every source is exhausted: payload has no currency, no override, and the subscription
         // has been reset. Refusing to emit is preferable to guessing "USD" — the row would be permanently
         // wrong on the append-only billing_events log.
+        // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         subscription.ResetToFreePlan();
         subscription.CurrentPriceCurrency.Should().BeNull();

@@ -20,8 +20,9 @@ public sealed class SubscriptionRepositoryDriftScopeTests : EndpointBaseTest<Acc
     [Fact]
     public async Task GetSubscriptionsDueForDriftCheckUnfilteredAsync_WhenSubscriptionsHaveMixedStaleness_ShouldReturnOnlyStaleOnesWithStripeCustomer()
     {
-        // Arrange — three subscriptions: one stale + has Stripe customer (should be returned), one freshly
-        // checked (should be skipped), one with no Stripe customer id (should be skipped — nothing to compare).
+        // Three subscriptions: one stale + has Stripe customer (should be returned), one freshly
+        // checked (should be skipped), one with no Stripe customer id (should be skipped, nothing to compare).
+        // Arrange
         var cutoff = TimeProvider.GetUtcNow().AddHours(-23);
 
         var staleTenantId = SeedTenant("Stale Co");
@@ -39,18 +40,17 @@ public sealed class SubscriptionRepositoryDriftScopeTests : EndpointBaseTest<Acc
         // Act
         var dueSubscriptions = await subscriptionRepository.GetSubscriptionsDueForDriftCheckUnfilteredAsync(cutoff, CancellationToken.None);
 
-        // Assert — only the stale + has-customer row is returned. The freshly checked row and the row without
-        // a Stripe customer id are both excluded.
+        // Assert
         dueSubscriptions.Should().ContainSingle(s => s.Id == staleSubscriptionId);
     }
 
     [Fact]
     public async Task GetSubscriptionsDueForDriftCheckUnfilteredAsync_WhenSubscriptionIsCancelledButRetainsStripeCustomerId_ShouldStillBeReturned()
     {
-        // Arrange — regression guard: a tenant that cancelled (Plan reset to Basis) still has stripe_customer_id
-        // retained and a stale DriftCheckedAt. The legacy sweeper queried GetAllActiveUnfilteredAsync which
-        // filters by Plan != Basis and silently skipped cancelled tenants — drift in their historical event
-        // log was never detected. The new predicate is plan-agnostic; it must return this subscription.
+        // Regression guard: a tenant that cancelled (Plan reset to Basis) still has stripe_customer_id retained
+        // and a stale DriftCheckedAt. The legacy sweeper queried GetAllActiveUnfilteredAsync which filters by
+        // Plan != Basis and silently skipped cancelled tenants. The new predicate is plan-agnostic.
+        // Arrange
         var cutoff = TimeProvider.GetUtcNow().AddHours(-23);
 
         var cancelledTenantId = SeedTenant("Cancelled Co", nameof(SubscriptionPlan.Basis));
@@ -62,7 +62,7 @@ public sealed class SubscriptionRepositoryDriftScopeTests : EndpointBaseTest<Acc
         // Act
         var dueSubscriptions = await subscriptionRepository.GetSubscriptionsDueForDriftCheckUnfilteredAsync(cutoff, CancellationToken.None);
 
-        // Assert — a cancelled tenant with a retained Stripe customer id must still be returned.
+        // Assert
         dueSubscriptions.Should().Contain(s => s.Id == cancelledSubscriptionId);
     }
 

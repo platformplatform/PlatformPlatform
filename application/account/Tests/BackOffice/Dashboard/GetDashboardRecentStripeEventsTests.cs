@@ -16,8 +16,9 @@ public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBase
     [Fact]
     public async Task GetDashboardRecentStripeEvents_WhenCalled_ShouldReturnEventsFromBillingEventLog()
     {
-        // Arrange — seed two billing events for one tenant: a subscription created event and a later upgrade.
+        // seed two billing events for one tenant: a subscription created event and a later upgrade.
         // The handler reads them straight from the log and returns them ordered by OccurredAt DESC.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var tenantId = SeedTenant("Stripe Co");
         var subscriptionId = SubscriptionId.NewId();
@@ -47,7 +48,8 @@ public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBase
     [Fact]
     public async Task GetDashboardRecentStripeEvents_WhenLimitIsApplied_ShouldReturnOnlyTheRequestedNumberOfRows()
     {
-        // Arrange — three events; request only the two most recent.
+        // three events; request only the two most recent.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var tenantId = SeedTenant("Stripe Co");
         var subscriptionId = SubscriptionId.NewId();

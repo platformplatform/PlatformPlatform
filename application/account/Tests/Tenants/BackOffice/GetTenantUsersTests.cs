@@ -97,9 +97,10 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetTenantUsers_WhenFilteringByMultipleRoles_ShouldHonorRoleFilterAtQueryTimeAcrossPages()
     {
-        // Arrange — seed enough users across roles so role filtering must run at the database layer for
+        // seed enough users across roles so role filtering must run at the database layer for
         // pagination to be correct. With 1 Owner on Tenant1 (the seeder) plus 30 Member users added below,
         // filtering ?roles=Owner must return only the 1 Owner regardless of page size.
+        // Arrange
         var tenant = DatabaseSeeder.Tenant1;
         for (var index = 0; index < 30; index++)
         {

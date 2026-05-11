@@ -17,7 +17,8 @@ public sealed class GetUnsyncedSubscriptionsSummaryTests : BackOfficeEndpointBas
     [Fact]
     public async Task GetUnsyncedSubscriptionsSummary_WhenCalled_ShouldReturnPaidSubscriptionsWithoutBillingEvents()
     {
-        // Arrange — two paid subscriptions, only one has a billing event.
+        // two paid subscriptions, only one has a billing event.
+        // Arrange
         var syncedTenant = SeedTenant("Synced Co");
         var syncedSubscriptionId = SubscriptionId.NewId();
         SeedPaidSubscription(syncedTenant, syncedSubscriptionId, 149m);

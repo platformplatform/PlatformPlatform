@@ -175,7 +175,7 @@ public static class StripeEventReplayer
     )
     {
         var newPlan = ResolvePlanFromSubscriptionPayload(payload, planByPriceId) ?? fallbackPlan;
-        var newPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(newPlan, out var p) ? p : 0m);
+        var newPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(newPlan, out var catalogPrice) ? catalogPrice : 0m);
         var previousMrr = state.CommittedMrr;
         state.Plan = newPlan;
         state.PlanPrice = newPrice;
@@ -209,13 +209,13 @@ public static class StripeEventReplayer
             return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
         }
 
-        var previous = payload.TryGetProperty("data", out var data) && data.TryGetProperty("previous_attributes", out var prev) ? prev : default;
+        var previous = payload.TryGetProperty("data", out var data) && data.TryGetProperty("previous_attributes", out var previousAttributes) ? previousAttributes : default;
         if (previous.ValueKind != JsonValueKind.Object)
         {
             return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
         }
 
-        var cancelAtPeriodEndChanged = previous.TryGetProperty("cancel_at_period_end", out var prevCancel) && prevCancel.ValueKind is JsonValueKind.True or JsonValueKind.False;
+        var cancelAtPeriodEndChanged = previous.TryGetProperty("cancel_at_period_end", out var previousCancelAtPeriodEnd) && previousCancelAtPeriodEnd.ValueKind is JsonValueKind.True or JsonValueKind.False;
         var newPlan = ResolvePlanFromSubscriptionPayload(payload, planByPriceId);
         var previousPlan = ResolvePlanFromPreviousAttributes(previous, planByPriceId);
         var planChanged = newPlan is not null && previousPlan is not null && newPlan != previousPlan;
@@ -233,7 +233,7 @@ public static class StripeEventReplayer
             );
         }
 
-        if (cancelAtPeriodEndChanged && prevCancel.ValueKind == JsonValueKind.False)
+        if (cancelAtPeriodEndChanged && previousCancelAtPeriodEnd.ValueKind == JsonValueKind.False)
         {
             // false → true: cancellation scheduled. Forward MRR drops at the moment the customer commits to
             // leaving, not at the effective period end — committed MRR is the leading indicator we want.
@@ -249,7 +249,7 @@ public static class StripeEventReplayer
             );
         }
 
-        if (cancelAtPeriodEndChanged && prevCancel.ValueKind == JsonValueKind.True)
+        if (cancelAtPeriodEndChanged && previousCancelAtPeriodEnd.ValueKind == JsonValueKind.True)
         {
             // true → false: reactivation. Restore committed MRR to the active plan's price.
             var previousMrr = state.CommittedMrr;
@@ -271,7 +271,7 @@ public static class StripeEventReplayer
             // Premium→Standard shows -150.
             var eventType = newPlan!.Value > previousPlan!.Value ? BillingEventType.SubscriptionUpgraded : BillingEventType.SubscriptionDowngraded;
             var previousMrr = state.CommittedMrr;
-            var newPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(newPlan.Value, out var np) ? np : 0m);
+            var newPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(newPlan.Value, out var catalogPrice) ? catalogPrice : 0m);
             state.Plan = newPlan;
             state.PlanPrice = newPrice;
             state.CommittedMrr = state.CancelAtPeriodEnd ? 0m : newPrice;
@@ -321,11 +321,11 @@ public static class StripeEventReplayer
     private static string? ResolveSubscriptionStatus(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var sub = data.TryGetProperty("object", out var obj) ? obj : default;
-        if (sub.ValueKind != JsonValueKind.Object) return null;
-        return sub.TryGetProperty("status", out var s) ? s.GetString() : null;
+        var subscription = data.TryGetProperty("object", out var subscriptionObject) ? subscriptionObject : default;
+        if (subscription.ValueKind != JsonValueKind.Object) return null;
+        return subscription.TryGetProperty("status", out var status) ? status.GetString() : null;
     }
 
     private static BillingEvent MapSubscriptionDeleted(
@@ -432,7 +432,7 @@ public static class StripeEventReplayer
             return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
         }
 
-        var scheduledPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(scheduledPlan.Value, out var sp) ? sp : 0m);
+        var scheduledPrice = ExtractUnitAmountFromPayload(payload) ?? (priceByPlan.TryGetValue(scheduledPlan.Value, out var catalogPrice) ? catalogPrice : 0m);
         var previousMrr = state.CommittedMrr;
         state.ScheduledPlan = scheduledPlan;
         state.CommittedMrr = scheduledPrice;
@@ -545,17 +545,17 @@ public static class StripeEventReplayer
     private static SubscriptionPlan? ResolvePlanFromSubscriptionPayload(JsonElement payload, IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var sub = data.TryGetProperty("object", out var obj) ? obj : default;
-        if (sub.ValueKind != JsonValueKind.Object) return null;
-        var items = sub.TryGetProperty("items", out var i) ? i : default;
+        var subscription = data.TryGetProperty("object", out var subscriptionObject) ? subscriptionObject : default;
+        if (subscription.ValueKind != JsonValueKind.Object) return null;
+        var items = subscription.TryGetProperty("items", out var itemsElement) ? itemsElement : default;
         if (items.ValueKind != JsonValueKind.Object) return null;
-        var itemsData = items.TryGetProperty("data", out var id) ? id : default;
+        var itemsData = items.TryGetProperty("data", out var itemsDataElement) ? itemsDataElement : default;
         if (itemsData.ValueKind != JsonValueKind.Array) return null;
         foreach (var item in itemsData.EnumerateArray())
         {
-            var priceId = item.TryGetProperty("price", out var price) && price.TryGetProperty("id", out var pid) ? pid.GetString() : null;
+            var priceId = item.TryGetProperty("price", out var price) && price.TryGetProperty("id", out var priceIdElement) ? priceIdElement.GetString() : null;
             if (priceId is not null && planByPriceId.TryGetValue(priceId, out var plan)) return plan;
         }
 
@@ -569,7 +569,7 @@ public static class StripeEventReplayer
         if (!items.TryGetProperty("data", out var itemsData) || itemsData.ValueKind != JsonValueKind.Array) return null;
         foreach (var item in itemsData.EnumerateArray())
         {
-            var priceId = item.TryGetProperty("price", out var price) && price.TryGetProperty("id", out var pid) ? pid.GetString() : null;
+            var priceId = item.TryGetProperty("price", out var price) && price.TryGetProperty("id", out var priceIdElement) ? priceIdElement.GetString() : null;
             if (priceId is not null && planByPriceId.TryGetValue(priceId, out var plan)) return plan;
         }
 
@@ -585,11 +585,11 @@ public static class StripeEventReplayer
     private static SubscriptionPlan? ResolveScheduledTargetPlan(JsonElement payload, IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId, SubscriptionPlan? currentPlan)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var schedule = data.TryGetProperty("object", out var obj) ? obj : default;
+        var schedule = data.TryGetProperty("object", out var scheduleObject) ? scheduleObject : default;
         if (schedule.ValueKind != JsonValueKind.Object) return null;
-        var phases = schedule.TryGetProperty("phases", out var ph) ? ph : default;
+        var phases = schedule.TryGetProperty("phases", out var phasesElement) ? phasesElement : default;
         if (phases.ValueKind != JsonValueKind.Array) return null;
 
         SubscriptionPlan? lastPhasePlan = null;
@@ -597,7 +597,7 @@ public static class StripeEventReplayer
         foreach (var phase in phases.EnumerateArray())
         {
             phaseCount++;
-            var items = phase.TryGetProperty("items", out var i) ? i : default;
+            var items = phase.TryGetProperty("items", out var itemsElement) ? itemsElement : default;
             if (items.ValueKind != JsonValueKind.Array) continue;
             foreach (var item in items.EnumerateArray())
             {
@@ -614,17 +614,17 @@ public static class StripeEventReplayer
     private static string? ResolveScheduleStatus(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var schedule = data.TryGetProperty("object", out var obj) ? obj : default;
+        var schedule = data.TryGetProperty("object", out var scheduleObject) ? scheduleObject : default;
         if (schedule.ValueKind != JsonValueKind.Object) return null;
-        return schedule.TryGetProperty("status", out var s) ? s.GetString() : null;
+        return schedule.TryGetProperty("status", out var status) ? status.GetString() : null;
     }
 
     private static bool HasBillingFieldsChanged(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return false;
-        var previous = payload.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object && data.TryGetProperty("previous_attributes", out var prev) ? prev : default;
+        var previous = payload.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object && data.TryGetProperty("previous_attributes", out var previousAttributes) ? previousAttributes : default;
         if (previous.ValueKind != JsonValueKind.Object) return false;
         return previous.TryGetProperty("address", out _)
                || previous.TryGetProperty("email", out _)
@@ -635,21 +635,21 @@ public static class StripeEventReplayer
     private static string? ExtractInvoiceBillingReason(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var invoice = data.TryGetProperty("object", out var obj) ? obj : default;
+        var invoice = data.TryGetProperty("object", out var invoiceObject) ? invoiceObject : default;
         if (invoice.ValueKind != JsonValueKind.Object) return null;
-        return invoice.TryGetProperty("billing_reason", out var br) ? br.GetString() : null;
+        return invoice.TryGetProperty("billing_reason", out var billingReason) ? billingReason.GetString() : null;
     }
 
     private static bool HasMultiplePaymentAttempts(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return false;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return false;
-        var invoice = data.TryGetProperty("object", out var obj) ? obj : default;
+        var invoice = data.TryGetProperty("object", out var invoiceObject) ? invoiceObject : default;
         if (invoice.ValueKind != JsonValueKind.Object) return false;
-        var attemptCount = invoice.TryGetProperty("attempt_count", out var ac) && ac.ValueKind == JsonValueKind.Number ? ac.GetInt32() : 0;
+        var attemptCount = invoice.TryGetProperty("attempt_count", out var attemptCountElement) && attemptCountElement.ValueKind == JsonValueKind.Number ? attemptCountElement.GetInt32() : 0;
         return attemptCount > 1;
     }
 
@@ -664,9 +664,9 @@ public static class StripeEventReplayer
     private static string? ExtractCurrencyFromPayload(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var stripeObject = data.TryGetProperty("object", out var obj) ? obj : default;
+        var stripeObject = data.TryGetProperty("object", out var rawObject) ? rawObject : default;
         if (stripeObject.ValueKind != JsonValueKind.Object) return null;
 
         if (stripeObject.TryGetProperty("currency", out var currency) && currency.ValueKind == JsonValueKind.String)
@@ -704,9 +704,9 @@ public static class StripeEventReplayer
     private static decimal? ExtractUnitAmountFromPayload(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var stripeObject = data.TryGetProperty("object", out var obj) ? obj : default;
+        var stripeObject = data.TryGetProperty("object", out var rawObject) ? rawObject : default;
         if (stripeObject.ValueKind != JsonValueKind.Object) return null;
         if (!stripeObject.TryGetProperty("items", out var items) || items.ValueKind != JsonValueKind.Object) return null;
         if (!items.TryGetProperty("data", out var itemsData) || itemsData.ValueKind != JsonValueKind.Array || itemsData.GetArrayLength() == 0) return null;
@@ -726,9 +726,9 @@ public static class StripeEventReplayer
     private static string? ExtractCancellationReasonFromPayload(JsonElement payload)
     {
         if (payload.ValueKind != JsonValueKind.Object) return null;
-        var data = payload.TryGetProperty("data", out var d) ? d : default;
+        var data = payload.TryGetProperty("data", out var dataElement) ? dataElement : default;
         if (data.ValueKind != JsonValueKind.Object) return null;
-        var stripeObject = data.TryGetProperty("object", out var obj) ? obj : default;
+        var stripeObject = data.TryGetProperty("object", out var rawObject) ? rawObject : default;
         if (stripeObject.ValueKind != JsonValueKind.Object) return null;
         var cancellationDetails = stripeObject.TryGetProperty("cancellation_details", out var details) ? details : default;
         if (cancellationDetails.ValueKind != JsonValueKind.Object) return null;

@@ -353,7 +353,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         await response1.ShouldBeSuccessfulPostRequest(hasLocation: false);
         TelemetryEventsCollectorSpy.Reset();
 
-        // Act - Attempt to switch again with the same (now revoked) session
+        // Attempt to switch again with the same (now revoked) session
+        // Act
         var response2 = await AuthenticatedMemberHttpClient.PostAsJsonAsync(
             "/api/account/authentication/switch-tenant", new SwitchTenantCommand(DatabaseSeeder.Tenant1.Id)
         );

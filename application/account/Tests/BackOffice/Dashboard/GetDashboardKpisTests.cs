@@ -93,10 +93,11 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetDashboardKpis_WhenComputingMrrDelta_ShouldDeriveFromMrrNotSignupCount()
     {
-        // Arrange — three signups within the last 30 days, only one of which is paying. Two paid
+        // three signups within the last 30 days, only one of which is paying. Two paid
         // subscriptions exist that pre-date the period start (created 60+ days ago). The MRR delta
         // must reflect the MRR added by the new paid subscription (49.99 / 200 = +25%), not the
         // signup-count ratio (3/0 → null / divide-by-zero or 3/something).
+        // Arrange
         var now = DateTimeOffset.UtcNow;
 
         var oldPremium = SeedTenant("Old Premium", SubscriptionPlan.Premium, now.AddDays(-90));
@@ -133,8 +134,9 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetDashboardKpis_WhenSubscriptionsAreCancellingOrDowngrading_ShouldUseForwardMrr()
     {
-        // Arrange — three paid subscriptions: one stable Premium, one Premium scheduled to downgrade to Standard,
+        // three paid subscriptions: one stable Premium, one Premium scheduled to downgrade to Standard,
         // one Standard cancelling at period end. Forward MRR sums to 299 + 149 + 0 = 448.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var stable = SeedTenant("Stable Premium", SubscriptionPlan.Premium, now.AddDays(-30));
         SeedPaidSubscription(stable, SubscriptionPlan.Premium, 299m, false, null, null);
@@ -161,9 +163,10 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetDashboardKpis_WhenSoftDeletedTenantsExist_ShouldExcludeThemFromCounts()
     {
-        // Arrange — one active tenant and one soft-deleted tenant. The dashboard query bypasses the
+        // one active tenant and one soft-deleted tenant. The dashboard query bypasses the
         // tenant filter (it is cross-tenant by design) but must still respect the soft-delete filter
         // so deleted tenants do not inflate KPI counts.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         SeedTenant("Active Inc", SubscriptionPlan.Standard, now.AddDays(-10));
         var deletedTenant = SeedTenant("Deleted Co", SubscriptionPlan.Standard, now.AddDays(-15));

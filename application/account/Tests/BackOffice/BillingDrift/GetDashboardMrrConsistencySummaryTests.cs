@@ -17,7 +17,8 @@ public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointB
     [Fact]
     public async Task GetDashboardMrrConsistencySummary_WhenSubscriptionsAndEventsAgree_ShouldReturnEqualValues()
     {
-        // Arrange — one paid subscription with a matching SubscriptionCreated billing event.
+        // one paid subscription with a matching SubscriptionCreated billing event.
+        // Arrange
         var tenantId = SeedTenant("Healthy Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedPaidSubscription(tenantId, subscriptionId, 149m, false, null);
@@ -40,9 +41,10 @@ public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointB
     [Fact]
     public async Task GetDashboardMrrConsistencySummary_WhenDifferenceIsBelowSubCentTolerance_ShouldSnapTrendLatestToKpi()
     {
-        // Arrange — KPI MRR = 100.00, trend-latest event NewAmount = 100.005. The 0.005 diff is sub-cent
+        // KPI MRR = 100.00, trend-latest event NewAmount = 100.005. The 0.005 diff is sub-cent
         // accounting noise; the tolerance must snap trend-latest to KPI so the FE strict-equality
         // banner stays suppressed.
+        // Arrange
         var tenantId = SeedTenant("Sub Cent Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedPaidSubscription(tenantId, subscriptionId, 100.00m, false, null);
@@ -65,9 +67,10 @@ public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointB
     [Fact]
     public async Task GetDashboardMrrConsistencySummary_WhenSubscriptionCancelledButNoCancellationEvent_ShouldReturnDifferingValues()
     {
-        // Arrange — paid subscription cancelled at period end (KPI forward MRR contribution = 0)
+        // paid subscription cancelled at period end (KPI forward MRR contribution = 0)
         // but the only billing event is SubscriptionCreated with NewAmount = 149 (trend latest = 149).
         // The endpoint exists to flag exactly this divergence.
+        // Arrange
         var tenantId = SeedTenant("Drifted Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedPaidSubscription(tenantId, subscriptionId, 149m, true, null);

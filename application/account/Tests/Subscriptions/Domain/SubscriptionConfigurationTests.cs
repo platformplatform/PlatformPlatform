@@ -11,9 +11,10 @@ public sealed class SubscriptionConfigurationTests
     [Fact]
     public void DriftDiscrepancies_WhenSerializedWithDefaultOptions_ShouldEmitEnumsAsStrings()
     {
-        // Arrange - mirrors the production serialization path used by SubscriptionConfiguration
+        // mirrors the production serialization path used by SubscriptionConfiguration
         // for the DriftDiscrepancies jsonb column. Pins the wire format so a future enum reorder
         // cannot silently remap historical rows persisted as integers.
+        // Arrange
         var discrepancies = ImmutableArray.Create(new DriftDiscrepancy(
                 DriftDiscrepancyKind.SubscriptionStateMismatch,
                 "Plan mismatch between Stripe and local subscription.",

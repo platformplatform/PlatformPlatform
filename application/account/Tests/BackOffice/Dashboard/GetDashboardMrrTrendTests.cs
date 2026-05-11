@@ -17,7 +17,8 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetDashboardMrrTrend_WhenCalled_ShouldReturnDailyMrrSeriesForPeriod()
     {
-        // Arrange — one paid subscription that has been running for 5 days, contributing 49.99 to MRR each day since.
+        // One paid subscription that has been running for 5 days, contributing 49.99 to MRR each day since.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var paidTenant = SeedTenant("Paying Co");
         var subscriptionId = SubscriptionId.NewId();

@@ -100,7 +100,8 @@ public sealed class GetBackOfficeBillingEventsTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetBackOfficeBillingEvents_WhenPaginated_ShouldReturnRequestedPage()
     {
-        // Arrange — five events across two tenants. Page size 2 means three pages of 2/2/1.
+        // five events across two tenants. Page size 2 means three pages of 2/2/1.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var tenant = SeedTenant("Acme");
         var subscriptionId = SubscriptionId.NewId();
@@ -129,7 +130,8 @@ public sealed class GetBackOfficeBillingEventsTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetBackOfficeBillingEvents_WhenFilteredByDateRange_ShouldReturnOnlyEventsWithinRange()
     {
-        // Arrange — three events at now-3h, now-2h, now-1h. With OccurredFrom=now-2h we expect the latter two.
+        // three events at now-3h, now-2h, now-1h. With OccurredFrom=now-2h we expect the latter two.
+        // Arrange
         var now = DateTimeOffset.UtcNow;
         var tenant = SeedTenant("Acme");
         var subscriptionId = SubscriptionId.NewId();

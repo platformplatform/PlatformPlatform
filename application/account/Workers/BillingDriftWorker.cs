@@ -18,7 +18,7 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
 {
     private static readonly TimeSpan DefaultStaleness = TimeSpan.FromHours(23);
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         // 23h (not 24h) so two consecutive daily deploys are guaranteed to both catch every row even if the
         // second deploy lands slightly more than 24h after the first.
@@ -29,7 +29,7 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
         var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
         var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
 
-        var dueSubscriptions = await subscriptionRepository.GetSubscriptionsDueForDriftCheckUnfilteredAsync(cutoff, stoppingToken);
+        var dueSubscriptions = await subscriptionRepository.GetSubscriptionsDueForDriftCheckUnfilteredAsync(cutoff, cancellationToken);
         logger.LogInformation("Billing drift worker starting detect pass over {Count} subscriptions (staleness '{Staleness}')", dueSubscriptions.Length, staleness);
 
         var processed = 0;
@@ -37,7 +37,7 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
         var failed = 0;
         foreach (var subscription in dueSubscriptions)
         {
-            if (stoppingToken.IsCancellationRequested) break;
+            if (cancellationToken.IsCancellationRequested) break;
             if (subscription.StripeCustomerId is null)
             {
                 skipped++;
@@ -46,7 +46,7 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
 
             try
             {
-                await processor.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Detect, stoppingToken);
+                await processor.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Detect, cancellationToken);
                 processed++;
             }
             catch (OperationCanceledException)
