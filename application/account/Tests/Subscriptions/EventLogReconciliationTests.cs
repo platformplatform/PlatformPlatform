@@ -27,7 +27,7 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
                 ("plan", plan),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", stripeSubscriptionId),
-                ("current_price_amount", hasStripeSubscription ? 29.99m : null),
+                ("current_price_amount", hasStripeSubscription ? MockStripeClient.StandardAmountExcludingTax : null),
                 ("current_price_currency", hasStripeSubscription ? "DKK" : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null)
             ]

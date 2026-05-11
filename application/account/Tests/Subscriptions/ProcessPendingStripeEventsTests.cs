@@ -112,7 +112,7 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
@@ -148,7 +148,7 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]

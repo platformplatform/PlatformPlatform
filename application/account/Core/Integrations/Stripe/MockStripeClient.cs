@@ -54,13 +54,30 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public const string MockSessionId = "cs_mock_session_12345";
     public const string MockClientSecret = "cs_mock_client_secret_12345";
     public const string MockInvoiceUrl = "https://mock.stripe.local/invoice/12345";
+    public const string MockPaymentMethodId = "pm_mock_12345";
+    public const string MockInvoiceId = "in_mock_12345";
     public const string MockWebhookEventId = "evt_mock_12345";
 
     public const string MockSubscriptionCreatedEventId = "evt_mock_subscription_created";
+    public const string MockPaymentMethodAttachedEventId = "evt_mock_payment_method_attached";
+    public const string MockInvoicePaymentSucceededEventId = "evt_mock_invoice_payment_succeeded";
     public const string MockPaymentFailedEventId = "evt_mock_payment_failed";
     public const string MockCustomerDeletedEventId = "evt_mock_customer_deleted";
 
     public const string MockApiVersion = "2025-09-30.preview";
+
+    // Mock plan amounts following the platform's ex-VAT convention for internal recurring-revenue numbers.
+    // MRR is revenue accounting, VAT is collected on behalf of tax authorities and never our revenue, so
+    // CurrentPriceAmount, ScheduledPriceAmount, and every BillingEvent amount column are ALWAYS ex-VAT.
+    // PaymentTransaction is the one exception — it exposes the inc-VAT customer-facing display amount as
+    // Amount, plus AmountExcludingTax and TaxAmount for the invoice breakdown. Numbers chosen so the
+    // Danish 25% VAT math is unambiguous: 149.00 + 25% = 186.25; 299.00 + 25% = 373.75.
+    public const decimal StandardAmountExcludingTax = 149.00m;
+    public const decimal StandardTaxAmount = 37.25m;
+    public const decimal StandardAmountIncludingTax = 186.25m;
+    public const decimal PremiumAmountExcludingTax = 299.00m;
+    public const decimal PremiumTaxAmount = 74.75m;
+    public const decimal PremiumAmountIncludingTax = 373.75m;
 
     private readonly bool _isEnabled = ResolveIsEnabled(configuration);
 
@@ -90,9 +107,9 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         {
             new PaymentTransaction(
                 PaymentTransactionId.NewId(),
-                29.99m,
-                23.99m,
-                6.00m,
+                StandardAmountIncludingTax,
+                StandardAmountExcludingTax,
+                StandardTaxAmount,
                 state.SubscriptionCurrency,
                 PaymentTransactionStatus.Succeeded,
                 now,
@@ -107,7 +124,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             SubscriptionPlan.Standard,
             state.ScheduledPlan,
             StripeSubscriptionId.NewId(MockSubscriptionId),
-            29.99m,
+            StandardAmountExcludingTax,
             state.SubscriptionCurrency,
             now.AddDays(30),
             false,
@@ -162,8 +179,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         EnsureEnabled();
         var catalog = new List<PriceCatalogItem>
         {
-            new(SubscriptionPlan.Standard, 29.00m, state.SubscriptionCurrency, "month", 1, false),
-            new(SubscriptionPlan.Premium, 99.00m, state.SubscriptionCurrency, "month", 1, false)
+            new(SubscriptionPlan.Standard, StandardAmountExcludingTax, state.SubscriptionCurrency, "month", 1, false),
+            new(SubscriptionPlan.Premium, PremiumAmountExcludingTax, state.SubscriptionCurrency, "month", 1, false)
         };
         catalog.RemoveAll(item => state.PriceCatalogOmittedPlans.Contains(item.Plan));
         return Task.FromResult(catalog.ToArray());
@@ -276,7 +293,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         EnsureEnabled();
         if (state.SimulateOpenInvoice)
         {
-            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(29.99m, state.SubscriptionCurrency));
+            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(StandardAmountIncludingTax, state.SubscriptionCurrency));
         }
 
         return Task.FromResult<OpenInvoiceResult?>(null);
@@ -324,7 +341,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         return Task.FromResult<PaymentTransaction[]?>(
             [
-                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, 23.99m, 6.00m, state.SubscriptionCurrency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), StandardAmountIncludingTax, StandardAmountExcludingTax, StandardTaxAmount, state.SubscriptionCurrency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
             ]
         );
     }
@@ -333,15 +350,37 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         var now = timeProvider.GetUtcNow();
+        // Stripe encodes invoice amounts in the smallest currency unit (øre for DKK); 18625 = 186.25 DKK
+        // and 14900 = 149.00 DKK. The amount_paid value is inc-VAT, amount_excluding_tax is ex-VAT, and
+        // tax is the difference — mirrors the PaymentTransaction triple the mock produces elsewhere so
+        // the replayer sees an internally consistent timeline. See https://docs.stripe.com/currencies.
+        var paymentMethodAttachedPayload = "{\"data\":{\"object\":{\"id\":\"" + MockPaymentMethodId + "\",\"type\":\"card\",\"customer\":\"" + MockCustomerId + "\"}}}";
+        var invoicePaymentSucceededPayload = "{\"data\":{\"object\":{\"id\":\"" + MockInvoiceId + "\",\"amount_paid\":18625,\"amount_excluding_tax\":14900,\"tax\":3725,\"currency\":\"dkk\",\"subscription\":\"" + MockSubscriptionId + "\",\"status\":\"paid\",\"billing_reason\":\"subscription_create\"}}}";
         var events = new List<StripeReplayEvent>
         {
-            // Default timeline always starts with a subscription.created event mirroring the mock's
-            // SyncSubscriptionStateAsync result (Standard plan on price_mock_standard).
+            // The default timeline mirrors the state SyncSubscriptionStateAsync returns: an attached
+            // payment method, an active Standard subscription on price_mock_standard, and a paid invoice
+            // for the first billing cycle. The replayer must consume all three so the BillingEvent
+            // timeline matches the live subscription state without surfacing spurious drift.
+            new(
+                MockPaymentMethodAttachedEventId,
+                "payment_method.attached",
+                now.AddMinutes(-6),
+                paymentMethodAttachedPayload,
+                MockApiVersion
+            ),
             new(
                 MockSubscriptionCreatedEventId,
                 "customer.subscription.created",
                 now.AddMinutes(-5),
                 """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard"}}]}}}}""",
+                MockApiVersion
+            ),
+            new(
+                MockInvoicePaymentSucceededEventId,
+                "invoice.payment_succeeded",
+                now.AddMinutes(-4),
+                invoicePaymentSucceededPayload,
                 MockApiVersion
             )
         };
@@ -370,11 +409,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(new StripeEventsListResult(ordered, !state.SimulateEventsListFailure));
     }
 
-    // ReSharper disable once ReturnTypeCanBeNotNullable
     public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)
     {
         EnsureEnabled();
-        return $"https://dashboard.stripe.com/test/customers/{stripeCustomerId.Value}";
+        // Mock customers don't exist in Stripe's Dashboard, so returning null tells the back-office UI
+        // to hide the "Open in Stripe" menu item entirely — clicking the link would otherwise land on a
+        // 404 inside Stripe and confuse operators investigating a mock-mode tenant.
+        return null;
     }
 
     private static bool ResolveIsEnabled(IConfiguration configuration)

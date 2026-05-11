@@ -74,7 +74,7 @@ public sealed class BillingDriftWorkerTests : EndpointBaseTest<AccountDbContext>
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("drift_checked_at", null)
@@ -107,7 +107,7 @@ public sealed class BillingDriftWorkerTests : EndpointBaseTest<AccountDbContext>
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("drift_checked_at", recentDriftCheckedAt)
@@ -253,7 +253,7 @@ public sealed class BillingDriftWorkerTests : EndpointBaseTest<AccountDbContext>
                 ("scheduled_plan", null),
                 ("stripe_customer_id", stripeCustomerId),
                 ("stripe_subscription_id", stripeSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("cancel_at_period_end", false),

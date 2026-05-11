@@ -20,7 +20,7 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
                 ("plan", plan),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", stripeSubscriptionId),
-                ("current_price_amount", hasStripeSubscription ? 29.99m : null),
+                ("current_price_amount", hasStripeSubscription ? MockStripeClient.StandardAmountExcludingTax : null),
                 ("current_price_currency", hasStripeSubscription ? "DKK" : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
                 ("first_payment_failed_at", firstPaymentFailedAt)
@@ -265,7 +265,7 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
         // Neither downgradeScheduled (local ScheduledPlan is not null) nor downgradeCancelled (Stripe
         // ScheduledPlan is not null) fires, so the diff-based pricing path is skipped. Before the fix,
         // scheduled_price_amount stayed NULL and MrrCalculator.ForwardMrr fell back to current price
-        // (29.99) instead of catalog Premium price (99), overstating BLENDED MRR.
+        // (149 ex-VAT) instead of catalog Premium price (299 ex-VAT), overstating BLENDED MRR.
         // Arrange
         SetupSubscription();
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
@@ -291,7 +291,7 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
             $"SELECT scheduled_price_amount FROM subscriptions WHERE tenant_id = {DatabaseSeeder.Tenant1.Id.Value}", []
         );
         scheduledPriceAmount.Should().NotBeNullOrEmpty("the unconditional reconciliation must populate scheduled_price_amount whenever Stripe reports a ScheduledPlan");
-        decimal.Parse(scheduledPriceAmount, CultureInfo.InvariantCulture).Should().Be(99.00m, "the catalog Premium price (99) must be written back, not NULL, healing the cancel-then-reschedule bug");
+        decimal.Parse(scheduledPriceAmount, CultureInfo.InvariantCulture).Should().Be(MockStripeClient.PremiumAmountExcludingTax, "the catalog Premium price (299 ex-VAT) must be written back, not NULL, healing the cancel-then-reschedule bug");
     }
 
     [Fact]

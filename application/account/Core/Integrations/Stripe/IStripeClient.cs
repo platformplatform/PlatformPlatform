@@ -136,6 +136,17 @@ public sealed record UpgradePreviewLineItem(string Description, decimal Amount, 
 
 public sealed record CheckoutPreviewResult(decimal TotalAmount, string Currency, decimal TaxAmount);
 
+/// <summary>
+///     One row in the Stripe price catalog, normalized to the platform's ex-VAT convention. The
+///     <see cref="UnitAmount" /> field is ALWAYS the ex-VAT recurring price — implementations must
+///     subtract VAT from Stripe's inc-VAT listed amount when the price has
+///     <c>tax_behavior=inclusive</c>. The catalog is the source of truth for MRR, BillingEvent amounts,
+///     and ScheduledPriceAmount; all of those are revenue-accounting numbers and VAT is collected on
+///     behalf of tax authorities, never our revenue. The only place inc-VAT amounts appear in the
+///     domain is <see cref="PaymentTransaction" />, which carries the inc-VAT customer-facing amount
+///     alongside <see cref="PaymentTransaction.AmountExcludingTax" /> and
+///     <see cref="PaymentTransaction.TaxAmount" /> for invoice display.
+/// </summary>
 public sealed record PriceCatalogItem(
     SubscriptionPlan Plan,
     decimal UnitAmount,

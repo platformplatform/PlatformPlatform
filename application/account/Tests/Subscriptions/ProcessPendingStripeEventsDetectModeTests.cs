@@ -34,7 +34,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Premium)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
@@ -88,7 +88,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
     [Fact]
     public async Task ProcessPendingStripeEvents_WhenDetectMode_AndSubscriptionInSyncWithStripe_ShouldRecordEmptyDriftAndAdvanceCheckedAt()
     {
-        // Local subscription matches Stripe's mock state (Standard / 29.99 DKK) so the detector finds zero
+        // Local subscription matches Stripe's mock state (Standard / 149.00 DKK ex-VAT) so the detector finds zero
         // discrepancies. SetDriftStatus must still fire so DriftCheckedAt advances — that's how the worker
         // proves it has visited every stale row.
         // Arrange
@@ -96,7 +96,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
@@ -143,7 +143,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("drift_checked_at", existingDriftCheckedAt)
@@ -177,7 +177,7 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("drift_checked_at", existingDriftCheckedAt)

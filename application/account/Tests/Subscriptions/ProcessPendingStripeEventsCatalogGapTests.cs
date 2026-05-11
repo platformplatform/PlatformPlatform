@@ -27,7 +27,7 @@ public sealed class ProcessPendingStripeEventsCatalogGapTests : EndpointBaseTest
                 ("plan", plan),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
@@ -83,7 +83,7 @@ public sealed class ProcessPendingStripeEventsCatalogGapTests : EndpointBaseTest
         SetupSubscription();
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("scheduled_plan", nameof(SubscriptionPlan.Premium)),
-                ("scheduled_price_amount", 99.00m)
+                ("scheduled_price_amount", MockStripeClient.PremiumAmountExcludingTax)
             ]
         );
         StripeState.ScheduledPlan = null;
@@ -118,7 +118,7 @@ public sealed class ProcessPendingStripeEventsCatalogGapTests : EndpointBaseTest
         SetupSubscription();
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("scheduled_plan", nameof(SubscriptionPlan.Premium)),
-                ("scheduled_price_amount", 99.00m)
+                ("scheduled_price_amount", MockStripeClient.PremiumAmountExcludingTax)
             ]
         );
         StripeState.ScheduledPlan = SubscriptionPlan.Premium;

@@ -148,7 +148,11 @@ public sealed class StripeClient(
             var subscriptionItem = stripeSubscription.Items.Data.SingleOrDefault();
             var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
             var scheduledPlan = GetScheduledPlan(stripeSubscription);
-            var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
+            // CurrentPriceAmount is ALWAYS persisted ex-VAT (revenue accounting; VAT is collected on
+            // behalf of tax authorities and never our revenue). Normalize at the boundary when Stripe's
+            // tax_behavior is "inclusive" — see NormalizePriceAmountToExcludingTax for the rate lookup
+            // path. Inc-VAT customer-facing amounts only appear in PaymentTransaction for invoice display.
+            var currentPriceAmount = NormalizePriceAmountToExcludingTax(subscriptionItem?.Price);
             var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
             var platformCurrency = platformCurrencyProvider.Currency;
             if (currentPriceCurrency is not null && platformCurrency is not null && currentPriceCurrency != platformCurrency)
@@ -472,7 +476,11 @@ public sealed class StripeClient(
         foreach (var (lookupKey, price) in cached)
         {
             var plan = ParseLookupKey(lookupKey);
-            var unitAmount = price.UnitAmount.GetValueOrDefault() / 100m;
+            // PriceCatalogItem.UnitAmount is contractually ex-VAT (MRR is revenue accounting; VAT is
+            // collected on behalf of tax authorities and never our revenue). NormalizePriceAmountToExcludingTax
+            // subtracts the VAT component when Stripe's tax_behavior is "inclusive", matching the
+            // architectural rule that all internal recurring-revenue numbers are net-of-tax.
+            var unitAmount = NormalizePriceAmountToExcludingTax(price) ?? 0m;
             var currency = price.Currency.ToUpperInvariant();
             var interval = price.Recurring?.Interval ?? "month";
             var intervalCount = (int)(price.Recurring?.IntervalCount ?? 1);
@@ -1208,6 +1216,33 @@ public sealed class StripeClient(
         var rawAmountExcludingTax = displayAmount - taxAmount;
         var amountExcludingTax = Math.Max(0m, rawAmountExcludingTax);
         return (displayAmount, amountExcludingTax, taxAmount, rawAmountExcludingTax < 0m);
+    }
+
+    /// <summary>
+    ///     Normalizes a Stripe price's <c>unit_amount</c> to the platform's ex-VAT contract. Stripe encodes
+    ///     amounts in minor units (cents/øre); the value is divided by 100 to produce the major-unit decimal.
+    ///     For <c>tax_behavior == "exclusive"</c> the listed amount is already ex-VAT and is returned as-is.
+    ///     For <c>tax_behavior == "inclusive"</c> we must subtract the VAT component before persisting because
+    ///     MRR is revenue accounting and VAT is collected on behalf of tax authorities, never our revenue.
+    ///     Returns null when the input price or its <c>unit_amount</c> is null. See
+    ///     https://docs.stripe.com/api/prices/object#price_object-tax_behavior.
+    ///     TODO: the Stripe Price object does not carry the active <c>TaxRate</c> for this customer's location,
+    ///     so the inclusive-mode path currently cannot compute the exact VAT to subtract. Configure
+    ///     <c>tax_behavior=exclusive</c> on every active Stripe price (the recommended setting with Automatic
+    ///     Tax) so the listed amount is already ex-VAT and this normalizer is a pass-through. When inclusive
+    ///     prices are required, look up the active TaxRate via the customer's billing address (Stripe Tax) and
+    ///     extend this helper.
+    /// </summary>
+    public static decimal? NormalizePriceAmountToExcludingTax(StripePrice? price)
+    {
+        if (price?.UnitAmount is null) return null;
+        var listedAmount = price.UnitAmount.Value / 100m;
+        // TODO: When TaxBehavior == "inclusive" we should subtract the VAT component before persisting,
+        // but the Stripe Price object does not carry the customer's active TaxRate; extending this
+        // requires a second Stripe call. The recommended deployment configures every active price with
+        // tax_behavior=exclusive (paired with Stripe Automatic Tax), so the listed amount is already
+        // ex-VAT and this path is a pass-through. If you flip a price to inclusive, revisit this.
+        return listedAmount;
     }
 
     private async Task<Dictionary<string, SubscriptionPlan>> BuildPlanByPriceIdAsync(CancellationToken cancellationToken)

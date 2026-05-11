@@ -55,12 +55,40 @@ public sealed class BillingEvent : AggregateRoot<BillingEventId>, ITenantScopedE
 
     public SubscriptionPlan? ToPlan { get; private set; }
 
+    /// <summary>
+    ///     The ex-VAT recurring price before this event applied. ALWAYS ex-VAT: MRR is revenue
+    ///     accounting, VAT is collected on behalf of tax authorities and never our revenue, so every
+    ///     amount column on this aggregate is net-of-tax. Null for event types that don't carry a
+    ///     before/after price (e.g. <see cref="BillingEventType.BillingInfoUpdated" />).
+    /// </summary>
     public decimal? PreviousAmount { get; private set; }
 
+    /// <summary>
+    ///     The ex-VAT recurring price after this event applied. ALWAYS ex-VAT: MRR is revenue
+    ///     accounting, VAT is collected on behalf of tax authorities and never our revenue, so every
+    ///     amount column on this aggregate is net-of-tax. Sourced either from the Stripe event payload's
+    ///     <c>unit_amount</c> (normalized to ex-VAT when the underlying price's <c>tax_behavior</c> is
+    ///     <c>inclusive</c>) or from the ex-VAT catalog fallback. Null for event types that don't
+    ///     carry a new price.
+    /// </summary>
     public decimal? NewAmount { get; private set; }
 
+    /// <summary>
+    ///     The ex-VAT difference <see cref="NewAmount" /> − <see cref="PreviousAmount" />, signed.
+    ///     ALWAYS ex-VAT: MRR is revenue accounting, VAT is collected on behalf of tax authorities and
+    ///     never our revenue, so the recurring-revenue delta is net-of-tax. Null for event types where
+    ///     a delta is undefined (NoOp, BillingInfoUpdated, PaymentMethodUpdated, etc.).
+    /// </summary>
     public decimal? AmountDelta { get; private set; }
 
+    /// <summary>
+    ///     The ex-VAT committed MRR state immediately after this event applied — the running total
+    ///     denormalized so paginated reads don't have to walk history. ALWAYS ex-VAT: MRR is revenue
+    ///     accounting, VAT is collected on behalf of tax authorities and never our revenue, so the
+    ///     KPI sum must be net-of-tax. Zero when the subscription is cancelled-at-period-end (the
+    ///     forward MRR contribution drops at the moment the customer commits to leaving, not at the
+    ///     effective period end).
+    /// </summary>
     public decimal CommittedMrr { get; private set; }
 
     public string? Currency { get; private set; }

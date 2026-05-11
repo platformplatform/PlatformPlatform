@@ -38,7 +38,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.99m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("last_synced_stripe_event_created_at", existingAnchor)
@@ -79,7 +79,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.00m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
                 ("scheduled_plan", nameof(SubscriptionPlan.Premium)),
@@ -124,7 +124,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("current_price_amount", 29.00m),
+                ("current_price_amount", MockStripeClient.StandardAmountExcludingTax),
                 ("current_price_currency", "DKK"),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]

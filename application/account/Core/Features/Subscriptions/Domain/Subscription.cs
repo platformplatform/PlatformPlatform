@@ -41,12 +41,31 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public SubscriptionPlan? ScheduledPlan { get; private set; }
 
+    /// <summary>
+    ///     The ex-VAT price the subscription will charge after the scheduled downgrade activates at
+    ///     <see cref="CurrentPeriodEnd" />. ALWAYS ex-VAT: MRR is revenue accounting, VAT is collected
+    ///     on behalf of tax authorities and never our revenue, so every internal recurring-revenue
+    ///     number is net-of-tax. Sourced from the price catalog at sync time; the catalog itself
+    ///     normalizes from Stripe's inc-VAT listed amount when <c>tax_behavior=inclusive</c>. Null
+    ///     when no downgrade is scheduled. The inc-VAT customer-facing amount only appears in
+    ///     <see cref="PaymentTransaction" /> for invoice display.
+    /// </summary>
     public decimal? ScheduledPriceAmount { get; private set; }
 
     public StripeCustomerId? StripeCustomerId { get; private set; }
 
     public StripeSubscriptionId? StripeSubscriptionId { get; private set; }
 
+    /// <summary>
+    ///     The ex-VAT price the subscription currently charges per <see cref="CurrentPeriodEnd" />.
+    ///     ALWAYS ex-VAT: MRR is revenue accounting, VAT is collected on behalf of tax authorities and
+    ///     never our revenue, so every internal recurring-revenue number is net-of-tax. The real Stripe
+    ///     client normalizes from <c>price.unit_amount</c> based on <c>price.tax_behavior</c> — for
+    ///     <c>inclusive</c> prices it subtracts the VAT component before persisting; for
+    ///     <c>exclusive</c> it stores the listed amount unchanged. Null on Basis plans and brand-new
+    ///     tenants. The inc-VAT customer-facing amount only appears in <see cref="PaymentTransaction" />
+    ///     for invoice display.
+    /// </summary>
     public decimal? CurrentPriceAmount { get; private set; }
 
     public string? CurrentPriceCurrency { get; private set; }
