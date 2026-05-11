@@ -262,9 +262,6 @@ msgstr "Current period"
 msgid "Current plan"
 msgstr "Current plan"
 
-msgid "Customer"
-msgstr "Customer"
-
 msgid "Dark"
 msgstr "Dark"
 

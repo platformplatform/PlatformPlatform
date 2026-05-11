@@ -118,7 +118,7 @@ msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
 
 msgid "Actions"
-msgstr ""
+msgstr "Handlinger"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -261,9 +261,6 @@ msgstr "Aktuel periode"
 
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
-
-msgid "Customer"
-msgstr "Kunde"
 
 msgid "Dark"
 msgstr "Mørk"

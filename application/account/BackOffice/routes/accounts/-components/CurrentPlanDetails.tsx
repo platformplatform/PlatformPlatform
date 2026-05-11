@@ -4,7 +4,7 @@ import { Card } from "@repo/ui/components/Card";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getCountryFlagEmoji } from "@repo/ui/utils/countryFlag";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { CalendarClockIcon, CalendarIcon, XCircleIcon } from "lucide-react";
+import { CalendarClockIcon, XCircleIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
@@ -14,6 +14,8 @@ import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 import { CardBrandLogo } from "./CardBrandLogo";
 
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
+
+const sectionLabelClassName = "text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase";
 
 export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailResponse }>) {
   const formatDate = useFormatDate();
@@ -43,7 +45,8 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
     : [];
 
   const country = tenant.billingAddress?.country?.trim() ?? "";
-  const hasCustomer = Boolean(tenant.billingName || tenant.taxId);
+  const hasAnyBillingDetails =
+    Boolean(tenant.billingName) || billingAddressLines.length > 0 || country !== "" || Boolean(tenant.taxId);
 
   return (
     <Card className="min-h-[8.375rem] flex-1 gap-4 rounded-lg p-5 py-5 shadow-none lg:min-h-[20.75rem]">
@@ -81,56 +84,32 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
 
       <hr className="border-border" />
 
-      <div className="flex flex-col gap-4 md:flex-row-reverse md:gap-8 lg:flex-col lg:gap-4">
-        <dl className="grid grid-cols-2 gap-3 text-sm md:flex md:flex-1 md:flex-col md:gap-3 lg:grid lg:grid-cols-2">
-          <div className="flex flex-col gap-1">
-            <dt className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
-              <Trans>Subscribed since</Trans>
-            </dt>
-            <dd className="inline-flex items-center gap-1.5 tabular-nums">
-              {tenant.subscribedSince && <CalendarIcon className="size-3.5 text-muted-foreground" aria-hidden={true} />}
-              {tenant.subscribedSince ? formatDate(tenant.subscribedSince) : "-"}
-            </dd>
-          </div>
-          <div className="flex flex-col gap-1">
-            <dt className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
-              {isCanceling ? <Trans>Expires</Trans> : <Trans>Renewal date</Trans>}
-            </dt>
-            <dd className="inline-flex items-center gap-1.5 tabular-nums">
-              {tenant.renewalDate && <CalendarIcon className="size-3.5 text-muted-foreground" aria-hidden={true} />}
-              {tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
-            </dd>
-          </div>
-        </dl>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+        <div className="flex flex-col gap-1">
+          <span className={sectionLabelClassName}>
+            <Trans>Subscribed since</Trans>
+          </span>
+          <span className="tabular-nums">{tenant.subscribedSince ? formatDate(tenant.subscribedSince) : "-"}</span>
+        </div>
 
-        <hr className="border-border md:hidden lg:block" />
+        <div className="flex flex-col gap-1">
+          <span className={sectionLabelClassName}>
+            {isCanceling ? <Trans>Expires</Trans> : <Trans>Renewal date</Trans>}
+          </span>
+          <span className="whitespace-nowrap tabular-nums">
+            {tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
+          </span>
+        </div>
 
-        {hasCustomer && (
-          <div className="flex flex-col gap-2 md:flex-1">
-            <span className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
-              <Trans>Customer</Trans>
-            </span>
-            {tenant.billingName && <div className="text-sm">{tenant.billingName}</div>}
-            {tenant.taxId && (
-              <div className="text-sm text-muted-foreground tabular-nums">
-                <Trans>VAT</Trans> {tenant.taxId}
-              </div>
-            )}
-          </div>
-        )}
+        <hr className="col-span-2 border-border" />
 
-        {hasCustomer && <hr className="border-border md:hidden lg:block" />}
-
-        <div className="flex flex-col gap-2 md:flex-1">
-          <span className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
+        <div className="flex flex-col gap-2">
+          <span className={sectionLabelClassName}>
             <Trans>Billing address</Trans>
           </span>
-          {billingAddressLines.length === 0 && country === "" ? (
-            <span className="text-sm text-muted-foreground">
-              <Trans>No billing address on file.</Trans>
-            </span>
-          ) : (
+          {hasAnyBillingDetails ? (
             <address className="text-sm leading-6 not-italic">
+              {tenant.billingName && <div>{tenant.billingName}</div>}
               {billingAddressLines.map((line) => (
                 <div key={line}>{line}</div>
               ))}
@@ -140,28 +119,38 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
                   <span>{country}</span>
                 </div>
               )}
+              {tenant.taxId && (
+                <div className="text-muted-foreground tabular-nums">
+                  <Trans>VAT</Trans> {tenant.taxId}
+                </div>
+              )}
             </address>
+          ) : (
+            <span className="text-muted-foreground">
+              <Trans>No billing address on file.</Trans>
+            </span>
           )}
         </div>
 
-        {tenant.paymentMethod && (
-          <>
-            <hr className="border-border md:hidden lg:block" />
-            <div className="flex flex-col gap-2 md:flex-1">
-              <span className="text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
-                <Trans>Payment method</Trans>
-              </span>
-              <div className="inline-flex items-center gap-2 text-sm">
-                <CardBrandLogo brand={tenant.paymentMethod.brand} />
-                <span className="tabular-nums">•••• {tenant.paymentMethod.last4}</span>
-                <span className="text-muted-foreground tabular-nums">
+        <div className="flex flex-col gap-2">
+          <span className={sectionLabelClassName}>
+            <Trans>Payment method</Trans>
+          </span>
+          {tenant.paymentMethod ? (
+            <div className="flex items-center gap-2">
+              <CardBrandLogo brand={tenant.paymentMethod.brand} size="lg" />
+              <div className="flex flex-col leading-tight">
+                <span className="whitespace-nowrap tabular-nums">•••• {tenant.paymentMethod.last4}</span>
+                <span className="whitespace-nowrap text-muted-foreground tabular-nums">
                   {tenant.paymentMethod.expMonth.toString().padStart(2, "0")}/
                   {tenant.paymentMethod.expYear.toString().slice(-2)}
                 </span>
               </div>
             </div>
-          </>
-        )}
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
+        </div>
       </div>
     </Card>
   );
