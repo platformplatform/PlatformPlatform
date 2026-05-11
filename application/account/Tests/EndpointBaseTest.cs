@@ -185,6 +185,8 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
     protected MockStripeState StripeState => _webApplicationFactory.Services.GetRequiredService<MockStripeState>();
 
+    protected IServiceProvider WebApplicationServices => _webApplicationFactory.Services;
+
     public void Dispose()
     {
         Dispose(true);

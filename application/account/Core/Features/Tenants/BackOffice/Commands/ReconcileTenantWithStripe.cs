@@ -71,7 +71,7 @@ public sealed class ReconcileTenantWithStripeHandler(
 
         var beforeEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
 
-        await processPendingStripeEvents.ExecuteAsync(subscription.StripeCustomerId, true, cancellationToken);
+        await processPendingStripeEvents.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Apply, cancellationToken);
 
         var afterEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
         var billingEventsAppended = afterEvents.Length - beforeEvents.Length;

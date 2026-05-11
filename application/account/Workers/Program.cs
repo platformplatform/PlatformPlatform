@@ -20,7 +20,7 @@ builder.Services
 builder.Services.AddTransient<DatabaseMigrationService<AccountDbContext>>();
 builder.Services.AddTransient<DataMigrationRunner<AccountDbContext>>();
 
-builder.Services.AddHostedService<StripeSyncSweeper>();
+builder.Services.AddHostedService<BillingDriftWorker>();
 
 var host = builder.Build();
 

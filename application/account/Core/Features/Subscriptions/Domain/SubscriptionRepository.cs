@@ -37,6 +37,13 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Retrieves every subscription whose drift check is stale, regardless of plan, without applying tenant
+    ///     query filters. A subscription is "stale" when (a) it has a Stripe customer id (we need one to compare
+    ///     against Stripe at all), and (b) DriftCheckedAt is either NULL or older than the supplied cutoff.
+    /// </summary>
+    Task<Subscription[]> GetSubscriptionsDueForDriftCheckUnfilteredAsync(DateTimeOffset cutoff, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Retrieves every subscription that has at least one payment transaction recorded. Used by the
     ///     back-office invoices listing which expands the JSON transactions array into one row per invoice.
     ///     Bypasses the tenant query filter because the back-office is cross-tenant by design.
@@ -107,6 +114,28 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     public async Task<Subscription[]> GetAllActiveUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(s => s.Plan != SubscriptionPlan.Basis).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves every subscription whose drift check is stale, regardless of plan, without applying tenant
+    ///     query filters. A subscription is "stale" when (a) it has a Stripe customer id (we need one to compare
+    ///     against Stripe at all), and (b) DriftCheckedAt is either NULL or older than the supplied cutoff.
+    /// </summary>
+    public async Task<Subscription[]> GetSubscriptionsDueForDriftCheckUnfilteredAsync(DateTimeOffset cutoff, CancellationToken cancellationToken)
+    {
+        // Both predicates are evaluated in memory: StripeCustomerId is a value-object-typed nullable column
+        // that EF Core does not translate against null directly, and the DateTimeOffset comparison on the
+        // nullable DriftCheckedAt does not round-trip cleanly across SQLite (tests) and Postgres (production).
+        // The row count of subscriptions across all tenants is small and the worker runs once per Container
+        // App scale-up, so the in-memory filter is acceptable here. Matches the established pattern used by
+        // every other CreatedAt/OccurredAt range query in this SCS (see BillingEventRepository,
+        // EmailLoginRepository, ExternalLoginRepository, UserRepository).
+        var allSubscriptions = await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .OrderBy(s => s.Id)
+            .ToArrayAsync(cancellationToken);
+
+        return [.. allSubscriptions.Where(s => s.StripeCustomerId is not null && (s.DriftCheckedAt is null || s.DriftCheckedAt < cutoff))];
     }
 
     public async Task<Subscription[]> GetAllWithTransactionsUnfilteredAsync(CancellationToken cancellationToken)
