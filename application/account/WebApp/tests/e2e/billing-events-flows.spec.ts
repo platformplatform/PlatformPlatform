@@ -25,6 +25,37 @@ test.describe("@smoke", () => {
     const page = await backOfficeContext.newPage();
     createTestContext(page);
 
+    const billingEventsWithRows = {
+      totalCount: 1,
+      pageSize: 25,
+      totalPages: 1,
+      currentPageOffset: 0,
+      billingEvents: [
+        {
+          id: "bev_mock_12345",
+          tenantId: "1",
+          tenantName: "Test Organization",
+          tenantLogoUrl: null,
+          country: "DK",
+          eventType: "SubscriptionCreated",
+          fromPlan: null,
+          toPlan: "Standard",
+          amountDelta: 29.0,
+          previousAmount: null,
+          newAmount: 29.0,
+          committedMrr: 29.0,
+          currency: "DKK",
+          occurredAt: "2026-05-11T00:00:00Z"
+        }
+      ]
+    };
+    const billingEventsEmpty = { totalCount: 0, pageSize: 25, totalPages: 0, currentPageOffset: 0, billingEvents: [] };
+
+    let billingEventsResponse = billingEventsWithRows;
+    await page.route("**/api/back-office/billing-events**", async (route) => {
+      await route.fulfill({ status: 200, contentType: "application/json", json: billingEventsResponse });
+    });
+
     await step("Log in as Admin via MockEasyAuth & verify redirect to dashboard")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
@@ -79,6 +110,7 @@ test.describe("@smoke", () => {
     )(async () => {
       // Use a string that almost certainly will not match any seeded tenant so the empty state
       // renders. This avoids coupling the test to specific dev seed tenant names.
+      billingEventsResponse = billingEventsEmpty;
       await page.getByRole("searchbox", { name: "Search" }).fill("zzz-no-match-account-xyz");
 
       await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/billing-events?search=zzz-no-match-account-xyz`);
@@ -86,6 +118,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Clear search & verify URL returns to base /billing-events")(async () => {
+      billingEventsResponse = billingEventsWithRows;
       await page.getByRole("searchbox", { name: "Search" }).fill("");
 
       await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/billing-events`);
