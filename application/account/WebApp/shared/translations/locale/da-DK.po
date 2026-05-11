@@ -555,6 +555,9 @@ msgstr "Opsig abonnement"
 msgid "Cancellation reason"
 msgstr "Opsigelsesgrund"
 
+msgid "Cancelled"
+msgstr "Annulleret"
+
 msgid "Cancelling"
 msgstr "Annullerer"
 

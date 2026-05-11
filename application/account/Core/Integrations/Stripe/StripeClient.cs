@@ -1388,7 +1388,9 @@ public sealed class StripeClient(
     // credit note that credits the customer's Stripe balance does NOT refund the charge
     // (charge.amount_refunded stays 0, no charge.refunded event), so we keep the transaction as
     // Succeeded; the credited balance is reconciled against future invoices.
-    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long chargeAmountRefunded)
+    // A "void" invoice was never paid (Stripe re-issued it with a credit note) — no money ever
+    // changed hands, so it maps to Cancelled, not Refunded.
+    public static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long chargeAmountRefunded)
     {
         if (status == "paid" && amountPaid > 0 && chargeAmountRefunded >= amountPaid)
         {
@@ -1400,7 +1402,7 @@ public sealed class StripeClient(
             "paid" => PaymentTransactionStatus.Succeeded,
             "open" => PaymentTransactionStatus.Pending,
             "uncollectible" => PaymentTransactionStatus.Failed,
-            "void" => PaymentTransactionStatus.Refunded,
+            "void" => PaymentTransactionStatus.Cancelled,
             _ => PaymentTransactionStatus.Pending
         };
     }

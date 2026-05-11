@@ -83,7 +83,7 @@ function periodToDays(period: DashboardTrendPeriod): number {
 
 function DeltaSubtitle({ deltaPercent }: Readonly<{ deltaPercent: number }>) {
   const positive = deltaPercent >= 0;
-  const className = positive ? "text-emerald-500" : "text-rose-500";
+  const className = positive ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300";
   const sign = positive ? "+" : "";
   return (
     <span className={className}>

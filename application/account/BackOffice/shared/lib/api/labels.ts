@@ -56,6 +56,8 @@ export function getPaymentStatusLabel(status: PaymentTransactionStatus): string 
       return t`Pending`;
     case PaymentTransactionStatus.Refunded:
       return t`Refunded`;
+    case PaymentTransactionStatus.Cancelled:
+      return t`Cancelled`;
     default:
       return String(status);
   }

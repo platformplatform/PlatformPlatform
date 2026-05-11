@@ -22,6 +22,8 @@ function getStatusVariant(status: PaymentTransactionStatus): "default" | "second
       return "outline";
     case PaymentTransactionStatus.Refunded:
       return "secondary";
+    case PaymentTransactionStatus.Cancelled:
+      return "secondary";
   }
 }
 
@@ -35,6 +37,8 @@ function getStatusLabel(status: PaymentTransactionStatus): string {
       return t`Pending`;
     case PaymentTransactionStatus.Refunded:
       return t`Refunded`;
+    case PaymentTransactionStatus.Cancelled:
+      return t`Cancelled`;
   }
 }
 

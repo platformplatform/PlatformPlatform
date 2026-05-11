@@ -112,7 +112,7 @@ export function AccountSidePaneSections({
             leftLabel={t`Last invoice`}
             leftValue={lastInvoice ? formatDate(lastInvoice.date) : "-"}
             leftLoading={paymentHistoryLoading}
-            rightLabel={t`Amount`}
+            rightLabel={t`Subtotal`}
             rightValue={lastInvoice ? formatAmount(lastInvoice.amountExcludingTax, lastInvoice.currency) : "-"}
             rightLoading={paymentHistoryLoading}
           />

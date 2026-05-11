@@ -796,6 +796,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
+      aria-current={isActive ? "page" : undefined}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props}
     />
@@ -1083,6 +1084,7 @@ function SidebarMenuSubButton({
       data-sidebar="menu-sub-button"
       data-size={size}
       data-active={isActive}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         // Matches the top-level menu button height for consistency (38px desktop / 44px mobile per Apple HIG).
         // Dim by default (muted), brighten on hover/active — mirrors SidebarMenuButton styling.

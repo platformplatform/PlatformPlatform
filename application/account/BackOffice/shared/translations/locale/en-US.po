@@ -33,11 +33,11 @@ msgstr "{0} blended · {1} over period"
 msgid "{activeUsers} active"
 msgstr "{activeUsers} active"
 
-msgid "{count} accounts have billing drift detected."
-msgstr "{count} accounts have billing drift detected."
+msgid "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
+msgstr "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
 
-msgid "{count} accounts have not been synced yet — MRR trend is incomplete."
-msgstr "{count} accounts have not been synced yet — MRR trend is incomplete."
+msgid "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
+msgstr "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
 
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
@@ -805,9 +805,6 @@ msgstr "Subscribed"
 msgid "Subscribed since"
 msgstr "Subscribed since"
 
-msgid "Subscription canceled"
-msgstr "Subscription canceled"
-
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 msgstr "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 
@@ -816,6 +813,9 @@ msgstr "Subscription, payment, and billing transitions will appear here."
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Subscriptions, upgrades, and cancellations will appear here."
+
+msgid "Subtotal"
+msgstr "Subtotal"
 
 msgid "Succeeded"
 msgstr "Succeeded"
@@ -840,9 +840,6 @@ msgstr "Theme"
 
 msgid "This account has no users."
 msgstr "This account has no users."
-
-msgid "This account previously had a paid subscription that ended."
-msgstr "This account previously had a paid subscription that ended."
 
 msgid "This user has no recorded sessions."
 msgstr "This user has no recorded sessions."

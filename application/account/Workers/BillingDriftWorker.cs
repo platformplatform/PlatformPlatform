@@ -35,6 +35,7 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
         var processed = 0;
         var skipped = 0;
         var failed = 0;
+        var timedOut = 0;
         foreach (var subscription in dueSubscriptions)
         {
             if (cancellationToken.IsCancellationRequested) break;
@@ -44,14 +45,23 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
                 continue;
             }
 
+            using var iterationCancellationTokenSource = BillingDriftIterationTimeout.CreateLinkedTokenSource(cancellationToken);
+
             try
             {
-                await processor.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Detect, cancellationToken);
+                await processor.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Detect, iterationCancellationTokenSource.Token);
                 processed++;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return;
             }
             catch (OperationCanceledException)
             {
-                return;
+                // Per-iteration timeout: the row stays stale, the next pass retries. Releasing the lock
+                // immediately is more important than completing this single check.
+                timedOut++;
+                logger.LogWarning("Billing drift worker timed out after '{Timeout}' for customer '{StripeCustomerId}'", BillingDriftIterationTimeout.Value, subscription.StripeCustomerId);
             }
             catch (Exception ex)
             {
@@ -62,6 +72,6 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
             }
         }
 
-        logger.LogInformation("Billing drift worker completed: processed {Processed}, skipped {Skipped}, failed {Failed}", processed, skipped, failed);
+        logger.LogInformation("Billing drift worker completed: processed {Processed}, skipped {Skipped}, failed {Failed}, timed out {TimedOut}", processed, skipped, failed, timedOut);
     }
 }

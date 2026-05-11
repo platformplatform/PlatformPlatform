@@ -30,18 +30,6 @@ export function AccountCurrentPlanCard({ tenant, isLoading }: Readonly<AccountCu
     );
   }
 
-  const isCanceled = tenant.subscribedSince === null && tenant.hasEverSubscribed;
-  if (isCanceled) {
-    return (
-      <CurrentPlanShell>
-        <CurrentPlanEmpty
-          title={<Trans>Subscription canceled</Trans>}
-          description={<Trans>This account previously had a paid subscription that ended.</Trans>}
-        />
-      </CurrentPlanShell>
-    );
-  }
-
   return (
     <CurrentPlanShell>
       <CurrentPlanDetails tenant={tenant} />

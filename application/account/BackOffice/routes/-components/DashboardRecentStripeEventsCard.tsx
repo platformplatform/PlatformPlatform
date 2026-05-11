@@ -128,7 +128,7 @@ export function DashboardRecentStripeEventsCard() {
                     )}
                   </TableCell>
                   <TableCell
-                    className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-500" : ""}`}
+                    className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-700 dark:text-rose-300" : ""}`}
                   >
                     {event.amountDelta != null && event.currency ? (
                       formatCurrency(event.amountDelta, event.currency)

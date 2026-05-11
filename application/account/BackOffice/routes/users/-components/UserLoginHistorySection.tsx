@@ -85,7 +85,7 @@ function OutcomeBadge({
   }
   if (failureReason) {
     return (
-      <Badge variant="outline" className="border-amber-500/30 text-amber-600">
+      <Badge variant="outline" className="border-amber-500/30 text-amber-700 dark:text-amber-300">
         {failureReason}
       </Badge>
     );

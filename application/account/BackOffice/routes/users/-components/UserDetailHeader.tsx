@@ -53,7 +53,7 @@ export function UserDetailHeader({ user, userId, isLoading }: Readonly<UserDetai
                   </span>
                 </Badge>
               ) : (
-                <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-600">
+                <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-700 dark:text-amber-300">
                   <XCircleIcon className="size-3" />
                   <span className="hidden sm:inline">
                     <Trans>Email pending</Trans>

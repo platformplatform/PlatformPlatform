@@ -28,7 +28,11 @@ export function MrrMismatchBanner() {
 
   const currency = data.currency;
   return (
-    <div className="flex h-12 items-center gap-3 border-b border-warning/50 bg-warning px-4 text-sm">
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex h-12 items-center gap-3 border-b border-warning/50 bg-warning px-4 text-sm"
+    >
       <ScaleIcon className="size-4 shrink-0 text-warning-foreground" aria-hidden={true} />
       <span className="flex-1 text-warning-foreground">
         <Trans>

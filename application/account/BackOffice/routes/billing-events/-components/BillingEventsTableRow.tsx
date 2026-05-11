@@ -55,7 +55,7 @@ export function BillingEventsTableRow({
         )}
       </TableCell>
       <TableCell
-        className={`hidden whitespace-nowrap tabular-nums md:table-cell ${isNegativeAmount ? "text-rose-500" : ""}`}
+        className={`hidden whitespace-nowrap tabular-nums md:table-cell ${isNegativeAmount ? "text-rose-700 dark:text-rose-300" : ""}`}
       >
         {event.amountDelta != null && event.currency ? (
           formatCurrency(event.amountDelta, event.currency)

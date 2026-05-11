@@ -59,7 +59,9 @@ export function AccountBillingEventRow({
 function CompactAmountCell({ event }: Readonly<{ event: BillingEventSummary }>) {
   const isNegativeAmount = event.amountDelta != null && event.amountDelta < 0;
   return (
-    <TableCell className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-500" : ""}`}>
+    <TableCell
+      className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-700 dark:text-rose-300" : ""}`}
+    >
       {event.amountDelta != null && event.currency ? (
         formatCurrency(event.amountDelta, event.currency)
       ) : (
@@ -73,7 +75,9 @@ function MrrImpactAndAfterCells({ event }: Readonly<{ event: BillingEventSummary
   const isNegativeAmount = event.amountDelta != null && event.amountDelta < 0;
   return (
     <>
-      <TableCell className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-500" : ""}`}>
+      <TableCell
+        className={`text-right whitespace-nowrap tabular-nums ${isNegativeAmount ? "text-rose-700 dark:text-rose-300" : ""}`}
+      >
         {event.amountDelta != null && event.currency ? formatCurrency(event.amountDelta, event.currency) : "—"}
       </TableCell>
       <TableCell className="hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell">

@@ -1,3 +1,4 @@
+import { plural } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
@@ -26,10 +27,17 @@ export function BillingDriftBanner() {
   }
 
   return (
-    <div className="flex h-12 items-center gap-3 border-b border-warning/50 bg-warning px-4 text-sm">
+    <div
+      role="alert"
+      aria-live="assertive"
+      className="flex h-12 items-center gap-3 border-b border-warning/50 bg-warning px-4 text-sm"
+    >
       <AlertTriangleIcon className="size-4 shrink-0 text-warning-foreground" aria-hidden={true} />
       <span className="flex-1 text-warning-foreground">
-        <Trans>{count} accounts have billing drift detected.</Trans>
+        {plural(count, {
+          one: "# account has billing drift detected.",
+          other: "# accounts have billing drift detected."
+        })}
       </span>
       <Button size="sm" nativeButton={false} render={<Link to="/accounts" search={{ driftDetected: true }} />}>
         <Trans>View accounts</Trans>

@@ -216,6 +216,58 @@ public sealed class StripeClientTests
         taxAmount.Should().Be(25m);
     }
 
+    [Fact]
+    public void MapInvoiceStatus_WhenVoid_ShouldReturnCancelled()
+    {
+        // A void invoice was never paid — no money ever changed hands. Mapping it to Refunded would be
+        // incorrect (refund implies money returned) and would inflate refund counts.
+        // Act
+        var status = AccountStripeClient.MapInvoiceStatus("void", 0, 0);
+
+        // Assert
+        status.Should().Be(PaymentTransactionStatus.Cancelled);
+    }
+
+    [Fact]
+    public void MapInvoiceStatus_WhenPaidWithoutRefund_ShouldReturnSucceeded()
+    {
+        // Act
+        var status = AccountStripeClient.MapInvoiceStatus("paid", 10000, 0);
+
+        // Assert
+        status.Should().Be(PaymentTransactionStatus.Succeeded);
+    }
+
+    [Fact]
+    public void MapInvoiceStatus_WhenPaidWithFullRefund_ShouldReturnRefunded()
+    {
+        // Act
+        var status = AccountStripeClient.MapInvoiceStatus("paid", 10000, 10000);
+
+        // Assert
+        status.Should().Be(PaymentTransactionStatus.Refunded);
+    }
+
+    [Fact]
+    public void MapInvoiceStatus_WhenOpen_ShouldReturnPending()
+    {
+        // Act
+        var status = AccountStripeClient.MapInvoiceStatus("open", 0, 0);
+
+        // Assert
+        status.Should().Be(PaymentTransactionStatus.Pending);
+    }
+
+    [Fact]
+    public void MapInvoiceStatus_WhenUncollectible_ShouldReturnFailed()
+    {
+        // Act
+        var status = AccountStripeClient.MapInvoiceStatus("uncollectible", 0, 0);
+
+        // Assert
+        status.Should().Be(PaymentTransactionStatus.Failed);
+    }
+
     private static Invoice BuildInvoiceWithPriceId(string priceId)
     {
         return new Invoice

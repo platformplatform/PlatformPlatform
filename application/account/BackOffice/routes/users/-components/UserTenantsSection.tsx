@@ -105,7 +105,7 @@ function MembershipCard({ membership }: Readonly<{ membership: Membership }>) {
                 {getSubscriptionPlanLabel(membership.plan)}
               </Badge>
               {!membership.emailConfirmed && (
-                <Badge variant="outline" className="border-amber-500/30 text-amber-600">
+                <Badge variant="outline" className="border-amber-500/30 text-amber-700 dark:text-amber-300">
                   <Trans>Email pending</Trans>
                 </Badge>
               )}

@@ -158,7 +158,7 @@ function IssueFilterBadges({ unsynced, driftDetected }: Readonly<{ unsynced: boo
   return (
     <>
       {unsynced && (
-        <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-600">
+        <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300">
           <CloudOffIcon className="size-3.5" aria-hidden={true} />
           <Trans>Not synced yet</Trans>
           <Button variant="ghost" size="icon-xs" aria-label={t`Clear filter`} onClick={clear("unsynced")}>
@@ -167,7 +167,7 @@ function IssueFilterBadges({ unsynced, driftDetected }: Readonly<{ unsynced: boo
         </Badge>
       )}
       {driftDetected && (
-        <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-600">
+        <Badge variant="outline" className="gap-1.5 border-amber-500/30 text-amber-700 dark:text-amber-300">
           <TriangleAlertIcon className="size-3.5" aria-hidden={true} />
           <Trans>Drift detected</Trans>
           <Button variant="ghost" size="icon-xs" aria-label={t`Clear filter`} onClick={clear("driftDetected")}>

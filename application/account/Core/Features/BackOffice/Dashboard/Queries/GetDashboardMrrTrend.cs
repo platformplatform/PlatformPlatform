@@ -29,6 +29,15 @@ public sealed class GetDashboardMrrTrendQueryValidator : AbstractValidator<GetDa
     }
 }
 
+/// <summary>
+///     Reconstructs historical MRR from the <see cref="BillingEvent" /> log: the trend is the sum of each
+///     subscription's latest <c>NewAmount</c> as-of each day in the window. This handler reads a different
+///     writer than the dashboard KPI tile: the trend's source is the events.list writer (BillingEvent.NewAmount),
+///     while the KPI reads the live Stripe-object writer (Subscription.ScheduledPriceAmount / current price).
+///     The two writers run on different code paths and converge only after the BillingEvent is appended for a
+///     given subscription change, so the <c>MrrMismatchBanner</c> may fire transiently during catalog edits
+///     or while a Stripe event is in-flight. That is expected and self-heals once events are processed.
+/// </summary>
 public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingEventRepository, IPlatformCurrencyProvider platformCurrencyProvider, TimeProvider timeProvider)
     : IRequestHandler<GetDashboardMrrTrendQuery, Result<BackOfficeDashboardMrrTrendResponse>>
 {

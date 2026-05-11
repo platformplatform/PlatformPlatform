@@ -555,6 +555,9 @@ msgstr "Cancel subscription"
 msgid "Cancellation reason"
 msgstr "Cancellation reason"
 
+msgid "Cancelled"
+msgstr "Cancelled"
+
 msgid "Cancelling"
 msgstr "Cancelling"
 

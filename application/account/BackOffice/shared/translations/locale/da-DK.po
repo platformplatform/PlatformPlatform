@@ -33,11 +33,11 @@ msgstr "{0} samlet · {1} for perioden"
 msgid "{activeUsers} active"
 msgstr "{activeUsers} aktive"
 
-msgid "{count} accounts have billing drift detected."
-msgstr "{count} konti har faktureringsafvigelser."
+msgid "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
+msgstr "{count, plural, one {# konto har faktureringsafvigelser.} other {# konti har faktureringsafvigelser.}}"
 
-msgid "{count} accounts have not been synced yet — MRR trend is incomplete."
-msgstr "{count} konti er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig."
+msgid "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
+msgstr "{count, plural, one {# konto er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.} other {# konti er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.}}"
 
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
@@ -805,9 +805,6 @@ msgstr "Tilmeldt"
 msgid "Subscribed since"
 msgstr "Abonneret siden"
 
-msgid "Subscription canceled"
-msgstr "Abonnement opsagt"
-
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 msgstr "Abonnements-, betalings- og faktureringsændringer vises her, når Stripe-webhooks behandles."
 
@@ -816,6 +813,9 @@ msgstr "Abonnements-, betalings- og faktureringsændringer vises her."
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
+
+msgid "Subtotal"
+msgstr "Subtotal"
 
 msgid "Succeeded"
 msgstr "Gennemført"
@@ -840,9 +840,6 @@ msgstr "Tema"
 
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
-
-msgid "This account previously had a paid subscription that ended."
-msgstr "Denne konto havde tidligere et betalt abonnement, der sluttede."
 
 msgid "This user has no recorded sessions."
 msgstr "Denne bruger har ingen registrerede sessioner."

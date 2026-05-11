@@ -19,7 +19,7 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
         migrationBuilder.CreateIndex("ix_subscriptions_has_drift_detected", "subscriptions", "has_drift_detected", filter: "has_drift_detected = true");
 
         migrationBuilder.AddCheckConstraint(
-            "chk_subscriptions_payment_transactions_tax_breakdown",
+            "chk_subscriptions_payment_transactions_amounts_non_negative",
             "subscriptions",
             """NOT jsonb_path_exists(payment_transactions, '$[*] ? (!(@.AmountExcludingTax.type() == "number") || !(@.TaxAmount.type() == "number") || @.AmountExcludingTax < 0 || @.TaxAmount < 0)')"""
         );
