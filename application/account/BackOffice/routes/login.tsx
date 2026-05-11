@@ -52,7 +52,7 @@ function MockLoginPage() {
           <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
         </Link>
         <h2>
-          <Trans>BackOffice - Localhost</Trans>
+          <Trans>Back Office - Localhost</Trans>
         </h2>
         <div className="text-center text-sm text-muted-foreground">
           <Trans>

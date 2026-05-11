@@ -31,7 +31,7 @@ test.describe("@smoke", () => {
         await page.goto("/api/back-office/me");
 
         await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/login?returnPath=%2Fapi%2Fback-office%2Fme`);
-        await expect(page.getByRole("heading", { name: "BackOffice - Localhost" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Back Office - Localhost" })).toBeVisible();
         await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
       }
     )();

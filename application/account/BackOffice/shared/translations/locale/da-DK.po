@@ -161,11 +161,11 @@ msgstr "Autoritativ log over abonnements-, betalings- og faktureringsændringer 
 msgid "Back Office"
 msgstr "Back Office"
 
-msgid "BackOffice - Localhost"
-msgstr "BackOffice - Localhost"
+msgid "Back Office - Localhost"
+msgstr "Back Office - Localhost"
 
-msgid "BackOffice overview · {today}"
-msgstr "BackOffice oversigt · {today}"
+msgid "Back Office overview · {today}"
+msgstr "Back Office oversigt · {today}"
 
 msgid "Basis"
 msgstr "Basis"

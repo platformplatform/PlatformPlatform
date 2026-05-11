@@ -8,7 +8,7 @@ import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
 import { DashboardSections } from "./-components/DashboardSections";
 
 export const Route = createFileRoute("/")({
-  staticData: { trackingTitle: "Back office dashboard" },
+  staticData: { trackingTitle: "Back Office dashboard" },
   component: DashboardPage
 });
 

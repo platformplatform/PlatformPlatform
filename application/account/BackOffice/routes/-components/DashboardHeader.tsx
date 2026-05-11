@@ -46,7 +46,7 @@ export function DashboardHeader({ period, onPeriodChange }: Readonly<DashboardHe
           <Trans>Dashboard</Trans>
         </h1>
         <p className="mt-1 text-muted-foreground">
-          <Trans>BackOffice overview · {today}</Trans>
+          <Trans>Back Office overview · {today}</Trans>
         </p>
       </div>
       <div className="flex items-center gap-2">
