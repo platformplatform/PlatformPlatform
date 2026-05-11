@@ -61,7 +61,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
         // Assert
         var anchorAfter = ReadLastSyncedStripeEventCreatedAt();
         anchorAfter.Should().NotBeNull("the anchor was set before the sync");
-        anchorAfter!.Value.Should().BeCloseTo(existingAnchor, TimeSpan.FromSeconds(1), "events.list returned Succeeded=false so the anchor MUST remain unchanged — otherwise the next sync would silently skip past events that were never observed");
+        anchorAfter.Value.Should().BeCloseTo(existingAnchor, TimeSpan.FromSeconds(1), "events.list returned Succeeded=false so the anchor MUST remain unchanged — otherwise the next sync would silently skip past events that were never observed");
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
             "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
         );
-        (driftDiscrepanciesJson ?? string.Empty).Should().NotContain(nameof(DriftDiscrepancyKind.ScheduledPriceMissing), "the drift detector must compare against the post-heal local snapshot — the heal already populated ScheduledPriceAmount so the check must NOT fire on the same sync. Persisted drift_discrepancies = {0}", driftDiscrepanciesJson);
+        driftDiscrepanciesJson.Should().NotContain(nameof(DriftDiscrepancyKind.ScheduledPriceMissing), "the drift detector must compare against the post-heal local snapshot — the heal already populated ScheduledPriceAmount so the check must NOT fire on the same sync. Persisted drift_discrepancies = {0}", driftDiscrepanciesJson);
     }
 
     [Fact]

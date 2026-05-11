@@ -64,18 +64,6 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
     private readonly bool _isEnabled = ResolveIsEnabled(configuration);
 
-    private static bool ResolveIsEnabled(IConfiguration configuration)
-    {
-        var allowMockProvider = configuration.GetValue<bool>("Stripe:AllowMockProvider");
-
-        if (allowMockProvider && SharedInfrastructureConfiguration.IsRunningInAzure)
-        {
-            throw new InvalidOperationException("Mock Stripe provider cannot be enabled in Azure environments.");
-        }
-
-        return allowMockProvider;
-    }
-
     public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
@@ -387,6 +375,18 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         return $"https://dashboard.stripe.com/test/customers/{stripeCustomerId.Value}";
+    }
+
+    private static bool ResolveIsEnabled(IConfiguration configuration)
+    {
+        var allowMockProvider = configuration.GetValue<bool>("Stripe:AllowMockProvider");
+
+        if (allowMockProvider && SharedInfrastructureConfiguration.IsRunningInAzure)
+        {
+            throw new InvalidOperationException("Mock Stripe provider cannot be enabled in Azure environments.");
+        }
+
+        return allowMockProvider;
     }
 
     private void EnsureEnabled()

@@ -95,11 +95,6 @@ public sealed class BillingEvent : AggregateRoot<BillingEventId>, ITenantScopedE
             throw new UnreachableException($"BillingEvent.committedMrr must be non-negative; got {committedMrr} for event '{stripeEventId}'.");
         }
 
-        if (currency is not null && currency != "DKK")
-        {
-            throw new UnreachableException($"BillingEvent.currency must be 'DKK' or null; got '{currency}' for event '{stripeEventId}'.");
-        }
-
         if (previousAmount is not null && newAmount is not null && amountDelta is not null
             && Math.Abs(newAmount.Value - previousAmount.Value - amountDelta.Value) > 0.005m)
         {

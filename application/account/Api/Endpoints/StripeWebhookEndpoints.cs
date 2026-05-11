@@ -23,6 +23,7 @@ public sealed class StripeWebhookEndpoints : IEndpoints
                 {
                     return Result.BadRequest("Stripe-Signature header missing or duplicated.");
                 }
+
                 var signatureHeader = signatureHeaderValues[0]!;
                 var acknowledgeResult = await mediator.Send(new AcknowledgeStripeWebhookCommand(payload, signatureHeader));
                 if (!acknowledgeResult.IsSuccess) return Result.From(acknowledgeResult);

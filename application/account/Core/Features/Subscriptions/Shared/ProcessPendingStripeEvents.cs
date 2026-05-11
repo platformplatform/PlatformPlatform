@@ -637,7 +637,7 @@ public sealed class ProcessPendingStripeEvents(
             // returned tax > display. The clamp itself is intentional (keeps the DB CHECK happy so the
             // webhook does not 500 and trigger infinite Stripe retries), but the underlying anomaly must
             // be visible on the drift banner so an operator can investigate the Stripe side.
-            var clampedTransactions = subscription.PaymentTransactions.Where(t => t.AmountExcludingTax == 0m && t.TaxAmount > 0m && t.Amount < t.TaxAmount).ToArray();
+            var clampedTransactions = subscription.PaymentTransactions.Where(t => t.AmountExcludingTax is 0m && t.TaxAmount > 0m && t.Amount < t.TaxAmount).ToArray();
             foreach (var clampedTransaction in clampedTransactions)
             {
                 discrepancies = discrepancies.Add(new DriftDiscrepancy(
