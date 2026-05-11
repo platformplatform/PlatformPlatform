@@ -15,7 +15,7 @@ public sealed record SetTenantFeatureFlagInternalCommand : ICommand, IRequest<Re
     [JsonIgnore] // Removes this property from the API contract
     public string FlagKey { get; init; } = null!;
 
-    public required long TenantId { get; init; }
+    public required TenantId TenantId { get; init; }
 
     public required bool Enabled { get; init; }
 }
@@ -40,10 +40,10 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
 
         if (command.Enabled)
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, null, cancellationToken);
             if (tenantOverride is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId.Value);
                 tenantOverride.Activate(now);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
             }
@@ -57,10 +57,10 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
         }
         else
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, null, cancellationToken);
             if (tenantOverride is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId.Value);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
             }
             else
@@ -72,7 +72,7 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
             events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
         }
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
         if (tenant is not null)
         {
             tenant.IncrementFeatureFlagVersion();

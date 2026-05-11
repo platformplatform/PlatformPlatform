@@ -1,6 +1,7 @@
 using Account.Features.FeatureFlags.Commands;
 using Account.Features.FeatureFlags.Queries;
 using SharedKernel.ApiResults;
+using SharedKernel.Domain;
 using SharedKernel.Endpoints;
 using SharedKernel.OpenApi;
 
@@ -37,7 +38,7 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(command with { FlagKey = flagKey })
         ).DisableAntiforgery();
 
-        internalGroup.MapDelete("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, long tenantId, IMediator mediator)
+        internalGroup.MapDelete("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, TenantId tenantId, IMediator mediator)
             => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
         ).DisableAntiforgery();
 

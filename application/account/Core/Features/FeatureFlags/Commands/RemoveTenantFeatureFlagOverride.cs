@@ -15,7 +15,7 @@ public sealed record RemoveTenantFeatureFlagOverrideCommand : ICommand, IRequest
     [JsonIgnore] // Removes from API contract
     public string FlagKey { get; init; } = null!;
 
-    public required long TenantId { get; init; }
+    public required TenantId TenantId { get; init; }
 }
 
 public sealed class RemoveTenantFeatureFlagOverrideValidator : AbstractValidator<RemoveTenantFeatureFlagOverrideCommand>
@@ -34,12 +34,12 @@ public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(RemoveTenantFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
-        var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+        var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, null, cancellationToken);
         if (tenantOverride is null) return Result.NotFound($"No tenant override found for flag '{command.FlagKey}' and tenant '{command.TenantId}'.");
 
         featureFlagRepository.Remove(tenantOverride);
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
         if (tenant is not null)
         {
             tenant.IncrementFeatureFlagVersion();

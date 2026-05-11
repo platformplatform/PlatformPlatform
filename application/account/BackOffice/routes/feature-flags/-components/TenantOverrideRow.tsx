@@ -45,21 +45,19 @@ export function TenantOverrideRow({
   const removeMutation = api.useMutation("delete", "/api/back-office/feature-flags/{flagKey}/tenant-override");
 
   useEffect(() => {
-    if (!overrideMutation.isPending) {
-      setOptimisticEnabled(tenant.isEnabled);
-    }
-  }, [tenant.isEnabled, overrideMutation.isPending]);
+    setOptimisticEnabled(tenant.isEnabled);
+  }, [tenant.isEnabled]);
 
   const handleToggle = (checked: boolean) => {
     setOptimisticEnabled(checked);
     overrideMutation.mutate(
       {
         params: { path: { flagKey } },
-        body: { tenantId: Number(tenant.tenantId), enabled: checked }
+        body: { tenantId: tenant.tenantId, enabled: checked }
       },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
             queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/tenants"]
           });
           const message = checked
@@ -77,11 +75,11 @@ export function TenantOverrideRow({
   const handleRemoveOverride = () => {
     removeMutation.mutate(
       {
-        params: { path: { flagKey }, query: { tenantId: Number(tenant.tenantId) } }
+        params: { path: { flagKey }, query: { tenantId: tenant.tenantId } }
       },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
             queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/tenants"]
           });
           toast.success(t`Override removed for ${tenant.tenantName}`);

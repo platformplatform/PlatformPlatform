@@ -65,18 +65,16 @@ export function UserOverrideRow({
   });
 
   useEffect(() => {
-    if (!overrideMutation.isPending) {
-      setOptimisticEnabled(user.isEnabled);
-    }
-  }, [user.isEnabled, overrideMutation.isPending]);
+    setOptimisticEnabled(user.isEnabled);
+  }, [user.isEnabled]);
 
   const handleToggle = (checked: boolean) => {
     setOptimisticEnabled(checked);
     overrideMutation.mutate(
       { enabled: checked },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
             queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
           });
           const message = checked
@@ -93,8 +91,8 @@ export function UserOverrideRow({
 
   const handleRemoveOverride = () => {
     removeMutation.mutate(undefined, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
           queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
         });
         toast.success(t`Override removed for ${user.email}`);

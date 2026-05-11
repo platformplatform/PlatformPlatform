@@ -145,7 +145,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
@@ -156,12 +156,12 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         var rowCount = Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            [new { flagKey, tenantId = tenantId.Value }]
         );
         rowCount.Should().Be(1);
         var enabledAt = Connection.ExecuteScalar<string>(
             "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            [new { flagKey, tenantId = tenantId.Value }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
 
@@ -175,7 +175,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange - tenant has no override row (enabled via A/B rollout or default)
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
 
         // Act
@@ -186,12 +186,12 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         var rowCount = Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            [new { flagKey, tenantId = tenantId.Value }]
         );
         rowCount.Should().Be(1);
         var disabledAt = Connection.ExecuteScalar<string>(
             "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            [new { flagKey, tenantId = tenantId.Value }]
         );
         disabledAt.Should().BeNull("newly created disabled override should not have disabled_at set when never activated");
 
@@ -205,7 +205,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
@@ -226,7 +226,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange - create an override row first
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
@@ -253,7 +253,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         var rowCount = Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId }]
+            [new { flagKey, tenantId = tenantId.Value }]
         );
         rowCount.Should().Be(0);
 
@@ -267,7 +267,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
@@ -392,7 +392,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = true };
 
         // Act
@@ -418,7 +418,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
@@ -460,7 +460,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
@@ -508,7 +508,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
@@ -758,7 +758,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
                 ("id", overrideId),
@@ -823,7 +823,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange - set up A/B rollout at 100% so all tenants are enabled
         var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var baseRowId = Connection.ExecuteScalar<string>(
             "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
@@ -995,7 +995,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
         );
@@ -1017,7 +1017,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
         );
@@ -1039,7 +1039,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
         );
@@ -1062,7 +1062,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "custom-branding";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
         );
@@ -1085,7 +1085,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "compact-view";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
         );
@@ -1108,7 +1108,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
         );
