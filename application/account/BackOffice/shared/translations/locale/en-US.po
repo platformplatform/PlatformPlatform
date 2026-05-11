@@ -41,6 +41,22 @@ msgstr "{count, plural, one {# account has not been synced yet — MRR trend is 
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
 
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
+msgid "{featureFlagDescription} disabled for {0}"
+msgstr "{featureFlagDescription} disabled for {0}"
+
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
+msgid "{featureFlagDescription} enabled for {0}"
+msgstr "{featureFlagDescription} enabled for {0}"
+
+msgid "{flagName} disabled"
+msgstr "{flagName} disabled"
+
+msgid "{flagName} enabled"
+msgstr "{flagName} enabled"
+
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inactive"
 
@@ -87,11 +103,17 @@ msgstr "7d"
 msgid "90d"
 msgstr "90d"
 
+msgid "A/B rollout"
+msgstr "A/B rollout"
+
 msgid "Account"
 msgstr "Account"
 
 msgid "Account actions"
 msgstr "Account actions"
+
+msgid "Account flags"
+msgstr "Account flags"
 
 msgid "Account growth"
 msgstr "Account growth"
@@ -101,8 +123,14 @@ msgstr "Account growth"
 msgid "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
 msgstr "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
 
+msgid "Account ID"
+msgstr "Account ID"
+
 msgid "Account preview"
 msgstr "Account preview"
+
+msgid "Account status"
+msgstr "Account status"
 
 msgid "Account users"
 msgstr "Account users"
@@ -113,8 +141,17 @@ msgstr "accounts"
 msgid "Accounts"
 msgstr "Accounts"
 
+msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
+msgstr "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
+
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+
 msgid "Accounts will appear here as they are created."
 msgstr "Accounts will appear here as they are created."
+
+msgid "Accounts will appear here as they become available."
+msgstr "Accounts will appear here as they become available."
 
 msgid "Actions"
 msgstr "Actions"
@@ -146,6 +183,9 @@ msgstr "All-time"
 msgid "All-time, excluding VAT"
 msgstr "All-time, excluding VAT"
 
+msgid "Allow users to authenticate using enterprise identity providers"
+msgstr "Allow users to authenticate using enterprise identity providers"
+
 msgid "Amount"
 msgstr "Amount"
 
@@ -169,8 +209,14 @@ msgstr "Back Office - Localhost"
 msgid "Back Office overview · {today}"
 msgstr "Back Office overview · {today}"
 
+msgid "Back to feature flags"
+msgstr "Back to feature flags"
+
 msgid "Basis"
 msgstr "Basis"
+
+msgid "Beta features"
+msgstr "Beta features"
 
 msgid "Billing"
 msgstr "Billing"
@@ -195,6 +241,9 @@ msgstr "Blended MRR"
 
 msgid "Browser"
 msgstr "Browser"
+
+msgid "Bucket"
+msgstr "Bucket"
 
 msgid "Cancel"
 msgstr "Cancel"
@@ -238,6 +287,9 @@ msgstr "Close"
 msgid "Close account preview"
 msgstr "Close account preview"
 
+msgid "Compact view"
+msgstr "Compact view"
+
 msgid "Contact your administrator."
 msgstr "Contact your administrator."
 
@@ -260,6 +312,12 @@ msgstr "Current period"
 
 msgid "Current plan"
 msgstr "Current plan"
+
+msgid "Custom branding"
+msgstr "Custom branding"
+
+msgid "Customize the login page with your organization's logo and colors"
+msgstr "Customize the login page with your organization's logo and colors"
 
 msgid "Dark"
 msgstr "Dark"
@@ -284,6 +342,9 @@ msgstr "Desktop"
 msgid "Device"
 msgstr "Device"
 
+msgid "Disabled"
+msgstr "Disabled"
+
 msgid "Disaster recovery complete"
 msgstr "Disaster recovery complete"
 
@@ -305,6 +366,12 @@ msgstr "Downgrading"
 msgid "Drift detected"
 msgstr "Drift detected"
 
+msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+msgstr "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+
+msgid "Early access to experimental features before general availability"
+msgstr "Early access to experimental features before general availability"
+
 msgid "Email"
 msgstr "Email"
 
@@ -313,6 +380,18 @@ msgstr "Email confirmed"
 
 msgid "Email pending"
 msgstr "Email pending"
+
+msgid "Enabled"
+msgstr "Enabled"
+
+#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
+#. placeholder {1}: formatTimestamp(featureFlag.disabledAt)
+msgid "Enabled period: {0} - {1}"
+msgstr "Enabled period: {0} - {1}"
+
+#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
+msgid "Enabled: {0}"
+msgstr "Enabled: {0}"
 
 msgid "Enter kiosk mode"
 msgstr "Enter kiosk mode"
@@ -335,6 +414,9 @@ msgstr "Every sign-in attempt over the last 30 days, successful or failed, acros
 msgid "Exit kiosk mode"
 msgstr "Exit kiosk mode"
 
+msgid "Experimental UI"
+msgstr "Experimental UI"
+
 msgid "Expired"
 msgstr "Expired"
 
@@ -344,14 +426,38 @@ msgstr "Expires"
 msgid "Failed"
 msgstr "Failed"
 
+msgid "Feature flag activated"
+msgstr "Feature flag activated"
+
+msgid "Feature flag deactivated"
+msgstr "Feature flag deactivated"
+
+msgid "Feature flags"
+msgstr "Feature flags"
+
+msgid "Feature flags are defined in code. This view controls their activation and rollout."
+msgstr "Feature flags are defined in code. This view controls their activation and rollout."
+
 msgid "Free"
 msgstr "Free"
+
+msgid "Gated by subscription plan and recomputed when the plan changes. Configured only in code."
+msgstr "Gated by subscription plan and recomputed when the plan changes. Configured only in code."
+
+msgid "Gated by the account's subscription plan. Read-only."
+msgstr "Gated by the account's subscription plan. Read-only."
 
 msgid "Go to home"
 msgstr "Go to home"
 
 msgid "Google"
 msgstr "Google"
+
+msgid "Google OAuth"
+msgstr "Google OAuth"
+
+msgid "Has override"
+msgstr "Has override"
 
 msgid "Hide details"
 msgstr "Hide details"
@@ -437,6 +543,9 @@ msgstr "Logo"
 msgid "Main navigation"
 msgstr "Main navigation"
 
+msgid "Manual override"
+msgstr "Manual override"
+
 msgid "Member"
 msgstr "Member"
 
@@ -464,6 +573,9 @@ msgstr "MRR trend"
 msgid "Name"
 msgstr "Name"
 
+msgid "Name:"
+msgstr "Name:"
+
 msgid "Navigation"
 msgstr "Navigation"
 
@@ -478,6 +590,9 @@ msgstr "Next"
 
 msgid "No account memberships"
 msgstr "No account memberships"
+
+msgid "No accounts match these filters"
+msgstr "No accounts match these filters"
 
 msgid "No accounts match your filters"
 msgstr "No accounts match your filters"
@@ -502,6 +617,21 @@ msgstr "No billing events yet"
 
 msgid "No change"
 msgstr "No change"
+
+msgid "No disabled accounts"
+msgstr "No disabled accounts"
+
+msgid "No disabled users"
+msgstr "No disabled users"
+
+msgid "No enabled accounts"
+msgstr "No enabled accounts"
+
+msgid "No enabled users"
+msgstr "No enabled users"
+
+msgid "No feature flags"
+msgstr "No feature flags"
 
 msgid "No invoices yet"
 msgstr "No invoices yet"
@@ -560,11 +690,20 @@ msgstr "No sessions"
 msgid "No sign-in attempts in the last 30 days."
 msgstr "No sign-in attempts in the last 30 days."
 
+msgid "No tenant-scoped feature flags are defined for this account."
+msgstr "No tenant-scoped feature flags are defined for this account."
+
 msgid "No transactions"
 msgstr "No transactions"
 
+msgid "No user-scoped feature flags are defined."
+msgstr "No user-scoped feature flags are defined."
+
 msgid "No users"
 msgstr "No users"
+
+msgid "No users match these filters"
+msgstr "No users match these filters"
 
 msgid "No users match your filters."
 msgstr "No users match your filters."
@@ -590,6 +729,10 @@ msgstr "One-time password"
 msgid "Open account"
 msgstr "Open account"
 
+#. placeholder {0}: tenant.name
+msgid "Open account {0}"
+msgstr "Open account {0}"
+
 msgid "Open credit note"
 msgstr "Open credit note"
 
@@ -599,6 +742,9 @@ msgstr "Open in Stripe"
 msgid "Open invoice"
 msgstr "Open invoice"
 
+msgid "Open user {displayName}"
+msgstr "Open user {displayName}"
+
 msgid "Other"
 msgstr "Other"
 
@@ -607,6 +753,25 @@ msgstr "Outcome"
 
 msgid "over period"
 msgstr "over period"
+
+msgid "Override"
+msgstr "Override"
+
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
+msgid "Override for {0}"
+msgstr "Override for {0}"
+
+msgid "Override for {flagName}"
+msgstr "Override for {flagName}"
+
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
+msgid "Override removed for {0}"
+msgstr "Override removed for {0}"
+
+msgid "Override removed for {flagName}"
+msgstr "Override removed for {flagName}"
 
 msgid "Overview"
 msgstr "Overview"
@@ -647,6 +812,18 @@ msgstr "Pending"
 msgid "per month, billed monthly"
 msgstr "per month, billed monthly"
 
+msgid "Per-account flags. Toggle the override switch to enable or disable for this account."
+msgstr "Per-account flags. Toggle the override switch to enable or disable for this account."
+
+msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
+msgstr "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
+
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user."
+msgstr "Per-user flags. Toggle the override switch to enable or disable for this user."
+
+msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
+msgstr "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
+
 msgid "Period"
 msgstr "Period"
 
@@ -662,8 +839,17 @@ msgstr "Plan changes, renewals, cancellations, and payment outcomes — the subs
 msgid "Plan distribution"
 msgstr "Plan distribution"
 
+msgid "Plan flags"
+msgstr "Plan flags"
+
 msgid "Plan transition"
 msgstr "Plan transition"
+
+msgid "Platform"
+msgstr "Platform"
+
+msgid "Platform-wide capabilities set at deployment via environment variables. Configured only in code."
+msgstr "Platform-wide capabilities set at deployment via environment variables. Configured only in code."
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -728,6 +914,9 @@ msgstr "Reconciling..."
 msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 msgstr "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 
+msgid "Reduce spacing between UI elements for a denser layout"
+msgstr "Reduce spacing between UI elements for a denser layout"
+
 msgid "Refunded"
 msgstr "Refunded"
 
@@ -736,6 +925,17 @@ msgstr "Refunds and credit notes"
 
 msgid "Refunds and credit notes across all accounts."
 msgstr "Refunds and credit notes across all accounts."
+
+msgid "Remove override"
+msgstr "Remove override"
+
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
+msgid "Remove override for {0}"
+msgstr "Remove override for {0}"
+
+msgid "Remove override for {flagName}"
+msgstr "Remove override for {flagName}"
 
 msgid "Renewal"
 msgstr "Renewal"
@@ -756,6 +956,12 @@ msgstr "Renews {0}"
 msgid "Replayed {0} archived events into the billing event ledger at {1}."
 msgstr "Replayed {0} archived events into the billing event ledger at {1}."
 
+msgid "Required plan"
+msgstr "Required plan"
+
+msgid "Required plan:"
+msgstr "Required plan:"
+
 msgid "Revenue"
 msgstr "Revenue"
 
@@ -764,6 +970,24 @@ msgstr "Revoked"
 
 msgid "Role"
 msgstr "Role"
+
+msgid "Rollout"
+msgstr "Rollout"
+
+msgid "Rollout %"
+msgstr "Rollout %"
+
+msgid "Rollout bucket information"
+msgstr "Rollout bucket information"
+
+msgid "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout percentage updated"
+msgstr "Rollout percentage updated"
 
 msgid "Run disaster recovery"
 msgstr "Run disaster recovery"
@@ -780,6 +1004,12 @@ msgstr "Search"
 msgid "Search by account name"
 msgstr "Search by account name"
 
+msgid "Search by account name or ID"
+msgstr "Search by account name or ID"
+
+msgid "Search by account name or owner email"
+msgstr "Search by account name or owner email"
+
 msgid "Search by email, name, or account"
 msgstr "Search by email, name, or account"
 
@@ -788,6 +1018,9 @@ msgstr "Search by name"
 
 msgid "Search by name or email"
 msgstr "Search by name or email"
+
+msgid "Search results"
+msgstr "Search results"
 
 msgid "Search users"
 msgstr "Search users"
@@ -801,6 +1034,9 @@ msgstr "Sessions"
 msgid "Show details"
 msgstr "Show details"
 
+msgid "Sign in with Google using OpenID Connect"
+msgstr "Sign in with Google using OpenID Connect"
+
 msgid "Signed up"
 msgstr "Signed up"
 
@@ -813,17 +1049,29 @@ msgstr "Signed up <0>{0}</0><1>{1}</1>"
 msgid "Since {0}"
 msgstr "Since {0}"
 
+msgid "Single sign-on"
+msgstr "Single sign-on"
+
 msgid "Small"
 msgstr "Small"
 
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+msgid "Source"
+msgstr "Source"
+
 msgid "Standard"
 msgstr "Standard"
 
+msgid "State"
+msgstr "State"
+
 msgid "Status"
 msgstr "Status"
+
+msgid "Stripe-powered subscription billing and plan management"
+msgstr "Stripe-powered subscription billing and plan management"
 
 msgid "Subscribed"
 msgstr "Subscribed"
@@ -839,6 +1087,9 @@ msgstr "Subscription, payment, and billing transitions will appear here as Strip
 
 msgid "Subscription, payment, and billing transitions will appear here."
 msgstr "Subscription, payment, and billing transitions will appear here."
+
+msgid "Subscriptions"
+msgstr "Subscriptions"
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Subscriptions, upgrades, and cancellations will appear here."
@@ -861,6 +1112,9 @@ msgstr "Suspended"
 msgid "System"
 msgstr "System"
 
+msgid "System flags"
+msgstr "System flags"
+
 msgid "Tablet"
 msgstr "Tablet"
 
@@ -873,6 +1127,9 @@ msgstr "Theme"
 msgid "This account has no users."
 msgstr "This account has no users."
 
+msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
+msgstr "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
+
 msgid "this period"
 msgstr "this period"
 
@@ -884,6 +1141,16 @@ msgstr "This user has no recorded sessions."
 
 msgid "This user is not a member of any account."
 msgstr "This user is not a member of any account."
+
+#. placeholder {0}: getFeatureFlagName(featureFlag.key)
+msgid "Toggle {0}"
+msgstr "Toggle {0}"
+
+msgid "Toggle the override switch to enable this feature for specific accounts."
+msgstr "Toggle the override switch to enable this feature for specific accounts."
+
+msgid "Toggle the override switch to enable this feature for specific users."
+msgstr "Toggle the override switch to enable this feature for specific users."
 
 msgid "Total"
 msgstr "Total"
@@ -906,6 +1173,9 @@ msgstr "Try clearing the search or filters to see more results."
 msgid "Try clearing the search to see more results."
 msgstr "Try clearing the search to see more results."
 
+msgid "Try out experimental user interface components"
+msgstr "Try out experimental user interface components"
+
 msgid "Unclassified"
 msgstr "Unclassified"
 
@@ -921,11 +1191,17 @@ msgstr "User"
 msgid "User detail"
 msgstr "User detail"
 
+msgid "User flags"
+msgstr "User flags"
+
 msgid "User logins / day"
 msgstr "User logins / day"
 
 msgid "User menu"
 msgstr "User menu"
+
+msgid "User status"
+msgstr "User status"
 
 msgid "Users"
 msgstr "Users"
@@ -933,8 +1209,14 @@ msgstr "Users"
 msgid "Users active"
 msgstr "Users active"
 
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgstr "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+
 msgid "Users will appear here as accounts are created."
 msgstr "Users will appear here as accounts are created."
+
+msgid "Users will appear here as they become available."
+msgstr "Users will appear here as they become available."
 
 msgid "VAT"
 msgstr "VAT"

@@ -32,11 +32,11 @@ msgstr "{0} i denne periode, eksklusiv moms"
 msgid "{activeUsers} active"
 msgstr "{activeUsers} aktive"
 
-msgid "{count} accounts have billing drift detected."
-msgstr "{count} konti har faktureringsafvigelser."
+msgid "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
+msgstr "{count, plural, one {# konto har faktureringsafvigelser.} other {# konti har faktureringsafvigelser.}}"
 
-msgid "{count} accounts have not been synced yet — MRR trend is incomplete."
-msgstr "{count} konti er ikke synkroniseret endnu — MRR-tendensen er ufuldstændig."
+msgid "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
+msgstr "{count, plural, one {# konto er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.} other {# konti er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.}}"
 
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
@@ -153,6 +153,9 @@ msgstr "Konti vises her, når de oprettes."
 msgid "Accounts will appear here as they become available."
 msgstr "Konti vises her, når de bliver tilgængelige."
 
+msgid "Actions"
+msgstr "Handlinger"
+
 msgid "Active"
 msgstr "Aktiv"
 
@@ -170,12 +173,6 @@ msgstr "Alle"
 
 msgid "All accounts this user is a member of, with their plan and role."
 msgstr "Alle konti denne bruger er medlem af, med deres abonnement og rolle."
-
-msgid "All event types"
-msgstr "Alle hændelsestyper"
-
-msgid "All statuses"
-msgstr "Alle statusser"
 
 msgid "All users across every account, most recently seen first. Search and filter to narrow down."
 msgstr "Alle brugere på tværs af alle konti, senest sete først. Søg og filtrér for at indsnævre."
@@ -319,9 +316,6 @@ msgstr "Aktuelt abonnement"
 msgid "Custom branding"
 msgstr "Tilpasset branding"
 
-msgid "Customer"
-msgstr "Kunde"
-
 msgid "Customize the login page with your organization's logo and colors"
 msgstr "Tilpas login-siden med din organisations logo og farver"
 
@@ -331,8 +325,8 @@ msgstr "Mørk"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, data.currency)
-#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, data.currency)
+#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, currency)
+#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)
 msgid "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
 msgstr "Dashboard MRR uoverensstemmelse: KPI viser {0}, tendens viser senest {1}."
 
@@ -639,9 +633,6 @@ msgstr "Ingen aktiverede brugere"
 msgid "No feature flags"
 msgstr "Ingen feature flags"
 
-msgid "No invoices match your filters"
-msgstr "Ingen fakturaer matcher dine filtre"
-
 msgid "No invoices yet"
 msgstr "Ingen fakturaer endnu"
 
@@ -920,11 +911,11 @@ msgstr "Afstem med Stripe?"
 msgid "Reconciling..."
 msgstr "Afstemmer..."
 
-msgid "Reduce spacing between UI elements for a denser layout"
-msgstr "Reducér afstanden mellem UI-elementer for et tættere layout"
-
 msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 msgstr "Posteringer vises her, når konti abonnerer, og Stripe-webhooks behandles."
+
+msgid "Reduce spacing between UI elements for a denser layout"
+msgstr "Reducér afstanden mellem UI-elementer for et tættere layout"
 
 msgid "Refunded"
 msgstr "Refunderet"
@@ -1000,12 +991,6 @@ msgstr "Udrulningsprocent opdateret"
 
 msgid "Run disaster recovery"
 msgstr "Kør katastrofegendannelse"
-
-msgid "Save"
-msgstr "Gem"
-
-msgid "Saving..."
-msgstr "Gemmer..."
 
 msgid "Scheduled plan change"
 msgstr "Planlagt planændring"
@@ -1094,9 +1079,6 @@ msgstr "Tilmeldt"
 msgid "Subscribed since"
 msgstr "Abonneret siden"
 
-msgid "Subscription canceled"
-msgstr "Abonnement opsagt"
-
 msgid "Subscription state"
 msgstr "Abonnementstilstand"
 
@@ -1111,6 +1093,9 @@ msgstr "Abonnementer"
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
+
+msgid "Subtotal"
+msgstr "Subtotal"
 
 msgid "Succeeded"
 msgstr "Gennemført"
@@ -1142,14 +1127,11 @@ msgstr "Tema"
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
 
-msgid "this period"
-msgstr "denne periode"
-
-msgid "This account previously had a paid subscription that ended."
-msgstr "Denne konto havde tidligere et betalt abonnement, der sluttede."
-
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "Dette flag styres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
+
+msgid "this period"
+msgstr "denne periode"
 
 msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
 msgstr "Dette genopbygger faktureringshændelsesloggen fra denne kontos arkiverede Stripe-payloads. Det er en bedst muligt-gendannelse, der kan producere forkerte abonnementstilstande eller faktureringshændelser. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."
@@ -1193,9 +1175,6 @@ msgstr "Prøv at rydde søgningen for at se flere resultater."
 
 msgid "Try out experimental user interface components"
 msgstr "Afprøv eksperimentelle brugergrænsefladekomponenter"
-
-msgid "Type"
-msgstr "Type"
 
 msgid "Unclassified"
 msgstr "Uklassificeret"

@@ -303,7 +303,9 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Standard)),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 0),
+                ("feature_flag_version", 0)
             ]
         );
         return tenantId;
