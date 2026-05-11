@@ -42,7 +42,8 @@ public sealed class StripeEventPayloadDivergenceTests : EndpointBaseTest<Account
                 ("api_version", MockStripeClient.MockApiVersion),
                 ("payload_hash", originalHash),
                 ("recovered_at", null),
-                ("recovery_source", null)
+                ("recovery_source", null),
+                ("stripe_created_at", TimeProvider.GetUtcNow())
             ]
         );
 

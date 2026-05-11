@@ -73,13 +73,13 @@ public interface IStripeClient
     string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId);
 }
 
-public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload, string? ApiVersion);
+public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload, string ApiVersion);
 
 public sealed record StripeWebhookEventResult(
     string EventId,
     string EventType,
     StripeCustomerId? CustomerId,
-    string? ApiVersion,
+    string ApiVersion,
     DateTimeOffset Created
 );
 

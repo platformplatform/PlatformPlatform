@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Shared;
 using Account.Features.Tenants.Domain;
 using Account.Integrations.Stripe;
 using FluentAssertions;
@@ -57,6 +58,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange
         SetupSubscription();
         var eventId = $"{MockStripeClient.MockWebhookEventId}_duplicate";
+        var duplicatePayload = $"customer:{MockStripeClient.MockCustomerId}";
         Connection.Insert("stripe_events", [
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
                 ("id", eventId),
@@ -67,8 +69,11 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("processed_at", TimeProvider.GetUtcNow()),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("payload", null),
-                ("error", null)
+                ("payload", duplicatePayload),
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash(duplicatePayload)),
+                ("stripe_created_at", TimeProvider.GetUtcNow())
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
@@ -76,7 +81,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+            Content = new StringContent(duplicatePayload, Encoding.UTF8, "application/json")
         };
         request.Headers.Add("Stripe-Signature", $"event_type:checkout.session.completed,event_id:{eventId}");
         var response = await AnonymousHttpClient.SendAsync(request);
@@ -324,7 +329,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", null),
                 ("payload", null),
-                ("error", null)
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash("")),
+                ("stripe_created_at", TimeProvider.GetUtcNow())
             ]
         );
         TelemetryEventsCollectorSpy.Reset();

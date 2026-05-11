@@ -337,7 +337,7 @@ public sealed class ProcessPendingStripeEvents(
             // Source the replay timestamp from Stripe's authoritative Event.Created (captured at ingestion
             // into StripeCreatedAt) so the replayer orders events and writes BillingEvent.OccurredAt at the
             // moment Stripe says the event occurred.
-            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt ?? pending.CreatedAt, pending.Payload ?? "", pending.ApiVersion);
+            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt, pending.Payload ?? "", pending.ApiVersion);
         }
 
         if (unioned.Count == 0)
@@ -346,7 +346,7 @@ public sealed class ProcessPendingStripeEvents(
             return;
         }
 
-        var unsupportedVersions = new HashSet<string?>();
+        var unsupportedVersions = new HashSet<string>();
         var supportedEvents = new List<StripeReplayEvent>(unioned.Count);
         foreach (var stripeEvent in unioned.Values)
         {
@@ -360,7 +360,7 @@ public sealed class ProcessPendingStripeEvents(
             {
                 logger.LogWarning(
                     "Stripe event {EventId} has unsupported api_version '{ApiVersion}'; replay skipped — add an IStripeEventPayloadResolver implementation",
-                    stripeEvent.EventId, stripeEvent.ApiVersion ?? "null"
+                    stripeEvent.EventId, stripeEvent.ApiVersion
                 );
             }
         }
@@ -440,7 +440,7 @@ public sealed class ProcessPendingStripeEvents(
         DriftSnapshots driftSnapshots,
         int billingEventCount,
         bool hasUnclassifiedEvent,
-        HashSet<string?> unsupportedApiVersions,
+        HashSet<string> unsupportedApiVersions,
         HashSet<string> eventTypesPresent,
         HashSet<BillingEventType> billingEventTypesPresent,
         IReadOnlyList<BillingEvent> staleBillingEvents
@@ -468,7 +468,7 @@ public sealed class ProcessPendingStripeEvents(
             {
                 discrepancies = discrepancies.Add(new DriftDiscrepancy(
                         DriftDiscrepancyKind.UnsupportedStripeApiVersion,
-                        $"Stripe sent an event using api_version '{version ?? "null"}' for which no IStripeEventPayloadResolver is registered. The event is preserved in stripe_events but not replayed into billing_events. Add a resolver and re-sync.",
+                        $"Stripe sent an event using api_version '{version}' for which no IStripeEventPayloadResolver is registered. The event is preserved in stripe_events but not replayed into billing_events. Add a resolver and re-sync.",
                         DriftSeverity.Critical,
                         ActualValue: version
                     )

@@ -40,7 +40,7 @@ public sealed class AcknowledgeStripeWebhookHandler(
         var existing = await stripeEventRepository.GetByIdAsync(StripeEventId.NewId(webhookEvent.EventId), cancellationToken);
         if (existing is not null)
         {
-            if (existing.PayloadHash is not null && existing.PayloadHash != payloadHash)
+            if (existing.PayloadHash != payloadHash)
             {
                 logger.LogWarning(
                     "Stripe event {EventId} arrived twice with different payloads (existing hash {ExistingHash} vs new {NewHash}); existing row preserved",

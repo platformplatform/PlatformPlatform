@@ -21,9 +21,7 @@ public interface IStripeEventPayloadResolver;
 public sealed class DefaultStripeEventPayloadResolver : IStripeEventPayloadResolver;
 
 /// <summary>
-///     Routes a Stripe event's <c>api_version</c> to the matching resolver. The legacy null version
-///     covers rows recorded before the api_version column existed and is mapped to the default
-///     resolver.
+///     Routes a Stripe event's <c>api_version</c> to the matching resolver.
 /// </summary>
 public static class StripeEventPayloadResolverFactory
 {
@@ -33,9 +31,9 @@ public static class StripeEventPayloadResolverFactory
     // IStripeEventPayloadResolver implementation. Future: derive from Stripe.NET's
     // StripeConfiguration.ApiVersion. Keeping it explicit for now so adding a version is a
     // deliberate, reviewable change rather than a silent dependency upgrade.
-    private static readonly HashSet<string?> RecognizedVersions = ["2025-09-30.preview", "2025-10-29.clover", null];
+    private static readonly HashSet<string> RecognizedVersions = ["2025-09-30.preview", "2025-10-29.clover"];
 
-    public static IStripeEventPayloadResolver For(string? apiVersion)
+    public static IStripeEventPayloadResolver For(string apiVersion)
     {
         if (!TryFor(apiVersion, out var resolver))
         {
@@ -50,7 +48,7 @@ public static class StripeEventPayloadResolverFactory
     ///     callers in hot paths (the replayer) can branch on the result instead of paying for an
     ///     exception. The throwing <see cref="For" /> remains for genuinely unreachable cases.
     /// </summary>
-    public static bool TryFor(string? apiVersion, out IStripeEventPayloadResolver resolver)
+    public static bool TryFor(string apiVersion, out IStripeEventPayloadResolver resolver)
     {
         if (RecognizedVersions.Contains(apiVersion))
         {
@@ -69,8 +67,8 @@ public static class StripeEventPayloadResolverFactory
 ///     and surfaces a <c>UnsupportedStripeApiVersion</c> drift discrepancy so the missing resolver
 ///     can be added.
 /// </summary>
-public sealed class UnsupportedStripeApiVersionException(string? apiVersion)
-    : InvalidOperationException($"Stripe event api_version '{apiVersion ?? "null"}' is not supported by any registered IStripeEventPayloadResolver.")
+public sealed class UnsupportedStripeApiVersionException(string apiVersion)
+    : InvalidOperationException($"Stripe event api_version '{apiVersion}' is not supported by any registered IStripeEventPayloadResolver.")
 {
-    public string? ApiVersion { get; } = apiVersion;
+    public string ApiVersion { get; } = apiVersion;
 }
