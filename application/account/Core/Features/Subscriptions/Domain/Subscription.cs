@@ -318,6 +318,14 @@ public enum DriftDiscrepancyKind
     BillingEventDenormalizationStale,
 
     /// <summary>
+    ///     Stripe returned a payment with <c>total_taxes</c> greater than the display amount, which would
+    ///     otherwise produce a negative <c>AmountExcludingTax</c>. The value is clamped at zero so the DB
+    ///     CHECK does not reject the row (which would 500 the webhook and trigger infinite Stripe retries),
+    ///     but the LTV totals silently undercount until the underlying Stripe anomaly is investigated.
+    /// </summary>
+    AmountExcludingTaxClamped,
+
+    /// <summary>
     ///     The subscription has a <c>ScheduledPlan</c> set but <c>ScheduledPriceAmount</c> is null. The
     ///     MRR KPI falls back to the current (higher) price in this state, silently distorting BLENDED MRR.
     ///     Originates from edge cases in <c>SyncStateFromStripe</c> where a cancel-then-reschedule pair

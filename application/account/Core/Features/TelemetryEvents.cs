@@ -73,6 +73,9 @@ public sealed class Logout
 public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, string currency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("currency", currency));
 
+public sealed class PaymentTransactionAmountExcludingTaxClamped(string paymentReference, decimal displayAmount, decimal taxAmount, string currency)
+    : TelemetryEvent(("payment_reference", paymentReference), ("display_amount", displayAmount), ("tax_amount", taxAmount), ("currency", currency));
+
 public sealed class PaymentMethodSetupStarted(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 

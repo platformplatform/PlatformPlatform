@@ -39,6 +39,11 @@ public sealed class MockStripeState
     // price-list call returning a partial or empty catalog, so the SingleOrDefault catalog-gap
     // guard in ProcessPendingStripeEvents can be exercised without rolling back the transaction.
     public HashSet<SubscriptionPlan> PriceCatalogOmittedPlans { get; } = [];
+
+    // When set the mock simulates an events.list enumeration that failed partway through. The mock
+    // surfaces this through the StripeEventsListResult.Succeeded flag so the anchor-advance guard in
+    // ProcessPendingStripeEvents can be exercised end-to-end.
+    public bool SimulateEventsListFailure { get; set; }
 }
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider, MockStripeState state) : IStripeClient
@@ -323,7 +328,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         );
     }
 
-    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
+    public Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         var now = timeProvider.GetUtcNow();
@@ -360,7 +365,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         events.AddRange(state.EventsListAdditionalEvents);
 
         var filtered = sinceCreated is { } anchor ? events.Where(e => e.CreatedAt >= anchor) : events;
-        return Task.FromResult(filtered.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId).ToArray());
+        var ordered = filtered.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId).ToArray();
+        return Task.FromResult(new StripeEventsListResult(ordered, !state.SimulateEventsListFailure));
     }
 
     // ReSharper disable once ReturnTypeCanBeNotNullable

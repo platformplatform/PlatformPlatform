@@ -171,11 +171,12 @@ public sealed class StripeClientTests
     }
 
     [Fact]
-    public void ComputeInvoiceAmountBreakdown_WhenZeroNetWithPositiveTax_ShouldClampAmountExcludingTaxAtZero()
+    public void ComputeInvoiceAmountBreakdown_WhenZeroNetWithPositiveTax_ShouldClampAmountExcludingTaxAtZeroAndReportClamped()
     {
         // Stripe auto-tax can produce a zero-net paid invoice (proration credit fully offsets a new charge)
         // alongside a positive total_taxes. Without the clamp, AmountExcludingTax would go negative and silently
-        // subtract from LTV.
+        // subtract from LTV. The Clamped flag surfaces the anomaly so callers can emit a warning + telemetry
+        // and drift discrepancy without losing the row.
         // Arrange
         var invoice = new Invoice
         {
@@ -186,12 +187,13 @@ public sealed class StripeClientTests
         };
 
         // Act
-        var (displayAmount, amountExcludingTax, taxAmount) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+        var (displayAmount, amountExcludingTax, taxAmount, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
 
         // Assert
         displayAmount.Should().Be(0m);
         amountExcludingTax.Should().Be(0m);
         taxAmount.Should().Be(16.11m);
+        clamped.Should().BeTrue("display - tax = -16.11 was negative and got clamped");
     }
 
     [Fact]
@@ -208,12 +210,13 @@ public sealed class StripeClientTests
         };
 
         // Act
-        var (displayAmount, amountExcludingTax, taxAmount) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+        var (displayAmount, amountExcludingTax, taxAmount, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
 
         // Assert
         displayAmount.Should().Be(125m);
         amountExcludingTax.Should().Be(100m);
         taxAmount.Should().Be(25m);
+        clamped.Should().BeFalse("display - tax = 100 is non-negative");
     }
 
     [Fact]

@@ -1059,7 +1059,19 @@ public sealed class StripeClient(
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
                     var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var refundedTimestamp) ? (DateTimeOffset?)refundedTimestamp : null;
-                    var (displayAmount, amountExcludingTax, taxAmount) = ComputeInvoiceAmountBreakdown(invoice);
+                    var (displayAmount, amountExcludingTax, taxAmount, clamped) = ComputeInvoiceAmountBreakdown(invoice);
+                    if (clamped)
+                    {
+                        // tax > display is anomalous (Stripe should never produce this) — keep the clamp so the DB
+                        // CHECK does not 500 the webhook, but surface the row through a warning log + telemetry
+                        // event so the back-office drift banner can show the anomaly for operator review.
+                        logger.LogWarning(
+                            "AmountExcludingTax clamped to 0 for Stripe payment {PaymentIntentId} (invoice {InvoiceId}, customer {CustomerId}): display={DisplayAmount}, tax={TaxAmount}",
+                            paymentIntentId ?? "(none)", invoice.Id, stripeCustomerId, displayAmount, taxAmount
+                        );
+                        telemetryEventsCollector.CollectEvent(new PaymentTransactionAmountExcludingTaxClamped(paymentIntentId ?? invoice.Id, displayAmount, taxAmount, invoice.Currency.ToUpperInvariant()));
+                    }
+
                     var plan = ResolvePlanForInvoice(invoice, planByPriceId);
 
                     return new PaymentTransaction(
@@ -1110,8 +1122,9 @@ public sealed class StripeClient(
     ///     (see https://docs.stripe.com/api/events); the background sweeper guarantees the anchor never
     ///     falls outside that window.
     /// </summary>
-    public async Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
+    public async Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
     {
+        var collected = new List<StripeReplayEvent>();
         try
         {
             var service = new EventService();
@@ -1125,7 +1138,6 @@ public sealed class StripeClient(
                 options.Created = new DateRangeOptions { GreaterThanOrEqual = anchor.UtcDateTime };
             }
 
-            var collected = new List<StripeReplayEvent>();
             await foreach (var stripeEvent in service.ListAutoPagingAsync(options, GetRequestOptions(), cancellationToken))
             {
                 if (TryExtractCustomerId(stripeEvent) != stripeCustomerId.Value) continue;
@@ -1134,12 +1146,20 @@ public sealed class StripeClient(
 
             // Stripe returns events newest-first; reorder ascending so callers can advance the anchor
             // and emit BillingEvents in the order Stripe observed them.
-            return [.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)];
+            return new StripeEventsListResult([.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)], true);
         }
         catch (StripeException ex)
         {
+            // events.list pagination failed partway through; callers MUST keep the existing anchor so the
+            // next sync re-pulls the events that were never observed. Returning whatever pages we did
+            // collect is safe because BillingEvent emission is idempotent on stripe_event_id.
             logger.LogError(ex, "Failed to list Stripe events for customer '{StripeCustomerId}'", stripeCustomerId);
-            return [];
+            return new StripeEventsListResult([.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)], false);
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout listing Stripe events for customer '{StripeCustomerId}'", stripeCustomerId);
+            return new StripeEventsListResult([.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)], false);
         }
     }
 
@@ -1177,14 +1197,17 @@ public sealed class StripeClient(
     ///     clamped at zero because Stripe's auto-tax can return a positive <c>total_taxes</c> alongside zero
     ///     <c>amount_paid</c> / <c>total</c> (e.g., a proration credit fully offsets a new charge), which would
     ///     otherwise produce a negative excluding-tax that silently subtracts from LTV. Public to support unit testing
-    ///     of the clamp against a constructed <see cref="Invoice" />.
+    ///     of the clamp against a constructed <see cref="Invoice" />. <c>Clamped</c> is <c>true</c> when the raw
+    ///     <c>displayAmount - taxAmount</c> was negative — callers emit a structured warning + telemetry +
+    ///     drift discrepancy so the anomaly is surfaced instead of silently masked.
     /// </summary>
-    public static (decimal DisplayAmount, decimal AmountExcludingTax, decimal TaxAmount) ComputeInvoiceAmountBreakdown(Invoice invoice)
+    public static (decimal DisplayAmount, decimal AmountExcludingTax, decimal TaxAmount, bool Clamped) ComputeInvoiceAmountBreakdown(Invoice invoice)
     {
         var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
         var taxAmount = (invoice.TotalTaxes ?? []).Sum(t => t.Amount) / 100m;
-        var amountExcludingTax = Math.Max(0m, displayAmount - taxAmount);
-        return (displayAmount, amountExcludingTax, taxAmount);
+        var rawAmountExcludingTax = displayAmount - taxAmount;
+        var amountExcludingTax = Math.Max(0m, rawAmountExcludingTax);
+        return (displayAmount, amountExcludingTax, taxAmount, rawAmountExcludingTax < 0m);
     }
 
     private async Task<Dictionary<string, SubscriptionPlan>> BuildPlanByPriceIdAsync(CancellationToken cancellationToken)

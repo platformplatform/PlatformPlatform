@@ -159,10 +159,12 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<PaymentTransaction[]?>(null);
     }
 
-    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
+    public Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot list events for customer '{CustomerId}'", stripeCustomerId);
-        return Task.FromResult<StripeReplayEvent[]>([]);
+        // No Stripe configured is not a partial-failure; report the empty list as a clean success so the
+        // anchor in the (also-unused) subscription row does not stay pinned forever.
+        return Task.FromResult(new StripeEventsListResult([], true));
     }
 
     public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)

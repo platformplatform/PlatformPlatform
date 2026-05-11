@@ -71,8 +71,11 @@ public interface IStripeClient
     ///     BillingEvent ledger is rebuilt from Stripe's view of the world, never from
     ///     <c>stripe_events.payload</c>. The local archive is a cold backup read only by the
     ///     admin reconcile command for events older than the 30-day window.
+    ///     The returned <see cref="StripeEventsListResult.Succeeded" /> flag distinguishes a
+    ///     fully-paged success (anchor may advance) from a partial / failed enumeration (anchor
+    ///     must remain unchanged so the next sync re-pulls the unseen events).
     /// </summary>
-    Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken);
+    Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Builds the Stripe Dashboard URL for a customer. Returns null when no Stripe API key is
@@ -83,6 +86,14 @@ public interface IStripeClient
 }
 
 public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload, string ApiVersion);
+
+/// <summary>
+///     Result of <see cref="IStripeClient.GetEventsForCustomerAsync" />. <see cref="Succeeded" /> is
+///     <c>true</c> only when the events.list enumeration completed without an exception mid-pagination;
+///     callers must keep the events.list anchor unchanged when it is <c>false</c> so the next sync re-pulls
+///     the events that were never observed.
+/// </summary>
+public sealed record StripeEventsListResult(StripeReplayEvent[] Events, bool Succeeded);
 
 public sealed record StripeWebhookEventResult(
     string EventId,

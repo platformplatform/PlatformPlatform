@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
@@ -72,9 +73,9 @@ public sealed class ProcessPendingStripeEvents(
         // forceSync runs the Stripe sync even with no pending events (used by the back-office reconcile admin action).
         if (pendingEvents.Length > 0 || forceSync)
         {
-            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Apply, cancellationToken);
+            var eventsListResult = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Apply, cancellationToken);
             var (driftSnapshots, stripeViewUnavailable) = await SyncStateFromStripe(tenant, subscription, SyncMode.Apply, cancellationToken);
-            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, SyncMode.Apply, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResult, driftSnapshots, SyncMode.Apply, cancellationToken);
 
             // Apply mode normally consumes Pending stripe_events rows by marking them Processed. When the Stripe
             // view is unavailable (the integration client swallowed a StripeException or TaskCanceledException
@@ -110,9 +111,9 @@ public sealed class ProcessPendingStripeEvents(
         // sets it so every stale subscription is audited regardless of webhook activity.
         if (pendingEvents.Length > 0 || forceSync)
         {
-            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Detect, cancellationToken);
+            var eventsListResult = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Detect, cancellationToken);
             var (driftSnapshots, _) = await SyncStateFromStripe(tenant, subscription, SyncMode.Detect, cancellationToken);
-            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, SyncMode.Detect, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResult, driftSnapshots, SyncMode.Detect, cancellationToken);
         }
 
         // Detect mode normally collects nothing because the mutation branches that drive telemetry are
@@ -412,7 +413,7 @@ public sealed class ProcessPendingStripeEvents(
     private async Task EmitBillingEventsFromEventsListAsync(
         Subscription subscription,
         StripeEvent[] pendingEvents,
-        StripeReplayEvent[] eventsListResults,
+        StripeEventsListResult eventsListResult,
         DriftSnapshots driftSnapshots,
         SyncMode syncMode,
         CancellationToken cancellationToken
@@ -424,8 +425,8 @@ public sealed class ProcessPendingStripeEvents(
         // transaction. Stripe's events.list typically reflects a new webhook within a few seconds, but the
         // hot path can't depend on that. Dedup by event id; the events.list payload wins when both sources
         // describe the same event (Stripe's serialization is the authoritative view).
-        var unioned = new Dictionary<string, StripeReplayEvent>(eventsListResults.Length + pendingEvents.Length);
-        foreach (var eventListItem in eventsListResults)
+        var unioned = new Dictionary<string, StripeReplayEvent>(eventsListResult.Events.Length + pendingEvents.Length);
+        foreach (var eventListItem in eventsListResult.Events)
         {
             unioned[eventListItem.EventId] = eventListItem;
         }
@@ -443,7 +444,11 @@ public sealed class ProcessPendingStripeEvents(
 
         if (unioned.Count == 0)
         {
-            await DetectDriftAsync(subscription, driftSnapshots, 0, false, [], [], [], [], syncMode, cancellationToken);
+            // Re-snapshot after the heal pass so any local-state validation that the detector performs
+            // (e.g. ScheduledPriceMissing) sees the healed values, not the stale pre-sync state.
+            var emptyUnionedLocalAfterSyncSnapshot = StripeSyncSnapshot.FromSubscription(subscription);
+            var driftSnapshotsForEmptyUnion = driftSnapshots with { LocalBeforeSync = emptyUnionedLocalAfterSyncSnapshot };
+            await DetectDriftAsync(subscription, driftSnapshotsForEmptyUnion, 0, false, [], [], [], [], syncMode, cancellationToken);
             return;
         }
 
@@ -515,7 +520,9 @@ public sealed class ProcessPendingStripeEvents(
         // Advance the events.list anchor to the most recent event we just consumed so the next sync only
         // pulls events Stripe produced after this point. Pending-source events whose Created is older than
         // an already-applied anchor cannot rewind it (AdvanceLastSyncedStripeEventCreatedAt is monotonic).
-        if (syncMode == SyncMode.Apply && supportedEvents.Count > 0)
+        // Skip the advance entirely when events.list failed mid-pagination — otherwise an unseen event
+        // older than supportedEvents.Max would be permanently skipped on the next sync.
+        if (syncMode == SyncMode.Apply && supportedEvents.Count > 0 && eventsListResult.Succeeded)
         {
             var latestEventCreated = supportedEvents.Max(e => e.CreatedAt);
             subscription.AdvanceLastSyncedStripeEventCreatedAt(latestEventCreated);
@@ -546,7 +553,16 @@ public sealed class ProcessPendingStripeEvents(
         var billingEventTypesPresent = persistedRows.Select(r => r.EventType)
             .Concat(replayedEvents.Select(r => r.EventType))
             .ToHashSet();
-        await DetectDriftAsync(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents, syncMode, cancellationToken);
+
+        // Re-snapshot the local subscription after the Apply-mode heal pass so the drift detector compares
+        // the healed state — not the stale pre-sync state — against Stripe. Without this, a heal that
+        // wrote a previously-missing ScheduledPriceAmount in the same sync would still trigger a
+        // ScheduledPriceMissing Critical discrepancy on the very pass that fixed it. Detect mode never
+        // mutates the subscription, so the re-snapshot matches the original LocalBeforeSync.
+        var localAfterSyncSnapshot = StripeSyncSnapshot.FromSubscription(subscription);
+        var driftSnapshotsForDetection = driftSnapshots with { LocalBeforeSync = localAfterSyncSnapshot };
+
+        await DetectDriftAsync(subscription, driftSnapshotsForDetection, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents, syncMode, cancellationToken);
     }
 
     private async Task DetectDriftAsync(
@@ -613,6 +629,24 @@ public sealed class ProcessPendingStripeEvents(
                         DriftSeverity.Warning,
                         staleRow.EventType,
                         OccurredAt: staleRow.OccurredAt
+                    )
+                );
+            }
+
+            // Surface payment transactions whose AmountExcludingTax was clamped to zero because Stripe
+            // returned tax > display. The clamp itself is intentional (keeps the DB CHECK happy so the
+            // webhook does not 500 and trigger infinite Stripe retries), but the underlying anomaly must
+            // be visible on the drift banner so an operator can investigate the Stripe side.
+            var clampedTransactions = subscription.PaymentTransactions.Where(t => t.AmountExcludingTax == 0m && t.TaxAmount > 0m && t.Amount < t.TaxAmount).ToArray();
+            foreach (var clampedTransaction in clampedTransactions)
+            {
+                discrepancies = discrepancies.Add(new DriftDiscrepancy(
+                        DriftDiscrepancyKind.AmountExcludingTaxClamped,
+                        $"Payment transaction '{clampedTransaction.Id}' had AmountExcludingTax clamped to zero because Stripe reported tax ({clampedTransaction.TaxAmount}) greater than display amount ({clampedTransaction.Amount}). LTV totals undercount this row; investigate the Stripe invoice for the underlying anomaly.",
+                        DriftSeverity.Warning,
+                        ExpectedValue: clampedTransaction.Amount.ToString("F2", CultureInfo.InvariantCulture),
+                        ActualValue: clampedTransaction.TaxAmount.ToString("F2", CultureInfo.InvariantCulture),
+                        OccurredAt: clampedTransaction.Date
                     )
                 );
             }
@@ -754,20 +788,20 @@ public sealed class ProcessPendingStripeEvents(
     ///     is never read in the hot path. Returns the events.list response so the emitter can consume
     ///     it directly.
     /// </summary>
-    private async Task<StripeReplayEvent[]> PullEventsListAndArchiveRecoveredAsync(Subscription subscription, StripeCustomerId stripeCustomerId, SyncMode syncMode, CancellationToken cancellationToken)
+    private async Task<StripeEventsListResult> PullEventsListAndArchiveRecoveredAsync(Subscription subscription, StripeCustomerId stripeCustomerId, SyncMode syncMode, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
-        var stripeEvents = await stripeClient.GetEventsForCustomerAsync(stripeCustomerId, subscription.LastSyncedStripeEventCreatedAt, cancellationToken);
-        if (stripeEvents.Length == 0) return [];
+        var eventsListResult = await stripeClient.GetEventsForCustomerAsync(stripeCustomerId, subscription.LastSyncedStripeEventCreatedAt, cancellationToken);
+        if (eventsListResult.Events.Length == 0) return eventsListResult;
 
         // Detect mode is a tripwire: read paths run, but no recovered stripe_events rows are inserted. The
         // webhook hot path and the reconcile admin action own remediation; the worker only flags drift.
-        if (syncMode == SyncMode.Detect) return stripeEvents;
+        if (syncMode == SyncMode.Detect) return eventsListResult;
 
         var existingIds = await stripeEventRepository.GetExistingEventIdsByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
         var now = timeProvider.GetUtcNow();
 
-        foreach (var stripeEvent in stripeEvents)
+        foreach (var stripeEvent in eventsListResult.Events)
         {
             if (existingIds.Contains(stripeEvent.EventId)) continue;
 
@@ -792,7 +826,7 @@ public sealed class ProcessPendingStripeEvents(
             );
         }
 
-        return stripeEvents;
+        return eventsListResult;
     }
 
     private void MarkAllEventsAsProcessed(StripeEvent[] pendingEvents, Subscription subscription)
