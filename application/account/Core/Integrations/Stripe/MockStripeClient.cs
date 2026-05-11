@@ -18,10 +18,10 @@ public sealed class MockStripeState
 
     public bool SimulateOpenInvoice { get; set; }
 
-    // Production only supports DKK (enforced by the StripeClient boundary guard and the DB CHECK
-    // constraints on subscriptions.current_price_currency and billing_events.currency). Override
-    // on a per-test basis to simulate Stripe returning a non-DKK currency so the boundary guard
-    // can be exercised. Default matches production.
+    // The platform's architectural promise is that every active Stripe price uses the same currency,
+    // derived from Stripe at startup. The mock returns this configured value from every method that
+    // surfaces a currency. Override on a per-test basis to simulate Stripe returning a currency that
+    // does not match the resolved platform currency so the boundary guard can be exercised.
     public string SubscriptionCurrency { get; set; } = "DKK";
 
     // Extra Stripe events the test wants the mock's events.list to return on top of the defaults.
@@ -156,11 +156,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         EnsureEnabled();
         var catalog = new List<PriceCatalogItem>
         {
-            new(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1, false),
-            new(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1, false)
+            new(SubscriptionPlan.Standard, 29.00m, state.SubscriptionCurrency, "month", 1, false),
+            new(SubscriptionPlan.Premium, 99.00m, state.SubscriptionCurrency, "month", 1, false)
         };
         catalog.RemoveAll(item => state.PriceCatalogOmittedPlans.Contains(item.Plan));
         return Task.FromResult(catalog.ToArray());
+    }
+
+    public Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<string?>(state.SubscriptionCurrency);
     }
 
     public Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
@@ -264,7 +270,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         EnsureEnabled();
         if (state.SimulateOpenInvoice)
         {
-            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(29.99m, "USD"));
+            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(29.99m, state.SubscriptionCurrency));
         }
 
         return Task.FromResult<OpenInvoiceResult?>(null);
@@ -287,17 +293,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         var lineItems = new[]
         {
-            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, "USD", true, false),
-            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, "USD", true, false),
-            new UpgradePreviewLineItem("Tax", 1.55m, "USD", false, true)
+            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, state.SubscriptionCurrency, true, false),
+            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, state.SubscriptionCurrency, true, false),
+            new UpgradePreviewLineItem("Tax", 1.55m, state.SubscriptionCurrency, false, true)
         };
-        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, "USD", lineItems));
+        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, state.SubscriptionCurrency, lineItems));
     }
 
     public Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "EUR", 0m));
+        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, state.SubscriptionCurrency, 0m));
     }
 
     public Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)

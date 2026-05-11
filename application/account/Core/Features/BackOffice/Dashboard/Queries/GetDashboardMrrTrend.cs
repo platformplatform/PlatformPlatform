@@ -1,4 +1,5 @@
 using Account.Features.Subscriptions.Domain;
+using Account.Integrations.Stripe;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -12,7 +13,7 @@ public sealed record GetDashboardMrrTrendQuery(DashboardTrendPeriod Period = Das
 [PublicAPI]
 public sealed record BackOfficeDashboardMrrTrendResponse(
     DashboardTrendPeriod Period,
-    string Currency,
+    string? Currency,
     BackOfficeDashboardMrrTrendPoint[] Points,
     BackOfficeDashboardMrrTrendPoint[] PriorPoints
 );
@@ -28,11 +29,9 @@ public sealed class GetDashboardMrrTrendQueryValidator : AbstractValidator<GetDa
     }
 }
 
-public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingEventRepository, TimeProvider timeProvider)
+public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingEventRepository, IPlatformCurrencyProvider platformCurrencyProvider, TimeProvider timeProvider)
     : IRequestHandler<GetDashboardMrrTrendQuery, Result<BackOfficeDashboardMrrTrendResponse>>
 {
-    private const string DefaultCurrency = "DKK";
-
     public async Task<Result<BackOfficeDashboardMrrTrendResponse>> Handle(GetDashboardMrrTrendQuery query, CancellationToken cancellationToken)
     {
         var days = DashboardTrendPeriods.GetDays(query.Period);
@@ -58,7 +57,7 @@ public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingE
             priorPoints[index] = new BackOfficeDashboardMrrTrendPoint(priorDate, ComputeDailyMrr(eventsBySubscription, priorDate));
         }
 
-        return new BackOfficeDashboardMrrTrendResponse(query.Period, DefaultCurrency, points, priorPoints);
+        return new BackOfficeDashboardMrrTrendResponse(query.Period, platformCurrencyProvider.Currency, points, priorPoints);
     }
 
     private static decimal ComputeDailyMrr(Dictionary<SubscriptionId, BillingEvent[]> eventsBySubscription, DateOnly date)

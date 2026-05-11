@@ -80,23 +80,26 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
 
         migrationBuilder.CreateIndex("ix_stripe_events_recovered_at", "stripe_events", "recovered_at", filter: "recovered_at IS NOT NULL");
 
-        // v1 stance: only DKK is supported. The dashboard MRR handlers sum decimal amounts across every
-        // subscription / billing event without grouping by currency, so any non-DKK row corrupts the totals.
-        // The boundary guard in ReconcileTenantWithStripeHandler rejects non-DKK syncs before they reach
-        // persistence; these CHECK constraints are the structural backstop so the invariant holds even if
-        // a future code path forgets the boundary check. Basis-only tenants have no current_price_currency
-        // (NULL), so the subscriptions constraint allows NULL. billing_events.currency is always populated
-        // by the Stripe event payload, so the billing_events constraint requires the literal 'DKK'.
+        // The platform's architectural promise is that every active Stripe price uses the same currency,
+        // derived from Stripe at startup (see PlatformCurrencyStartupResolver). The dashboard MRR handlers
+        // sum decimal amounts across every subscription / billing event without grouping by currency, so
+        // any row that does not use the platform currency corrupts the totals. The boundary guards in
+        // StripeClient and ReconcileTenantWithStripeHandler reject mismatched currencies before they reach
+        // persistence; these CHECK constraints are the structural format backstop so the invariant holds
+        // even if a future code path forgets the boundary check. The application uppercases currency on
+        // read via ToUpperInvariant() before persistence, so the constraint requires the canonical
+        // uppercase ISO-4217 form. Basis-only tenants have no current_price_currency (NULL), so the
+        // subscriptions constraint allows NULL.
         migrationBuilder.AddCheckConstraint(
-            "chk_billing_events_currency_dkk",
+            "chk_billing_events_currency_format",
             "billing_events",
-            "currency = 'DKK'"
+            "currency ~ '^[A-Z]{3}$'"
         );
 
         migrationBuilder.AddCheckConstraint(
-            "chk_subscriptions_current_price_currency_dkk",
+            "chk_subscriptions_current_price_currency_format",
             "subscriptions",
-            "current_price_currency IS NULL OR current_price_currency = 'DKK'"
+            "current_price_currency IS NULL OR current_price_currency ~ '^[A-Z]{3}$'"
         );
     }
 }

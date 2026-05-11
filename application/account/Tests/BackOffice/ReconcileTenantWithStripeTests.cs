@@ -148,13 +148,17 @@ public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task ReconcileTenantWithStripe_WhenStripeReturnsNonDkkCurrency_ShouldReturnBadRequest()
+    public async Task ExecuteAsync_WhenStripeSubscriptionCurrencyDoesNotMatchPlatformCurrency_ReturnsFailureNotInvalidOperation()
     {
         // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
                 ("stripe_customer_id", MockStripeClient.MockCustomerId)
             ]
         );
+        // The PlatformCurrencyStartupResolver ran at host startup against the mock's default DKK and
+        // cached DKK on the singleton provider for the process lifetime. Flipping the per-test mock
+        // SubscriptionCurrency to USD makes SyncSubscriptionStateAsync return USD, which the boundary
+        // guard then rejects against the cached platform currency.
         StripeState.SubscriptionCurrency = "USD";
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
@@ -165,6 +169,6 @@ public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "StripeNonDkkSubscriptionRejected");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "StripeSubscriptionCurrencyMismatchRejected");
     }
 }

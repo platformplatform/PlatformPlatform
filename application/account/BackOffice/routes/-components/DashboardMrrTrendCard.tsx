@@ -38,7 +38,7 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
     current: point.monthlyRecurringRevenue,
     prior: priorPoints[index]?.monthlyRecurringRevenue ?? 0
   }));
-  const currency = data?.currency ?? "DKK";
+  const currency = data?.currency ?? null;
   const dateFormatter = new Intl.DateTimeFormat(i18n.locale, { month: "short", day: "numeric" });
   const compactNumberFormatter = new Intl.NumberFormat(i18n.locale, { notation: "compact", maximumFractionDigits: 1 });
 
@@ -50,11 +50,11 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
     <DashboardCardShell
       title={<Trans>MRR trend</Trans>}
       subtitle={
-        data && deltaPercent !== null ? (
+        data && currency && deltaPercent !== null ? (
           <Trans>
             {formatCurrency(blended, currency)} blended · {formatDelta(deltaPercent)} over period
           </Trans>
-        ) : data ? (
+        ) : data && currency ? (
           <Trans>{formatCurrency(blended, currency)} blended</Trans>
         ) : undefined
       }
@@ -91,7 +91,7 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
             <Tooltip
               cursor={false}
               labelFormatter={(value) => dateFormatter.format(new Date(value as string))}
-              formatter={(value, name) => [formatCurrency(Number(value), currency), name]}
+              formatter={(value, name) => [currency ? formatCurrency(Number(value), currency) : String(value), name]}
               contentStyle={{
                 backgroundColor: "var(--popover)",
                 borderColor: "var(--border)",

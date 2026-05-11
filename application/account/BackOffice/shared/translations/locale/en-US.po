@@ -265,8 +265,8 @@ msgstr "Dark"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, data.currency)
-#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, data.currency)
+#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, currency)
+#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)
 msgid "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
 msgstr "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
 

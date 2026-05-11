@@ -39,7 +39,7 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
       <KpiTile
         label={t`Blended MRR`}
         icon={CoinsIcon}
-        value={data ? formatCurrency(data.blendedMonthlyRecurringRevenue, data.currency) : undefined}
+        value={data && data.currency ? formatCurrency(data.blendedMonthlyRecurringRevenue, data.currency) : undefined}
         loading={isLoading}
         subtitle={
           data && data.blendedMonthlyRecurringRevenueDeltaPercent !== null ? (

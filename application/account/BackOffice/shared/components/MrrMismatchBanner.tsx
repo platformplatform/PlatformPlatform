@@ -22,17 +22,18 @@ export function MrrMismatchBanner() {
     { enabled: userInfo?.isAuthenticated === true, refetchInterval: 60_000 }
   );
 
-  if (!data || data.kpiMonthlyRecurringRevenue === data.trendLatestMonthlyRecurringRevenue) {
+  if (!data || !data.currency || data.kpiMonthlyRecurringRevenue === data.trendLatestMonthlyRecurringRevenue) {
     return null;
   }
 
+  const currency = data.currency;
   return (
     <div className="flex h-12 items-center gap-3 border-b border-warning/50 bg-warning px-4 text-sm">
       <ScaleIcon className="size-4 shrink-0 text-warning-foreground" aria-hidden={true} />
       <span className="flex-1 text-warning-foreground">
         <Trans>
-          Dashboard MRR mismatch: KPI shows {formatCurrency(data.kpiMonthlyRecurringRevenue, data.currency)}, trend
-          latest shows {formatCurrency(data.trendLatestMonthlyRecurringRevenue, data.currency)}.
+          Dashboard MRR mismatch: KPI shows {formatCurrency(data.kpiMonthlyRecurringRevenue, currency)}, trend
+          latest shows {formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)}.
         </Trans>
       </span>
       <Button size="sm" nativeButton={false} render={<Link to="/billing-events" />}>

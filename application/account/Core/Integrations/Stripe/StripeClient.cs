@@ -1,7 +1,9 @@
 using System.Text.Json;
+using Account.Features;
 using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using SharedKernel.Telemetry;
 using Stripe;
 using Stripe.Checkout;
 using PaymentMethod = Account.Features.Subscriptions.Domain.PaymentMethod;
@@ -12,7 +14,13 @@ using StripeSubscription = Stripe.Subscription;
 
 namespace Account.Integrations.Stripe;
 
-public sealed class StripeClient(IConfiguration configuration, IMemoryCache memoryCache, ILogger<StripeClient> logger) : IStripeClient
+public sealed class StripeClient(
+    IConfiguration configuration,
+    IMemoryCache memoryCache,
+    IPlatformCurrencyProvider platformCurrencyProvider,
+    ITelemetryEventsCollector telemetryEventsCollector,
+    ILogger<StripeClient> logger
+) : IStripeClient
 {
     private const string PriceCacheKey = "stripe_resolved_prices";
     private const string ProductPlanCacheKey = "stripe_product_plan_map";
@@ -142,9 +150,12 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var scheduledPlan = GetScheduledPlan(stripeSubscription);
             var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
             var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
-            if (currentPriceCurrency is not null && currentPriceCurrency != "DKK")
+            var platformCurrency = platformCurrencyProvider.Currency;
+            if (currentPriceCurrency is not null && platformCurrency is not null && currentPriceCurrency != platformCurrency)
             {
-                logger.LogWarning("Non-DKK currency '{Currency}' observed on Stripe subscription '{SubscriptionId}' for customer '{CustomerId}'", currentPriceCurrency, stripeSubscription.Id, stripeCustomerId);
+                logger.LogError("Stripe subscription '{SubscriptionId}' for customer '{CustomerId}' uses currency '{ObservedCurrency}' which does not match the platform currency '{PlatformCurrency}'; rejecting sync", stripeSubscription.Id, stripeCustomerId, currentPriceCurrency, platformCurrency);
+                telemetryEventsCollector.CollectEvent(new StripeSubscriptionCurrencyMismatchRejected(stripeSubscription.Id, currentPriceCurrency, platformCurrency));
+                return null;
             }
 
             var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
@@ -427,6 +438,24 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             logger.LogError(ex, "Timeout reactivating subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
+    }
+
+    public async Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken)
+    {
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (!memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) || cached is null || cached.Count == 0)
+        {
+            return null;
+        }
+
+        var currencies = cached.Values.Select(p => p.Currency.ToUpperInvariant()).Distinct().ToArray();
+        if (currencies.Length > 1)
+        {
+            throw new InvalidOperationException($"Active Stripe prices use multiple currencies ({string.Join(", ", currencies)}); the platform requires a single currency across all active prices.");
+        }
+
+        return currencies[0];
     }
 
     public async Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)

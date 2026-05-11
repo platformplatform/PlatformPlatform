@@ -70,6 +70,11 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<IReadOnlyDictionary<string, SubscriptionPlan>>(new Dictionary<string, SubscriptionPlan>());
     }
 
+    public Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult<string?>(null);
+    }
+
     public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
     {
         logger.LogWarning("Stripe is not configured. Cannot verify webhook signature");

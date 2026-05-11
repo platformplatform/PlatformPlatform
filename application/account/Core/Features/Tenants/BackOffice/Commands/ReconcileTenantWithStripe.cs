@@ -37,6 +37,7 @@ public sealed class ReconcileTenantWithStripeHandler(
     IBillingEventRepository billingEventRepository,
     ProcessPendingStripeEvents processPendingStripeEvents,
     StripeClientFactory stripeClientFactory,
+    IPlatformCurrencyProvider platformCurrencyProvider,
     TimeProvider timeProvider,
     ITelemetryEventsCollector events
 ) : IRequestHandler<ReconcileTenantWithStripeCommand, Result<ReconcileTenantWithStripeResponse>>
@@ -60,13 +61,15 @@ public sealed class ReconcileTenantWithStripeHandler(
         }
 
         // Single-currency invariant: the dashboard MRR handlers sum across all subscriptions / billing events
-        // without grouping by currency, so any non-DKK row corrupts the totals. Reject non-DKK at the
-        // boundary before reconcile mutates persistence. The DB CHECK constraint is the structural backstop.
+        // without grouping by currency, so any row that does not use the platform currency corrupts the totals.
+        // Reject mismatched currencies at the boundary before reconcile mutates persistence. The DB CHECK
+        // constraint enforces the format invariant as a structural backstop.
         var stripeState = await stripeClientFactory.GetClient().SyncSubscriptionStateAsync(subscription.StripeCustomerId, cancellationToken);
-        if (stripeState?.CurrentPriceCurrency is { } observedCurrency && observedCurrency != "DKK")
+        var platformCurrency = platformCurrencyProvider.Currency;
+        if (stripeState?.CurrentPriceCurrency is { } observedCurrency && platformCurrency is not null && observedCurrency != platformCurrency)
         {
-            events.CollectEvent(new StripeNonDkkSubscriptionRejected(subscription.Id, observedCurrency));
-            return Result<ReconcileTenantWithStripeResponse>.BadRequest($"Subscription currency '{observedCurrency}' is not supported. Only DKK is currently supported.", true);
+            events.CollectEvent(new StripeSubscriptionCurrencyMismatchRejected(subscription.StripeSubscriptionId?.Value ?? subscription.Id.Value, observedCurrency, platformCurrency));
+            return Result<ReconcileTenantWithStripeResponse>.BadRequest($"Subscription currency '{observedCurrency}' does not match the platform currency '{platformCurrency}'.", true);
         }
 
         var beforeEvents = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);

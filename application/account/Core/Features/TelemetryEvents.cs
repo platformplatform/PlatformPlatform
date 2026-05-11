@@ -106,8 +106,8 @@ public sealed class SignupStarted
 public sealed class StripeEventPayloadMismatch(string eventId, string eventType, string existingHash, string newHash)
     : TelemetryEvent(("event_id", eventId), ("event_type", eventType), ("existing_hash", existingHash), ("new_hash", newHash));
 
-public sealed class StripeNonDkkSubscriptionRejected(SubscriptionId subscriptionId, string observedCurrency)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("observed_currency", observedCurrency));
+public sealed class StripeSubscriptionCurrencyMismatchRejected(string stripeSubscriptionId, string observedCurrency, string platformCurrency)
+    : TelemetryEvent(("stripe_subscription_id", stripeSubscriptionId), ("observed_currency", observedCurrency), ("platform_currency", platformCurrency));
 
 public sealed class StripePriceCatalogLookupMissed(SubscriptionId subscriptionId, SubscriptionPlan scheduledPlan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("scheduled_plan", scheduledPlan));

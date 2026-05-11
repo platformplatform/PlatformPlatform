@@ -26,6 +26,15 @@ public interface IStripeClient
 
     Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Returns the single currency observed across active Stripe prices. The application's
+    ///     architectural promise is that every active Stripe price uses the same currency; an
+    ///     implementation must throw when it observes more than one distinct currency. Returns
+    ///     <c>null</c> from <see cref="UnconfiguredStripeClient" /> so callers can detect the
+    ///     unconfigured environment without exception handling.
+    /// </summary>
+    Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken);
+
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 
     Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);

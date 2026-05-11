@@ -3,6 +3,7 @@ using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
+using Account.Integrations.Stripe;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -26,7 +27,7 @@ public sealed record BackOfficeDashboardKpisResponse(
     long ActiveUsersInPeriod,
     decimal BlendedMonthlyRecurringRevenue,
     decimal? BlendedMonthlyRecurringRevenueDeltaPercent,
-    string Currency,
+    string? Currency,
     long ActiveSessionsLast24Hours
 );
 
@@ -43,12 +44,10 @@ public sealed class GetDashboardKpisHandler(
     IUserRepository userRepository,
     ISessionRepository sessionRepository,
     ISubscriptionRepository subscriptionRepository,
+    IPlatformCurrencyProvider platformCurrencyProvider,
     TimeProvider timeProvider
 ) : IRequestHandler<GetDashboardKpisQuery, Result<BackOfficeDashboardKpisResponse>>
 {
-    // Single supported currency until multi-currency MRR is in scope; matches the existing Subscription DTO style.
-    private const string DefaultCurrency = "DKK";
-
     public async Task<Result<BackOfficeDashboardKpisResponse>> Handle(GetDashboardKpisQuery query, CancellationToken cancellationToken)
     {
         var days = DashboardTrendPeriods.GetDays(query.Period);
@@ -118,7 +117,7 @@ public sealed class GetDashboardKpisHandler(
             activeUsersInPeriod,
             totalMonthlyRecurringRevenue,
             mrrDeltaPercent,
-            DefaultCurrency,
+            platformCurrencyProvider.Currency,
             activeSessions
         );
     }

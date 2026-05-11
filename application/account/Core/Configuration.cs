@@ -57,6 +57,9 @@ public static class Configuration
 
             services.AddMemoryCache();
             services.AddSingleton<MockStripeState>();
+            services.AddSingleton<PlatformCurrencyProvider>();
+            services.AddSingleton<IPlatformCurrencyProvider>(sp => sp.GetRequiredService<PlatformCurrencyProvider>());
+            services.AddHostedService<PlatformCurrencyStartupResolver>();
             services.AddKeyedScoped<IStripeClient, StripeClient>("stripe");
             services.AddKeyedScoped<IStripeClient, MockStripeClient>("mock-stripe");
             services.AddKeyedScoped<IStripeClient, UnconfiguredStripeClient>("unconfigured-stripe");
