@@ -170,7 +170,7 @@ msgstr "Alle hændelsestyper"
 msgid "All statuses"
 msgstr "Alle statusser"
 
-msgid "All users across every account, newest first. Search and filter to narrow down."
+msgid "All users across every account, most recently seen first. Search and filter to narrow down."
 msgstr ""
 
 msgid "All-time"
@@ -189,8 +189,8 @@ msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
 #. placeholder {0}: result.billingEventsAppended
-#. placeholder {1}: formatDate(result.syncedAt)
-msgid "Appended {0} new billing events. Last synced at {1}."
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Appended {0} new billing events. Last reconciled at {1}."
 msgstr ""
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
@@ -199,17 +199,23 @@ msgstr ""
 msgid "Back Office"
 msgstr "Back Office"
 
-msgid "Back to feature flags"
-msgstr ""
-
 msgid "Back Office - Localhost"
 msgstr "Back Office - Localhost"
 
 msgid "Back Office overview · {today}"
 msgstr "Back Office oversigt · {today}"
 
+msgid "Back to feature flags"
+msgstr ""
+
 msgid "Basis"
 msgstr "Basis"
+
+msgid "Beta features"
+msgstr "Beta-funktioner"
+
+msgid "Billing"
+msgstr "Fakturering"
 
 msgid "Billing address"
 msgstr "Faktureringsadresse"
@@ -234,6 +240,9 @@ msgstr "Browser"
 
 msgid "Bucket"
 msgstr "Bucket"
+
+msgid "Cancel"
+msgstr ""
 
 msgid "Canceled"
 msgstr "Opsagt"
@@ -277,6 +286,9 @@ msgstr "Luk kontoforhåndsvisning"
 msgid "Coming soon"
 msgstr "Kommer snart"
 
+msgid "Compact view"
+msgstr "Kompakt visning"
+
 msgid "Contact your administrator."
 msgstr "Kontakt din administrator."
 
@@ -299,6 +311,15 @@ msgstr "Aktuel periode"
 
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
+
+msgid "Custom branding"
+msgstr "Tilpasset branding"
+
+msgid "Customer"
+msgstr "Kunde"
+
+msgid "Customize the login page with your organization's logo and colors"
+msgstr "Tilpas login-siden med din organisations logo og farver"
 
 msgid "Dark"
 msgstr "Mørk"
@@ -396,6 +417,9 @@ msgstr "Hændelsesvisning"
 msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
 msgstr ""
 
+msgid "Every invoice, refund, and credit note across all accounts."
+msgstr ""
+
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr ""
 
@@ -406,6 +430,9 @@ msgid "Experimental UI"
 msgstr ""
 
 msgid "Expired"
+msgstr ""
+
+msgid "Expires"
 msgstr ""
 
 msgid "Failed"
@@ -423,14 +450,20 @@ msgstr ""
 msgid "Feature flags"
 msgstr "Feature flags"
 
+msgid "Feature flags are defined in code. This view controls their activation and rollout."
+msgstr "Feature flags er defineret i koden. Dette view styrer deres aktivering og udrulning."
+
 msgid "Filter by flag type"
-msgstr ""
+msgstr "Filtrér efter flag-type"
 
 msgid "Flag name"
-msgstr ""
+msgstr "Flagnavn"
 
 msgid "Free"
 msgstr "Gratis"
+
+msgid "Gated by subscription plan and recomputed when the plan changes. Configured only in code."
+msgstr "Begrænset af abonnementet og genberegnet når abonnementet ændres. Konfigureres kun i koden."
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
@@ -451,6 +484,9 @@ msgid "Invoice view"
 msgstr "Fakturavisning"
 
 msgid "Invoices"
+msgstr ""
+
+msgid "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
 msgstr ""
 
 msgid "IP address"
@@ -518,9 +554,6 @@ msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Hovednavigation"
-
-msgid "Manage feature flags across the platform."
-msgstr ""
 
 msgid "Manual override"
 msgstr ""
@@ -630,6 +663,12 @@ msgstr "Intet abonnement"
 msgid "No recent billing events"
 msgstr ""
 
+msgid "No recent logins"
+msgstr ""
+
+msgid "No recent payments"
+msgstr ""
+
 msgid "No recent signups"
 msgstr "Ingen nylige tilmeldinger"
 
@@ -687,6 +726,9 @@ msgstr "Åbn konto"
 msgid "Open credit note"
 msgstr "Åbn kreditnota"
 
+msgid "Open in Stripe"
+msgstr ""
+
 msgid "Open invoice"
 msgstr "Åbn faktura"
 
@@ -731,6 +773,9 @@ msgstr "Forfalden"
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
 
+msgid "Payment method"
+msgstr ""
+
 msgid "Payment method updated"
 msgstr ""
 
@@ -745,6 +790,12 @@ msgstr "Afventer"
 
 msgid "per month, billed monthly"
 msgstr "pr. måned, faktureres månedligt"
+
+msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
+msgstr "Tenant-flag. Ejere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
+
+msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
+msgstr "Bruger-flag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
 msgid "Period"
 msgstr "Periode"
@@ -766,6 +817,12 @@ msgstr ""
 
 msgid "Plan transition"
 msgstr ""
+
+msgid "Platform"
+msgstr ""
+
+msgid "Platform-wide capabilities set at deployment via environment variables. Configured only in code."
+msgstr "Platformomspændende funktioner sat ved udrulning via miljøvariabler. Konfigureres kun i koden."
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -789,6 +846,12 @@ msgid "Reactivated"
 msgstr ""
 
 msgid "Recent billing events"
+msgstr ""
+
+msgid "Recent logins"
+msgstr ""
+
+msgid "Recent payments"
 msgstr ""
 
 msgid "Recent signups"
@@ -1027,29 +1090,14 @@ msgstr "Subtotal"
 msgid "Succeeded"
 msgstr "Gennemført"
 
-msgid "Support"
-msgstr "Support"
-
-msgid "Support (coming soon)"
-msgstr "Support (kommer snart)"
+msgid "Successful logins will appear here as users sign in."
+msgstr ""
 
 msgid "Successful, pending, and failed invoices across all accounts."
 msgstr "Gennemførte, afventende og mislykkede fakturaer på tværs af alle konti."
 
 msgid "Suspended"
 msgstr "Suspenderet"
-
-msgid "Sync complete"
-msgstr ""
-
-msgid "Sync complete with drift detected"
-msgstr ""
-
-msgid "Sync with Stripe"
-msgstr ""
-
-msgid "Syncing..."
-msgstr ""
 
 msgid "System"
 msgstr "System"
@@ -1192,12 +1240,6 @@ msgstr ""
 
 msgid "vs prior period"
 msgstr "mod forrige periode"
-
-msgid "Wait list"
-msgstr "Venteliste"
-
-msgid "Wait list (coming soon)"
-msgstr "Venteliste (kommer snart)"
 
 msgid "When"
 msgstr "Hvornår"

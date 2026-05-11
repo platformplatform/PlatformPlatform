@@ -55,6 +55,7 @@ export default function FeatureFlagDetailPage() {
       <BackOfficeSideMenu />
       <SidebarInset>
         <AppLayout
+          variant="center"
           maxWidth="64rem"
           browserTitle={featureFlagName}
           title={

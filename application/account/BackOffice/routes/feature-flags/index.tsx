@@ -61,7 +61,12 @@ export default function FeatureFlagsPage() {
     <SidebarProvider>
       <BackOfficeSideMenu />
       <SidebarInset>
-        <AppLayout title={t`Feature flags`} subtitle={t`Manage feature flags across the platform.`} maxWidth="64rem">
+        <AppLayout
+          variant="center"
+          maxWidth="64rem"
+          title={t`Feature flags`}
+          subtitle={t`Feature flags are defined in code. This view controls their activation and rollout.`}
+        >
           {isLoading ? <FeatureFlagsSkeleton /> : <FeatureFlagGroupList groups={groups} />}
         </AppLayout>
       </SidebarInset>
@@ -83,6 +88,9 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
         return (
           <div key={group.groupKey} className="flex flex-col gap-2">
             <h3>{group.label}</h3>
+            <p className="text-sm text-muted-foreground">
+              <FeatureFlagGroupSubtitle groupKey={group.groupKey} />
+            </p>
             <Table rowSize="compact" aria-label={group.label}>
               <TableHeader>
                 <TableRow>
@@ -154,6 +162,21 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
       })}
     </div>
   );
+}
+
+function FeatureFlagGroupSubtitle({ groupKey }: Readonly<{ groupKey: FeatureFlagGroupKey }>) {
+  switch (groupKey) {
+    case "Tenant":
+      return <Trans>Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts.</Trans>;
+    case "Plan":
+      return <Trans>Gated by subscription plan and recomputed when the plan changes. Configured only in code.</Trans>;
+    case "User":
+      return <Trans>Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts.</Trans>;
+    case "System":
+      return (
+        <Trans>Platform-wide capabilities set at deployment via environment variables. Configured only in code.</Trans>
+      );
+  }
 }
 
 function FeatureFlagsSkeleton() {
