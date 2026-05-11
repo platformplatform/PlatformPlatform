@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
+using Account.Integrations.Stripe;
 
 namespace Account.Workers;
 
@@ -28,6 +29,16 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
         using var scope = serviceProvider.CreateScope();
         var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
         var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeClientFactory = scope.ServiceProvider.GetRequiredService<StripeClientFactory>();
+
+        // Skip the whole pass when Stripe is not configured for this environment. Without this guard
+        // every subscription with a stripe_customer_id would fail per-iteration inside
+        // ProcessPendingStripeEvents and log a warn + fail line on every worker start.
+        if (stripeClientFactory.GetClient() is UnconfiguredStripeClient)
+        {
+            logger.LogInformation("Billing drift worker skipped: Stripe is not configured.");
+            return;
+        }
 
         var dueSubscriptions = await subscriptionRepository.GetSubscriptionsDueForDriftCheckUnfilteredAsync(cutoff, cancellationToken);
         logger.LogInformation("Billing drift worker starting detect pass over {Count} subscriptions (staleness '{Staleness}')", dueSubscriptions.Length, staleness);
