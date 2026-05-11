@@ -20,6 +20,8 @@ import { AccountUsersTab } from "./-components/AccountUsersTab";
 
 type AccountDetailTab = "overview" | "users" | "invoices" | "billing-events";
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 const accountDetailSearchSchema = z.object({
   tab: z.enum(["overview", "users", "invoices", "billing-events"]).optional()
 });
@@ -34,7 +36,8 @@ function AccountDetailPage() {
   const { tenantId } = Route.useParams();
   const { tab } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const activeTab = tab ?? "overview";
+  const isBillingTab = tab === "invoices" || tab === "billing-events";
+  const activeTab = !isSubscriptionEnabled && isBillingTab ? "overview" : (tab ?? "overview");
 
   const setActiveTab = useCallback(
     (value: string) => {
@@ -71,40 +74,50 @@ function AccountDetailPage() {
                   <UsersIcon className="size-4" aria-hidden={true} />
                   <Trans>Users</Trans>
                 </TabsTrigger>
-                <TabsTrigger value="invoices">
-                  <ReceiptIcon className="size-4" aria-hidden={true} />
-                  <Trans>Invoices</Trans>
-                </TabsTrigger>
-                <TabsTrigger value="billing-events">
-                  <ActivityIcon className="size-4" aria-hidden={true} />
-                  <Trans>Billing events</Trans>
-                </TabsTrigger>
+                {isSubscriptionEnabled && (
+                  <TabsTrigger value="invoices">
+                    <ReceiptIcon className="size-4" aria-hidden={true} />
+                    <Trans>Invoices</Trans>
+                  </TabsTrigger>
+                )}
+                {isSubscriptionEnabled && (
+                  <TabsTrigger value="billing-events">
+                    <ActivityIcon className="size-4" aria-hidden={true} />
+                    <Trans>Billing events</Trans>
+                  </TabsTrigger>
+                )}
               </TabsList>
               <TabsContent value="overview" className="flex flex-col gap-6">
                 <AccountOverviewTab tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-                  <div className="flex flex-col lg:col-span-2">
-                    <AccountCurrentPlanCard tenant={tenant} isLoading={tenantQuery.isLoading} />
+                {isSubscriptionEnabled && (
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+                    <div className="flex flex-col lg:col-span-2">
+                      <AccountCurrentPlanCard tenant={tenant} isLoading={tenantQuery.isLoading} />
+                    </div>
+                    <div className="flex flex-col lg:col-span-3">
+                      <AccountBillingTab
+                        tenantId={tenantId}
+                        variant="compact-both"
+                        onViewAllInvoices={() => setActiveTab("invoices")}
+                        onViewAllEvents={() => setActiveTab("billing-events")}
+                      />
+                    </div>
                   </div>
-                  <div className="flex flex-col lg:col-span-3">
-                    <AccountBillingTab
-                      tenantId={tenantId}
-                      variant="compact-both"
-                      onViewAllInvoices={() => setActiveTab("invoices")}
-                      onViewAllEvents={() => setActiveTab("billing-events")}
-                    />
-                  </div>
-                </div>
+                )}
               </TabsContent>
               <TabsContent value="users">
                 <AccountUsersTab tenantId={tenantId} />
               </TabsContent>
-              <TabsContent value="invoices">
-                <AccountBillingTab tenantId={tenantId} variant="history-full" />
-              </TabsContent>
-              <TabsContent value="billing-events">
-                <AccountBillingTab tenantId={tenantId} variant="events-full" />
-              </TabsContent>
+              {isSubscriptionEnabled && (
+                <TabsContent value="invoices">
+                  <AccountBillingTab tenantId={tenantId} variant="history-full" />
+                </TabsContent>
+              )}
+              {isSubscriptionEnabled && (
+                <TabsContent value="billing-events">
+                  <AccountBillingTab tenantId={tenantId} variant="events-full" />
+                </TabsContent>
+              )}
             </Tabs>
           </div>
         </AppLayout>

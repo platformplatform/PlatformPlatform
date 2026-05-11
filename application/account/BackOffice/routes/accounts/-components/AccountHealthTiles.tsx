@@ -14,6 +14,8 @@ type AccountDetailTab = "users" | "invoices" | "billing-events";
 
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 interface AccountHealthTilesProps {
   tenant: TenantDetailResponse | undefined;
   tenantId: string;
@@ -71,41 +73,45 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
         )}
       </HealthTile>
 
-      <HealthTile
-        label={t`Lifetime value`}
-        loading={isLoading}
-        tenantId={tenantId}
-        tab="invoices"
-        subtitle={
-          tenant ? (
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarIcon className="size-3" aria-hidden={true} />
-              <Trans>Since {formatDate(tenant.createdAt)}</Trans>
-            </span>
-          ) : undefined
-        }
-      >
-        <span className="text-2xl font-semibold tabular-nums">
-          {tenant ? formatAmount(tenant.lifetimeValue, tenant.currency) : "-"}
-        </span>
-      </HealthTile>
+      {isSubscriptionEnabled && (
+        <HealthTile
+          label={t`Lifetime value`}
+          loading={isLoading}
+          tenantId={tenantId}
+          tab="invoices"
+          subtitle={
+            tenant ? (
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarIcon className="size-3" aria-hidden={true} />
+                <Trans>Since {formatDate(tenant.createdAt)}</Trans>
+              </span>
+            ) : undefined
+          }
+        >
+          <span className="text-2xl font-semibold tabular-nums">
+            {tenant ? formatAmount(tenant.lifetimeValue, tenant.currency) : "-"}
+          </span>
+        </HealthTile>
+      )}
 
-      <HealthTile
-        label={t`MRR`}
-        loading={isLoading}
-        tenantId={tenantId}
-        tab="billing-events"
-        subtitle={
-          tenant?.renewalDate ? (
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarIcon className="size-3" aria-hidden={true} />
-              <Trans>Renews {formatDate(tenant.renewalDate)}</Trans>
-            </span>
-          ) : undefined
-        }
-      >
-        <MrrAmount tenant={tenant} />
-      </HealthTile>
+      {isSubscriptionEnabled && (
+        <HealthTile
+          label={t`MRR`}
+          loading={isLoading}
+          tenantId={tenantId}
+          tab="billing-events"
+          subtitle={
+            tenant?.renewalDate ? (
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarIcon className="size-3" aria-hidden={true} />
+                <Trans>Renews {formatDate(tenant.renewalDate)}</Trans>
+              </span>
+            ) : undefined
+          }
+        >
+          <MrrAmount tenant={tenant} />
+        </HealthTile>
+      )}
     </div>
   );
 }

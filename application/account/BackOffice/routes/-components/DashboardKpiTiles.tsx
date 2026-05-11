@@ -12,6 +12,8 @@ interface DashboardKpiTilesProps {
   period: DashboardTrendPeriod;
 }
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) {
   const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/kpis", {
     params: { query: { Period: period } }
@@ -36,19 +38,21 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
         to="/accounts"
       />
 
-      <KpiTile
-        label={t`Blended MRR`}
-        icon={CoinsIcon}
-        value={data && data.currency ? formatCurrency(data.blendedMonthlyRecurringRevenue, data.currency) : undefined}
-        loading={isLoading}
-        subtitle={
-          data && data.blendedMonthlyRecurringRevenueDeltaPercent !== null ? (
-            <DeltaSubtitle deltaPercent={data.blendedMonthlyRecurringRevenueDeltaPercent} />
-          ) : undefined
-        }
-        to="/accounts"
-        search={{ statuses: [TenantStatusFilter.Active, TenantStatusFilter.Downgrading] }}
-      />
+      {isSubscriptionEnabled && (
+        <KpiTile
+          label={t`Blended MRR`}
+          icon={CoinsIcon}
+          value={data && data.currency ? formatCurrency(data.blendedMonthlyRecurringRevenue, data.currency) : undefined}
+          loading={isLoading}
+          subtitle={
+            data && data.blendedMonthlyRecurringRevenueDeltaPercent !== null ? (
+              <DeltaSubtitle deltaPercent={data.blendedMonthlyRecurringRevenueDeltaPercent} />
+            ) : undefined
+          }
+          to="/accounts"
+          search={{ statuses: [TenantStatusFilter.Active, TenantStatusFilter.Downgrading] }}
+        />
+      )}
 
       <KpiTile
         label={t`Users active`}

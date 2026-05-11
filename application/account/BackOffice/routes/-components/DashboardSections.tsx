@@ -13,6 +13,8 @@ import { DashboardRecentStripeEventsCard } from "./DashboardRecentStripeEventsCa
 import { DashboardTenantGrowthCard } from "./DashboardTenantGrowthCard";
 import { DashboardUserLoginsCard } from "./DashboardUserLoginsCard";
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 export function DashboardSections() {
   const [period, setPeriod] = useState<DashboardTrendPeriod>(DashboardTrendPeriod.Last30Days);
 
@@ -20,10 +22,12 @@ export function DashboardSections() {
     <div className="flex flex-col gap-4">
       <DashboardHeader period={period} onPeriodChange={setPeriod} />
       <DashboardKpiTiles period={period} />
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DashboardMrrTrendCard period={period} />
-        <DashboardPlanDistributionCard />
-      </div>
+      {isSubscriptionEnabled && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <DashboardMrrTrendCard period={period} />
+          <DashboardPlanDistributionCard />
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardTenantGrowthCard period={period} />
         <DashboardUserLoginsCard period={period} />
@@ -32,10 +36,12 @@ export function DashboardSections() {
         <DashboardRecentSignupsCard />
         <DashboardRecentLoginsCard />
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DashboardRecentPaymentsCard />
-        <DashboardRecentStripeEventsCard />
-      </div>
+      {isSubscriptionEnabled && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <DashboardRecentPaymentsCard />
+          <DashboardRecentStripeEventsCard />
+        </div>
+      )}
     </div>
   );
 }

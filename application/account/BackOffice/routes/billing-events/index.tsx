@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
@@ -26,6 +27,7 @@ const billingEventsSearchSchema = z.object({
 export const Route = createFileRoute("/billing-events/")({
   staticData: { trackingTitle: "Billing events" },
   validateSearch: billingEventsSearchSchema,
+  beforeLoad: () => requireSubscriptionEnabled(),
   component: BillingEventsListPage
 });
 

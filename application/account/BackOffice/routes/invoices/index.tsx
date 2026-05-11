@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
@@ -31,6 +32,7 @@ const invoicesSearchSchema = z.object({
 export const Route = createFileRoute("/invoices/")({
   staticData: { trackingTitle: "Invoices" },
   validateSearch: invoicesSearchSchema,
+  beforeLoad: () => requireSubscriptionEnabled(),
   component: InvoicesListPage
 });
 

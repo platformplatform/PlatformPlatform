@@ -114,6 +114,10 @@ var accountApi = builder
     .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
     .WithEnvironment("Stripe__PublishableKey", stripePublishableKey)
     .WithEnvironment("Stripe__AllowMockProvider", "true")
+    .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
+    // Force-on so newcomers see the back-office billing UI without Stripe configured. Set to "false" (or
+    // change back to `stripeFullyConfigured ? "true" : "false"`) to hide all billing/revenue/Stripe data.
+    .WithEnvironment("PUBLIC_SUBSCRIPTION_ENABLED", "true")
     .WaitFor(accountWorkers);
 
 var mainDatabase = postgres

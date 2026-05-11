@@ -19,6 +19,8 @@ import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
 const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 export function BackOfficeSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
@@ -73,35 +75,37 @@ export function BackOfficeSideMenu() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              <Trans>Billing</Trans>
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild={true} isActive={isInvoicesActive} tooltip={t`Invoices`}>
-                    <RouterLink to="/invoices">
-                      <ReceiptIcon />
-                      <span>
-                        <Trans>Invoices</Trans>
-                      </span>
-                    </RouterLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild={true} isActive={isBillingEventsActive} tooltip={t`Billing events`}>
-                    <RouterLink to="/billing-events">
-                      <ZapIcon />
-                      <span>
-                        <Trans>Billing events</Trans>
-                      </span>
-                    </RouterLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {isSubscriptionEnabled && (
+            <SidebarGroup>
+              <SidebarGroupLabel>
+                <Trans>Billing</Trans>
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isInvoicesActive} tooltip={t`Invoices`}>
+                      <RouterLink to="/invoices">
+                        <ReceiptIcon />
+                        <span>
+                          <Trans>Invoices</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isBillingEventsActive} tooltip={t`Billing events`}>
+                      <RouterLink to="/billing-events">
+                        <ZapIcon />
+                        <span>
+                          <Trans>Billing events</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
         </SidebarContent>
       </nav>
       <SidebarRail />
