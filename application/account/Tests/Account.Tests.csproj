@@ -13,6 +13,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Api\Account.Api.csproj"/>
+        <ProjectReference Include="..\Workers\Account.Workers.csproj">
+            <Aliases>workers</Aliases>
+        </ProjectReference>
         <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj"/>
     </ItemGroup>
 
