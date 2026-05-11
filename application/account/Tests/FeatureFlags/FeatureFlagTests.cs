@@ -956,7 +956,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange - tenant-1 gets a manual enable for `sso`; all other tenants remain disabled by default
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        InsertTenantOverride(flagKey, tenantId, enabled: true);
+        InsertTenantOverride(flagKey, tenantId, true);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?State=Enabled");
@@ -975,7 +975,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        InsertTenantOverride(flagKey, tenantId, enabled: true);
+        InsertTenantOverride(flagKey, tenantId, true);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?State=Disabled");
@@ -994,7 +994,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Arrange - tenant-1 gets enabled, then ask without State (omitted = no filter)
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        InsertTenantOverride(flagKey, tenantId, enabled: true);
+        InsertTenantOverride(flagKey, tenantId, true);
 
         // Act
         var omittedResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
@@ -1087,7 +1087,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        InsertUserOverride(flagKey, tenantId, userId, enabled: true);
+        InsertUserOverride(flagKey, tenantId, userId, true);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?State=Enabled");
@@ -1107,7 +1107,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        InsertUserOverride(flagKey, tenantId, userId, enabled: true);
+        InsertUserOverride(flagKey, tenantId, userId, true);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?State=Disabled");
@@ -1150,6 +1150,170 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    // HasOverride filter tests
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenHasOverrideOmitted_ShouldNotFilterByOverride()
+    {
+        // Arrange - seed an override so the dataset contains both override and non-override rows (Source: "manual_override" + "default")
+        var flagKey = "sso";
+        InsertTenantOverride(flagKey, DatabaseSeeder.Tenant1.Id, true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().Contain(t => t.Source == "manual_override");
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenHasOverrideTrue_ShouldReturnOnlyTenantsWithManualOverride()
+    {
+        // Arrange
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertTenantOverride(flagKey, tenantId, true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?HasOverride=true");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().OnlyContain(t => t.Source == "manual_override");
+        result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenHasOverrideTrueAndStateDisabled_ShouldReturnDisabledOverrides()
+    {
+        // Arrange - tenant-1 has a disabling manual override; no other tenants have manual overrides
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertTenantOverride(flagKey, tenantId, false);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?HasOverride=true&State=Disabled");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().OnlyContain(t => t.Source == "manual_override" && !t.IsEnabled);
+        result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenHasOverrideTrueAndNoTenantHasOverride_ShouldReturnEmpty()
+    {
+        // Arrange
+        var flagKey = "sso";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?HasOverride=true");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenHasOverrideTrueOnAbRolloutFlag_ShouldExcludeAbRolloutAndDefaultRows()
+    {
+        // Arrange - beta-features is A/B-eligible. Configure a 100% rollout so every tenant evaluates as "ab_rollout",
+        // then add a manual override for tenant-1. HasOverride=true should keep only tenant-1.
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [
+                ("bucket_start", 0),
+                ("bucket_end", 99)
+            ]
+        );
+        InsertTenantOverride(flagKey, tenantId, true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants?HasOverride=true");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().OnlyContain(t => t.Source == "manual_override");
+        result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenHasOverrideOmitted_ShouldNotFilterByOverride()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        InsertUserOverride(flagKey, DatabaseSeeder.Tenant1.Id, userId, true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().Contain(u => u.Source == "manual_override");
+        result.Users.Should().Contain(u => u.Source == "default");
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenHasOverrideTrue_ShouldReturnOnlyUsersWithManualOverride()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        InsertUserOverride(flagKey, DatabaseSeeder.Tenant1.Id, userId, true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?HasOverride=true");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().OnlyContain(u => u.Source == "manual_override");
+        result.Users.Should().Contain(u => u.Id.Value == userId);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenHasOverrideTrueAndRoleFiltered_ShouldReturnOnlyMatchingUsersWithOverride()
+    {
+        // Arrange - only the owner gets the override; member gets none
+        var flagKey = "compact-view";
+        var ownerId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        InsertUserOverride(flagKey, DatabaseSeeder.Tenant1.Id, ownerId, true);
+
+        // Act
+        var matchResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?HasOverride=true&Roles=Owner");
+        var noMatchResponse = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?HasOverride=true&Roles=Member");
+
+        // Assert
+        matchResponse.ShouldBeSuccessfulGetRequest();
+        noMatchResponse.ShouldBeSuccessfulGetRequest();
+        var matchResult = await matchResponse.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        var noMatchResult = await noMatchResponse.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        matchResult.Should().NotBeNull();
+        noMatchResult.Should().NotBeNull();
+        matchResult.Users.Should().OnlyContain(u => u.Source == "manual_override" && u.Role == UserRole.Owner);
+        matchResult.Users.Should().Contain(u => u.Id.Value == ownerId);
+        noMatchResult.Users.Should().BeEmpty();
     }
 
     private void InsertTenantOverride(string flagKey, TenantId tenantId, bool enabled)

@@ -26,6 +26,7 @@ interface UserOverridesSectionProps {
   search: string | undefined;
   roles: UserRole[];
   state: StateFilter | undefined;
+  hasOverride: boolean;
   pageOffset: number | undefined;
 }
 
@@ -37,6 +38,7 @@ export function UserOverridesSection({
   search,
   roles,
   state,
+  hasOverride,
   pageOffset
 }: Readonly<UserOverridesSectionProps>) {
   const navigate = useNavigate();
@@ -51,6 +53,7 @@ export function UserOverridesSection({
           Search: search,
           Roles: roles.length === 0 ? undefined : roles,
           State: toApiState(state),
+          HasOverride: hasOverride ? true : undefined,
           PageOffset: pageOffset
         }
       }
@@ -62,7 +65,7 @@ export function UserOverridesSection({
   const totalPages = data?.totalPages ?? 0;
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
   const effectiveState = state ?? DEFAULT_STATE_FILTER;
-  const hasFilters = Boolean(search) || roles.length > 0 || effectiveState !== DEFAULT_STATE_FILTER;
+  const hasFilters = Boolean(search) || roles.length > 0 || effectiveState !== DEFAULT_STATE_FILTER || hasOverride;
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -95,7 +98,13 @@ export function UserOverridesSection({
           )}
         </p>
       </div>
-      <FeatureFlagUsersToolbar flagKey={flagKey} search={search} roles={roles} state={state} />
+      <FeatureFlagUsersToolbar
+        flagKey={flagKey}
+        search={search}
+        roles={roles}
+        state={state}
+        hasOverride={hasOverride}
+      />
       {isLoading && users.length === 0 ? (
         <UserOverridesSkeleton />
       ) : users.length === 0 ? (

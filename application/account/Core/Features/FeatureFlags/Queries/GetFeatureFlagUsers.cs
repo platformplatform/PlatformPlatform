@@ -18,6 +18,7 @@ public sealed record GetFeatureFlagUsersQuery(
     string? Search = null,
     UserRole[]? Roles = null,
     FeatureFlagAudienceState? State = null,
+    bool? HasOverride = null,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<GetFeatureFlagUsersResponse>>
@@ -114,22 +115,27 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
             }
         ).ToArray();
 
-        // featureFlagUsers is already name-ascending from SearchAllUsersUnfilteredAsync; state filtering preserves order.
-        var ordered = query.State switch
+        // featureFlagUsers is already name-ascending from SearchAllUsersUnfilteredAsync; subsequent filters preserve order.
+        var filtered = query.State switch
         {
             FeatureFlagAudienceState.Enabled => featureFlagUsers.Where(u => u.IsEnabled).ToArray(),
             FeatureFlagAudienceState.Disabled => featureFlagUsers.Where(u => !u.IsEnabled).ToArray(),
             _ => featureFlagUsers
         };
 
-        var totalCount = ordered.Length;
+        if (query.HasOverride == true)
+        {
+            filtered = filtered.Where(u => u.Source == "manual_override").ToArray();
+        }
+
+        var totalCount = filtered.Length;
         var totalPages = totalCount == 0 ? 0 : (totalCount - 1) / query.PageSize + 1;
         if (query.PageOffset > 0 && query.PageOffset >= totalPages)
         {
             return Result<GetFeatureFlagUsersResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
         }
 
-        var paged = ordered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
+        var paged = filtered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
 
         return new GetFeatureFlagUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
     }

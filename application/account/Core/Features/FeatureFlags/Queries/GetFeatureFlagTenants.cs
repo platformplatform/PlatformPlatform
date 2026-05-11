@@ -17,6 +17,7 @@ public sealed record GetFeatureFlagTenantsQuery(
     string? Search = null,
     SubscriptionPlan[]? Plans = null,
     FeatureFlagAudienceState? State = null,
+    bool? HasOverride = null,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<GetFeatureFlagTenantsResponse>>
@@ -138,6 +139,11 @@ public sealed class GetFeatureFlagTenantsHandler(
             FeatureFlagAudienceState.Disabled => featureFlagTenants.Where(t => !t.IsEnabled).ToArray(),
             _ => featureFlagTenants
         };
+
+        if (query.HasOverride == true)
+        {
+            filtered = filtered.Where(t => t.Source == "manual_override").ToArray();
+        }
 
         var ordered = filtered.OrderBy(t => t.Name).ToArray();
 

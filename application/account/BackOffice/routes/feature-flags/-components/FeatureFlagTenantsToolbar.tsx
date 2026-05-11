@@ -12,16 +12,25 @@ import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 import type { StateFilter } from "./stateFilter";
 
-import { DEFAULT_STATE_FILTER, fromToggleValues, toToggleValues } from "./stateFilter";
+import { ALL_STATE_FILTER, DEFAULT_STATE_FILTER } from "./stateFilter";
 
 interface FeatureFlagTenantsToolbarProps {
   flagKey: string;
   search: string | undefined;
   plans: SubscriptionPlan[];
   state: StateFilter | undefined;
+  hasOverride: boolean;
 }
 
-export function FeatureFlagTenantsToolbar({ flagKey, search, plans, state }: Readonly<FeatureFlagTenantsToolbarProps>) {
+const HAS_OVERRIDE_VALUE = "true";
+
+export function FeatureFlagTenantsToolbar({
+  flagKey,
+  search,
+  plans,
+  state,
+  hasOverride
+}: Readonly<FeatureFlagTenantsToolbarProps>) {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(search ?? "");
   const debouncedSearch = useDebounce(searchInput, 500);
@@ -46,13 +55,27 @@ export function FeatureFlagTenantsToolbar({ flagKey, search, plans, state }: Rea
   }, [search]);
 
   const handleStateChange = (values: string[]) => {
-    const next = fromToggleValues(values);
+    // Single-select with multi-select "last item wins" — keep the most recently clicked chip pressed.
+    // Clicking the already-pressed chip would otherwise deselect to []; default back to Enabled so one chip is always on.
+    const next = (values[values.length - 1] as StateFilter | undefined) ?? DEFAULT_STATE_FILTER;
     navigate({
       to: "/feature-flags/$flagKey",
       params: { flagKey },
       search: (previous) => ({
         ...previous,
         tenantsState: next === DEFAULT_STATE_FILTER ? undefined : next,
+        tenantsPageOffset: undefined
+      })
+    });
+  };
+
+  const handleHasOverrideChange = (values: string[]) => {
+    navigate({
+      to: "/feature-flags/$flagKey",
+      params: { flagKey },
+      search: (previous) => ({
+        ...previous,
+        tenantsHasOverride: values.length > 0 ? true : undefined,
         tenantsPageOffset: undefined
       })
     });
@@ -101,14 +124,29 @@ export function FeatureFlagTenantsToolbar({ flagKey, search, plans, state }: Rea
         variant="outline"
         aria-label={t`State`}
         multiple={true}
-        value={toToggleValues(state)}
+        value={[state ?? DEFAULT_STATE_FILTER]}
         onValueChange={handleStateChange}
       >
+        <ToggleGroupItem value={ALL_STATE_FILTER} className="min-w-[5rem] justify-center">
+          <Trans>All</Trans>
+        </ToggleGroupItem>
         <ToggleGroupItem value={FeatureFlagAudienceState.Enabled} className="min-w-[5rem] justify-center">
           <Trans>Enabled</Trans>
         </ToggleGroupItem>
         <ToggleGroupItem value={FeatureFlagAudienceState.Disabled} className="min-w-[5rem] justify-center">
           <Trans>Disabled</Trans>
+        </ToggleGroupItem>
+      </ToggleGroup>
+
+      <ToggleGroup
+        variant="outline"
+        aria-label={t`Override`}
+        multiple={true}
+        value={hasOverride ? [HAS_OVERRIDE_VALUE] : []}
+        onValueChange={handleHasOverrideChange}
+      >
+        <ToggleGroupItem value={HAS_OVERRIDE_VALUE} className="min-w-[5rem] justify-center">
+          <Trans>Has override</Trans>
         </ToggleGroupItem>
       </ToggleGroup>
 

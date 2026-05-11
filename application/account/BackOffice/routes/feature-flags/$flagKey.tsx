@@ -29,10 +29,12 @@ const flagKeySearchSchema = z.object({
   tenantsSearch: z.string().optional(),
   tenantsPlans: z.array(z.nativeEnum(SubscriptionPlan)).max(10).optional(),
   tenantsState: stateFilterSchema.optional(),
+  tenantsHasOverride: z.boolean().optional(),
   tenantsPageOffset: z.number().int().nonnegative().optional(),
   usersSearch: z.string().optional(),
   usersRoles: z.array(z.nativeEnum(UserRole)).max(10).optional(),
   usersState: stateFilterSchema.optional(),
+  usersHasOverride: z.boolean().optional(),
   usersPageOffset: z.number().int().nonnegative().optional()
 });
 
@@ -48,10 +50,12 @@ export default function FeatureFlagDetailPage() {
     tenantsSearch,
     tenantsPlans,
     tenantsState,
+    tenantsHasOverride,
     tenantsPageOffset,
     usersSearch,
     usersRoles,
     usersState,
+    usersHasOverride,
     usersPageOffset
   } = Route.useSearch();
 
@@ -107,6 +111,7 @@ export default function FeatureFlagDetailPage() {
                   search={tenantsSearch}
                   plans={tenantsPlans ?? []}
                   state={tenantsState}
+                  hasOverride={tenantsHasOverride ?? false}
                   pageOffset={tenantsPageOffset}
                 />
               )}
@@ -122,6 +127,7 @@ export default function FeatureFlagDetailPage() {
                   search={usersSearch}
                   roles={usersRoles ?? []}
                   state={usersState}
+                  hasOverride={usersHasOverride ?? false}
                   pageOffset={usersPageOffset}
                 />
               )}

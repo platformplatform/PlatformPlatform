@@ -462,6 +462,9 @@ msgstr "Google"
 msgid "Google OAuth"
 msgstr "Google OAuth"
 
+msgid "Has override"
+msgstr "Med tilsidesættelse"
+
 msgid "Hide details"
 msgstr "Skjul detaljer"
 

@@ -26,6 +26,7 @@ interface TenantOverridesSectionProps {
   search: string | undefined;
   plans: SubscriptionPlan[];
   state: StateFilter | undefined;
+  hasOverride: boolean;
   pageOffset: number | undefined;
 }
 
@@ -37,6 +38,7 @@ export function TenantOverridesSection({
   search,
   plans,
   state,
+  hasOverride,
   pageOffset
 }: Readonly<TenantOverridesSectionProps>) {
   const navigate = useNavigate();
@@ -51,6 +53,7 @@ export function TenantOverridesSection({
           Search: search,
           Plans: plans.length === 0 ? undefined : plans,
           State: toApiState(state),
+          HasOverride: hasOverride ? true : undefined,
           PageOffset: pageOffset
         }
       }
@@ -62,7 +65,7 @@ export function TenantOverridesSection({
   const totalPages = data?.totalPages ?? 0;
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
   const effectiveState = state ?? DEFAULT_STATE_FILTER;
-  const hasFilters = Boolean(search) || plans.length > 0 || effectiveState !== DEFAULT_STATE_FILTER;
+  const hasFilters = Boolean(search) || plans.length > 0 || effectiveState !== DEFAULT_STATE_FILTER || hasOverride;
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -95,7 +98,13 @@ export function TenantOverridesSection({
           )}
         </p>
       </div>
-      <FeatureFlagTenantsToolbar flagKey={flagKey} search={search} plans={plans} state={state} />
+      <FeatureFlagTenantsToolbar
+        flagKey={flagKey}
+        search={search}
+        plans={plans}
+        state={state}
+        hasOverride={hasOverride}
+      />
       {isLoading && tenants.length === 0 ? (
         <TenantOverridesSkeleton />
       ) : tenants.length === 0 ? (
