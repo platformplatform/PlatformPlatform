@@ -1,8 +1,10 @@
 using Account.Features.FeatureFlags.Domain;
+using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
+using Mapster;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
@@ -21,12 +23,21 @@ public sealed record GetFeatureFlagUsersQuery : IRequest<Result<GetFeatureFlagUs
 [PublicAPI]
 public sealed record GetFeatureFlagUsersResponse(FeatureFlagUserInfo[] Users);
 
+// Field names mirror the User aggregate so Mapster's convention-based mapping covers the user subset. Tenant-derived
+// fields (TenantName, TenantPlan) and override fields (RolloutBucket, IsEnabled, Source) are applied via `with`.
 [PublicAPI]
 public sealed record FeatureFlagUserInfo(
-    UserId UserId,
+    UserId Id,
     TenantId TenantId,
     string Email,
+    string? FirstName,
+    string? LastName,
+    string? AvatarUrl,
+    UserRole Role,
+    DateTimeOffset? LastSeenAt,
+    DateTimeOffset CreatedAt,
     string TenantName,
+    SubscriptionPlan TenantPlan,
     int RolloutBucket,
     bool IsEnabled,
     string Source
@@ -67,24 +78,42 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
 
         var featureFlagUsers = users.Select(user =>
             {
-                var tenantName = tenantsById.TryGetValue(user.TenantId, out var tenant) ? tenant.Name : "Unknown";
+                tenantsById.TryGetValue(user.TenantId, out var tenant);
+                var (isEnabled, source) = EvaluateOverride(definition, baseRow, overridesByUserId, user);
 
-                if (overridesByUserId.TryGetValue(user.Id.Value, out var userOverride))
+                return user.Adapt<FeatureFlagUserInfo>() with
                 {
-                    var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
-                    return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isEnabled, "manual_override");
-                }
-
-                if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
-                {
-                    var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-                    return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isInRange, "ab_rollout");
-                }
-
-                return new FeatureFlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, false, "default");
+                    AvatarUrl = user.Avatar.Url,
+                    TenantName = tenant?.Name ?? "Unknown",
+                    TenantPlan = tenant?.Plan ?? SubscriptionPlan.Basis,
+                    IsEnabled = isEnabled,
+                    Source = source
+                };
             }
         ).ToArray();
 
         return new GetFeatureFlagUsersResponse(featureFlagUsers);
+    }
+
+    private static (bool IsEnabled, string Source) EvaluateOverride(
+        FeatureFlagDefinition definition,
+        FeatureFlag? baseRow,
+        Dictionary<string, FeatureFlag> overridesByUserId,
+        User user
+    )
+    {
+        if (overridesByUserId.TryGetValue(user.Id.Value, out var userOverride))
+        {
+            var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
+            return (isEnabled, "manual_override");
+        }
+
+        if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
+        {
+            var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return (isInRange, "ab_rollout");
+        }
+
+        return (false, "default");
     }
 }

@@ -15,9 +15,9 @@ public sealed record RemoveUserFeatureFlagOverrideCommand : ICommand, IRequest<R
     [JsonIgnore] // Removes from API contract
     public string FlagKey { get; init; } = null!;
 
-    public required string UserId { get; init; }
+    public required UserId UserId { get; init; }
 
-    public required long TenantId { get; init; }
+    public required TenantId TenantId { get; init; }
 }
 
 public sealed class RemoveUserFeatureFlagOverrideValidator : AbstractValidator<RemoveUserFeatureFlagOverrideCommand>
@@ -36,19 +36,19 @@ public sealed class RemoveUserFeatureFlagOverrideHandler(IFeatureFlagRepository 
 {
     public async Task<Result> Handle(RemoveUserFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
-        var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
+        var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, command.UserId.Value, cancellationToken);
         if (userOverride is null) return Result.NotFound($"No user override found for flag '{command.FlagKey}' and user '{command.UserId}'.");
 
         featureFlagRepository.Remove(userOverride);
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
         if (tenant is not null)
         {
             tenant.IncrementFeatureFlagVersion();
             tenantRepository.Update(tenant);
         }
 
-        events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId));
+        events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId.Value));
 
         return Result.Success();
     }

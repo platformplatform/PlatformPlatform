@@ -233,7 +233,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("tenant_id", tenantId.Value),
                 ("user_id", null),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
@@ -391,7 +391,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var flagKey = "compact-view";
-        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = true };
 
@@ -403,7 +403,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         var rowCount = Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
-            [new { flagKey, userId }]
+            [new { flagKey, userId = userId.Value }]
         );
         rowCount.Should().Be(1);
 
@@ -425,7 +425,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("tenant_id", tenantId.Value),
                 ("user_id", userId),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
@@ -515,7 +515,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("tenant_id", tenantId.Value),
                 ("user_id", userId),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
@@ -535,7 +535,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Should().NotBeEmpty();
-        var userResult = result.Users.Single(u => u.UserId.Value == userId);
+        var userResult = result.Users.Single(u => u.Id.Value == userId);
         userResult.IsEnabled.Should().BeTrue();
         userResult.Source.Should().Be("manual_override");
         userResult.Email.Should().NotBe("Unknown");
@@ -765,7 +765,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("tenant_id", tenantId.Value),
                 ("user_id", null),
                 ("enabled_at", TimeProvider.GetUtcNow()),
                 ("disabled_at", null),
@@ -784,7 +784,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
-        var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
+        var tenantResult = result.Tenants.Single(t => t.Id.Value == tenantId);
         tenantResult.IsEnabled.Should().BeTrue();
         tenantResult.Source.Should().Be("manual_override");
     }
@@ -840,7 +840,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
                 ("flag_key", flagKey),
-                ("tenant_id", tenantId),
+                ("tenant_id", tenantId.Value),
                 ("user_id", null),
                 ("enabled_at", null),
                 ("disabled_at", TimeProvider.GetUtcNow()),
@@ -859,7 +859,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
-        var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
+        var tenantResult = result.Tenants.Single(t => t.Id.Value == tenantId);
         tenantResult.IsEnabled.Should().BeFalse();
         tenantResult.Source.Should().Be("manual_override");
     }
@@ -997,7 +997,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
 
         // Act
@@ -1007,7 +1007,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1019,7 +1019,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
 
         // Act
@@ -1029,7 +1029,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1041,7 +1041,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
@@ -1052,7 +1052,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1064,7 +1064,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "custom-branding";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
@@ -1075,7 +1075,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1087,7 +1087,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "compact-view";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetUserFeatureFlagCommand { Enabled = true };
 
@@ -1098,7 +1098,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }
@@ -1110,7 +1110,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
@@ -1121,7 +1121,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
         );
         updatedVersion.Should().Be(originalVersion + 1);
     }

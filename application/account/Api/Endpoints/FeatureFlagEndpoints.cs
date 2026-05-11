@@ -50,7 +50,7 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(command with { FlagKey = flagKey })
         ).DisableAntiforgery();
 
-        internalGroup.MapDelete("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, string userId, long tenantId, IMediator mediator)
+        internalGroup.MapDelete("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, UserId userId, TenantId tenantId, IMediator mediator)
             => await mediator.Send(new RemoveUserFeatureFlagOverrideCommand { FlagKey = flagKey, UserId = userId, TenantId = tenantId })
         ).DisableAntiforgery();
 

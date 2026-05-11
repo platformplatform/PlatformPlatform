@@ -48,7 +48,42 @@ public sealed record TenantSummary(
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
     TenantOwnerSummary? Owner
-);
+)
+{
+    // Shared factory used by every back-office view that renders the rich tenant row (accounts list + feature-flag
+    // override views). Keeping construction co-located with the record avoids drift between call sites.
+    public static TenantSummary FromAggregate(Tenant tenant, Subscription? subscription, User? owner)
+    {
+        var plannedChange = subscription switch
+        {
+            { CancelAtPeriodEnd: true } => PlannedSubscriptionChange.Cancellation,
+            { ScheduledPlan: not null } => PlannedSubscriptionChange.ScheduledPlanChange,
+            _ => (PlannedSubscriptionChange?)null
+        };
+
+        // Refunded counts as "ever subscribed" — money flowed in before being credited back, so the tenant did pay at
+        // some point. Distinguishes a refunded customer (Canceled) from never having paid at all (Free).
+        var hasEverSubscribed = subscription?.PaymentTransactions
+            .Any(transaction => transaction.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
+
+        return new TenantSummary(
+            tenant.Id,
+            tenant.Name,
+            tenant.Logo.Url,
+            tenant.Plan,
+            subscription?.CurrentPriceAmount,
+            subscription?.ScheduledPriceAmount,
+            subscription?.CurrentPriceCurrency,
+            subscription?.CurrentPeriodEnd,
+            plannedChange,
+            hasEverSubscribed,
+            subscription?.BillingInfo?.Address?.Country,
+            tenant.CreatedAt,
+            tenant.ModifiedAt,
+            owner is null ? null : new TenantOwnerSummary(owner.Id, owner.FirstName, owner.LastName, owner.Email)
+        );
+    }
+}
 
 [PublicAPI]
 public sealed record TenantOwnerSummary(UserId UserId, string? FirstName, string? LastName, string Email);
@@ -136,7 +171,7 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             ? new Dictionary<TenantId, User>()
             : await userRepository.GetFirstOwnerByTenantIdsUnfilteredAsync(tenants.Select(t => t.Id).ToArray(), cancellationToken);
 
-        var summaries = tenants.Select(tenant => MapTenantSummary(
+        var summaries = tenants.Select(tenant => TenantSummary.FromAggregate(
                 tenant,
                 subscriptionsByTenantId.GetValueOrDefault(tenant.Id),
                 ownerByTenantId.GetValueOrDefault(tenant.Id)
@@ -205,38 +240,5 @@ public sealed class GetTenantsHandler(ITenantRepository tenantRepository, ISubsc
             { HasEverSubscribed: true } => TenantStatusFilter.Canceled,
             _ => TenantStatusFilter.Free
         };
-    }
-
-    private static TenantSummary MapTenantSummary(Tenant tenant, Subscription? subscription, User? owner)
-    {
-        var plannedChange = subscription switch
-        {
-            { CancelAtPeriodEnd: true } => PlannedSubscriptionChange.Cancellation,
-            { ScheduledPlan: not null } => PlannedSubscriptionChange.ScheduledPlanChange,
-            _ => (PlannedSubscriptionChange?)null
-        };
-
-        // Refunded counts as "ever subscribed" — money flowed in before being credited back, so the
-        // tenant did pay at some point. Distinguishes a refunded customer (Canceled) from never having
-        // paid at all (Free).
-        var hasEverSubscribed = subscription?.PaymentTransactions
-            .Any(transaction => transaction.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
-
-        return new TenantSummary(
-            tenant.Id,
-            tenant.Name,
-            tenant.Logo.Url,
-            tenant.Plan,
-            subscription?.CurrentPriceAmount,
-            subscription?.ScheduledPriceAmount,
-            subscription?.CurrentPriceCurrency,
-            subscription?.CurrentPeriodEnd,
-            plannedChange,
-            hasEverSubscribed,
-            subscription?.BillingInfo?.Address?.Country,
-            tenant.CreatedAt,
-            tenant.ModifiedAt,
-            owner is null ? null : new TenantOwnerSummary(owner.Id, owner.FirstName, owner.LastName, owner.Email)
-        );
     }
 }

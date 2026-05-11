@@ -1,3 +1,4 @@
+using Account.Features.FeatureFlags.Queries;
 using Account.Features.Tenants.BackOffice.Commands;
 using Account.Features.Tenants.BackOffice.Queries;
 using Microsoft.Extensions.Options;
@@ -47,6 +48,10 @@ public sealed class TenantsEndpoints : IEndpoints
         group.MapGet("/{id}/payment-history", async Task<ApiResult<TenantPaymentHistoryResponse>> (TenantId id, [AsParameters] GetTenantPaymentHistoryQuery query, IMediator mediator)
             => await mediator.Send(query with { Id = id })
         ).Produces<TenantPaymentHistoryResponse>();
+
+        group.MapGet("/{id}/feature-flags", async Task<ApiResult<GetTenantFeatureFlagsResponse>> (TenantId id, IMediator mediator)
+            => await mediator.Send(new GetTenantFeatureFlagsQuery { TenantId = id })
+        ).Produces<GetTenantFeatureFlagsResponse>();
 
         group.MapPost("/{id}/reconcile-with-stripe", async Task<ApiResult<ReconcileTenantWithStripeResponse>> (TenantId id, IMediator mediator)
             => await mediator.Send(new ReconcileTenantWithStripeCommand { TenantId = id })

@@ -4,7 +4,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/Tabs";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2Icon, KeyIcon, MonitorIcon } from "lucide-react";
+import { Building2Icon, FlagIcon, KeyIcon, MonitorIcon } from "lucide-react";
 import { useCallback } from "react";
 import { z } from "zod";
 
@@ -14,14 +14,15 @@ import { api } from "@/shared/lib/api/client";
 import { UserActivityTiles } from "./-components/UserActivityTiles";
 import { UserDetailHeader } from "./-components/UserDetailHeader";
 import { getUserDisplayName } from "./-components/userDisplay";
+import { UserFeatureFlagsSection } from "./-components/UserFeatureFlagsSection";
 import { UserLoginHistorySection } from "./-components/UserLoginHistorySection";
 import { UserSessionsSection } from "./-components/UserSessionsSection";
 import { UserTenantsSection } from "./-components/UserTenantsSection";
 
-type UserDetailTab = "overview" | "sessions" | "logins";
+type UserDetailTab = "overview" | "sessions" | "logins" | "feature-flags";
 
 const userDetailSearchSchema = z.object({
-  tab: z.enum(["overview", "sessions", "logins"]).optional()
+  tab: z.enum(["overview", "sessions", "logins", "feature-flags"]).optional()
 });
 
 export const Route = createFileRoute("/users/$userId")({
@@ -77,6 +78,10 @@ function UserDetailPage() {
                   <MonitorIcon className="size-4" />
                   <Trans>Sessions</Trans>
                 </TabsTrigger>
+                <TabsTrigger value="feature-flags">
+                  <FlagIcon className="size-4" />
+                  <Trans>Feature flags</Trans>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="overview">
                 <UserTenantsSection user={user} />
@@ -86,6 +91,9 @@ function UserDetailPage() {
               </TabsContent>
               <TabsContent value="sessions">
                 <UserSessionsSection userId={userId} />
+              </TabsContent>
+              <TabsContent value="feature-flags">
+                <UserFeatureFlagsSection userId={userId} />
               </TabsContent>
             </Tabs>
           </div>

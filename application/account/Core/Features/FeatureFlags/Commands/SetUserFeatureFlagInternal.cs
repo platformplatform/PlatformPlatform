@@ -15,9 +15,9 @@ public sealed record SetUserFeatureFlagInternalCommand : ICommand, IRequest<Resu
     [JsonIgnore] // Removes from API contract
     public string FlagKey { get; init; } = null!;
 
-    public required string UserId { get; init; }
+    public required UserId UserId { get; init; }
 
-    public required long TenantId { get; init; }
+    public required TenantId TenantId { get; init; }
 
     public required bool Enabled { get; init; }
 }
@@ -42,10 +42,10 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
 
         if (command.Enabled)
         {
-            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
+            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, command.UserId.Value, cancellationToken);
             if (userOverride is null)
             {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId);
+                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId.Value, command.UserId.Value);
                 userOverride.Activate(now);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);
             }
@@ -55,14 +55,14 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
                 featureFlagRepository.Update(userOverride);
             }
 
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, command.UserId));
+            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, command.UserId.Value));
         }
         else
         {
-            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
+            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, command.UserId.Value, cancellationToken);
             if (userOverride is null)
             {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId);
+                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId.Value, command.UserId.Value);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);
             }
             else
@@ -71,10 +71,10 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
                 featureFlagRepository.Update(userOverride);
             }
 
-            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId));
+            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId.Value));
         }
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
         if (tenant is not null)
         {
             tenant.IncrementFeatureFlagVersion();

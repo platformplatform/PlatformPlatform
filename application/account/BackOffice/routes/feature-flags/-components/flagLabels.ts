@@ -50,3 +50,18 @@ export function getFeatureFlagName(flagKey: string): string {
 export function getFeatureFlagDescription(flagKey: string): string {
   return getKnownFeatureFlagLabels()[flagKey]?.description ?? "";
 }
+
+export function getFeatureFlagSourceLabel(source: string): string {
+  switch (source) {
+    case "manual_override":
+      return t`Manual override`;
+    case "ab_rollout":
+      return t`A/B rollout`;
+    case "plan":
+      return t`Plan`;
+    case "default":
+      return t`Default`;
+    default:
+      return source;
+  }
+}

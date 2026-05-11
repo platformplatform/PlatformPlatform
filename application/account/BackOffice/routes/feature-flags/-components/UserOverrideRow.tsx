@@ -1,32 +1,24 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
+import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { useMutation } from "@tanstack/react-query";
-import { XIcon } from "lucide-react";
+import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
+import { Link } from "@tanstack/react-router";
+import { MailIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { apiClient, queryClient } from "@/shared/lib/api/client";
+import { api, queryClient } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/labels";
 
 import type { FeatureFlagUserInfo } from "./types";
 
-function getSourceLabel(source: string): string {
-  switch (source) {
-    case "manual_override":
-      return t`Manual override`;
-    case "ab_rollout":
-      return t`A/B rollout`;
-    case "plan":
-      return t`Plan`;
-    case "default":
-      return t`Default`;
-    default:
-      return source;
-  }
-}
+import { getUserDisplayName, getUserInitials } from "../../users/-components/userDisplay";
+import { getFeatureFlagSourceLabel } from "./flagLabels";
 
 export function UserOverrideRow({
   flagKey,
@@ -42,27 +34,9 @@ export function UserOverrideRow({
   isFeatureFlagActive: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(user.isEnabled);
-
-  const overrideMutation = useMutation({
-    mutationFn: async (vars: { enabled: boolean }) => {
-      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { error } = await apiClient.PUT("/api/back-office/feature-flags/{flagKey}/user-override" as any, {
-        params: { path: { flagKey } },
-        body: { userId: user.userId, tenantId: user.tenantId, enabled: vars.enabled }
-      });
-      if (error) throw error;
-    }
-  });
-
-  const removeMutation = useMutation({
-    mutationFn: async () => {
-      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { error } = await apiClient.DELETE("/api/back-office/feature-flags/{flagKey}/user-override" as any, {
-        params: { path: { flagKey }, query: { userId: user.userId, tenantId: user.tenantId } }
-      });
-      if (error) throw error;
-    }
-  });
+  const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/user-override");
+  const removeMutation = api.useMutation("delete", "/api/back-office/feature-flags/{flagKey}/user-override");
+  const formatDate = useFormatDate();
 
   useEffect(() => {
     setOptimisticEnabled(user.isEnabled);
@@ -71,7 +45,10 @@ export function UserOverrideRow({
   const handleToggle = (checked: boolean) => {
     setOptimisticEnabled(checked);
     overrideMutation.mutate(
-      { enabled: checked },
+      {
+        params: { path: { flagKey } },
+        body: { userId: user.id, tenantId: user.tenantId, enabled: checked }
+      },
       {
         onSuccess: async () => {
           await queryClient.invalidateQueries({
@@ -90,29 +67,63 @@ export function UserOverrideRow({
   };
 
   const handleRemoveOverride = () => {
-    removeMutation.mutate(undefined, {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
-        });
-        toast.success(t`Override removed for ${user.email}`);
+    removeMutation.mutate(
+      {
+        params: { path: { flagKey }, query: { userId: user.id, tenantId: user.tenantId } }
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
+          });
+          toast.success(t`Override removed for ${user.email}`);
+        }
       }
-    });
+    );
   };
 
   const isPending = overrideMutation.isPending || removeMutation.isPending;
+  const displayName = getUserDisplayName(user.firstName, user.lastName, user.email);
+  const initials = getUserInitials(user.firstName, user.lastName, user.email);
 
   return (
-    <TableRow>
-      <TableCell className="truncate font-medium">{user.email}</TableCell>
-      <TableCell className="truncate text-muted-foreground">{user.tenantName}</TableCell>
+    <TableRow rowKey={user.id}>
+      <TableCell>
+        <Link
+          to="/users/$userId"
+          params={{ userId: user.id }}
+          className="flex min-w-0 items-center gap-3 outline-none hover:underline focus-visible:underline"
+          aria-label={t`Open user ${displayName}`}
+        >
+          <Avatar size="default" className="size-9 shrink-0">
+            {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={displayName} />}
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate font-medium text-foreground">{displayName}</span>
+            <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+              <MailIcon className="size-3 shrink-0" aria-hidden={true} />
+              <span className="truncate">{user.email}</span>
+            </span>
+          </div>
+        </Link>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
+        <span className="truncate text-sm">{user.tenantName}</span>
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {user.lastSeenAt ? formatDate(user.lastSeenAt, true, true) : <span className="text-muted-foreground">-</span>}
+      </TableCell>
       <TableCell className="hidden sm:table-cell">
-        <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
+        <span className="text-sm text-muted-foreground">{getFeatureFlagSourceLabel(user.source)}</span>
       </TableCell>
       {showRolloutBucket && (
         <TableCell className="hidden text-muted-foreground sm:table-cell">{user.rolloutBucket}</TableCell>
       )}
-      <TableCell className="text-right">
+      <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-end gap-2">
           {user.source === "manual_override" && (
             <Tooltip>

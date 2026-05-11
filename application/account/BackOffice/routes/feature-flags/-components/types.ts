@@ -1,3 +1,5 @@
+import type { components } from "@/shared/lib/api/client";
+
 export type FeatureFlagScope = "System" | "Tenant" | "User";
 
 export interface FeatureFlagInfo {
@@ -22,29 +24,12 @@ export interface GetFeatureFlagsResponse {
   flags: FeatureFlagInfo[];
 }
 
-export interface FeatureFlagTenantInfo {
-  tenantId: string;
-  tenantName: string;
-  plan: string;
-  isEnabled: boolean;
-  source: "manual_override" | "ab_rollout" | "plan" | "default";
-  rolloutBucket: number;
-}
+export type FeatureFlagTenantInfo = components["schemas"]["FeatureFlagTenantInfo"];
 
-export interface GetFeatureFlagTenantsResponse {
-  tenants: FeatureFlagTenantInfo[];
-}
+export type GetFeatureFlagTenantsResponse = components["schemas"]["GetFeatureFlagTenantsResponse"];
 
-export interface FeatureFlagUserInfo {
-  userId: string;
-  tenantId: string;
-  email: string;
-  tenantName: string;
-  isEnabled: boolean;
-  source: "manual_override" | "ab_rollout" | "plan" | "default";
-  rolloutBucket: number;
-}
+export type FeatureFlagUserInfo = components["schemas"]["FeatureFlagUserInfo"];
 
-export interface GetFeatureFlagUsersResponse {
-  users: FeatureFlagUserInfo[];
-}
+export type GetFeatureFlagUsersResponse = components["schemas"]["GetFeatureFlagUsersResponse"];
+
+export type FeatureFlagSourceLiteral = "manual_override" | "ab_rollout" | "plan" | "default";

@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
 import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -9,7 +9,7 @@ import type { RolloutBucketRange } from "./rolloutBucket";
 import type { FeatureFlagTenantInfo } from "./types";
 
 import { sortBySourceThenRolloutBucket } from "./rolloutBucket";
-import { TenantOverrideRow } from "./TenantOverrideRow";
+import { TenantOverrideTable, type TenantOverrideTableProps } from "./TenantOverrideTable";
 
 export function TenantOverridesSection({
   flagKey,
@@ -31,9 +31,7 @@ export function TenantOverridesSection({
   const filtered = useMemo(() => {
     const lowerSearch = search.toLowerCase();
     return search
-      ? tenants.filter(
-          (tenant) => tenant.tenantName.toLowerCase().includes(lowerSearch) || tenant.tenantId.includes(lowerSearch)
-        )
+      ? tenants.filter((tenant) => tenant.name.toLowerCase().includes(lowerSearch) || tenant.id.includes(lowerSearch))
       : tenants;
   }, [tenants, search]);
 
@@ -88,7 +86,7 @@ export function TenantOverridesSection({
         className="max-w-[20rem]"
       />
       {isSearching ? (
-        <TenantTable
+        <TenantOverrideTable
           ariaLabel={t`Search results`}
           tenants={[...enabledTenants, ...disabledTenants]}
           flagKey={flagKey}
@@ -120,93 +118,30 @@ export function TenantOverridesSection({
   );
 }
 
-interface TenantTableProps {
-  ariaLabel: string;
-  tenants: FeatureFlagTenantInfo[];
-  flagKey: string;
-  featureFlagDescription: string;
-  showRolloutBucket: boolean;
-  isFeatureFlagActive: boolean;
-}
-
-function TenantTable({
-  ariaLabel,
-  tenants,
-  flagKey,
-  featureFlagDescription,
-  showRolloutBucket,
-  isFeatureFlagActive
-}: Readonly<TenantTableProps>) {
-  return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
-      <TableHeader>
-        <TableRow>
-          <TableHead className="hidden w-[14rem] lg:table-cell">
-            <Trans>Account ID</Trans>
-          </TableHead>
-          <TableHead className="w-auto">
-            <Trans>Account</Trans>
-          </TableHead>
-          <TableHead className="w-[5rem]">
-            <Trans>Plan</Trans>
-          </TableHead>
-          <TableHead className="hidden w-[8rem] sm:table-cell">
-            <Trans>Source</Trans>
-          </TableHead>
-          {showRolloutBucket && (
-            <TableHead className="hidden w-[5rem] sm:table-cell">
-              <Trans>Bucket</Trans>
-            </TableHead>
-          )}
-          <TableHead className="w-[7rem] text-right">
-            <Trans>Override</Trans>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tenants.map((tenant) => (
-          <TenantOverrideRow
-            key={tenant.tenantId}
-            flagKey={flagKey}
-            featureFlagDescription={featureFlagDescription}
-            tenant={tenant}
-            showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
-          />
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
 function CollapsibleTenantGroup({
   label,
   ...tableProps
-}: Readonly<{ label: string } & Omit<TenantTableProps, "ariaLabel">>) {
+}: Readonly<{ label: string } & Omit<TenantOverrideTableProps, "ariaLabel">>) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-1 text-left"
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-expanded={isOpen}
-      >
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex flex-col gap-1">
+      <CollapsibleTrigger className="flex cursor-pointer items-center gap-1 text-left">
         <ChevronDown
           className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
           aria-hidden={true}
         />
         <h4 className="text-muted-foreground">{label}</h4>
-      </button>
-      {isOpen &&
-        (tableProps.tenants.length > 0 ? (
-          <TenantTable ariaLabel={label} {...tableProps} />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        {tableProps.tenants.length > 0 ? (
+          <TenantOverrideTable ariaLabel={label} {...tableProps} />
         ) : (
           <p className="py-2 text-sm text-muted-foreground">
             <Trans>No accounts in this group.</Trans>
           </p>
-        ))}
-    </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

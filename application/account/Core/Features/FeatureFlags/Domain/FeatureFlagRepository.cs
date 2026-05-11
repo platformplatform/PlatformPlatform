@@ -9,6 +9,10 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
 {
     Task<FeatureFlag[]> GetAllRelevantRowsAsync(long tenantId, string userId, CancellationToken cancellationToken);
 
+    Task<FeatureFlag[]> GetTenantScopedRowsAsync(long tenantId, CancellationToken cancellationToken);
+
+    Task<FeatureFlag[]> GetUserScopedRowsAsync(long tenantId, string userId, CancellationToken cancellationToken);
+
     Task<FeatureFlag[]> GetAllBaseRowsAsync(CancellationToken cancellationToken);
 
     Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
@@ -27,6 +31,20 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
     {
         return await DbSet
             .Where(f => (f.TenantId == null || f.TenantId == tenantId) && (f.UserId == null || f.UserId == userId))
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<FeatureFlag[]> GetTenantScopedRowsAsync(long tenantId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Where(f => (f.TenantId == null || f.TenantId == tenantId) && f.UserId == null)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<FeatureFlag[]> GetUserScopedRowsAsync(long tenantId, string userId, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Where(f => (f.TenantId == null && f.UserId == null) || (f.TenantId == tenantId && f.UserId == userId))
             .ToArrayAsync(cancellationToken);
     }
 

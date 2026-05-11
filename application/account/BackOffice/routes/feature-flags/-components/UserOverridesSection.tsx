@@ -1,15 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
-import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { apiClient } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
 import type { RolloutBucketRange } from "./rolloutBucket";
-import type { FeatureFlagUserInfo, GetFeatureFlagUsersResponse } from "./types";
+import type { FeatureFlagUserInfo } from "./types";
 
 import { sortBySourceThenRolloutBucket } from "./rolloutBucket";
 import { UserEmptyState } from "./UserEmptyState";
@@ -36,17 +36,14 @@ export function UserOverridesSection({
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data: usersData, isLoading } = useQuery({
-    queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users", { flagKey, search: debouncedSearch }],
-    queryFn: async () => {
-      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { data } = await apiClient.GET("/api/back-office/feature-flags/{flagKey}/users" as any, {
-        params: { path: { flagKey }, query: { search: debouncedSearch } }
-      });
-      return data as GetFeatureFlagUsersResponse | undefined;
+  const { data: usersData, isLoading } = api.useQuery(
+    "get",
+    "/api/back-office/feature-flags/{flagKey}/users",
+    {
+      params: { path: { flagKey }, query: { search: debouncedSearch } }
     },
-    enabled: debouncedSearch.length > 0
-  });
+    { enabled: debouncedSearch.length > 0 }
+  );
 
   const { enabledUsers, disabledUsers } = useMemo(() => {
     const all = usersData?.users ?? [];
@@ -144,24 +141,30 @@ function UserTable({
   isFeatureFlagActive
 }: Readonly<UserTableProps>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
+    <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-auto">
-            <Trans>Email</Trans>
+          <TableHead>
+            <Trans>User</Trans>
           </TableHead>
-          <TableHead className="w-[10rem]">
+          <TableHead className="hidden md:table-cell">
             <Trans>Account</Trans>
           </TableHead>
-          <TableHead className="hidden w-[8rem] sm:table-cell">
+          <TableHead className="hidden lg:table-cell">
+            <Trans>Role</Trans>
+          </TableHead>
+          <TableHead className="hidden lg:table-cell">
+            <Trans>Last seen</Trans>
+          </TableHead>
+          <TableHead className="hidden sm:table-cell">
             <Trans>Source</Trans>
           </TableHead>
           {showRolloutBucket && (
-            <TableHead className="hidden w-[5rem] sm:table-cell">
+            <TableHead className="hidden sm:table-cell">
               <Trans>Bucket</Trans>
             </TableHead>
           )}
-          <TableHead className="w-[7rem] text-right">
+          <TableHead className="text-right">
             <Trans>Override</Trans>
           </TableHead>
         </TableRow>
@@ -169,7 +172,7 @@ function UserTable({
       <TableBody>
         {users.map((user) => (
           <UserOverrideRow
-            key={user.userId}
+            key={user.id}
             flagKey={flagKey}
             featureFlagDescription={featureFlagDescription}
             user={user}
@@ -189,20 +192,17 @@ function CollapsibleUserGroup({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-1 text-left"
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-expanded={isOpen}
-      >
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex flex-col gap-1">
+      <CollapsibleTrigger className="flex cursor-pointer items-center gap-1 text-left">
         <ChevronDown
           className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
           aria-hidden={true}
         />
         <h4 className="text-muted-foreground">{label}</h4>
-      </button>
-      {isOpen && <UserTable ariaLabel={label} {...tableProps} />}
-    </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <UserTable ariaLabel={label} {...tableProps} />
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

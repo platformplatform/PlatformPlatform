@@ -24,7 +24,7 @@ msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 #. placeholder {0}: group.plan
 #. placeholder {1}: group.tenants.length
 msgid "{0} ({1})"
-msgstr ""
+msgstr "{0} ({1})"
 
 #. placeholder {0}: formatCurrency(blended, currency)
 msgid "{0} blended"
@@ -37,24 +37,30 @@ msgstr "{0} i denne periode, eksklusiv moms"
 msgid "{activeUsers} active"
 msgstr "{activeUsers} aktive"
 
-msgid "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
-msgstr "{count, plural, one {# konto har faktureringsafvigelser.} other {# konti har faktureringsafvigelser.}}"
+msgid "{count} accounts have billing drift detected."
+msgstr "{count} konti har faktureringsafvigelser."
 
-msgid "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
-msgstr "{count, plural, one {# konto er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.} other {# konti er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.}}"
+msgid "{count} accounts have not been synced yet — MRR trend is incomplete."
+msgstr "{count} konti er ikke synkroniseret endnu — MRR-tendensen er ufuldstændig."
 
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
 
-#. placeholder {0}: tenant.tenantName
+#. placeholder {0}: tenant.name
 #. placeholder {0}: user.email
 msgid "{featureFlagDescription} disabled for {0}"
 msgstr "{featureFlagDescription} deaktiveret for {0}"
 
-#. placeholder {0}: tenant.tenantName
+#. placeholder {0}: tenant.name
 #. placeholder {0}: user.email
 msgid "{featureFlagDescription} enabled for {0}"
 msgstr "{featureFlagDescription} aktiveret for {0}"
+
+msgid "{flagName} disabled"
+msgstr "{flagName} deaktiveret"
+
+msgid "{flagName} enabled"
+msgstr "{flagName} aktiveret"
 
 msgid "{inactiveUsers} inactive"
 msgstr "{inactiveUsers} inaktive"
@@ -103,13 +109,16 @@ msgid "90d"
 msgstr "90d"
 
 msgid "A/B rollout"
-msgstr ""
+msgstr "A/B-udrulning"
 
 msgid "Account"
 msgstr "Konto"
 
 msgid "Account actions"
-msgstr ""
+msgstr "Kontohandlinger"
+
+msgid "Account flags"
+msgstr "Kontoflag"
 
 msgid "Account growth"
 msgstr "Kontovækst"
@@ -125,6 +134,9 @@ msgstr "Konto-ID"
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
 
+msgid "Account status"
+msgstr "Kontostatus"
+
 msgid "Account users"
 msgstr "Kontobrugere"
 
@@ -135,16 +147,13 @@ msgid "Accounts"
 msgstr "Konti"
 
 msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
-msgstr ""
+msgstr "Konti aktiveres eller deaktiveres automatisk baseret på deres abonnement. Manuelle tilsidesættelser er ikke tilgængelige for abonnementsstyrede flag."
 
 msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
-msgstr ""
+msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke konti."
 
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
-
-msgid "Actions"
-msgstr "Handlinger"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -162,7 +171,7 @@ msgid "All"
 msgstr "Alle"
 
 msgid "All accounts this user is a member of, with their plan and role."
-msgstr ""
+msgstr "Alle konti denne bruger er medlem af, med deres abonnement og rolle."
 
 msgid "All event types"
 msgstr "Alle hændelsestyper"
@@ -171,7 +180,7 @@ msgid "All statuses"
 msgstr "Alle statusser"
 
 msgid "All users across every account, most recently seen first. Search and filter to narrow down."
-msgstr ""
+msgstr "Alle brugere på tværs af alle konti, senest sete først. Søg og filtrér for at indsnævre."
 
 msgid "All-time"
 msgstr "Samlet"
@@ -191,10 +200,10 @@ msgstr "Der opstod en uventet fejl ved behandlingen."
 #. placeholder {0}: result.billingEventsAppended
 #. placeholder {1}: formatDate(result.reconciledAt)
 msgid "Appended {0} new billing events. Last reconciled at {1}."
-msgstr ""
+msgstr "Tilføjede {0} nye faktureringshændelser. Sidst afstemt {1}."
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
-msgstr ""
+msgstr "Autoritativ log over abonnements-, betalings- og faktureringsovergange på tværs af alle konti."
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -206,13 +215,13 @@ msgid "Back Office overview · {today}"
 msgstr "Back Office oversigt · {today}"
 
 msgid "Back to feature flags"
-msgstr ""
+msgstr "Tilbage til feature flags"
 
 msgid "Basis"
 msgstr "Basis"
 
 msgid "Beta features"
-msgstr "Beta-funktioner"
+msgstr "Betafunktioner"
 
 msgid "Billing"
 msgstr "Fakturering"
@@ -221,13 +230,13 @@ msgid "Billing address"
 msgstr "Faktureringsadresse"
 
 msgid "Billing events"
-msgstr ""
+msgstr "Faktureringshændelser"
 
 msgid "Billing info added"
-msgstr ""
+msgstr "Faktureringsoplysninger tilføjet"
 
 msgid "Billing info updated"
-msgstr ""
+msgstr "Faktureringsoplysninger opdateret"
 
 msgid "blended"
 msgstr "blandet"
@@ -242,7 +251,7 @@ msgid "Bucket"
 msgstr "Bucket"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Annullér"
 
 msgid "Canceled"
 msgstr "Opsagt"
@@ -254,10 +263,10 @@ msgid "Cancellation"
 msgstr "Opsigelse"
 
 msgid "Cancelled"
-msgstr ""
+msgstr "Annulleret"
 
 msgid "Cancelled immediately"
-msgstr ""
+msgstr "Annulleret med det samme"
 
 msgid "Change language"
 msgstr "Skift sprog"
@@ -278,13 +287,10 @@ msgid "Clear search"
 msgstr "Ryd søgning"
 
 msgid "Close"
-msgstr ""
+msgstr "Luk"
 
 msgid "Close account preview"
 msgstr "Luk kontoforhåndsvisning"
-
-msgid "Coming soon"
-msgstr "Kommer snart"
 
 msgid "Compact view"
 msgstr "Kompakt visning"
@@ -327,10 +333,10 @@ msgstr "Mørk"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, currency)
-#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)
+#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, data.currency)
+#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, data.currency)
 msgid "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
-msgstr ""
+msgstr "Dashboard MRR uoverensstemmelse: KPI viser {0}, tendens viser senest {1}."
 
 msgid "Date"
 msgstr "Dato"
@@ -359,10 +365,10 @@ msgid "Disaster recovery from archived Stripe events?"
 msgstr "Katastrofegendannelse fra arkiverede Stripe-events?"
 
 msgid "Downgrade cancelled"
-msgstr ""
+msgstr "Nedgradering annulleret"
 
 msgid "Downgrade scheduled"
-msgstr ""
+msgstr "Nedgradering planlagt"
 
 msgid "Downgraded"
 msgstr "Nedgraderet"
@@ -374,7 +380,7 @@ msgid "Drift detected"
 msgstr "Afvigelser fundet"
 
 msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
-msgstr "Hver konto eller bruger tildeles en fast bucket (0-99) baseret på deres sekvensnummer. Udrulningen rammer et bestemt bucket-interval, så funktionsudrulningen bliver konsistent og forudsigelig."
+msgstr "Hver konto eller bruger tildeles en fast bucket (0-99) baseret på deres sekvensnummer. Udrulningen rammer et specifikt interval af buckets, hvilket sikrer en konsistent og forudsigelig udrulning."
 
 msgid "Early access to experimental features before general availability"
 msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighed"
@@ -406,46 +412,43 @@ msgid "Enabled: {0}"
 msgstr "Aktiveret: {0}"
 
 msgid "Enter kiosk mode"
-msgstr ""
+msgstr "Skift til kiosktilstand"
 
 msgid "Event"
-msgstr ""
+msgstr "Hændelse"
 
 msgid "Event view"
 msgstr "Hændelsesvisning"
 
 msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
-msgstr ""
+msgstr "Alle fakturaer, refunderinger og kreditnotaer — pengestrømmen ind og ud for dette abonnement."
 
 msgid "Every invoice, refund, and credit note across all accounts."
-msgstr ""
+msgstr "Alle fakturaer, refunderinger og kreditnotaer på tværs af alle konti."
 
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
-msgstr ""
+msgstr "Alle login-forsøg de seneste 30 dage, succesfulde eller mislykkede, på tværs af e-mail og eksterne udbydere."
 
 msgid "Exit kiosk mode"
-msgstr ""
+msgstr "Forlad kiosktilstand"
 
 msgid "Experimental UI"
-msgstr ""
+msgstr "Eksperimentel UI"
 
 msgid "Expired"
-msgstr ""
+msgstr "Udløbet"
 
 msgid "Expires"
-msgstr ""
+msgstr "Udløber"
 
 msgid "Failed"
 msgstr "Mislykket"
 
 msgid "Feature flag activated"
-msgstr ""
+msgstr "Feature flag aktiveret"
 
 msgid "Feature flag deactivated"
-msgstr ""
-
-msgid "Feature flag detail"
-msgstr ""
+msgstr "Feature flag deaktiveret"
 
 msgid "Feature flags"
 msgstr "Feature flags"
@@ -453,23 +456,23 @@ msgstr "Feature flags"
 msgid "Feature flags are defined in code. This view controls their activation and rollout."
 msgstr "Feature flags er defineret i koden. Dette view styrer deres aktivering og udrulning."
 
-msgid "Filter by flag type"
-msgstr "Filtrér efter flag-type"
-
-msgid "Flag name"
-msgstr "Flagnavn"
-
 msgid "Free"
 msgstr "Gratis"
 
 msgid "Gated by subscription plan and recomputed when the plan changes. Configured only in code."
 msgstr "Begrænset af abonnementet og genberegnet når abonnementet ændres. Konfigureres kun i koden."
 
+msgid "Gated by the account's subscription plan. Read-only."
+msgstr "Begrænset af kontoens abonnement. Skrivebeskyttet."
+
 msgid "Go to home"
 msgstr "Gå til forsiden"
 
 msgid "Google"
 msgstr "Google"
+
+msgid "Google OAuth"
+msgstr "Google OAuth"
 
 msgid "Hide details"
 msgstr "Skjul detaljer"
@@ -484,10 +487,10 @@ msgid "Invoice view"
 msgstr "Fakturavisning"
 
 msgid "Invoices"
-msgstr ""
+msgstr "Fakturaer"
 
 msgid "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
-msgstr ""
+msgstr "Fakturaer vises her efterhånden som konti abonnerer, og Stripe-webhooks behandles."
 
 msgid "IP address"
 msgstr "IP-adresse"
@@ -547,7 +550,7 @@ msgid "Login history"
 msgstr "Login-historik"
 
 msgid "Logins"
-msgstr ""
+msgstr "Logins"
 
 msgid "Logo"
 msgstr "Logo"
@@ -556,7 +559,7 @@ msgid "Main navigation"
 msgstr "Hovednavigation"
 
 msgid "Manual override"
-msgstr ""
+msgstr "Manuel tilsidesættelse"
 
 msgid "Member"
 msgstr "Medlem"
@@ -574,10 +577,10 @@ msgid "MRR"
 msgstr "MRR"
 
 msgid "MRR after"
-msgstr ""
+msgstr "MRR efter"
 
 msgid "MRR impact"
-msgstr ""
+msgstr "MRR-effekt"
 
 msgid "MRR trend"
 msgstr "MRR-tendens"
@@ -586,7 +589,7 @@ msgid "Name"
 msgstr "Navn"
 
 msgid "Name:"
-msgstr ""
+msgstr "Navn:"
 
 msgid "Navigation"
 msgstr "Navigation"
@@ -604,7 +607,7 @@ msgid "No account memberships"
 msgstr "Ingen kontomedlemskaber"
 
 msgid "No accounts in this group."
-msgstr ""
+msgstr "Ingen konti i denne gruppe."
 
 msgid "No accounts match your filters"
 msgstr "Ingen konti matcher dine filtre"
@@ -619,25 +622,28 @@ msgid "No billing address on file."
 msgstr "Ingen faktureringsadresse registreret."
 
 msgid "No billing events"
-msgstr ""
+msgstr "Ingen faktureringshændelser"
 
 msgid "No billing events match your filters"
-msgstr ""
+msgstr "Ingen faktureringshændelser matcher dine filtre"
 
 msgid "No billing events yet"
-msgstr ""
+msgstr "Ingen faktureringshændelser endnu"
 
 msgid "No change"
 msgstr "Ingen ændring"
+
+msgid "No feature flags"
+msgstr "Ingen feature flags"
 
 msgid "No invoices match your filters"
 msgstr "Ingen fakturaer matcher dine filtre"
 
 msgid "No invoices yet"
-msgstr ""
+msgstr "Ingen fakturaer endnu"
 
 msgid "No invoices, refunds, or credit notes yet."
-msgstr ""
+msgstr "Ingen fakturaer, refunderinger eller kreditnotaer endnu."
 
 msgid "No login history"
 msgstr "Ingen login-historik"
@@ -646,7 +652,7 @@ msgid "No matching users"
 msgstr "Ingen matchende brugere"
 
 msgid "No new billing events were appended. Account state matches Stripe."
-msgstr ""
+msgstr "Ingen nye faktureringshændelser blev tilføjet. Kontotilstanden matcher Stripe."
 
 msgid "No owners"
 msgstr "Ingen ejere"
@@ -661,13 +667,13 @@ msgid "No plan"
 msgstr "Intet abonnement"
 
 msgid "No recent billing events"
-msgstr ""
+msgstr "Ingen nylige faktureringshændelser"
 
 msgid "No recent logins"
-msgstr ""
+msgstr "Ingen nylige logins"
 
 msgid "No recent payments"
-msgstr ""
+msgstr "Ingen nylige betalinger"
 
 msgid "No recent signups"
 msgstr "Ingen nylige tilmeldinger"
@@ -679,7 +685,7 @@ msgid "No refunds or credit notes yet"
 msgstr "Ingen refunderinger eller kreditnotaer endnu"
 
 msgid "No result available."
-msgstr ""
+msgstr "Intet resultat tilgængeligt."
 
 msgid "No results match your search"
 msgstr "Ingen resultater matcher din søgning"
@@ -690,14 +696,20 @@ msgstr "Ingen sessioner"
 msgid "No sign-in attempts in the last 30 days."
 msgstr "Ingen login-forsøg de seneste 30 dage."
 
+msgid "No tenant-scoped feature flags are defined for this account."
+msgstr "Der er ingen feature flags defineret for denne konto."
+
 msgid "No transactions"
-msgstr ""
+msgstr "Ingen transaktioner"
+
+msgid "No user-scoped feature flags are defined."
+msgstr "Der er ingen brugeromfattede feature flags defineret."
 
 msgid "No users"
 msgstr "Ingen brugere"
 
 msgid "No users found"
-msgstr ""
+msgstr "Ingen brugere fundet"
 
 msgid "No users match your filters."
 msgstr "Ingen brugere matcher dine filtre."
@@ -706,16 +718,16 @@ msgid "No users match your search"
 msgstr "Ingen brugere matcher din søgning"
 
 msgid "No users yet"
-msgstr ""
+msgstr "Ingen brugere endnu"
 
 msgid "Not synced yet"
 msgstr "Ikke synkroniseret endnu"
 
 msgid "Occurred"
-msgstr ""
+msgstr "Forekom"
 
 msgid "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
-msgstr ""
+msgstr "En række pr. enhed eller browser brugeren er logget ind fra. Tilbagekaldte sessioner kan ikke logge ind igen."
 
 msgid "One-time password"
 msgstr "Engangskode"
@@ -723,14 +735,21 @@ msgstr "Engangskode"
 msgid "Open account"
 msgstr "Åbn konto"
 
+#. placeholder {0}: tenant.name
+msgid "Open account {0}"
+msgstr "Åbn konto {0}"
+
 msgid "Open credit note"
 msgstr "Åbn kreditnota"
 
 msgid "Open in Stripe"
-msgstr ""
+msgstr "Åbn i Stripe"
 
 msgid "Open invoice"
 msgstr "Åbn faktura"
+
+msgid "Open user {displayName}"
+msgstr "Åbn bruger {displayName}"
 
 msgid "Other"
 msgstr "Andet"
@@ -744,13 +763,21 @@ msgstr "over perioden"
 msgid "Override"
 msgstr "Tilsidesættelse"
 
-#. placeholder {0}: tenant.tenantName
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
 msgid "Override for {0}"
 msgstr "Tilsidesættelse for {0}"
 
-#. placeholder {0}: tenant.tenantName
+msgid "Override for {flagName}"
+msgstr "Tilsidesættelse for {flagName}"
+
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
 msgid "Override removed for {0}"
 msgstr "Tilsidesættelse fjernet for {0}"
+
+msgid "Override removed for {flagName}"
+msgstr "Tilsidesættelse fjernet for {flagName}"
 
 msgid "Overview"
 msgstr "Overblik"
@@ -765,7 +792,7 @@ msgid "Page not found"
 msgstr "Siden blev ikke fundet"
 
 msgid "Paid"
-msgstr ""
+msgstr "Betalt"
 
 msgid "Past due"
 msgstr "Forfalden"
@@ -774,16 +801,16 @@ msgid "Payment failed"
 msgstr "Betaling mislykkedes"
 
 msgid "Payment method"
-msgstr ""
+msgstr "Betalingsmetode"
 
 msgid "Payment method updated"
-msgstr ""
+msgstr "Betalingsmetode opdateret"
 
 msgid "Payment recovered"
-msgstr ""
+msgstr "Betaling gendannet"
 
 msgid "Payment refunded"
-msgstr ""
+msgstr "Betaling refunderet"
 
 msgid "Pending"
 msgstr "Afventer"
@@ -791,11 +818,17 @@ msgstr "Afventer"
 msgid "per month, billed monthly"
 msgstr "pr. måned, faktureres månedligt"
 
+msgid "Per-account flags. Toggle the override switch to enable or disable for this account."
+msgstr "Kontoflag. Slå tilsidesættelsesknappen til eller fra for at aktivere eller deaktivere for denne konto."
+
 msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Tenant-flag. Ejere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user."
+msgstr "Brugerflag. Slå tilsidesættelsesknappen til eller fra for at aktivere eller deaktivere for denne bruger."
+
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
-msgstr "Bruger-flag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
+msgstr "Brugerflag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
 msgid "Period"
 msgstr "Periode"
@@ -807,19 +840,19 @@ msgid "Plan & revenue"
 msgstr "Abonnement og omsætning"
 
 msgid "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
-msgstr ""
+msgstr "Abonnementsændringer, fornyelser, opsigelser og betalingsresultater — abonnementets livscyklus og dets MRR-effekt over tid."
 
 msgid "Plan distribution"
 msgstr "Plan-fordeling"
 
 msgid "Plan flags"
-msgstr ""
+msgstr "Abonnementsflag"
 
 msgid "Plan transition"
-msgstr ""
+msgstr "Abonnementsovergang"
 
 msgid "Platform"
-msgstr ""
+msgstr "Platform"
 
 msgid "Platform-wide capabilities set at deployment via environment variables. Configured only in code."
 msgstr "Platformomspændende funktioner sat ved udrulning via miljøvariabler. Konfigureres kun i koden."
@@ -843,16 +876,16 @@ msgid "Prior period"
 msgstr "Forrige periode"
 
 msgid "Reactivated"
-msgstr ""
+msgstr "Genaktiveret"
 
 msgid "Recent billing events"
-msgstr ""
+msgstr "Nylige faktureringshændelser"
 
 msgid "Recent logins"
-msgstr ""
+msgstr "Nylige logins"
 
 msgid "Recent payments"
-msgstr ""
+msgstr "Nylige betalinger"
 
 msgid "Recent signups"
 msgstr "Nylige tilmeldinger"
@@ -861,10 +894,10 @@ msgid "Reconcile"
 msgstr "Afstem"
 
 msgid "Reconcile complete"
-msgstr "Afstemning fuldført"
+msgstr "Afstemning gennemført"
 
 msgid "Reconcile complete with drift detected"
-msgstr "Afstemning fuldført med afvigelser"
+msgstr "Afstemning gennemført med afvigelser fundet"
 
 #. placeholder {0}: archivedAwaiting.count
 #. placeholder {1}: formatDate(archivedAwaiting.oldestOccurredAt)
@@ -885,7 +918,7 @@ msgid "Reconciling..."
 msgstr "Afstemmer..."
 
 msgid "Reduce spacing between UI elements for a denser layout"
-msgstr "Reducer afstanden mellem UI-elementer for et tættere layout"
+msgstr "Reducér afstanden mellem UI-elementer for et tættere layout"
 
 msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 msgstr "Posteringer vises her, når konti abonnerer, og Stripe-webhooks behandles."
@@ -902,9 +935,13 @@ msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
 msgid "Remove override"
 msgstr "Fjern tilsidesættelse"
 
-#. placeholder {0}: tenant.tenantName
+#. placeholder {0}: tenant.name
+#. placeholder {0}: user.email
 msgid "Remove override for {0}"
 msgstr "Fjern tilsidesættelse for {0}"
+
+msgid "Remove override for {flagName}"
+msgstr "Fjern tilsidesættelse for {flagName}"
 
 msgid "Renewal"
 msgstr "Fornyelse"
@@ -913,7 +950,7 @@ msgid "Renewal date"
 msgstr "Fornyelsesdato"
 
 msgid "Renewed"
-msgstr ""
+msgstr "Fornyet"
 
 #. placeholder {0}: formatDate(membership.renewalDate)
 #. placeholder {0}: formatDate(tenant.renewalDate)
@@ -947,28 +984,13 @@ msgid "Rollout %"
 msgstr "Udrulning %"
 
 msgid "Rollout bucket information"
-msgstr "Information om udrulningsspand"
-
-msgid "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
-msgstr "Udrulningsspande: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
-
-msgid "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
-msgstr "Udrulningsspande: {rolloutBucketStart}-99 og 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
-
-msgid "Rollout %"
-msgstr "Udrulnings-%"
-
-msgid "Rollout bucket information"
-msgstr "Information om udrulnings-bucket"
+msgstr "Information om udrulningsbucket"
 
 msgid "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsbuckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsbuckets: {rolloutBucketStart}-99 og 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
-
-msgid "Rollout percentage"
-msgstr "Udrulningsprocent"
 
 msgid "Rollout percentage updated"
 msgstr "Udrulningsprocent opdateret"
@@ -977,10 +999,10 @@ msgid "Run disaster recovery"
 msgstr "Kør katastrofegendannelse"
 
 msgid "Save"
-msgstr ""
+msgstr "Gem"
 
 msgid "Saving..."
-msgstr ""
+msgstr "Gemmer..."
 
 msgid "Scheduled plan change"
 msgstr "Planlagt planændring"
@@ -992,7 +1014,7 @@ msgid "Search"
 msgstr "Søg"
 
 msgid "Search by account name"
-msgstr ""
+msgstr "Søg efter kontonavn"
 
 msgid "Search by account name or ID"
 msgstr "Søg efter kontonavn eller ID"
@@ -1009,14 +1031,11 @@ msgstr "Søg efter navn"
 msgid "Search by name or email"
 msgstr "Søg efter navn eller e-mail"
 
-msgid "Search by tenant name or ID"
-msgstr "Søg efter lejernavn eller ID"
-
 msgid "Search for users"
 msgstr "Søg efter brugere"
 
 msgid "Search for users by email and toggle the override switch to enable this feature."
-msgstr ""
+msgstr "Søg efter brugere via e-mail og slå tilsidesættelsesknappen til for at aktivere denne funktion."
 
 msgid "Search results"
 msgstr "Søgeresultater"
@@ -1033,6 +1052,9 @@ msgstr "Sessioner"
 msgid "Show details"
 msgstr "Vis detaljer"
 
+msgid "Sign in with Google using OpenID Connect"
+msgstr "Log ind med Google via OpenID Connect"
+
 msgid "Signed up"
 msgstr "Tilmeldt"
 
@@ -1046,10 +1068,7 @@ msgid "Since {0}"
 msgstr "Siden {0}"
 
 msgid "Single sign-on"
-msgstr "Enkeltlogon"
-
-msgid "Skip replay"
-msgstr "Spring afspilning over"
+msgstr "Single sign-on"
 
 msgid "Small"
 msgstr "Lille"
@@ -1058,7 +1077,7 @@ msgid "Something went wrong"
 msgstr "Noget gik galt"
 
 msgid "Source"
-msgstr ""
+msgstr "Kilde"
 
 msgid "Standard"
 msgstr "Standard"
@@ -1066,32 +1085,38 @@ msgstr "Standard"
 msgid "Status"
 msgstr "Status"
 
+msgid "Stripe-powered subscription billing and plan management"
+msgstr "Stripe-drevet abonnementsfakturering og abonnementsstyring"
+
 msgid "Subscribed"
 msgstr "Tilmeldt"
 
 msgid "Subscribed since"
 msgstr "Abonneret siden"
 
+msgid "Subscription canceled"
+msgstr "Abonnement opsagt"
+
 msgid "Subscription state"
 msgstr "Abonnementstilstand"
 
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
-msgstr ""
+msgstr "Abonnements-, betalings- og faktureringsovergange vises her efterhånden som Stripe-webhooks behandles."
 
 msgid "Subscription, payment, and billing transitions will appear here."
-msgstr ""
+msgstr "Abonnements-, betalings- og faktureringsovergange vises her."
+
+msgid "Subscriptions"
+msgstr "Abonnementer"
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
-
-msgid "Subtotal"
-msgstr "Subtotal"
 
 msgid "Succeeded"
 msgstr "Gennemført"
 
 msgid "Successful logins will appear here as users sign in."
-msgstr ""
+msgstr "Succesfulde logins vises her, efterhånden som brugere logger ind."
 
 msgid "Successful, pending, and failed invoices across all accounts."
 msgstr "Gennemførte, afventende og mislykkede fakturaer på tværs af alle konti."
@@ -1102,17 +1127,11 @@ msgstr "Suspenderet"
 msgid "System"
 msgstr "System"
 
+msgid "System flags"
+msgstr "Systemflag"
+
 msgid "Tablet"
 msgstr "Tablet"
-
-msgid "Tenant"
-msgstr ""
-
-msgid "Tenant ID"
-msgstr "Lejer-ID"
-
-msgid "Tenant overrides"
-msgstr ""
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
@@ -1130,7 +1149,7 @@ msgid "This account previously had a paid subscription that ended."
 msgstr "Denne konto havde tidligere et betalt abonnement, der sluttede."
 
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
-msgstr "Dette flag administreres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
+msgstr "Dette flag styres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
 
 msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
 msgstr "Dette genopbygger faktureringshændelsesloggen fra denne kontos arkiverede Stripe-payloads. Det er en bedst muligt-gendannelse, der kan producere forkerte abonnementstilstande eller faktureringshændelser. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."
@@ -1143,13 +1162,13 @@ msgstr "Denne bruger er ikke medlem af nogen konto."
 
 #. placeholder {0}: getFeatureFlagName(featureFlag.key)
 msgid "Toggle {0}"
-msgstr "Skift {0}"
+msgstr "Slå {0} til/fra"
 
 msgid "Toggle the override switch to enable this feature for specific accounts."
-msgstr ""
+msgstr "Slå tilsidesættelsesknappen til for at aktivere denne funktion for specifikke konti."
 
 msgid "Total"
-msgstr ""
+msgstr "I alt"
 
 msgid "Total accounts"
 msgstr "Konti i alt"
@@ -1161,7 +1180,7 @@ msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
 
 msgid "Try adjusting your search"
-msgstr ""
+msgstr "Prøv at justere din søgning"
 
 msgid "Try again"
 msgstr "Prøv igen"
@@ -1179,10 +1198,7 @@ msgid "Type"
 msgstr "Type"
 
 msgid "Type an email address above to find users and manage their overrides"
-msgstr "Indtast en e-mailadresse ovenfor for at finde brugere og administrere deres tilsidesættelser"
-
-msgid "Type an email address above to find users and manage their overrides"
-msgstr ""
+msgstr "Indtast en e-mailadresse ovenfor for at finde brugere og styre deres tilsidesættelser"
 
 msgid "Unclassified"
 msgstr "Uklassificeret"
@@ -1199,11 +1215,17 @@ msgstr "Bruger"
 msgid "User detail"
 msgstr "Brugerdetalje"
 
+msgid "User flags"
+msgstr "Brugerflag"
+
 msgid "User logins / day"
 msgstr "Brugerlogins / dag"
 
 msgid "User menu"
 msgstr "Brugermenu"
+
+msgid "User status"
+msgstr "Brugerstatus"
 
 msgid "Users"
 msgstr "Brugere"
@@ -1212,31 +1234,31 @@ msgid "Users active"
 msgstr "Aktive brugere"
 
 msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
-msgstr ""
+msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke brugere."
 
 msgid "Users will appear here as accounts are created."
-msgstr ""
+msgstr "Brugere vises her efterhånden som konti oprettes."
 
 msgid "VAT"
-msgstr ""
+msgstr "Moms"
 
 msgid "VAT number"
 msgstr "Momsnummer"
 
 msgid "View accounts"
-msgstr ""
+msgstr "Vis konti"
 
 msgid "View all"
 msgstr "Vis alle"
 
 msgid "View all {totalEvents} events"
-msgstr ""
+msgstr "Vis alle {totalEvents} hændelser"
 
 msgid "View all {totalTransactions} invoices"
-msgstr ""
+msgstr "Vis alle {totalTransactions} fakturaer"
 
 msgid "View billing events"
-msgstr ""
+msgstr "Vis faktureringshændelser"
 
 msgid "vs prior period"
 msgstr "mod forrige periode"

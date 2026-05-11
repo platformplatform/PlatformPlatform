@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
 import { ChevronDown } from "lucide-react";
@@ -40,9 +41,7 @@ export function PlanFeatureFlagTenantsSection({ tenants }: Readonly<{ tenants: F
   const filtered = useMemo(() => {
     const lowerSearch = search.toLowerCase();
     return search
-      ? tenants.filter(
-          (tenant) => tenant.tenantName.toLowerCase().includes(lowerSearch) || tenant.tenantId.includes(lowerSearch)
-        )
+      ? tenants.filter((tenant) => tenant.name.toLowerCase().includes(lowerSearch) || tenant.id.includes(lowerSearch))
       : tenants;
   }, [tenants, search]);
 
@@ -123,9 +122,9 @@ function PlanFeatureFlagTenantTable({
       </TableHeader>
       <TableBody>
         {tenants.map((tenant) => (
-          <TableRow key={tenant.tenantId}>
-            <TableCell className="hidden truncate text-muted-foreground lg:table-cell">{tenant.tenantId}</TableCell>
-            <TableCell className="truncate font-medium">{tenant.tenantName}</TableCell>
+          <TableRow key={tenant.id}>
+            <TableCell className="hidden truncate text-muted-foreground lg:table-cell">{tenant.id}</TableCell>
+            <TableCell className="truncate font-medium">{tenant.name}</TableCell>
             <TableCell className="text-muted-foreground">{tenant.plan}</TableCell>
             <TableCell className="text-right">
               <Badge variant={tenant.isEnabled ? "default" : "outline"}>
@@ -143,20 +142,17 @@ function CollapsiblePlanGroup({ label, tenants }: Readonly<{ label: string; tena
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        className="flex cursor-pointer items-center gap-1 text-left"
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-expanded={isOpen}
-      >
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex flex-col gap-1">
+      <CollapsibleTrigger className="flex cursor-pointer items-center gap-1 text-left">
         <ChevronDown
           className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
           aria-hidden={true}
         />
         <h4 className="text-muted-foreground">{label}</h4>
-      </button>
-      {isOpen && <PlanFeatureFlagTenantTable ariaLabel={label} tenants={tenants} />}
-    </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <PlanFeatureFlagTenantTable ariaLabel={label} tenants={tenants} />
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

@@ -2,26 +2,18 @@ import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { getCountryFlagEmoji } from "@repo/ui/utils/countryFlag";
-import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 
 import type { components } from "@/shared/lib/api/client";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
-import { PlannedSubscriptionChange } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import { getUserDisplayName } from "../../users/-components/userDisplay";
+import { MrrCell } from "./MrrCell";
 import { TenantStatusBadge } from "./TenantStatusBadge";
 
 type TenantSummary = components["schemas"]["TenantSummary"];
-
-function formatMonthlyRevenue(amount: number | null, currency: string | null): string {
-  if (amount === null || currency === null) {
-    return "-";
-  }
-  return formatCurrency(amount, currency);
-}
 
 export function AccountsTableRow({
   tenant,
@@ -59,7 +51,13 @@ export function AccountsTableRow({
                 />
               </div>
               <div className="shrink-0 text-right text-sm text-muted-foreground tabular-nums">
-                <MrrCell tenant={tenant} align="end" />
+                <MrrCell
+                  monthlyRecurringRevenue={tenant.monthlyRecurringRevenue}
+                  scheduledPriceAmount={tenant.scheduledPriceAmount}
+                  currency={tenant.currency}
+                  plannedChange={tenant.plannedChange}
+                  align="end"
+                />
               </div>
             </div>
           </div>
@@ -69,7 +67,12 @@ export function AccountsTableRow({
         <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>{getSubscriptionPlanLabel(tenant.plan)}</Badge>
       </TableCell>
       <TableCell className="hidden tabular-nums md:table-cell">
-        <MrrCell tenant={tenant} />
+        <MrrCell
+          monthlyRecurringRevenue={tenant.monthlyRecurringRevenue}
+          scheduledPriceAmount={tenant.scheduledPriceAmount}
+          currency={tenant.currency}
+          plannedChange={tenant.plannedChange}
+        />
       </TableCell>
       <TableCell className="hidden lg:table-cell">
         {tenant.renewalDate ? formatDate(tenant.renewalDate) : <span className="text-muted-foreground">-</span>}
@@ -105,28 +108,5 @@ export function AccountsTableRow({
         </div>
       </TableCell>
     </TableRow>
-  );
-}
-
-function MrrCell({ tenant, align = "start" }: Readonly<{ tenant: TenantSummary; align?: "start" | "end" }>) {
-  const currentAmount = formatMonthlyRevenue(tenant.monthlyRecurringRevenue, tenant.currency);
-  const isCanceling = tenant.plannedChange === PlannedSubscriptionChange.Cancellation;
-  const isDowngrading = tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange;
-  const newAmount =
-    isCanceling && tenant.currency !== null
-      ? formatCurrency(0, tenant.currency)
-      : isDowngrading && tenant.scheduledPriceAmount !== null && tenant.currency !== null
-        ? formatCurrency(tenant.scheduledPriceAmount, tenant.currency)
-        : null;
-
-  if (newAmount === null) {
-    return <span>{currentAmount}</span>;
-  }
-
-  return (
-    <div className={`flex flex-col leading-tight ${align === "end" ? "items-end" : ""}`}>
-      <span className="text-xs text-muted-foreground line-through">{currentAmount}</span>
-      <span>{newAmount}</span>
-    </div>
   );
 }
