@@ -73,10 +73,19 @@ public sealed class ProcessPendingStripeEvents(
         if (pendingEvents.Length > 0 || forceSync)
         {
             var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Apply, cancellationToken);
-            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, SyncMode.Apply, cancellationToken);
+            var (driftSnapshots, stripeViewUnavailable) = await SyncStateFromStripe(tenant, subscription, SyncMode.Apply, cancellationToken);
             await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, SyncMode.Apply, cancellationToken);
 
-            MarkAllEventsAsProcessed(pendingEvents, subscription);
+            // Apply mode normally consumes Pending stripe_events rows by marking them Processed. When the Stripe
+            // view is unavailable (the integration client swallowed a StripeException or TaskCanceledException
+            // and returned null) the SyncStateFromStripe mutation branches were skipped, so consuming the rows
+            // would silently drop the side effects. Leave them Pending so the next sync retries; the
+            // BillingEvent ledger emission above is idempotent on stripe_event_id and the events.list anchor
+            // (AdvanceLastSyncedStripeEventCreatedAt) is correctly advanced regardless.
+            if (!stripeViewUnavailable)
+            {
+                MarkAllEventsAsProcessed(pendingEvents, subscription);
+            }
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -102,7 +111,7 @@ public sealed class ProcessPendingStripeEvents(
         if (pendingEvents.Length > 0 || forceSync)
         {
             var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Detect, cancellationToken);
-            var driftSnapshots = await SyncStateFromStripe(tenant, subscription, SyncMode.Detect, cancellationToken);
+            var (driftSnapshots, _) = await SyncStateFromStripe(tenant, subscription, SyncMode.Detect, cancellationToken);
             await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, SyncMode.Detect, cancellationToken);
         }
 
@@ -112,7 +121,7 @@ public sealed class ProcessPendingStripeEvents(
         SendTelemetryEvents(tenant, subscription);
     }
 
-    private async Task<DriftSnapshots> SyncStateFromStripe(Tenant tenant, Subscription subscription, SyncMode syncMode, CancellationToken cancellationToken)
+    private async Task<(DriftSnapshots DriftSnapshots, bool StripeViewUnavailable)> SyncStateFromStripe(Tenant tenant, Subscription subscription, SyncMode syncMode, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
         var customerResult = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId!, cancellationToken);
@@ -127,7 +136,7 @@ public sealed class ProcessPendingStripeEvents(
         if (customerResult is null)
         {
             logger.LogError("Failed to fetch billing info for Stripe customer '{StripeCustomerId}'", subscription.StripeCustomerId);
-            return new DriftSnapshots(localSnapshot, null);
+            return (new DriftSnapshots(localSnapshot, null), true);
         }
 
         if (customerResult.IsCustomerDeleted)
@@ -144,7 +153,7 @@ public sealed class ProcessPendingStripeEvents(
             }
 
             // Stripe's view: customer is gone, no subscription. Pair with the pre-sync local snapshot above.
-            return new DriftSnapshots(localSnapshot, new StripeSyncSnapshot(SubscriptionPlan.Basis, false, null, null));
+            return (new DriftSnapshots(localSnapshot, new StripeSyncSnapshot(SubscriptionPlan.Basis, false, null, null)), false);
         }
 
         var stripeState = await stripeClient.SyncSubscriptionStateAsync(subscription.StripeCustomerId!, cancellationToken);
@@ -157,7 +166,7 @@ public sealed class ProcessPendingStripeEvents(
             var detectStripeSnapshot = stripeState is null
                 ? new StripeSyncSnapshot(SubscriptionPlan.Basis, false, null, null)
                 : new StripeSyncSnapshot(stripeState.Plan, stripeState.CancelAtPeriodEnd, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency);
-            return new DriftSnapshots(localSnapshot, detectStripeSnapshot);
+            return (new DriftSnapshots(localSnapshot, detectStripeSnapshot), false);
         }
 
         // Detect state transitions in lifecycle order (variables and if-blocks below follow the same order).
@@ -384,7 +393,7 @@ public sealed class ProcessPendingStripeEvents(
         var stripeSnapshot = stripeState is null
             ? new StripeSyncSnapshot(SubscriptionPlan.Basis, false, null, null)
             : new StripeSyncSnapshot(stripeState.Plan, stripeState.CancelAtPeriodEnd, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency);
-        return new DriftSnapshots(localSnapshot, stripeSnapshot);
+        return (new DriftSnapshots(localSnapshot, stripeSnapshot), false);
     }
 
     /// <summary>

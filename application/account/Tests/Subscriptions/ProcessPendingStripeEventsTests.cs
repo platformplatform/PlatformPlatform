@@ -99,6 +99,79 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
         committedMrr.Should().Be(0m, "committedMrr after cancellation must drop to zero");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_ApplyMode_WhenStripeViewUnavailable_LeavesPendingEventsPending()
+    {
+        // Production StripeClient.GetCustomerBillingInfoAsync catches StripeException/TaskCanceledException
+        // at the integration boundary and returns null (per the integration-client contract). When Apply mode
+        // observes a null Stripe view the SyncStateFromStripe mutation branches are skipped, so consuming the
+        // Pending stripe_events rows would silently drop their side effects. They must stay Pending so the
+        // next sync retries — Stripe's webhook retry handles the recovery.
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("current_price_amount", 29.99m),
+                ("current_price_currency", "DKK"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
+            ]
+        );
+
+        var firstPendingEventId = $"evt_pending_first_{Guid.NewGuid():N}";
+        var secondPendingEventId = $"evt_pending_second_{Guid.NewGuid():N}";
+        InsertPendingStripeEvent(firstPendingEventId, "customer.subscription.updated");
+        InsertPendingStripeEvent(secondPendingEventId, "invoice.payment_succeeded");
+
+        StripeState.SimulateGetCustomerBillingInfoFailure = true;
+
+        using var scope = WebApplicationServices.CreateScope();
+        SetUseMockStripeCookieOnAmbientHttpContext(scope.ServiceProvider);
+        var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeCustomerId = StripeCustomerId.NewId(MockStripeClient.MockCustomerId);
+
+        // Act
+        await processor.ExecuteAsync(stripeCustomerId, false, SyncMode.Apply, CancellationToken.None);
+
+        // Assert
+        ReadStripeEventStatus(firstPendingEventId).Should().Be(nameof(StripeEventStatus.Pending), "Apply mode must leave Pending stripe_events unchanged when the Stripe view is unavailable so the next sync retries");
+        ReadStripeEventStatus(secondPendingEventId).Should().Be(nameof(StripeEventStatus.Pending), "Apply mode must leave Pending stripe_events unchanged when the Stripe view is unavailable so the next sync retries");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ApplyMode_WhenStripeViewAvailable_MarksEventsProcessedAsBefore()
+    {
+        // Regression guard for the happy path: the Stripe view is available, SyncStateFromStripe runs its
+        // mutation branches, and the Pending stripe_events rows are consumed by MarkAllEventsAsProcessed.
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("current_price_amount", 29.99m),
+                ("current_price_currency", "DKK"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
+            ]
+        );
+
+        var firstPendingEventId = $"evt_pending_first_{Guid.NewGuid():N}";
+        var secondPendingEventId = $"evt_pending_second_{Guid.NewGuid():N}";
+        InsertPendingStripeEvent(firstPendingEventId, "customer.subscription.updated");
+        InsertPendingStripeEvent(secondPendingEventId, "invoice.payment_succeeded");
+
+        using var scope = WebApplicationServices.CreateScope();
+        SetUseMockStripeCookieOnAmbientHttpContext(scope.ServiceProvider);
+        var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeCustomerId = StripeCustomerId.NewId(MockStripeClient.MockCustomerId);
+
+        // Act
+        await processor.ExecuteAsync(stripeCustomerId, false, SyncMode.Apply, CancellationToken.None);
+
+        // Assert
+        ReadStripeEventStatus(firstPendingEventId).Should().Be(nameof(StripeEventStatus.Processed), "Apply mode must consume Pending stripe_events on the happy path");
+        ReadStripeEventStatus(secondPendingEventId).Should().Be(nameof(StripeEventStatus.Processed), "Apply mode must consume Pending stripe_events on the happy path");
+    }
+
     private decimal? ReadDecimalColumn(string columnName, string stripeEventId)
     {
         // EF Core maps decimal to TEXT in SQLite to preserve precision; the test helper's direct cast to
@@ -108,6 +181,35 @@ public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDb
             [new { stripeEventId }]
         );
         return raw is null ? null : decimal.Parse(raw, CultureInfo.InvariantCulture);
+    }
+
+    private void InsertPendingStripeEvent(string stripeEventId, string eventType)
+    {
+        Connection.Insert("stripe_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", stripeEventId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("event_type", eventType),
+                ("status", nameof(StripeEventStatus.Pending)),
+                ("processed_at", null),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", null),
+                ("payload", null),
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash("")),
+                ("stripe_created_at", TimeProvider.GetUtcNow())
+            ]
+        );
+    }
+
+    private string ReadStripeEventStatus(string stripeEventId)
+    {
+        return Connection.ExecuteScalar<string>(
+            "SELECT status FROM stripe_events WHERE id = @id",
+            [new { id = stripeEventId }]
+        );
     }
 
     private static void SetUseMockStripeCookieOnAmbientHttpContext(IServiceProvider serviceProvider)
