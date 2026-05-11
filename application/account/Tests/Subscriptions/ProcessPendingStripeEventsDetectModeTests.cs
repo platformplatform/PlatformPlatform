@@ -1,5 +1,6 @@
 using System.Globalization;
 using Account.Database;
+using Account.Features;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Shared;
 using Account.Integrations.OAuth;
@@ -127,6 +128,74 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
 
         var stripeEventsAfter = ReadStripeEventCount();
         stripeEventsAfter.Should().Be(stripeEventsBefore, "Detect mode must not insert recovered stripe_events rows on the happy path");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenStripeViewUnavailable_DoesNotAdvanceDriftCheckedAt()
+    {
+        // Production StripeClient.GetCustomerBillingInfoAsync catches StripeException/TaskCanceledException
+        // at the integration boundary and returns null (per the integration-client contract). When Detect mode
+        // observes a null Stripe view it must NOT advance DriftCheckedAt — otherwise the row looks fresh for
+        // 23h and the BillingDriftWorker tripwire silently skips it on the next pass while Stripe is down.
+        // Arrange
+        var existingDriftCheckedAt = TimeProvider.GetUtcNow().AddHours(-25);
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("current_price_amount", 29.99m),
+                ("current_price_currency", "DKK"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
+                ("drift_checked_at", existingDriftCheckedAt)
+            ]
+        );
+
+        StripeState.SimulateGetCustomerBillingInfoFailure = true;
+        TelemetryEventsCollectorSpy.Reset();
+
+        using var scope = WebApplicationServices.CreateScope();
+        SetUseMockStripeCookieOnAmbientHttpContext(scope.ServiceProvider);
+        var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeCustomerId = StripeCustomerId.NewId(MockStripeClient.MockCustomerId);
+
+        // Act
+        await processor.ExecuteAsync(stripeCustomerId, true, SyncMode.Detect, CancellationToken.None);
+
+        // Assert
+        ReadDriftCheckedAt().Should().Be(existingDriftCheckedAt, "Detect mode must leave DriftCheckedAt unchanged when the Stripe view is unavailable so the next pass retries");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == nameof(BillingDriftSkippedDueToStripeUnavailable));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenStripeViewAvailable_AdvancesDriftCheckedAtAsBefore()
+    {
+        // Regression guard for the happy path: the Stripe view is available, drift detection runs, and
+        // DriftCheckedAt advances to the current clock.
+        // Arrange
+        var existingDriftCheckedAt = TimeProvider.GetUtcNow().AddHours(-25);
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("current_price_amount", 29.99m),
+                ("current_price_currency", "DKK"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
+                ("drift_checked_at", existingDriftCheckedAt)
+            ]
+        );
+
+        var before = TimeProvider.GetUtcNow();
+
+        using var scope = WebApplicationServices.CreateScope();
+        SetUseMockStripeCookieOnAmbientHttpContext(scope.ServiceProvider);
+        var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeCustomerId = StripeCustomerId.NewId(MockStripeClient.MockCustomerId);
+
+        // Act
+        await processor.ExecuteAsync(stripeCustomerId, true, SyncMode.Detect, CancellationToken.None);
+
+        // Assert
+        ReadDriftCheckedAt().Should().BeOnOrAfter(before.AddSeconds(-1), "Detect mode must advance DriftCheckedAt on the happy path so the worker can prove it has visited the row");
     }
 
     // ProcessPendingStripeEvents runs through StripeClientFactory.GetClient(), which gates the mock provider

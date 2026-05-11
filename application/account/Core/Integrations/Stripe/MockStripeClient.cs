@@ -11,6 +11,11 @@ public sealed class MockStripeState
 
     public bool SimulateCustomerDeleted { get; set; }
 
+    // Simulates the production behavior of StripeClient.GetCustomerBillingInfoAsync where a
+    // StripeException or TaskCanceledException is caught at the integration boundary and the
+    // method returns null (per the "never throw from integration clients" project rule).
+    public bool SimulateGetCustomerBillingInfoFailure { get; set; }
+
     public bool SimulateOpenInvoice { get; set; }
 
     // Production only supports DKK (enforced by the StripeClient boundary guard and the DB CHECK
@@ -197,6 +202,11 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
+
+        if (state.SimulateGetCustomerBillingInfoFailure)
+        {
+            return Task.FromResult<CustomerBillingResult?>(null);
+        }
 
         if (state.SimulateCustomerDeleted)
         {

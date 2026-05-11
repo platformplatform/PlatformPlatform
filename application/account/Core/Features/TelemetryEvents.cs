@@ -16,6 +16,9 @@ namespace Account.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
+public sealed class BillingDriftSkippedDueToStripeUnavailable(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class BillingInfoAdded(SubscriptionId subscriptionId, string? country, string? postalCode, string? city)
     : TelemetryEvent(("subscription_id", subscriptionId), ("country", country as object ?? "unknown"), ("postal_code", postalCode as object ?? "unknown"), ("city", city as object ?? "unknown"));
 

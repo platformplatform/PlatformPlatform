@@ -75,10 +75,10 @@ public sealed class ProcessPendingStripeEvents(
         await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        if (syncMode == SyncMode.Apply)
-        {
-            SendTelemetryEvents(tenant, subscription);
-        }
+        // Detect mode normally collects nothing because the mutation branches that drive telemetry are
+        // skipped. The Stripe-unavailable drift-skipped event in DetectDrift is the one Detect-mode
+        // signal that must still surface in Application Insights, so flush whatever was collected.
+        SendTelemetryEvents(tenant, subscription);
     }
 
     private async Task<DriftSnapshots> SyncStateFromStripe(Tenant tenant, Subscription subscription, SyncMode syncMode, CancellationToken cancellationToken)
@@ -403,7 +403,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (unioned.Count == 0)
         {
-            DetectDrift(subscription, driftSnapshots, 0, false, [], [], [], []);
+            DetectDrift(subscription, driftSnapshots, 0, false, [], [], [], [], syncMode);
             return;
         }
 
@@ -497,7 +497,7 @@ public sealed class ProcessPendingStripeEvents(
         var billingEventTypesPresent = persistedRows.Select(r => r.EventType)
             .Concat(replayedEvents.Select(r => r.EventType))
             .ToHashSet();
-        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents);
+        DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents, syncMode);
     }
 
     private void DetectDrift(
@@ -508,9 +508,24 @@ public sealed class ProcessPendingStripeEvents(
         HashSet<string> unsupportedApiVersions,
         HashSet<string> eventTypesPresent,
         HashSet<BillingEventType> billingEventTypesPresent,
-        IReadOnlyList<BillingEvent> staleBillingEvents
+        IReadOnlyList<BillingEvent> staleBillingEvents,
+        SyncMode syncMode
     )
     {
+        // Detect mode is the BillingDriftWorker tripwire. When the Stripe view is unavailable (the integration
+        // client swallowed a StripeException or TaskCanceledException and returned null) the detector would
+        // otherwise self-compare the pre-sync local snapshot against itself, find no divergence, and still
+        // advance DriftCheckedAt via SetDriftStatus — which would mask a real Stripe outage from the worker's
+        // staleness tripwire for 23h. Skip the SetDriftStatus call so the row stays stale and the next pass
+        // retries. The webhook hot path (Apply mode) keeps the legacy fallback so non-mismatch coverage checks
+        // still run, and Stripe's webhook retry handles the recovery.
+        if (syncMode == SyncMode.Detect && driftSnapshots.Stripe is null)
+        {
+            logger.LogError("Skipping drift detection for Stripe customer '{StripeCustomerId}' because the Stripe view is unavailable; DriftCheckedAt left unchanged so the next worker pass retries", subscription.StripeCustomerId);
+            events.CollectEvent(new BillingDriftSkippedDueToStripeUnavailable(subscription.Id));
+            return;
+        }
+
         var now = timeProvider.GetUtcNow();
         try
         {
