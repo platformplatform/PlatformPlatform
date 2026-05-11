@@ -98,9 +98,9 @@ msgid "Account growth"
 msgstr "Kontovækst"
 
 #. placeholder {0}: result.driftDiscrepancyCount
-#. placeholder {1}: formatDate(result.syncedAt)
-msgid "Account has {0} drift discrepancies. Last synced at {1}."
-msgstr "Kontoen har {0} afvigelser. Senest synkroniseret {1}."
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Account has {0} drift discrepancies. Last reconciled at {1}."
+msgstr "Konto har {0} afvigelser. Sidst afstemt {1}."
 
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
@@ -151,9 +151,9 @@ msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
 #. placeholder {0}: result.billingEventsAppended
-#. placeholder {1}: formatDate(result.syncedAt)
-msgid "Appended {0} new billing events. Last synced at {1}."
-msgstr "Tilføjede {0} nye faktureringshændelser. Senest synkroniseret {1}."
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Appended {0} new billing events. Last reconciled at {1}."
+msgstr "Tilføjede {0} nye faktureringshændelser. Sidst afstemt {1}."
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
 msgstr "Autoritativ log over abonnements-, betalings- og faktureringsændringer på tværs af alle konti."
@@ -190,6 +190,9 @@ msgstr "Samlet MRR"
 
 msgid "Browser"
 msgstr "Browser"
+
+msgid "Cancel"
+msgstr "Annuller"
 
 msgid "Canceled"
 msgstr "Opsagt"
@@ -669,6 +672,27 @@ msgstr "Nylige betalinger"
 msgid "Recent signups"
 msgstr "Nylige tilmeldinger"
 
+msgid "Reconcile"
+msgstr "Afstem"
+
+msgid "Reconcile complete"
+msgstr "Afstemning fuldført"
+
+msgid "Reconcile complete with drift detected"
+msgstr "Afstemning fuldført med afvigelser fundet"
+
+msgid "Reconcile is a recovery action — it falls back to local cold-backup payloads for events older than Stripe's 30-day window and may write approximate data. Use only when normal sync has missed something."
+msgstr "Afstemning er en gendannelseshandling — den falder tilbage til lokale cold-backup payloads for hændelser ældre end Stripes 30-dages vindue og kan skrive omtrentlige data. Brug kun når normal synkronisering har overset noget."
+
+msgid "Reconcile with Stripe"
+msgstr "Afstem med Stripe"
+
+msgid "Reconcile with Stripe?"
+msgstr "Afstem med Stripe?"
+
+msgid "Reconciling..."
+msgstr "Afstemmer..."
+
 msgid "Refunded"
 msgstr "Refunderet"
 
@@ -775,18 +799,6 @@ msgstr "Vellykkede logins vises her, når brugere logger ind."
 
 msgid "Suspended"
 msgstr "Suspenderet"
-
-msgid "Sync complete"
-msgstr "Synkronisering færdig"
-
-msgid "Sync complete with drift detected"
-msgstr "Synkronisering færdig med afvigelser fundet"
-
-msgid "Sync with Stripe"
-msgstr "Synkroniser med Stripe"
-
-msgid "Syncing..."
-msgstr "Synkroniserer..."
 
 msgid "System"
 msgstr "System"

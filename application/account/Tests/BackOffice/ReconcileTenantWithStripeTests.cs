@@ -11,10 +11,10 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
+public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
 {
     [Fact]
-    public async Task SyncTenantWithStripe_WhenSubscriptionHasStripeCustomer_ShouldReturnSyncResponse()
+    public async Task ReconcileTenantWithStripe_WhenSubscriptionHasStripeCustomer_ShouldReturnReconcileResponse()
     {
         // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
@@ -26,37 +26,37 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var payload = await response.Content.ReadFromJsonAsync<SyncTenantWithStripeResponse>();
+        var payload = await response.Content.ReadFromJsonAsync<ReconcileTenantWithStripeResponse>();
         payload.Should().NotBeNull();
         payload.BillingEventsAppended.Should().BeGreaterThanOrEqualTo(0);
         // HasDriftDetected/DriftDiscrepancyCount aren't asserted: the seeded subscription has
         // PaymentTransactions but no BillingEvent rows, which the drift detector legitimately flags as
         // a MissingEvent discrepancy under the strict 1:1 invariant. The endpoint completing successfully
-        // and returning a fresh syncedAt is what this test verifies.
-        payload.SyncedAt.Should().BeAfter(DateTimeOffset.UtcNow.AddMinutes(-1));
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "TenantSyncedWithStripe");
+        // and returning a fresh reconciledAt is what this test verifies.
+        payload.ReconciledAt.Should().BeAfter(DateTimeOffset.UtcNow.AddMinutes(-1));
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "TenantReconciledWithStripe");
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenSubscriptionHasNoStripeCustomer_ShouldReturnBadRequest()
+    public async Task ReconcileTenantWithStripe_WhenSubscriptionHasNoStripeCustomer_ShouldReturnBadRequest()
     {
         // Arrange
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenTenantDoesNotExist_ShouldReturnNotFound()
+    public async Task ReconcileTenantWithStripe_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
@@ -65,14 +65,14 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         var unknownTenantId = TenantId.NewId();
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{unknownTenantId}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{unknownTenantId}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenStripeNotConfigured_ShouldReturnBadRequest()
+    public async Task ReconcileTenantWithStripe_WhenStripeNotConfigured_ShouldReturnBadRequest()
     {
         // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
@@ -83,41 +83,41 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenCalledByNonAdmin_ShouldReturnForbidden()
+    public async Task ReconcileTenantWithStripe_WhenCalledByNonAdmin_ShouldReturnForbidden()
     {
         // Arrange
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
+    public async Task ReconcileTenantWithStripe_WhenCalledWithoutAuthentication_ShouldReturnUnauthorized()
     {
         // Arrange
         using var client = CreateBackOfficeClient();
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenStripeReturnsNonDkkCurrency_ShouldReturnBadRequest()
+    public async Task ReconcileTenantWithStripe_WhenStripeReturnsNonDkkCurrency_ShouldReturnBadRequest()
     {
         // Arrange
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
@@ -130,7 +130,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -138,7 +138,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task SyncTenantWithStripe_WhenSyncSucceeds_ShouldOverwriteSubscribedSinceWithStripeCustomerCreated()
+    public async Task ReconcileTenantWithStripe_WhenReconcileSucceeds_ShouldOverwriteSubscribedSinceWithStripeCustomerCreated()
     {
         // Arrange
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
@@ -154,7 +154,7 @@ public sealed class SyncTenantWithStripeTests : BackOfficeEndpointBaseTest
         );
 
         // Act
-        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/sync-with-stripe", null);
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

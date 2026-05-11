@@ -1074,13 +1074,14 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     }
 
     /// <summary>
-    ///     Lists Stripe events for a customer via Stripe's events.list API. Used as a reconciliation source
-    ///     to detect webhooks we missed: any event id Stripe returns that we don't have in stripe_events
-    ///     locally is a delivery we lost. Stripe retains events for only 30 days
-    ///     (see https://docs.stripe.com/api/events) — anything older is unreachable through this API and
-    ///     must be backed by our local stripe_events archive instead.
+    ///     Lists Stripe events for a customer via Stripe's events.list API. Authoritative source for the
+    ///     hot path: every webhook-driven sync passes the subscription's last-synced anchor as
+    ///     <paramref name="sinceCreated" /> so Stripe returns the full set of events produced since the
+    ///     last successful sync, in chronological-ascending order. Stripe retains events for only 30 days
+    ///     (see https://docs.stripe.com/api/events); the background sweeper guarantees the anchor never
+    ///     falls outside that window.
     /// </summary>
-    public async Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public async Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
     {
         try
         {
@@ -1090,6 +1091,11 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 Limit = 100,
                 Types = [.. ReplayEventTypes]
             };
+            if (sinceCreated is { } anchor)
+            {
+                options.Created = new DateRangeOptions { GreaterThanOrEqual = anchor.UtcDateTime };
+            }
+
             var collected = new List<StripeReplayEvent>();
             await foreach (var stripeEvent in service.ListAutoPagingAsync(options, GetRequestOptions(), cancellationToken))
             {
@@ -1097,7 +1103,9 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 collected.Add(new StripeReplayEvent(stripeEvent.Id, stripeEvent.Type, stripeEvent.Created, stripeEvent.ToJson(), stripeEvent.ApiVersion));
             }
 
-            return [.. collected];
+            // Stripe returns events newest-first; reorder ascending so callers can advance the anchor
+            // and emit BillingEvents in the order Stripe observed them.
+            return [.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)];
         }
         catch (StripeException ex)
         {

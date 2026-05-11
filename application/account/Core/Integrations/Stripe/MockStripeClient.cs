@@ -20,6 +20,12 @@ public sealed class MockStripeState
     // on a per-test basis to simulate Stripe returning a non-DKK currency so the boundary guard
     // can be exercised. Default matches production.
     public string SubscriptionCurrency { get; set; } = "DKK";
+
+    // Extra Stripe events the test wants the mock's events.list to return on top of the defaults.
+    // Lets a test simulate the events.list view of the world for scenarios where the new
+    // events.list-driven emission must see historical events that aren't part of the default mock
+    // timeline (e.g. drift detection across earlier customer.subscription.created/deleted pairs).
+    public List<StripeReplayEvent> EventsListAdditionalEvents { get; } = [];
 }
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider, MockStripeState state) : IStripeClient
@@ -292,7 +298,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         );
     }
 
-    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         var now = timeProvider.GetUtcNow();
@@ -326,7 +332,10 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             events.Add(new StripeReplayEvent(MockCustomerDeletedEventId, "customer.deleted", now, "{}", MockApiVersion));
         }
 
-        return Task.FromResult(events.ToArray());
+        events.AddRange(state.EventsListAdditionalEvents);
+
+        var filtered = sinceCreated is { } anchor ? events.Where(e => e.CreatedAt >= anchor) : events;
+        return Task.FromResult(filtered.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId).ToArray());
     }
 
     // ReSharper disable once ReturnTypeCanBeNotNullable

@@ -56,12 +56,14 @@ public interface IStripeClient
 
     /// <summary>
     ///     Returns Stripe events related to a customer (last 30 days — see
-    ///     https://docs.stripe.com/api/events) via the events.list API. Used as a reconciliation source
-    ///     to detect webhook deliveries we missed: any event id Stripe knows about that's not in our
-    ///     local <c>stripe_events</c> archive gets inserted as a recovered row. The local archive is
-    ///     the durable source of truth for replay; events.list is only the recovery channel.
+    ///     https://docs.stripe.com/api/events) via the events.list API. This is the authoritative
+    ///     source for the hot path: every webhook-driven sync calls this with
+    ///     <paramref name="sinceCreated" /> set to the subscription's last-synced anchor so the
+    ///     BillingEvent ledger is rebuilt from Stripe's view of the world, never from
+    ///     <c>stripe_events.payload</c>. The local archive is a cold backup read only by the
+    ///     admin reconcile command for events older than the 30-day window.
     /// </summary>
-    Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+    Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Builds the Stripe Dashboard URL for a customer. Returns null when no Stripe API key is

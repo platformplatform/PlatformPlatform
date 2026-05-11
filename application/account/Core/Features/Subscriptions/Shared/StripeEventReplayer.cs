@@ -7,8 +7,15 @@ using SharedKernel.Domain;
 namespace Account.Features.Subscriptions.Shared;
 
 /// <summary>
-///     Maps Stripe events into BillingEvent rows under a strict 1:1 invariant: every recognized
+///     Classifies Stripe events into BillingEvent rows under a strict 1:1 invariant: every recognized
 ///     subscription-relevant Stripe event yields exactly one row.
+///     The hot path drives this classifier from Stripe's events.list response and the just-arrived
+///     webhook payloads via <c>EmitBillingEventsFromEventsListAsync</c>; it never reads the durable
+///     <c>stripe_events.payload</c> column. This replayer is also invoked by the admin
+///     <c>ReconcileTenantWithStripe</c> command as the fallback for events older than Stripe's 30-day
+///     events.list retention window — in that one path the local <c>stripe_events.payload</c> archive
+///     is the only available source, so the reconcile handler hands the archived payloads into this
+///     same classifier.
 ///     Events that don't move state we care about are emitted as <see cref="BillingEventType.NoOp" />.
 ///     Events whose payload combines multiple state changes that don't decompose into one of our domain
 ///     transitions are emitted as <see cref="BillingEventType.Unclassified" /> and flip the

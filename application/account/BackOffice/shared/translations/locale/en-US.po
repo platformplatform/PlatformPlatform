@@ -98,9 +98,9 @@ msgid "Account growth"
 msgstr "Account growth"
 
 #. placeholder {0}: result.driftDiscrepancyCount
-#. placeholder {1}: formatDate(result.syncedAt)
-msgid "Account has {0} drift discrepancies. Last synced at {1}."
-msgstr "Account has {0} drift discrepancies. Last synced at {1}."
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Account has {0} drift discrepancies. Last reconciled at {1}."
+msgstr "Account has {0} drift discrepancies. Last reconciled at {1}."
 
 msgid "Account preview"
 msgstr "Account preview"
@@ -151,9 +151,9 @@ msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
 #. placeholder {0}: result.billingEventsAppended
-#. placeholder {1}: formatDate(result.syncedAt)
-msgid "Appended {0} new billing events. Last synced at {1}."
-msgstr "Appended {0} new billing events. Last synced at {1}."
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Appended {0} new billing events. Last reconciled at {1}."
+msgstr "Appended {0} new billing events. Last reconciled at {1}."
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
 msgstr "Authoritative log of subscription, payment, and billing transitions across all accounts."
@@ -190,6 +190,9 @@ msgstr "Blended MRR"
 
 msgid "Browser"
 msgstr "Browser"
+
+msgid "Cancel"
+msgstr "Cancel"
 
 msgid "Canceled"
 msgstr "Canceled"
@@ -669,6 +672,27 @@ msgstr "Recent payments"
 msgid "Recent signups"
 msgstr "Recent signups"
 
+msgid "Reconcile"
+msgstr "Reconcile"
+
+msgid "Reconcile complete"
+msgstr "Reconcile complete"
+
+msgid "Reconcile complete with drift detected"
+msgstr "Reconcile complete with drift detected"
+
+msgid "Reconcile is a recovery action — it falls back to local cold-backup payloads for events older than Stripe's 30-day window and may write approximate data. Use only when normal sync has missed something."
+msgstr "Reconcile is a recovery action — it falls back to local cold-backup payloads for events older than Stripe's 30-day window and may write approximate data. Use only when normal sync has missed something."
+
+msgid "Reconcile with Stripe"
+msgstr "Reconcile with Stripe"
+
+msgid "Reconcile with Stripe?"
+msgstr "Reconcile with Stripe?"
+
+msgid "Reconciling..."
+msgstr "Reconciling..."
+
 msgid "Refunded"
 msgstr "Refunded"
 
@@ -775,18 +799,6 @@ msgstr "Successful logins will appear here as users sign in."
 
 msgid "Suspended"
 msgstr "Suspended"
-
-msgid "Sync complete"
-msgstr "Sync complete"
-
-msgid "Sync complete with drift detected"
-msgstr "Sync complete with drift detected"
-
-msgid "Sync with Stripe"
-msgstr "Sync with Stripe"
-
-msgid "Syncing..."
-msgstr "Syncing..."
 
 msgid "System"
 msgstr "System"

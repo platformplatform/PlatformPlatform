@@ -63,6 +63,16 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public DateTimeOffset? SubscribedSince { get; private set; }
 
+    /// <summary>
+    ///     The <c>Event.Created</c> of the most recent Stripe event applied to this subscription via the
+    ///     events.list-driven hot path. Used as the <c>created.gte</c> anchor on the next sync so we only
+    ///     fetch events Stripe has produced since we were last in sync. Stripe retains events for 30 days
+    ///     (see https://docs.stripe.com/api/events); the background sweeper re-syncs every active customer
+    ///     well within that window so this anchor never falls out of range. Null on subscriptions that
+    ///     have never been synced (e.g. fresh tenants on Basis).
+    /// </summary>
+    public DateTimeOffset? LastSyncedStripeEventCreatedAt { get; private set; }
+
     public ImmutableArray<PaymentTransaction> PaymentTransactions { get; private set; }
 
     public PaymentMethod? PaymentMethod { get; private set; }
@@ -119,6 +129,19 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     public void SetSubscribedSinceFromStripe(DateTimeOffset stripeCustomerCreated)
     {
         SubscribedSince = stripeCustomerCreated;
+    }
+
+    /// <summary>
+    ///     Advances the events.list anchor to the <c>Event.Created</c> of the most recent event applied in
+    ///     this sync. Monotonic: only advances forward so a late-arriving older event recovered via
+    ///     reconcile cannot rewind the anchor below an already-applied event.
+    /// </summary>
+    public void AdvanceLastSyncedStripeEventCreatedAt(DateTimeOffset eventCreatedAt)
+    {
+        if (LastSyncedStripeEventCreatedAt is null || eventCreatedAt > LastSyncedStripeEventCreatedAt.Value)
+        {
+            LastSyncedStripeEventCreatedAt = eventCreatedAt;
+        }
     }
 
     public void SetCancellation(bool cancelAtPeriodEnd, CancellationReason? cancellationReason, string? cancellationFeedback)

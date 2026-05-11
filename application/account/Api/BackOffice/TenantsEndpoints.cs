@@ -48,9 +48,9 @@ public sealed class TenantsEndpoints : IEndpoints
             => await mediator.Send(query with { Id = id })
         ).Produces<TenantPaymentHistoryResponse>();
 
-        group.MapPost("/{id}/sync-with-stripe", async Task<ApiResult<SyncTenantWithStripeResponse>> (TenantId id, IMediator mediator)
-            => await mediator.Send(new SyncTenantWithStripeCommand { TenantId = id })
-        ).Produces<SyncTenantWithStripeResponse>().RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
+        group.MapPost("/{id}/reconcile-with-stripe", async Task<ApiResult<ReconcileTenantWithStripeResponse>> (TenantId id, IMediator mediator)
+            => await mediator.Send(new ReconcileTenantWithStripeCommand { TenantId = id })
+        ).Produces<ReconcileTenantWithStripeResponse>().RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapPost("/{id}/drift/acknowledge", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new AcknowledgeBillingDriftCommand { TenantId = id })

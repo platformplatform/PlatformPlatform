@@ -154,7 +154,7 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<PaymentTransaction[]?>(null);
     }
 
-    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public Task<StripeReplayEvent[]> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot list events for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<StripeReplayEvent[]>([]);

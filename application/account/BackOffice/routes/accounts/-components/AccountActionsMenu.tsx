@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -30,31 +31,33 @@ interface AccountActionsMenuProps {
   stripeCustomerUrl: string | null | undefined;
 }
 
-interface SyncResult {
+interface ReconcileResult {
   billingEventsAppended: number;
   hasDriftDetected: boolean;
   driftDiscrepancyCount: number;
-  syncedAt: string;
+  reconciledAt: string;
 }
 
 export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<AccountActionsMenuProps>) {
   const formatDate = useFormatDate();
   const { data: me } = useMe();
-  const [result, setResult] = useState<SyncResult | null>(null);
+  const [result, setResult] = useState<ReconcileResult | null>(null);
   const [isResultOpen, setIsResultOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  const syncMutation = api.useMutation("post", "/api/back-office/tenants/{id}/sync-with-stripe", {
+  const reconcileMutation = api.useMutation("post", "/api/back-office/tenants/{id}/reconcile-with-stripe", {
     onSuccess: (data) => {
       setResult(data);
       setIsResultOpen(true);
     }
   });
 
-  const handleSync = () => {
-    syncMutation.mutate({ params: { path: { id: tenantId } } });
+  const handleConfirmReconcile = () => {
+    setIsConfirmOpen(false);
+    reconcileMutation.mutate({ params: { path: { id: tenantId } } });
   };
 
-  // Sync with Stripe is admin-only on the server (TenantsEndpoints.cs). Hide the trigger for
+  // Reconcile with Stripe is admin-only on the server (TenantsEndpoints.cs). Hide the trigger for
   // non-admins so the UI matches the policy.
   if (!me?.isAdmin) {
     return null;
@@ -72,7 +75,7 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
                     variant="outline"
                     size="icon-sm"
                     aria-label={t`Account actions`}
-                    disabled={syncMutation.isPending}
+                    disabled={reconcileMutation.isPending}
                   >
                     <MoreVerticalIcon className="size-4" />
                   </Button>
@@ -83,9 +86,13 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
           <TooltipContent>{t`Account actions`}</TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem trackingLabel="Sync with Stripe" onClick={handleSync} disabled={syncMutation.isPending}>
+          <DropdownMenuItem
+            trackingLabel="Reconcile with Stripe"
+            onClick={() => setIsConfirmOpen(true)}
+            disabled={reconcileMutation.isPending}
+          >
             <RefreshCwIcon className="size-4" />
-            {syncMutation.isPending ? <Trans>Syncing...</Trans> : <Trans>Sync with Stripe</Trans>}
+            {reconcileMutation.isPending ? <Trans>Reconciling...</Trans> : <Trans>Reconcile with Stripe</Trans>}
           </DropdownMenuItem>
           {stripeCustomerUrl && (
             <DropdownMenuItem
@@ -99,7 +106,34 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isResultOpen} onOpenChange={setIsResultOpen} trackingTitle="Sync with Stripe result">
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen} trackingTitle="Reconcile with Stripe confirm">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-amber-100">
+              <AlertTriangleIcon className="text-amber-600" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>
+              <Trans>Reconcile with Stripe?</Trans>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <Trans>
+                Reconcile is a recovery action — it falls back to local cold-backup payloads for events older than
+                Stripe's 30-day window and may write approximate data. Use only when normal sync has missed something.
+              </Trans>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel variant="secondary">
+              <Trans>Cancel</Trans>
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmReconcile}>
+              <Trans>Reconcile</Trans>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isResultOpen} onOpenChange={setIsResultOpen} trackingTitle="Reconcile with Stripe result">
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogMedia className={result?.hasDriftDetected ? "bg-amber-100" : "bg-emerald-100"}>
@@ -111,9 +145,9 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
             </AlertDialogMedia>
             <AlertDialogTitle>
               {result?.hasDriftDetected ? (
-                <Trans>Sync complete with drift detected</Trans>
+                <Trans>Reconcile complete with drift detected</Trans>
               ) : (
-                <Trans>Sync complete</Trans>
+                <Trans>Reconcile complete</Trans>
               )}
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -123,13 +157,13 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
                 <Trans>No new billing events were appended. Account state matches Stripe.</Trans>
               ) : result.billingEventsAppended > 0 ? (
                 <Trans>
-                  Appended {result.billingEventsAppended} new billing events. Last synced at{" "}
-                  {formatDate(result.syncedAt)}.
+                  Appended {result.billingEventsAppended} new billing events. Last reconciled at{" "}
+                  {formatDate(result.reconciledAt)}.
                 </Trans>
               ) : (
                 <Trans>
-                  Account has {result.driftDiscrepancyCount} drift discrepancies. Last synced at{" "}
-                  {formatDate(result.syncedAt)}.
+                  Account has {result.driftDiscrepancyCount} drift discrepancies. Last reconciled at{" "}
+                  {formatDate(result.reconciledAt)}.
                 </Trans>
               )}
             </AlertDialogDescription>

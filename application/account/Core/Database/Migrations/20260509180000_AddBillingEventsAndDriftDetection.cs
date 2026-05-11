@@ -10,6 +10,7 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.AddColumn<DateTimeOffset>("subscribed_since", "subscriptions", "timestamptz", nullable: true);
+        migrationBuilder.AddColumn<DateTimeOffset>("last_synced_stripe_event_created_at", "subscriptions", "timestamptz", nullable: true);
         migrationBuilder.AddColumn<decimal>("scheduled_price_amount", "subscriptions", "numeric(18,2)", nullable: true);
         migrationBuilder.AddColumn<bool>("has_drift_detected", "subscriptions", "boolean", nullable: false, defaultValue: false);
         migrationBuilder.AddColumn<DateTimeOffset>("drift_checked_at", "subscriptions", "timestamptz", nullable: true);
@@ -115,7 +116,7 @@ public sealed class AddBillingEventsAndDriftDetection : Migration
 
         // v1 stance: only DKK is supported. The dashboard MRR handlers sum decimal amounts across every
         // subscription / billing event without grouping by currency, so any non-DKK row corrupts the totals.
-        // The boundary guard in SyncTenantWithStripeHandler rejects non-DKK syncs before they reach
+        // The boundary guard in ReconcileTenantWithStripeHandler rejects non-DKK syncs before they reach
         // persistence; these CHECK constraints are the structural backstop so the invariant holds even if
         // a future code path forgets the boundary check. Basis-only tenants have no current_price_currency
         // (NULL), so the subscriptions constraint allows NULL. billing_events.currency is always populated

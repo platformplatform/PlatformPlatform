@@ -11,10 +11,15 @@ namespace Account.Features.Subscriptions.Shared;
 
 /// <summary>
 ///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row to
-///     serialize concurrent webhook processing, syncs current state from Stripe, then writes the new
-///     BillingEvent rows by replaying the customer's full stripe_events history. The unique
-///     stripe_event_id index on billing_events makes the replay idempotent: redelivered webhooks and
-///     re-pulls from the Stripe events API are no-ops.
+///     serialize concurrent webhook processing, syncs current state from Stripe, then writes new
+///     BillingEvent rows from the events.list view of the world. The hot path NEVER reads
+///     <c>stripe_events.payload</c>: it drives BillingEvent emission from Stripe's events.list response
+///     (anchored on the subscription's <see cref="Subscription.LastSyncedStripeEventCreatedAt" />) and
+///     from the just-arrived webhook payloads carried by the in-memory <c>pendingEvents</c> set. The
+///     local <c>stripe_events</c> archive stays as a cold backup; only the admin "Reconcile with Stripe"
+///     action walks it (see <see cref="StripeEventReplayer" />). The unique <c>stripe_event_id</c> index
+///     on <c>billing_events</c> makes the emission idempotent: redelivered webhooks and re-pulls from
+///     events.list are no-ops.
 /// </summary>
 public sealed class ProcessPendingStripeEvents(
     AccountDbContext dbContext,
@@ -53,12 +58,12 @@ public sealed class ProcessPendingStripeEvents(
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
         var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
-        // forceSync runs the Stripe sync even with no pending events (used by the BackOffice "Sync with Stripe" admin action)
+        // forceSync runs the Stripe sync even with no pending events (used by the back-office reconcile admin action)
         if (pendingEvents.Length > 0 || forceSync)
         {
-            var recoveredEvents = await ReconcileEventLogFromEventsListAsync(stripeCustomerId, cancellationToken);
+            var eventsListResults = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, cancellationToken);
             var driftSnapshots = await SyncStateFromStripe(tenant, subscription, cancellationToken);
-            await SyncBillingEventsAsync(subscription, pendingEvents, recoveredEvents, driftSnapshots, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResults, driftSnapshots, cancellationToken);
 
             MarkAllEventsAsProcessed(pendingEvents, subscription);
         }
@@ -104,7 +109,7 @@ public sealed class ProcessPendingStripeEvents(
 
         // Detect state transitions in lifecycle order (variables and if-blocks below follow the same order).
         // The detections drive telemetry collection and Subscription/Tenant state mutations; the BillingEvent
-        // log is populated separately by SyncBillingEventsAsync running over the customer's stripe_events.
+        // log is populated separately by EmitBillingEventsFromEventsListAsync running over the events.list view.
         var billingInfoAdded = subscription.BillingInfo is null && customerResult.BillingInfo is not null;
         var billingInfoUpdated = subscription.BillingInfo is not null && customerResult.BillingInfo is not null && customerResult.BillingInfo != subscription.BillingInfo;
         var latestPaymentMethod = stripeState?.PaymentMethod ?? customerResult.PaymentMethod;
@@ -284,52 +289,55 @@ public sealed class ProcessPendingStripeEvents(
     }
 
     /// <summary>
-    ///     Synchronizes the BillingEvent ledger with the customer's Stripe events history. Unions three
-    ///     in-memory event sources — the durable <c>stripe_events</c> archive (Status=Processed),
-    ///     the just-arrived webhook events (still Pending in this transaction), and any events recovered
-    ///     in this same transaction by <see cref="ReconcileEventLogFromEventsListAsync" /> — dedupes by
-    ///     event id, then runs the union through <see cref="StripeEventReplayer" /> and appends any
-    ///     newly recognized rows to <c>billing_events</c>. The just-arrived webhook events come in via
-    ///     the <paramref name="pendingEvents" /> parameter so they participate in the same pass — without
-    ///     this, the most recent webhook would not be reflected in the BillingEvent ledger until the next
-    ///     webhook (or admin Sync) ran, since the archive query filters Status=Processed and
-    ///     <see cref="MarkAllEventsAsProcessed" /> flips Pending → Processed only after this method returns.
-    ///     The local archive is the durable source of truth — Stripe's events.list only retains events
-    ///     for 30 days (see https://docs.stripe.com/api/events), so beyond that window the archive is the
-    ///     only complete history.
+    ///     Authoritative BillingEvent emission for the hot path. Inputs are strictly in-memory:
+    ///     (1) the events.list response Stripe just returned (with payloads carried inline by
+    ///     <see cref="StripeReplayEvent" />) and (2) the just-arrived webhook events whose payload was
+    ///     posted to <c>AcknowledgeStripeWebhook</c> and is still loaded in memory as Pending. The
+    ///     durable <c>stripe_events</c> archive is NEVER queried in this pass — its <c>Payload</c> column
+    ///     is a cold backup only, read by the admin reconcile command. Stripe retains events for 30 days
+    ///     (see https://docs.stripe.com/api/events); the background sweeper keeps the anchor inside the
+    ///     window so the events.list view is always complete.
     ///     Idempotent on <c>billing_events.stripe_event_id</c>: rows whose source Stripe event id is
     ///     already recorded are skipped, so re-running this for every webhook (or via the back-office
-    ///     Sync action) is safe.
-    ///     Drift detection runs at the end and incorporates any <c>Unclassified</c> events the replayer
-    ///     flagged so the existing drift banner picks them up.
+    ///     reconcile action) is safe.
     /// </summary>
-    private async Task SyncBillingEventsAsync(Subscription subscription, StripeEvent[] pendingEvents, StripeEvent[] recoveredEvents, DriftSnapshots driftSnapshots, CancellationToken cancellationToken)
+    private async Task EmitBillingEventsFromEventsListAsync(
+        Subscription subscription,
+        StripeEvent[] pendingEvents,
+        StripeReplayEvent[] eventsListResults,
+        DriftSnapshots driftSnapshots,
+        CancellationToken cancellationToken
+    )
     {
         if (subscription.StripeCustomerId is null) return;
 
-        // Read the durable archive and union with events that haven't been SaveChanges'd yet in this
-        // transaction (the just-arrived Pending webhook events and any events recovered from events.list).
-        // Querying alone would miss them: archive query filters Status=Processed, and the EF DbSet
-        // doesn't surface entities only added in the current change set. All three sources are dedup'd by
-        // event id. Sort is owned by the replayer (canonical sort site: CreatedAt then EventId for a
-        // stable tie-break).
-        var archivedEvents = await stripeEventRepository.GetReplayableByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
-        var allEvents = archivedEvents
-            .Concat(pendingEvents)
-            .Concat(recoveredEvents)
-            .GroupBy(e => e.Id.Value)
-            .Select(g => g.First())
-            .ToArray();
+        // Union the events.list view of the world with the just-arrived webhooks still Pending in this
+        // transaction. Stripe's events.list typically reflects a new webhook within a few seconds, but the
+        // hot path can't depend on that. Dedup by event id; the events.list payload wins when both sources
+        // describe the same event (Stripe's serialization is the authoritative view).
+        var unioned = new Dictionary<string, StripeReplayEvent>(eventsListResults.Length + pendingEvents.Length);
+        foreach (var eventListItem in eventsListResults)
+        {
+            unioned[eventListItem.EventId] = eventListItem;
+        }
 
-        if (allEvents.Length == 0)
+        foreach (var pending in pendingEvents)
+        {
+            if (unioned.ContainsKey(pending.Id.Value)) continue;
+            // pending.Payload is the webhook body posted to AcknowledgeStripeWebhook — carried in-memory
+            // from the same request, not read from the cold durable archive.
+            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.CreatedAt, pending.Payload ?? "", pending.ApiVersion);
+        }
+
+        if (unioned.Count == 0)
         {
             DetectDrift(subscription, driftSnapshots, 0, false, [], [], []);
             return;
         }
 
         var unsupportedVersions = new HashSet<string?>();
-        var supportedEvents = new List<StripeEvent>(allEvents.Length);
-        foreach (var stripeEvent in allEvents)
+        var supportedEvents = new List<StripeReplayEvent>(unioned.Count);
+        foreach (var stripeEvent in unioned.Values)
         {
             if (StripeEventPayloadResolverFactory.TryFor(stripeEvent.ApiVersion, out _))
             {
@@ -341,7 +349,7 @@ public sealed class ProcessPendingStripeEvents(
             {
                 logger.LogWarning(
                     "Stripe event {EventId} has unsupported api_version '{ApiVersion}'; replay skipped — add an IStripeEventPayloadResolver implementation",
-                    stripeEvent.Id.Value, stripeEvent.ApiVersion ?? "null"
+                    stripeEvent.EventId, stripeEvent.ApiVersion ?? "null"
                 );
             }
         }
@@ -351,20 +359,16 @@ public sealed class ProcessPendingStripeEvents(
         var priceCatalog = await stripeClient.GetPriceCatalogAsync(cancellationToken);
         var priceByPlan = priceCatalog.ToDictionary(p => p.Plan, p => p.UnitAmount);
 
-        var replayEvents = supportedEvents
-            .Select(e => new StripeReplayEvent(e.Id.Value, e.EventType, e.CreatedAt, e.Payload ?? "", e.ApiVersion))
-            .ToArray();
-
         var existingStripeEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
         var state = new StripeEventReplayer.ReplayState();
 
         // Several SyncStateFromStripe branches (subscriptionExpired, subscriptionImmediatelyCancelled,
         // subscriptionSuspended, IsCustomerDeleted) call Subscription.ResetToFreePlan which nulls
-        // CurrentPriceCurrency BEFORE this replay runs, so the live subscription is no longer authoritative.
+        // CurrentPriceCurrency BEFORE this emission runs, so the live subscription is no longer authoritative.
         // Prefer the just-fetched Stripe view, otherwise fall back to the pre-sync local snapshot — both
         // were captured before any mutation. The replayer still tries the per-event payload first.
         var currencyOverride = driftSnapshots.Stripe?.CurrentPriceCurrency ?? driftSnapshots.LocalBeforeSync.CurrentPriceCurrency;
-        var replayedEvents = StripeEventReplayer.Replay(subscription, replayEvents, planByPriceId, priceByPlan, state, currencyOverride, logger);
+        var replayedEvents = StripeEventReplayer.Replay(subscription, [.. supportedEvents], planByPriceId, priceByPlan, state, currencyOverride, logger);
 
         var appendedCount = 0;
         foreach (var billingEvent in replayedEvents)
@@ -372,6 +376,15 @@ public sealed class ProcessPendingStripeEvents(
             if (existingStripeEventIds.Contains(billingEvent.StripeEventId)) continue;
             await billingEventRepository.AddAsync(billingEvent, cancellationToken);
             appendedCount++;
+        }
+
+        // Advance the events.list anchor to the most recent event we just consumed so the next sync only
+        // pulls events Stripe produced after this point. Pending-source events whose Created is older than
+        // an already-applied anchor cannot rewind it (AdvanceLastSyncedStripeEventCreatedAt is monotonic).
+        if (supportedEvents.Count > 0)
+        {
+            var latestEventCreated = supportedEvents.Max(e => e.CreatedAt);
+            subscription.AdvanceLastSyncedStripeEventCreatedAt(latestEventCreated);
         }
 
         // Out-of-order recovery (e.g. a customer.subscription.created arriving after a later
@@ -395,7 +408,7 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
-        var eventTypesPresent = allEvents.Select(e => e.EventType).ToHashSet();
+        var eventTypesPresent = unioned.Values.Select(e => e.EventType).ToHashSet();
         DetectDrift(subscription, driftSnapshots, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, staleBillingEvents);
     }
 
@@ -463,9 +476,10 @@ public sealed class ProcessPendingStripeEvents(
 
     /// <summary>
     ///     Per-resource audit: walks every Stripe-tracked resource on the subscription and verifies
-    ///     a corresponding event exists in the local archive. Each missing event becomes a drift
-    ///     discrepancy. The recovery countdown is driven by the resource's known timestamp: if the
-    ///     resource timestamp is within Stripe's 30-day events.list window the discrepancy is
+    ///     a corresponding event exists in the in-memory union of events.list output and just-arrived
+    ///     webhook events. Each missing event becomes a drift discrepancy. The recovery countdown is
+    ///     driven by the resource's known timestamp: if the resource timestamp is within Stripe's
+    ///     30-day events.list window the discrepancy is
     ///     <see cref="DriftDiscrepancyKind.MissingHistoricalEvent" /> (auto-recoverable on next
     ///     reconciliation pass); past the window it escalates to
     ///     <see cref="DriftDiscrepancyKind.MissingHistoricalEventUnrecoverable" /> (P1: data is
@@ -473,14 +487,6 @@ public sealed class ProcessPendingStripeEvents(
     ///     TODO: if a coverage kind proves too noisy in production, expose per-kind suppression via
     ///     IConfiguration (e.g. BillingDrift:DisabledCoverageKinds:0=PaymentMethodAttached) so operators
     ///     can silence it without a deploy.
-    /// </summary>
-    /// <summary>
-    ///     <paramref name="eventTypesPresent" /> is the in-memory union of archived (already-Processed),
-    ///     just-arrived Pending, and reconciliation-recovered events for this customer — computed by the
-    ///     caller in <see cref="SyncBillingEventsAsync" />. Re-querying the archive here would miss the
-    ///     Pending events because they only flip to Processed after the UnitOfWork commits, causing a
-    ///     spurious drift on the very webhook that introduced the resource (e.g. a downgrade firing both
-    ///     the schedule update and the coverage check in the same pass).
     /// </summary>
     private static DriftDiscrepancy[] CheckResourceCoverage(Subscription subscription, DateTimeOffset now, HashSet<string> eventTypesPresent)
     {
@@ -568,24 +574,22 @@ public sealed class ProcessPendingStripeEvents(
     }
 
     /// <summary>
-    ///     Closes gaps in the local <c>stripe_events</c> archive by listing Stripe's events.list API
-    ///     (30-day retention window — see https://docs.stripe.com/api/events) and inserting any event
-    ///     ids Stripe knows about but we don't. Recovered events land as Status=Processed with
-    ///     <c>recovery_source = "events_list"</c>; the subsequent <see cref="SyncBillingEventsAsync" />
-    ///     pass picks them up (alongside the durable archive) and emits the corresponding BillingEvent
-    ///     rows. Returns the recovered events so the replayer can union them with the archive without
-    ///     needing an intermediate SaveChanges (the EF DbSet query won't see entities only added in
-    ///     the current change set).
+    ///     Pulls Stripe's events.list for the customer (anchored on
+    ///     <see cref="Subscription.LastSyncedStripeEventCreatedAt" />) and inserts any event ids Stripe
+    ///     knows about but the local archive doesn't into <c>stripe_events</c> as recovered rows. The
+    ///     archive is a cold backup only; the events.list response itself is what drives BillingEvent
+    ///     emission in <see cref="EmitBillingEventsFromEventsListAsync" />, so the local payload column
+    ///     is never read in the hot path. Returns the events.list response so the emitter can consume
+    ///     it directly.
     /// </summary>
-    private async Task<StripeEvent[]> ReconcileEventLogFromEventsListAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    private async Task<StripeReplayEvent[]> PullEventsListAndArchiveRecoveredAsync(Subscription subscription, StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
-        var stripeEvents = await stripeClient.GetEventsForCustomerAsync(stripeCustomerId, cancellationToken);
+        var stripeEvents = await stripeClient.GetEventsForCustomerAsync(stripeCustomerId, subscription.LastSyncedStripeEventCreatedAt, cancellationToken);
         if (stripeEvents.Length == 0) return [];
 
         var existingIds = await stripeEventRepository.GetExistingEventIdsByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
         var now = timeProvider.GetUtcNow();
-        var recovered = new List<StripeEvent>();
 
         foreach (var stripeEvent in stripeEvents)
         {
@@ -603,7 +607,6 @@ public sealed class ProcessPendingStripeEvents(
                 "events_list"
             );
             await stripeEventRepository.AddAsync(recoveredEvent, cancellationToken);
-            recovered.Add(recoveredEvent);
 
             events.CollectEvent(new WebhookDeliveryRecovered(stripeEvent.EventId, stripeEvent.EventType, "events_list"));
             logger.LogWarning(
@@ -612,7 +615,7 @@ public sealed class ProcessPendingStripeEvents(
             );
         }
 
-        return [.. recovered];
+        return stripeEvents;
     }
 
     private void MarkAllEventsAsProcessed(StripeEvent[] pendingEvents, Subscription subscription)

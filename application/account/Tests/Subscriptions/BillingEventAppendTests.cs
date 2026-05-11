@@ -248,7 +248,7 @@ public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
         // same pass and are still Pending until the UnitOfWork commits. The result was a spurious
         // MissingHistoricalEvent discrepancy on the very webhook that introduced the resource (e.g. a downgrade
         // schedule, or a brand-new subscription). The fix passes the in-memory union of archive + pending +
-        // recovered event types from SyncBillingEventsAsync into the coverage check.
+        // recovered event types from EmitBillingEventsFromEventsListAsync into the coverage check.
         SetupSubscription(null, nameof(SubscriptionPlan.Basis));
         TelemetryEventsCollectorSpy.Reset();
         var uniqueEventId = $"evt_test_unique_{Guid.NewGuid():N}";
