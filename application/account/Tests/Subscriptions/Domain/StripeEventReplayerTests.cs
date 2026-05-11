@@ -456,11 +456,43 @@ public sealed class StripeEventReplayerTests
     }
 
     [Fact]
-    public void Replay_WhenNoCurrencyResolvable_ShouldSkipEventWithoutEmitting()
+    public void Replay_WhenRevenueEventHasNoCurrencyResolvable_ShouldSkipEventWithoutEmitting()
     {
         // every source is exhausted: payload has no currency, no override, and the subscription
         // has been reset. Refusing to emit is preferable to guessing "USD" — the row would be permanently
-        // wrong on the append-only billing_events log.
+        // wrong on the append-only billing_events log. Only revenue-bearing events are gated this way;
+        // customer-lifecycle events (customer.created/updated, payment_method.attached) carry no currency
+        // in Stripe's data model and emit with null currency instead.
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        subscription.ResetToFreePlan();
+        subscription.CurrentPriceCurrency.Should().BeNull();
+
+        var occurredAt = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_invoice_payment_succeeded_no_currency",
+                "invoice.payment_succeeded",
+                occurredAt,
+                """{"data":{"object":{"id":"in_test","amount_paid":2999,"status":"paid"}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
+
+        // Assert
+        emitted.Should().BeEmpty("no currency could be resolved from any source — the replayer must refuse to emit rather than guess");
+    }
+
+    [Fact]
+    public void Replay_WhenCustomerLifecycleEventHasNoCurrencyResolvable_ShouldEmitWithNullCurrency()
+    {
+        // payment_method.attached and customer.created/updated have no currency in Stripe's data model —
+        // currency belongs to prices and invoices. The replayer must emit these even when no currency
+        // is resolvable from any source, with null currency on the resulting BillingEvent row.
         // Arrange
         var subscription = Subscription.Create(TenantId.NewId());
         subscription.ResetToFreePlan();
@@ -482,6 +514,8 @@ public sealed class StripeEventReplayerTests
         var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan);
 
         // Assert
-        emitted.Should().BeEmpty("no currency could be resolved from any source — the replayer must refuse to emit rather than guess");
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.PaymentMethodUpdated);
+        emitted[0].Currency.Should().BeNull();
     }
 }

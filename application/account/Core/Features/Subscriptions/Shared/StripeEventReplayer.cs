@@ -54,7 +54,11 @@ public static class StripeEventReplayer
                            ?? currencyOverride
                            ?? subscription.CurrentPriceCurrency;
 
-            if (currency is null)
+            // Customer-lifecycle events (customer.created/updated and payment_method.attached) carry no
+            // currency in Stripe's data model — currency belongs to prices and invoices, not the Customer
+            // or PaymentMethod object. For these events, null currency is the correct semantic; for
+            // revenue-bearing events, null currency is an upstream defect and the row is skipped.
+            if (currency is null && RequiresCurrency(stripeEvent.EventType))
             {
                 logger?.LogWarning(
                     "Skipping Stripe event {EventId} ({EventType}) for subscription '{SubscriptionId}': no currency could be resolved from payload, override, or subscription",
@@ -73,6 +77,12 @@ public static class StripeEventReplayer
         return emitted;
     }
 
+    private static bool RequiresCurrency(string eventType) => eventType switch
+    {
+        "customer.created" or "customer.updated" or "payment_method.attached" => false,
+        _ => true
+    };
+
     private static BillingEvent? MapEvent(
         StripeReplayEvent stripeEvent,
         JsonElement payload,
@@ -80,7 +90,7 @@ public static class StripeEventReplayer
         ReplayState state,
         IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId,
         IReadOnlyDictionary<SubscriptionPlan, decimal> priceByPlan,
-        string currency
+        string? currency
     )
     {
         var subscriptionId = subscription.Id;
@@ -110,43 +120,46 @@ public static class StripeEventReplayer
                     toPlan: state.Plan, currency: currency
                 );
 
+            // From here on, every event type is a revenue-bearing event for which the Replay-loop's
+            // `RequiresCurrency` gate guarantees a non-null currency before calling MapEvent. `currency!`
+            // reflects that invariant — it is never null in these branches.
             case "customer.subscription.created":
-                return MapSubscriptionCreated(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, planByPriceId, priceByPlan, currency, subscription.Plan);
+                return MapSubscriptionCreated(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, planByPriceId, priceByPlan, currency!, subscription.Plan);
 
             case "customer.subscription.updated":
-                return MapSubscriptionUpdated(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, planByPriceId, priceByPlan, currency, subscription.CancellationReason);
+                return MapSubscriptionUpdated(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, planByPriceId, priceByPlan, currency!, subscription.CancellationReason);
 
             // customer.subscription.pending_update_applied fires alongside customer.subscription.updated for
             // the same upgrade transition. The updated event carries previous_attributes and is the higher-
             // fidelity source — pending_update_applied is recorded as NoOp to preserve the 1:1 audit row.
             case "customer.subscription.pending_update_applied":
             case "customer.subscription.pending_update_expired":
-                return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
+                return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency!);
 
             case "customer.subscription.deleted":
-                return MapSubscriptionDeleted(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, currency);
+                return MapSubscriptionDeleted(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, currency!);
 
             case "customer.deleted":
-                return MapCustomerDeleted(occurredAt, stripeEventId, tenantId, subscriptionId, state, currency);
+                return MapCustomerDeleted(occurredAt, stripeEventId, tenantId, subscriptionId, state, currency!);
 
             // subscription_schedule.created carries only the current phase — the future-phase plan that
             // defines the downgrade target only shows up in the subsequent subscription_schedule.updated
             // event. The created row is preserved as NoOp for the audit trail.
             case "subscription_schedule.created":
-                return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency);
+                return NoOp(tenantId, subscriptionId, stripeEventId, occurredAt, state, currency!);
 
             case "subscription_schedule.updated":
-                return MapScheduleUpdated(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, planByPriceId, priceByPlan, currency);
+                return MapScheduleUpdated(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, planByPriceId, priceByPlan, currency!);
 
             case "subscription_schedule.released":
             case "subscription_schedule.canceled":
-                return MapScheduleTerminated(occurredAt, stripeEventId, tenantId, subscriptionId, state, currency);
+                return MapScheduleTerminated(occurredAt, stripeEventId, tenantId, subscriptionId, state, currency!);
 
             case "invoice.payment_succeeded":
-                return MapInvoicePaymentSucceeded(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, currency);
+                return MapInvoicePaymentSucceeded(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, currency!);
 
             case "invoice.payment_failed":
-                return MapInvoicePaymentFailed(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, currency);
+                return MapInvoicePaymentFailed(payload, occurredAt, stripeEventId, tenantId, subscriptionId, state, currency!);
 
             case "charge.refunded":
                 return BillingEvent.Create(
@@ -534,7 +547,10 @@ public static class StripeEventReplayer
         );
     }
 
-    private static BillingEvent NoOp(TenantId tenantId, SubscriptionId subscriptionId, string stripeEventId, DateTimeOffset occurredAt, ReplayState state, string currency)
+    // NoOp accepts nullable currency because the customer.updated branch reaches NoOp via the
+    // RequiresCurrency-bypass path (customer-lifecycle events have no currency in Stripe's data model);
+    // all other NoOp call sites are revenue contexts where currency is non-null.
+    private static BillingEvent NoOp(TenantId tenantId, SubscriptionId subscriptionId, string stripeEventId, DateTimeOffset occurredAt, ReplayState state, string? currency)
     {
         return BillingEvent.Create(
             tenantId, subscriptionId, stripeEventId, BillingEventType.NoOp, occurredAt, state.CommittedMrr,
