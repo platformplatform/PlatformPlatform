@@ -3,6 +3,11 @@
     "ENABLE_TOOL_SEARCH": "true",
     "CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS": "1"
   },
+  "statusLine": {
+    "type": "command",
+    "command": ".claude/statusline.sh",
+    "refreshInterval": 30
+  },
   "enabledMcpjsonServers": [
     "aspire",
     "azure-production",
