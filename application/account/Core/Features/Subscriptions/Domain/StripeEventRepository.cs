@@ -1,6 +1,7 @@
 using Account.Database;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 using SharedKernel.Persistence;
 
 namespace Account.Features.Subscriptions.Domain;
@@ -35,6 +36,18 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     ///     archive — those are inserted as recovered events with status=Processed.
     /// </summary>
     Task<HashSet<string>> GetExistingEventIdsByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns archived stripe_events for a customer whose <c>StripeCreatedAt</c> is strictly older than
+    ///     <paramref name="cutoff" /> and that have no matching <c>billing_events</c> row yet. Used by the
+    ///     admin reconcile flow to surface payloads that fell out of Stripe's 30-day events.list retention
+    ///     window so an operator can confirm replay before they are projected into billing_events. Excludes
+    ///     Pending (not yet processed), Ignored (no customer match), and Failed; orders ASC by
+    ///     <c>StripeCreatedAt</c> so the replayer state machine consumes them in the order Stripe produced
+    ///     them. Bypasses the tenant query filter because reconciliation runs outside an authenticated
+    ///     tenant context.
+    /// </summary>
+    Task<StripeEvent[]> GetArchivedEventsOlderThanAsync(StripeCustomerId stripeCustomerId, DateTimeOffset cutoff, CancellationToken cancellationToken);
 }
 
 internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
@@ -77,5 +90,34 @@ internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
             .Select(e => e.Id.Value)
             .ToArrayAsync(cancellationToken);
         return [.. ids];
+    }
+
+    public async Task<StripeEvent[]> GetArchivedEventsOlderThanAsync(StripeCustomerId stripeCustomerId, DateTimeOffset cutoff, CancellationToken cancellationToken)
+    {
+        // Materialize first then filter by stripe_event_id presence in billing_events in memory. SQLite (used
+        // in tests) cannot translate the DateTimeOffset comparison plus the cross-table NotContains pattern
+        // into a single SQL query, and the per-customer event set is bounded (typically <200 webhooks over a
+        // subscription's lifetime). Status=Processed covers both webhook-delivered and reconciliation-recovered
+        // events; Pending/Ignored/Failed are excluded so partial-state rows never reach the replayer.
+        var candidateEvents = await DbSet
+            .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Processed)
+            .ToArrayAsync(cancellationToken);
+
+        var olderThanCutoff = candidateEvents
+            .Where(e => e.StripeCreatedAt < cutoff)
+            .OrderBy(e => e.StripeCreatedAt)
+            .ToArray();
+
+        if (olderThanCutoff.Length == 0) return [];
+
+        var candidateEventIds = olderThanCutoff.Select(e => e.Id.Value).ToArray();
+        var billingEventIds = await Context.Set<BillingEvent>()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(b => candidateEventIds.AsEnumerable().Contains(b.StripeEventId))
+            .Select(b => b.StripeEventId)
+            .ToArrayAsync(cancellationToken);
+
+        var billingEventIdSet = new HashSet<string>(billingEventIds);
+        return olderThanCutoff.Where(e => !billingEventIdSet.Contains(e.Id.Value)).ToArray();
     }
 }

@@ -19,49 +19,82 @@ import {
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { AlertTriangleIcon, CheckCircle2Icon, ExternalLinkIcon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
+import { AlertTriangleIcon, ExternalLinkIcon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
 import { useMe } from "@/shared/hooks/useMe";
 import { api } from "@/shared/lib/api/client";
+
+import { ReconcileResultDialog, type ReconcileResult } from "./ReconcileResultDialog";
+import {
+  type ArchivedAwaitingConfirmation,
+  ReplayArchivedConfirmDialog,
+  ReplayArchivedResultDialog,
+  type ReplayArchivedResult
+} from "./ReplayArchivedDialogs";
 
 interface AccountActionsMenuProps {
   tenantId: string;
   stripeCustomerUrl: string | null | undefined;
 }
 
-interface ReconcileResult {
-  billingEventsAppended: number;
-  hasDriftDetected: boolean;
-  driftDiscrepancyCount: number;
-  reconciledAt: string;
+interface ReconcileApiResult extends ReconcileResult {
+  archivedEventsAwaitingConfirmation: ArchivedAwaitingConfirmation | null;
 }
 
 export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<AccountActionsMenuProps>) {
-  const formatDate = useFormatDate();
   const { data: me } = useMe();
-  const [result, setResult] = useState<ReconcileResult | null>(null);
+  const [result, setResult] = useState<ReconcileApiResult | null>(null);
+  const [replayResult, setReplayResult] = useState<ReplayArchivedResult | null>(null);
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [archivedAwaiting, setArchivedAwaiting] = useState<ArchivedAwaitingConfirmation | null>(null);
+  const [isReplayConfirmOpen, setIsReplayConfirmOpen] = useState(false);
+  const [isReplayResultOpen, setIsReplayResultOpen] = useState(false);
 
   const reconcileMutation = api.useMutation("post", "/api/back-office/tenants/{id}/reconcile-with-stripe", {
     onSuccess: (data) => {
       setResult(data);
-      setIsResultOpen(true);
+      if (data.archivedEventsAwaitingConfirmation) {
+        setArchivedAwaiting(data.archivedEventsAwaitingConfirmation);
+        setIsReplayConfirmOpen(true);
+      } else {
+        setIsResultOpen(true);
+      }
     }
   });
 
-  const handleConfirmReconcile = () => {
-    setIsConfirmOpen(false);
-    reconcileMutation.mutate({ params: { path: { id: tenantId } } });
-  };
+  const replayMutation = api.useMutation("post", "/api/back-office/tenants/{id}/replay-archived-stripe-events", {
+    onSuccess: (data) => {
+      setReplayResult(data);
+      setIsReplayResultOpen(true);
+    }
+  });
 
   // Reconcile with Stripe is admin-only on the server (TenantsEndpoints.cs). Hide the trigger for
   // non-admins so the UI matches the policy.
   if (!me?.isAdmin) {
     return null;
   }
+
+  const handleConfirmReconcile = () => {
+    setIsConfirmOpen(false);
+    reconcileMutation.mutate({ params: { path: { id: tenantId } } });
+  };
+
+  const handleConfirmReplay = () => {
+    setIsReplayConfirmOpen(false);
+    replayMutation.mutate({ params: { path: { id: tenantId } } });
+  };
+
+  const handleSkipReplay = () => {
+    setIsReplayConfirmOpen(false);
+    // Operator declined archive replay — surface the reconcile summary they would otherwise have seen,
+    // so the underlying reconcile is not silently swallowed by the awaiting-confirmation branch.
+    setIsResultOpen(true);
+  };
+
+  const isWorking = reconcileMutation.isPending || replayMutation.isPending;
 
   return (
     <>
@@ -71,12 +104,7 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
             render={
               <DropdownMenuTrigger
                 render={
-                  <Button
-                    variant="outline"
-                    size="icon-sm"
-                    aria-label={t`Account actions`}
-                    disabled={reconcileMutation.isPending}
-                  >
+                  <Button variant="outline" size="icon-sm" aria-label={t`Account actions`} disabled={isWorking}>
                     <MoreVerticalIcon className="size-4" />
                   </Button>
                 }
@@ -89,7 +117,7 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
           <DropdownMenuItem
             trackingLabel="Reconcile with Stripe"
             onClick={() => setIsConfirmOpen(true)}
-            disabled={reconcileMutation.isPending}
+            disabled={isWorking}
           >
             <RefreshCwIcon className="size-4" />
             {reconcileMutation.isPending ? <Trans>Reconciling...</Trans> : <Trans>Reconcile with Stripe</Trans>}
@@ -133,48 +161,21 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={isResultOpen} onOpenChange={setIsResultOpen} trackingTitle="Reconcile with Stripe result">
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogMedia className={result?.hasDriftDetected ? "bg-amber-100" : "bg-emerald-100"}>
-              {result?.hasDriftDetected ? (
-                <AlertTriangleIcon className="text-amber-600" />
-              ) : (
-                <CheckCircle2Icon className="text-emerald-600" />
-              )}
-            </AlertDialogMedia>
-            <AlertDialogTitle>
-              {result?.hasDriftDetected ? (
-                <Trans>Reconcile complete with drift detected</Trans>
-              ) : (
-                <Trans>Reconcile complete</Trans>
-              )}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {result === null ? (
-                <Trans>No result available.</Trans>
-              ) : result.billingEventsAppended === 0 && !result.hasDriftDetected ? (
-                <Trans>No new billing events were appended. Account state matches Stripe.</Trans>
-              ) : result.billingEventsAppended > 0 ? (
-                <Trans>
-                  Appended {result.billingEventsAppended} new billing events. Last reconciled at{" "}
-                  {formatDate(result.reconciledAt)}.
-                </Trans>
-              ) : (
-                <Trans>
-                  Account has {result.driftDiscrepancyCount} drift discrepancies. Last reconciled at{" "}
-                  {formatDate(result.reconciledAt)}.
-                </Trans>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setIsResultOpen(false)}>
-              <Trans>Close</Trans>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ReplayArchivedConfirmDialog
+        isOpen={isReplayConfirmOpen}
+        onOpenChange={setIsReplayConfirmOpen}
+        archivedAwaiting={archivedAwaiting}
+        onConfirm={handleConfirmReplay}
+        onSkip={handleSkipReplay}
+      />
+
+      <ReconcileResultDialog isOpen={isResultOpen} onOpenChange={setIsResultOpen} result={result} />
+
+      <ReplayArchivedResultDialog
+        isOpen={isReplayResultOpen}
+        onOpenChange={setIsReplayResultOpen}
+        result={replayResult}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Shared;
 using Account.Features.Tenants.BackOffice.Commands;
 using Account.Integrations.OAuth;
 using Account.Integrations.Stripe;
@@ -145,6 +146,76 @@ public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK, "the admin reconcile must complete successfully even when the Stripe price catalog is empty");
         TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "StripePriceCatalogLookupMissed", "the catalog-gap telemetry event must surface the failure to operators without breaking the reconcile");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenLocalArchiveHasEventsOlderThanStripeWindow_ReturnsAwaitingConfirmation()
+    {
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", MockStripeClient.MockCustomerId)
+            ]
+        );
+
+        var archivedOccurredAt = DateTimeOffset.UtcNow.AddDays(-45);
+        var archivedEventId = $"evt_archive_{Guid.NewGuid():N}";
+        var archivedPayload = """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_standard","unit_amount":2999}}]}}}}""";
+        Connection.Insert("stripe_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", archivedEventId),
+                ("created_at", archivedOccurredAt),
+                ("modified_at", null),
+                ("event_type", "customer.subscription.created"),
+                ("status", nameof(StripeEventStatus.Processed)),
+                ("processed_at", archivedOccurredAt),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("payload", archivedPayload),
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash(archivedPayload)),
+                ("stripe_created_at", archivedOccurredAt)
+            ]
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<ReconcileTenantWithStripeResponse>();
+        payload.Should().NotBeNull();
+        payload.ArchivedEventsAwaitingConfirmation.Should().NotBeNull();
+        payload.ArchivedEventsAwaitingConfirmation!.Count.Should().Be(1);
+        payload.ArchivedEventsAwaitingConfirmation.OldestOccurredAt.Should().BeCloseTo(archivedOccurredAt, TimeSpan.FromSeconds(1));
+        payload.ArchivedEventsAwaitingConfirmation.NewestOccurredAt.Should().BeCloseTo(archivedOccurredAt, TimeSpan.FromSeconds(1));
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WhenNoArchivedEvents_CompletesNormally()
+    {
+        // Arrange
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", MockStripeClient.MockCustomerId)
+            ]
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/reconcile-with-stripe", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<ReconcileTenantWithStripeResponse>();
+        payload.Should().NotBeNull();
+        payload.ArchivedEventsAwaitingConfirmation.Should().BeNull();
     }
 
     [Fact]

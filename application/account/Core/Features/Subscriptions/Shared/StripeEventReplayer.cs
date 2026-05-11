@@ -750,6 +750,32 @@ public static class StripeEventReplayer
         }
     }
 
+    /// <summary>
+    ///     Seeds a fresh <see cref="ReplayState" /> from the latest persisted <see cref="BillingEvent" /> for
+    ///     a subscription so the next replay batch carries forward Plan, PlanPrice, CancelAtPeriodEnd and
+    ///     CommittedMrr from history instead of starting at the phantom-zero defaults. Without this seed an
+    ///     events.list anchor that has aged past Stripe's 30-day window would emit a fresh
+    ///     <see cref="BillingEvent" /> (e.g. SubscriptionCancelled triggered by a cancel-at-period-end
+    ///     toggle) with <c>previousAmount=0</c>, <c>amountDelta=0</c>, and <c>committedMrr=0</c> — silently
+    ///     rewriting MRR history. Returns a fresh state when <paramref name="latestPersisted" /> is null so
+    ///     callers can use this unconditionally.
+    /// </summary>
+    public static ReplayState SeedReplayStateFromHistory(BillingEvent? latestPersisted)
+    {
+        var state = new ReplayState();
+        if (latestPersisted is null) return state;
+
+        state.Plan = latestPersisted.ToPlan;
+        state.PlanPrice = latestPersisted.NewAmount ?? 0m;
+        state.CommittedMrr = latestPersisted.CommittedMrr;
+        // SubscriptionCancelled is the only event type that flips CancelAtPeriodEnd to true; every other
+        // recorded transition either leaves it false (creation, upgrade, downgrade) or moves it back to
+        // false (reactivate, expire, immediately cancel). Deriving from the latest row keeps this helper
+        // input-only and avoids walking history.
+        state.CancelAtPeriodEnd = latestPersisted.EventType == BillingEventType.SubscriptionCancelled;
+        return state;
+    }
+
     public sealed class ReplayState
     {
         public SubscriptionPlan? Plan { get; set; }

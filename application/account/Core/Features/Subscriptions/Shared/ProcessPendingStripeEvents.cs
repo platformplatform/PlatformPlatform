@@ -432,7 +432,16 @@ public sealed class ProcessPendingStripeEvents(
         var priceByPlan = priceCatalog.ToDictionary(p => p.Plan, p => p.UnitAmount);
 
         var existingStripeEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
-        var state = new StripeEventReplayer.ReplayState();
+        // Seed the running state from the latest persisted BillingEvent so an events.list anchor that has aged
+        // past Stripe's 30-day window doesn't replay against phantom-zero defaults — without this seed a cancel
+        // toggle arriving alone in a stale-anchor sync would emit SubscriptionCancelled with previousAmount=0 /
+        // amountDelta=0 / committedMrr=0 and silently rewrite MRR history.
+        var persistedRowsForSeed = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
+        var latestPersistedBillingEvent = persistedRowsForSeed
+            .OrderByDescending(r => r.OccurredAt)
+            .ThenByDescending(r => r.Id.Value)
+            .FirstOrDefault();
+        var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersistedBillingEvent);
 
         // Several SyncStateFromStripe branches (subscriptionExpired, subscriptionImmediatelyCancelled,
         // subscriptionSuspended, IsCustomerDeleted) call Subscription.ResetToFreePlan which nulls

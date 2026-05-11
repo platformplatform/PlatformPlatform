@@ -52,6 +52,10 @@ public sealed class TenantsEndpoints : IEndpoints
             => await mediator.Send(new ReconcileTenantWithStripeCommand { TenantId = id })
         ).Produces<ReconcileTenantWithStripeResponse>().RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
+        group.MapPost("/{id}/replay-archived-stripe-events", async Task<ApiResult<ReplayArchivedTenantStripeEventsResponse>> (TenantId id, IMediator mediator)
+            => await mediator.Send(new ReplayArchivedTenantStripeEventsCommand { TenantId = id })
+        ).Produces<ReplayArchivedTenantStripeEventsResponse>().RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
+
         group.MapPost("/{id}/drift/acknowledge", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new AcknowledgeBillingDriftCommand { TenantId = id })
         ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
