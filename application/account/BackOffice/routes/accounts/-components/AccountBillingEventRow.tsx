@@ -7,7 +7,8 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import type { components } from "@/shared/lib/api/client";
 
 import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
-import { DEFAULT_FROM_PLAN, PLAN_TRANSITION_EVENT_TYPES } from "@/shared/lib/billingEventCategories";
+import { PLAN_TRANSITION_EVENT_TYPES } from "@/shared/lib/billingEventCategories";
+import { getDisplayedPlanTransition } from "@/shared/lib/billingEventPlanTransition";
 import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
 type BillingEventSummary = components["schemas"]["BillingEventSummary"];
@@ -23,7 +24,9 @@ export function AccountBillingEventRow({
 }>) {
   const variant = BILLING_EVENT_VARIANT[event.eventType];
   const Icon = variant.icon;
-  const showPlanTransition = PLAN_TRANSITION_EVENT_TYPES.has(event.eventType) && event.toPlan != null;
+  const planTransition = PLAN_TRANSITION_EVENT_TYPES.has(event.eventType)
+    ? getDisplayedPlanTransition(event.eventType, event.fromPlan, event.toPlan)
+    : null;
   return (
     <TableRow rowKey={event.id}>
       <TableCell className="align-top whitespace-nowrap">
@@ -38,13 +41,13 @@ export function AccountBillingEventRow({
         </Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        {showPlanTransition ? (
+        {planTransition != null ? (
           <span className="inline-flex items-center gap-1 whitespace-nowrap">
-            <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan ?? DEFAULT_FROM_PLAN)}</Badge>
+            <Badge variant="secondary">{getSubscriptionPlanLabel(planTransition.from)}</Badge>
             <span aria-hidden={true} className="text-muted-foreground">
               →
             </span>
-            <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan!)}</Badge>
+            <Badge variant="secondary">{getSubscriptionPlanLabel(planTransition.to)}</Badge>
           </span>
         ) : null}
       </TableCell>

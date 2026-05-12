@@ -8,7 +8,8 @@ import type { components } from "@/shared/lib/api/client";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
-import { DEFAULT_FROM_PLAN, PLAN_TRANSITION_EVENT_TYPES } from "@/shared/lib/billingEventCategories";
+import { PLAN_TRANSITION_EVENT_TYPES } from "@/shared/lib/billingEventCategories";
+import { getDisplayedPlanTransition } from "@/shared/lib/billingEventPlanTransition";
 import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
 type BillingEventSummary = components["schemas"]["BillingEventSummary"];
@@ -41,15 +42,7 @@ export function BillingEventsTableRow({
         </Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        {PLAN_TRANSITION_EVENT_TYPES.has(event.eventType) && event.toPlan != null ? (
-          <span className="inline-flex items-center gap-1 whitespace-nowrap">
-            <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan ?? DEFAULT_FROM_PLAN)}</Badge>
-            <span aria-hidden={true} className="text-muted-foreground">
-              →
-            </span>
-            <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan)}</Badge>
-          </span>
-        ) : null}
+        {PLAN_TRANSITION_EVENT_TYPES.has(event.eventType) ? renderPlanTransition(event) : null}
       </TableCell>
       <TableCell
         className={`hidden whitespace-nowrap tabular-nums md:table-cell ${isNegativeAmount ? "text-rose-700 dark:text-rose-300" : ""}`}
@@ -77,5 +70,19 @@ export function BillingEventsTableRow({
         </div>
       </TableCell>
     </TableRow>
+  );
+}
+
+function renderPlanTransition(event: BillingEventSummary) {
+  const transition = getDisplayedPlanTransition(event.eventType, event.fromPlan, event.toPlan);
+  if (transition == null) return null;
+  return (
+    <span className="inline-flex items-center gap-1 whitespace-nowrap">
+      <Badge variant="secondary">{getSubscriptionPlanLabel(transition.from)}</Badge>
+      <span aria-hidden={true} className="text-muted-foreground">
+        →
+      </span>
+      <Badge variant="secondary">{getSubscriptionPlanLabel(transition.to)}</Badge>
+    </span>
   );
 }
