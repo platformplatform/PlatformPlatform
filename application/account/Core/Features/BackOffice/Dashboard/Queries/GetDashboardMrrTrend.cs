@@ -56,9 +56,7 @@ public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingE
         // Reconstruct historical MRR from the BillingEvent log: for each subscription, the most recent
         // event with NewAmount set (and OccurredAt before end-of-day) is its committed MRR for that day.
         var events = await billingEventRepository.GetMrrChangeEventsUnfilteredAsync(cancellationToken);
-        var eventsBySubscription = events
-            .GroupBy(e => e.SubscriptionId)
-            .ToDictionary(g => g.Key, g => g.OrderBy(e => e.OccurredAt).ToArray());
+        var eventsBySubscription = DashboardMrrCalculator.GroupByOccurredAt(events);
 
         var points = new BackOfficeDashboardMrrTrendPoint[days];
         var priorPoints = new BackOfficeDashboardMrrTrendPoint[days];
@@ -66,24 +64,10 @@ public sealed class GetDashboardMrrTrendHandler(IBillingEventRepository billingE
         {
             var currentDate = startDate.AddDays(index);
             var priorDate = priorStartDate.AddDays(index);
-            points[index] = new BackOfficeDashboardMrrTrendPoint(currentDate, ComputeDailyMrr(eventsBySubscription, currentDate));
-            priorPoints[index] = new BackOfficeDashboardMrrTrendPoint(priorDate, ComputeDailyMrr(eventsBySubscription, priorDate));
+            points[index] = new BackOfficeDashboardMrrTrendPoint(currentDate, DashboardMrrCalculator.ComputeMrrOnDate(eventsBySubscription, currentDate));
+            priorPoints[index] = new BackOfficeDashboardMrrTrendPoint(priorDate, DashboardMrrCalculator.ComputeMrrOnDate(eventsBySubscription, priorDate));
         }
 
         return new BackOfficeDashboardMrrTrendResponse(query.Period, platformCurrencyProvider.Currency, points, priorPoints);
-    }
-
-    private static decimal ComputeDailyMrr(Dictionary<SubscriptionId, BillingEvent[]> eventsBySubscription, DateOnly date)
-    {
-        var endOfDay = new DateTimeOffset(date.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        var total = 0m;
-        foreach (var subscriptionEvents in eventsBySubscription.Values)
-        {
-            // Events are sorted by OccurredAt asc — LastOrDefault picks the latest event up to end-of-day.
-            var latest = subscriptionEvents.LastOrDefault(e => e.OccurredAt < endOfDay);
-            if (latest?.NewAmount is { } amount) total += amount;
-        }
-
-        return total;
     }
 }

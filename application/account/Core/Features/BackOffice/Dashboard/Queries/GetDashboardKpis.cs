@@ -45,6 +45,7 @@ public sealed class GetDashboardKpisHandler(
     IUserRepository userRepository,
     ISessionRepository sessionRepository,
     ISubscriptionRepository subscriptionRepository,
+    IBillingEventRepository billingEventRepository,
     IPlatformCurrencyProvider platformCurrencyProvider,
     TimeProvider timeProvider
 ) : IRequestHandler<GetDashboardKpisQuery, Result<BackOfficeDashboardKpisResponse>>
@@ -108,15 +109,18 @@ public sealed class GetDashboardKpisHandler(
             .Where(t => t.Status == PaymentTransactionStatus.Succeeded)
             .Sum(t => t.AmountExcludingTax);
 
-        // Period-over-period MRR delta uses the MRR contribution of subscriptions that already existed
-        // at the start of the period as the prior baseline. The domain does not store historical MRR
-        // snapshots, so this approximation treats subscriptions still active today and created before
-        // periodStart as the prior-period MRR. Subscriptions created within the period contribute the
-        // delta. This is an MRR-driven directional signal rather than a signup-count proxy.
-        var priorMonthlyRecurringRevenue = paidSubscriptions.Where(s => s.CreatedAt < periodStart).Sum(MrrCalculator.ForwardMrr);
-        var mrrDeltaPercent = priorMonthlyRecurringRevenue == 0m
+        // Period-over-period MRR delta mirrors the MRR trend card's "over period" subtitle: today's
+        // blended MRR vs the blended MRR at the start of the window. Reconstructed from the BillingEvent
+        // log using the shared DashboardMrrCalculator so both tile and trend chart show the same number.
+        var billingEvents = await billingEventRepository.GetMrrChangeEventsUnfilteredAsync(cancellationToken);
+        var eventsBySubscription = DashboardMrrCalculator.GroupByOccurredAt(billingEvents);
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
+        var startOfWindow = today.AddDays(-(days - 1));
+        var endMrr = DashboardMrrCalculator.ComputeMrrOnDate(eventsBySubscription, today);
+        var startMrr = DashboardMrrCalculator.ComputeMrrOnDate(eventsBySubscription, startOfWindow);
+        var mrrDeltaPercent = startMrr == 0m
             ? (decimal?)null
-            : Math.Round((totalMonthlyRecurringRevenue - priorMonthlyRecurringRevenue) / priorMonthlyRecurringRevenue * 100m, 1);
+            : Math.Round((endMrr - startMrr) / startMrr * 100m, 1);
 
         return new BackOfficeDashboardKpisResponse(
             query.Period,

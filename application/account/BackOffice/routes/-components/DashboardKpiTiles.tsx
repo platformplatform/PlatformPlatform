@@ -8,6 +8,8 @@ import { ActivityIcon, BuildingIcon, CoinsIcon, TrendingUpIcon, UsersIcon } from
 
 import { api, DashboardTrendPeriod, TenantStatusFilter } from "@/shared/lib/api/client";
 
+import { DeltaPercent } from "./DeltaPercent";
+
 interface DashboardKpiTilesProps {
   period: DashboardTrendPeriod;
 }
@@ -96,13 +98,9 @@ function periodToDays(period: DashboardTrendPeriod): number {
 }
 
 function DeltaSubtitle({ deltaPercent }: Readonly<{ deltaPercent: number }>) {
-  const positive = deltaPercent >= 0;
-  const className = positive ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300";
-  const sign = positive ? "+" : "";
   return (
-    <span className={className}>
-      {sign}
-      {deltaPercent}% <Trans>vs prior period</Trans>
+    <span>
+      <DeltaPercent value={deltaPercent} /> <Trans>vs prior period</Trans>
     </span>
   );
 }

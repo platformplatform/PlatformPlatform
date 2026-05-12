@@ -21,6 +21,7 @@ import { api } from "@/shared/lib/api/client";
 
 import { CurrentPriorTooltip } from "./CurrentPriorTooltip";
 import { DashboardCardShell } from "./DashboardCardShell";
+import { DeltaPercent } from "./DeltaPercent";
 
 interface DashboardMrrTrendCardProps {
   period: DashboardTrendPeriod;
@@ -46,16 +47,17 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
 
   const blended = points.length > 0 ? points[points.length - 1].monthlyRecurringRevenue : 0;
   const first = points.length > 0 ? points[0].monthlyRecurringRevenue : 0;
-  const deltaPercent = first === 0 ? null : Math.round(((blended - first) / first) * 100);
+  const deltaPercent = first === 0 ? null : ((blended - first) / first) * 100;
 
   return (
     <DashboardCardShell
       title={<Trans>MRR trend</Trans>}
       subtitle={
         data && currency && deltaPercent !== null ? (
-          <Trans>
-            {formatCurrency(blended, currency)} blended · {formatDelta(deltaPercent)} over period
-          </Trans>
+          <span>
+            {formatCurrency(blended, currency)} <Trans>blended</Trans> · <DeltaPercent value={deltaPercent} />{" "}
+            <Trans>over period</Trans>
+          </span>
         ) : data && currency ? (
           <Trans>{formatCurrency(blended, currency)} blended</Trans>
         ) : undefined
@@ -123,9 +125,4 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
       )}
     </DashboardCardShell>
   );
-}
-
-function formatDelta(deltaPercent: number): string {
-  const sign = deltaPercent >= 0 ? "+" : "";
-  return `${sign}${deltaPercent}%`;
 }

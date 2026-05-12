@@ -25,16 +25,6 @@ msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 msgid "{0} blended"
 msgstr "{0} samlet"
 
-#. placeholder {0}: formatCurrency(blended, currency)
-#. placeholder {1}: formatDelta(deltaPercent)
-msgid "{0} blended · {1} over period"
-msgstr "{0} samlet · {1} for perioden"
-
-#. placeholder {0}: formatCurrency(currentGain, currency)
-#. placeholder {1}: formatDelta(deltaPercent)
-msgid "{0} this period · {1} vs prior period"
-msgstr "{0} i denne periode · {1} mod forrige periode"
-
 #. placeholder {0}: formatCurrency(currentGain, currency)
 msgid "{0} this period, excluding VAT"
 msgstr "{0} i denne periode, eksklusiv moms"
@@ -199,6 +189,9 @@ msgstr "Faktureringsinfo tilføjet"
 
 msgid "Billing info updated"
 msgstr "Faktureringsinfo opdateret"
+
+msgid "blended"
+msgstr "blandet"
 
 msgid "Blended MRR"
 msgstr "Samlet MRR"
@@ -600,6 +593,9 @@ msgstr "Åbn faktura"
 msgid "Outcome"
 msgstr "Resultat"
 
+msgid "over period"
+msgstr "over perioden"
+
 msgid "Overview"
 msgstr "Overblik"
 
@@ -849,6 +845,9 @@ msgstr "Tema"
 
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
+
+msgid "this period"
+msgstr "denne periode"
 
 msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
 msgstr "Dette genopbygger faktureringshændelsesloggen fra denne kontos arkiverede Stripe-payloads. Det er en bedst muligt-gendannelse, der kan producere forkerte abonnementstilstande eller faktureringshændelser. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."

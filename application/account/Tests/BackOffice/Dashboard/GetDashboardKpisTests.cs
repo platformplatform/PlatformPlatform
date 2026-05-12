@@ -101,15 +101,21 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         // Arrange
         var now = DateTimeOffset.UtcNow;
 
+        var oldPremiumSubscriptionId = SubscriptionId.NewId();
         var oldPremium = SeedTenant("Old Premium", SubscriptionPlan.Premium, now.AddDays(-90));
-        SeedPaidSubscription(oldPremium, SubscriptionPlan.Premium, 100m, false, null, null, now.AddDays(-90));
+        SeedPaidSubscription(oldPremium, SubscriptionPlan.Premium, 100m, false, null, null, now.AddDays(-90), oldPremiumSubscriptionId);
+        SeedSubscriptionCreatedEvent(oldPremium, oldPremiumSubscriptionId, 100m, now.AddDays(-90));
 
+        var oldStandardSubscriptionId = SubscriptionId.NewId();
         var oldStandard = SeedTenant("Old Standard", SubscriptionPlan.Standard, now.AddDays(-90));
-        SeedPaidSubscription(oldStandard, SubscriptionPlan.Standard, 100m, false, null, null, now.AddDays(-90));
+        SeedPaidSubscription(oldStandard, SubscriptionPlan.Standard, 100m, false, null, null, now.AddDays(-90), oldStandardSubscriptionId);
+        SeedSubscriptionCreatedEvent(oldStandard, oldStandardSubscriptionId, 100m, now.AddDays(-90));
 
         // New paid subscription within the period contributes 49.99 to MRR.
+        var newPaidSubscriptionId = SubscriptionId.NewId();
         var newPaid = SeedTenant("New Paid", SubscriptionPlan.Standard, now.AddDays(-5));
-        SeedPaidSubscription(newPaid, SubscriptionPlan.Standard, 49.99m, false, null, null, now.AddDays(-5));
+        SeedPaidSubscription(newPaid, SubscriptionPlan.Standard, 49.99m, false, null, null, now.AddDays(-5), newPaidSubscriptionId);
+        SeedSubscriptionCreatedEvent(newPaid, newPaidSubscriptionId, 49.99m, now.AddDays(-5));
 
         // Two new free signups within the period contribute 0 to MRR — these would inflate a
         // signup-count delta but must not affect the MRR delta.
@@ -127,7 +133,9 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardKpisResponse>();
         payload.Should().NotBeNull();
         payload.BlendedMonthlyRecurringRevenue.Should().Be(249.99m);
-        // Prior period MRR (subscriptions created before periodStart): 100 + 100 = 200.
+        // Start-of-window MRR reconstructed from the BillingEvent log: only the two -90d subscriptions
+        // had SubscriptionCreated events before startOfWindow (now - 29d), so the baseline is 100 + 100 = 200.
+        // End MRR includes the newPaid subscription: 200 + 49.99 = 249.99.
         // Delta: (249.99 - 200) / 200 = 24.995% → rounded to 25.0%.
         payload.BlendedMonthlyRecurringRevenueDeltaPercent.Should().Be(25.0m);
     }
@@ -270,7 +278,8 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
         bool cancelAtPeriodEnd,
         SubscriptionPlan? scheduledPlan,
         decimal? scheduledPriceAmount,
-        DateTimeOffset? createdAt = null
+        DateTimeOffset? createdAt = null,
+        SubscriptionId? subscriptionId = null
     )
     {
         var subscriptionCreatedAt = createdAt ?? DateTimeOffset.UtcNow.AddDays(-30);
@@ -282,7 +291,7 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
 
         Connection.Insert("subscriptions", [
                 ("tenant_id", tenantId.Value),
-                ("id", SubscriptionId.NewId().ToString()),
+                ("id", (subscriptionId ?? SubscriptionId.NewId()).ToString()),
                 ("created_at", subscriptionCreatedAt),
                 ("modified_at", null),
                 ("plan", plan.ToString()),
@@ -303,6 +312,30 @@ public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
                 ("has_drift_detected", false),
                 ("drift_checked_at", null),
                 ("drift_discrepancies", "[]")
+            ]
+        );
+    }
+
+    private void SeedSubscriptionCreatedEvent(TenantId tenantId, SubscriptionId subscriptionId, decimal newAmount, DateTimeOffset occurredAt)
+    {
+        Connection.Insert("billing_events", [
+                ("tenant_id", tenantId.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", subscriptionId.ToString()),
+                ("created_at", occurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", $"evt_test_{Guid.NewGuid():N}"),
+                ("event_type", nameof(BillingEventType.SubscriptionCreated)),
+                ("from_plan", null),
+                ("to_plan", nameof(SubscriptionPlan.Standard)),
+                ("previous_amount", 0m),
+                ("new_amount", newAmount),
+                ("amount_delta", newAmount),
+                ("committed_mrr", newAmount),
+                ("currency", MockStripeClient.MockStandardCurrency),
+                ("occurred_at", occurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
             ]
         );
     }

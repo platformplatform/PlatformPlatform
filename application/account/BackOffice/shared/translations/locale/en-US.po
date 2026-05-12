@@ -25,16 +25,6 @@ msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgid "{0} blended"
 msgstr "{0} blended"
 
-#. placeholder {0}: formatCurrency(blended, currency)
-#. placeholder {1}: formatDelta(deltaPercent)
-msgid "{0} blended · {1} over period"
-msgstr "{0} blended · {1} over period"
-
-#. placeholder {0}: formatCurrency(currentGain, currency)
-#. placeholder {1}: formatDelta(deltaPercent)
-msgid "{0} this period · {1} vs prior period"
-msgstr "{0} this period · {1} vs prior period"
-
 #. placeholder {0}: formatCurrency(currentGain, currency)
 msgid "{0} this period, excluding VAT"
 msgstr "{0} this period, excluding VAT"
@@ -199,6 +189,9 @@ msgstr "Billing info added"
 
 msgid "Billing info updated"
 msgstr "Billing info updated"
+
+msgid "blended"
+msgstr "blended"
 
 msgid "Blended MRR"
 msgstr "Blended MRR"
@@ -600,6 +593,9 @@ msgstr "Open invoice"
 msgid "Outcome"
 msgstr "Outcome"
 
+msgid "over period"
+msgstr "over period"
+
 msgid "Overview"
 msgstr "Overview"
 
@@ -849,6 +845,9 @@ msgstr "Theme"
 
 msgid "This account has no users."
 msgstr "This account has no users."
+
+msgid "this period"
+msgstr "this period"
 
 msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
 msgstr "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."

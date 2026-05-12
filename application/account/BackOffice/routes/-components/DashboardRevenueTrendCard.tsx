@@ -21,6 +21,7 @@ import { api } from "@/shared/lib/api/client";
 
 import { CurrentPriorTooltip } from "./CurrentPriorTooltip";
 import { DashboardCardShell } from "./DashboardCardShell";
+import { DeltaPercent } from "./DeltaPercent";
 
 interface DashboardRevenueTrendCardProps {
   period: DashboardTrendPeriod;
@@ -45,17 +46,19 @@ export function DashboardRevenueTrendCard({ period }: Readonly<DashboardRevenueT
   const compactNumberFormatter = new Intl.NumberFormat(i18n.locale, { notation: "compact", maximumFractionDigits: 1 });
 
   const currentGain = points.length > 0 ? points[points.length - 1].revenue - points[0].revenue : 0;
-  const priorGain = priorPoints.length > 0 ? priorPoints[priorPoints.length - 1].revenue - priorPoints[0].revenue : 0;
-  const deltaPercent = priorGain === 0 ? null : Math.round(((currentGain - priorGain) / priorGain) * 100);
+  const currentEnd = points.length > 0 ? points[points.length - 1].revenue : 0;
+  const priorEnd = priorPoints.length > 0 ? priorPoints[priorPoints.length - 1].revenue : 0;
+  const deltaPercent = priorEnd === 0 ? null : ((currentEnd - priorEnd) / priorEnd) * 100;
 
   return (
     <DashboardCardShell
       title={<Trans>Revenue</Trans>}
       subtitle={
         data && currency && deltaPercent !== null ? (
-          <Trans>
-            {formatCurrency(currentGain, currency)} this period · {formatDelta(deltaPercent)} vs prior period
-          </Trans>
+          <span>
+            {formatCurrency(currentGain, currency)} <Trans>this period</Trans> · <DeltaPercent value={deltaPercent} />{" "}
+            <Trans>vs prior period</Trans>
+          </span>
         ) : data && currency ? (
           <Trans>{formatCurrency(currentGain, currency)} this period, excluding VAT</Trans>
         ) : undefined
@@ -123,9 +126,4 @@ export function DashboardRevenueTrendCard({ period }: Readonly<DashboardRevenueT
       )}
     </DashboardCardShell>
   );
-}
-
-function formatDelta(deltaPercent: number): string {
-  const sign = deltaPercent >= 0 ? "+" : "";
-  return `${sign}${deltaPercent}%`;
 }
