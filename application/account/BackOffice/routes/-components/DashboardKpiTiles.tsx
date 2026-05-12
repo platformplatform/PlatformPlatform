@@ -4,7 +4,7 @@ import { Card } from "@repo/ui/components/Card";
 import { LinkCard } from "@repo/ui/components/LinkCard";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { ActivityIcon, BuildingIcon, CoinsIcon, UsersIcon } from "lucide-react";
+import { ActivityIcon, BuildingIcon, CoinsIcon, TrendingUpIcon, UsersIcon } from "lucide-react";
 
 import { api, DashboardTrendPeriod, TenantStatusFilter } from "@/shared/lib/api/client";
 
@@ -51,6 +51,16 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
           }
           to="/accounts"
           search={{ statuses: [TenantStatusFilter.Active, TenantStatusFilter.Downgrading] }}
+        />
+      )}
+
+      {isSubscriptionEnabled && (
+        <KpiTile
+          label={t`Total revenue`}
+          icon={TrendingUpIcon}
+          value={data && data.currency ? formatCurrency(data.totalRevenue, data.currency) : undefined}
+          loading={isLoading}
+          subtitle={<Trans>All-time, excluding VAT</Trans>}
         />
       )}
 

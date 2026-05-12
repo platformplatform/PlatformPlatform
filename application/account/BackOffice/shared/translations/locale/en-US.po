@@ -147,6 +147,9 @@ msgstr "All users across every account, most recently seen first. Search and fil
 msgid "All-time"
 msgstr "All-time"
 
+msgid "All-time, excluding VAT"
+msgstr "All-time, excluding VAT"
+
 msgid "Amount"
 msgstr "Amount"
 
@@ -849,6 +852,9 @@ msgstr "Total"
 
 msgid "Total accounts"
 msgstr "Total accounts"
+
+msgid "Total revenue"
+msgstr "Total revenue"
 
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Try a different search term or clear the role and activity filters."

@@ -27,6 +27,7 @@ public sealed record BackOfficeDashboardKpisResponse(
     long ActiveUsersInPeriod,
     decimal BlendedMonthlyRecurringRevenue,
     decimal? BlendedMonthlyRecurringRevenueDeltaPercent,
+    decimal TotalRevenue,
     string? Currency,
     long ActiveSessionsLast24Hours
 );
@@ -99,6 +100,14 @@ public sealed class GetDashboardKpisHandler(
 
         var totalMonthlyRecurringRevenue = paidSubscriptions.Sum(MrrCalculator.ForwardMrr);
 
+        // Total Revenue: ex-VAT lifetime revenue across every subscription (paid + cancelled). VAT is collected
+        // on behalf of tax authorities and never our revenue, so the sum uses AmountExcludingTax. Refunded rows
+        // are excluded — money returned to the customer is not revenue.
+        var totalRevenue = paidSubscriptions.Concat(freePlanSubscriptions)
+            .SelectMany(s => s.PaymentTransactions)
+            .Where(t => t.Status == PaymentTransactionStatus.Succeeded)
+            .Sum(t => t.AmountExcludingTax);
+
         // Period-over-period MRR delta uses the MRR contribution of subscriptions that already existed
         // at the start of the period as the prior baseline. The domain does not store historical MRR
         // snapshots, so this approximation treats subscriptions still active today and created before
@@ -121,6 +130,7 @@ public sealed class GetDashboardKpisHandler(
             activeUsersInPeriod,
             totalMonthlyRecurringRevenue,
             mrrDeltaPercent,
+            totalRevenue,
             platformCurrencyProvider.Currency,
             activeSessions
         );

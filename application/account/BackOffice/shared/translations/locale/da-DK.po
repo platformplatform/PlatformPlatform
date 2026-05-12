@@ -147,6 +147,9 @@ msgstr "Alle brugere på tværs af konti, senest sete først. Søg og filtrér f
 msgid "All-time"
 msgstr "Samlet"
 
+msgid "All-time, excluding VAT"
+msgstr "Hele perioden, eksklusiv moms"
+
 msgid "Amount"
 msgstr "Beløb"
 
@@ -849,6 +852,9 @@ msgstr "I alt"
 
 msgid "Total accounts"
 msgstr "Konti i alt"
+
+msgid "Total revenue"
+msgstr "Omsætning i alt"
 
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
