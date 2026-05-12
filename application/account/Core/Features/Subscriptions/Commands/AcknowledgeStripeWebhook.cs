@@ -8,11 +8,21 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Subscriptions.Commands;
 
 /// <summary>
-///     Phase 1 of two-phase webhook processing. Validates the Stripe signature, stores the event
-///     as pending, and returns the customer ID so the API can trigger phase 2 processing.
+///     Phase 1 of two-phase webhook processing. Validates the Stripe signature, stores the event as
+///     pending, and returns the resolved customer id alongside the just-acked event so the API can
+///     trigger phase 2 processing without re-reading the durable <c>stripe_events.payload</c> archive.
 /// </summary>
 [PublicAPI]
-public sealed record AcknowledgeStripeWebhookCommand(string Payload, string SignatureHeader) : ICommand, IRequest<Result<StripeCustomerId?>>;
+public sealed record AcknowledgeStripeWebhookCommand(string Payload, string SignatureHeader) : ICommand, IRequest<Result<AcknowledgeStripeWebhookResult?>>;
+
+/// <summary>
+///     Carries the resolved customer id and (when the webhook is new and supported) the in-memory
+///     payload for phase 2 to process. <see cref="JustAcknowledgedEvent" /> is null when the webhook is a
+///     duplicate (the existing row's payload hash matched), when the customer is unknown (the row was
+///     stored but marked Ignored), or when the event type is not subscription-relevant for this tenant.
+/// </summary>
+[PublicAPI]
+public sealed record AcknowledgeStripeWebhookResult(StripeCustomerId StripeCustomerId, PendingWebhookEvent? JustAcknowledgedEvent);
 
 public sealed class AcknowledgeStripeWebhookHandler(
     IStripeEventRepository stripeEventRepository,
@@ -20,15 +30,15 @@ public sealed class AcknowledgeStripeWebhookHandler(
     ITelemetryEventsCollector events,
     TimeProvider timeProvider,
     ILogger<AcknowledgeStripeWebhookHandler> logger
-) : IRequestHandler<AcknowledgeStripeWebhookCommand, Result<StripeCustomerId?>>
+) : IRequestHandler<AcknowledgeStripeWebhookCommand, Result<AcknowledgeStripeWebhookResult?>>
 {
-    public async Task<Result<StripeCustomerId?>> Handle(AcknowledgeStripeWebhookCommand command, CancellationToken cancellationToken)
+    public async Task<Result<AcknowledgeStripeWebhookResult?>> Handle(AcknowledgeStripeWebhookCommand command, CancellationToken cancellationToken)
     {
         var stripeClient = stripeClientFactory.GetClient();
         var webhookEvent = stripeClient.VerifyWebhookSignature(command.Payload, command.SignatureHeader);
         if (webhookEvent is null)
         {
-            return Result<StripeCustomerId?>.BadRequest("Invalid webhook signature.");
+            return Result<AcknowledgeStripeWebhookResult?>.BadRequest("Invalid webhook signature.");
         }
 
         var payloadHash = StripeEventPayloadHasher.Hash(command.Payload);
@@ -53,7 +63,12 @@ public sealed class AcknowledgeStripeWebhookHandler(
                 events.CollectEvent(new StripeEventPayloadMismatch(webhookEvent.EventId, webhookEvent.EventType, existing.PayloadHash, payloadHash));
             }
 
-            return Result<StripeCustomerId?>.Success(webhookEvent.CustomerId);
+            // Redeliveries return the customer id but no JustAcknowledgedEvent: phase 2 already processed the
+            // original arrival (or is about to via a concurrent request); replaying the same payload
+            // would just produce a no-op since billing_events is idempotent on stripe_event_id.
+            return webhookEvent.CustomerId is null
+                ? Result<AcknowledgeStripeWebhookResult?>.Success(null)
+                : new AcknowledgeStripeWebhookResult(webhookEvent.CustomerId, null);
         }
 
         var now = timeProvider.GetUtcNow();
@@ -68,6 +83,15 @@ public sealed class AcknowledgeStripeWebhookHandler(
 
         await stripeEventRepository.AddAsync(stripeEvent, cancellationToken);
 
-        return customerId;
+        if (customerId is null) return Result<AcknowledgeStripeWebhookResult?>.Success(null);
+
+        var justAcknowledgedEvent = new PendingWebhookEvent(
+            webhookEvent.EventId,
+            webhookEvent.EventType,
+            webhookEvent.Created,
+            command.Payload,
+            webhookEvent.ApiVersion
+        );
+        return new AcknowledgeStripeWebhookResult(customerId, justAcknowledgedEvent);
     }
 }

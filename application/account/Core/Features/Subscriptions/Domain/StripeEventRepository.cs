@@ -12,8 +12,6 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
 
     void Update(StripeEvent aggregate);
 
-    Task<StripeEvent[]> GetPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
-
     /// <summary>
     ///     Checks if any pending events exist for a Stripe customer without locking.
     ///     Used by the frontend to poll for webhook processing completion.
@@ -21,14 +19,14 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Returns the durable-archive stripe_event rows for a customer that the replayer should
-    ///     consume to (re)build the BillingEvent log. Includes both webhook-delivered and
-    ///     reconciliation-recovered events (Status=Processed); excludes Pending (not yet
-    ///     processed), Ignored (no customer match), and Failed. Source of truth for replay:
-    ///     this archive, not Stripe's events.list (which only retains 30 days per
-    ///     https://docs.stripe.com/api/events).
+    ///     Transitions every Pending stripe_events row for a Stripe customer to Processed via a
+    ///     column-only UPDATE, backfilling the resolved <c>tenant_id</c> and <c>stripe_subscription_id</c>
+    ///     at the same moment. Does not materialize any row, so the durable <c>payload</c> column is
+    ///     never read; this is the hot-path replacement for fetch-then-mark patterns that round-tripped
+    ///     the jsonb archive bytes through the application. Covers both the just-acked event and any
+    ///     accumulated Pending orphans from prior partial deliveries so the next sync starts clean.
     /// </summary>
-    Task<StripeEvent[]> GetReplayableByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+    Task MarkPendingProcessedByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, DateTimeOffset processedAt, TenantId tenantId, StripeSubscriptionId? stripeSubscriptionId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Returns the set of Stripe event ids (regardless of Status) already recorded for a customer.
@@ -62,28 +60,25 @@ public sealed class StripeEventRepository(AccountDbContext accountDbContext)
         return await DbSet.AnyAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<StripeEvent[]> GetPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending)
-            .ToArrayAsync(cancellationToken);
-    }
-
     public async Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         return await DbSet.AnyAsync(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending, cancellationToken);
     }
 
-    public async Task<StripeEvent[]> GetReplayableByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public async Task MarkPendingProcessedByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, DateTimeOffset processedAt, TenantId tenantId, StripeSubscriptionId? stripeSubscriptionId, CancellationToken cancellationToken)
     {
-        // No ORDER BY: the replayer is the canonical sort site (orders by CreatedAt then EventId for
-        // a stable tie-break). Materializing here keeps the query SQLite-translatable and the set is
-        // bounded per-customer (typically <200 webhooks over a subscription's lifetime). Status=Processed
-        // covers both webhook-delivered events and reconciliation-recovered events (CreateRecovered lands
-        // them as Processed directly).
-        return await DbSet
-            .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Processed)
-            .ToArrayAsync(cancellationToken);
+        // ExecuteUpdateAsync rewrites only the state-machine columns; the durable payload jsonb column is
+        // never read. Filters on stripe_customer_id and status=Pending so the transition is idempotent —
+        // a concurrent request that already consumed the rows produces a no-op rather than a double-write.
+        await DbSet
+            .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending)
+            .ExecuteUpdateAsync(e => e
+                    .SetProperty(x => x.Status, StripeEventStatus.Processed)
+                    .SetProperty(x => x.ProcessedAt, processedAt)
+                    .SetProperty(x => x.TenantId, tenantId)
+                    .SetProperty(x => x.StripeSubscriptionId, stripeSubscriptionId),
+                cancellationToken
+            );
     }
 
     public async Task<HashSet<string>> GetExistingEventIdsByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)

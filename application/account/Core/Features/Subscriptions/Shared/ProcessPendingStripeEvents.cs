@@ -12,15 +12,14 @@ namespace Account.Features.Subscriptions.Shared;
 
 /// <summary>
 ///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row to
-///     serialize concurrent webhook processing, syncs current state from Stripe, then writes new
-///     BillingEvent rows from the events.list view of the world. The hot path NEVER reads
-///     <c>stripe_events.payload</c>: it drives BillingEvent emission from Stripe's events.list response
-///     (anchored on the subscription's <see cref="Subscription.LastSyncedStripeEventCreatedAt" />) and
-///     from the just-arrived webhook payloads carried by the in-memory <c>pendingEvents</c> set. The
-///     local <c>stripe_events</c> archive stays as a cold backup; only the admin "Reconcile with Stripe"
-///     action walks it (see <see cref="StripeEventReplayer" />). The unique <c>stripe_event_id</c> index
-///     on <c>billing_events</c> makes the emission idempotent: redelivered webhooks and re-pulls from
-///     events.list are no-ops.
+///     serialize concurrent webhook processing for the same customer, syncs current state from Stripe,
+///     then writes new BillingEvent rows from Stripe's events.list view (anchored on the subscription's
+///     <see cref="Subscription.LastSyncedStripeEventCreatedAt" />) plus the single just-acked webhook
+///     event threaded in-memory from <c>StripeWebhookEndpoints</c>. The hot
+///     path NEVER reads <c>stripe_events.payload</c>: the durable archive is consulted only by the admin
+///     <c>ReplayArchivedTenantStripeEventsCommand</c> disaster-recovery handler. The unique
+///     <c>stripe_event_id</c> index on <c>billing_events</c> makes the emission idempotent: redelivered
+///     webhooks and re-pulls from events.list are no-ops.
 /// </summary>
 public sealed class ProcessPendingStripeEvents(
     AccountDbContext dbContext,
@@ -37,10 +36,20 @@ public sealed class ProcessPendingStripeEvents(
 {
     public Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        return ExecuteAsync(stripeCustomerId, false, SyncMode.Apply, cancellationToken);
+        return ExecuteAsync(stripeCustomerId, null, false, SyncMode.Apply, cancellationToken);
     }
 
-    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, SyncMode syncMode, CancellationToken cancellationToken)
+    public Task ExecuteAsync(StripeCustomerId stripeCustomerId, PendingWebhookEvent? justAcknowledgedEvent, CancellationToken cancellationToken)
+    {
+        return ExecuteAsync(stripeCustomerId, justAcknowledgedEvent, false, SyncMode.Apply, cancellationToken);
+    }
+
+    public Task ExecuteAsync(StripeCustomerId stripeCustomerId, bool forceSync, SyncMode syncMode, CancellationToken cancellationToken)
+    {
+        return ExecuteAsync(stripeCustomerId, null, forceSync, syncMode, cancellationToken);
+    }
+
+    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, PendingWebhookEvent? justAcknowledgedEvent, bool forceSync, SyncMode syncMode, CancellationToken cancellationToken)
     {
         // Detect mode is the BillingDriftWorker tripwire: it must NOT acquire a FOR UPDATE row lock on the
         // subscription, because the worker iterates across every stale row and would otherwise serialize
@@ -49,7 +58,7 @@ public sealed class ProcessPendingStripeEvents(
         // lock for the write itself.
         if (syncMode == SyncMode.Detect)
         {
-            await ExecuteDetectAsync(stripeCustomerId, forceSync, cancellationToken);
+            await ExecuteDetectAsync(stripeCustomerId, cancellationToken);
             return;
         }
 
@@ -68,24 +77,32 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
-        var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
-        // forceSync runs the Stripe sync even with no pending events (used by the back-office reconcile admin action).
-        if (pendingEvents.Length > 0 || forceSync)
+        // The hot path runs whenever a webhook just landed (justAcknowledgedEvent is not null), an admin
+        // reconcile click sets forceSync, or accumulated Pending stripe_events rows from a prior partial
+        // delivery need a self-heal sync (the tenant-side process-pending-events polling endpoint
+        // depends on this path to drain orphans). HasPendingByStripeCustomerIdAsync is a column-only
+        // existence check — it never reads the durable payload jsonb column.
+        var hasOrphanPendingEvents = justAcknowledgedEvent is null && !forceSync
+                                                                   && await stripeEventRepository.HasPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
+        if (justAcknowledgedEvent is not null || forceSync || hasOrphanPendingEvents)
         {
             var eventsListResult = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Apply, cancellationToken);
             var (driftSnapshots, stripeViewUnavailable) = await SyncStateFromStripe(tenant, subscription, SyncMode.Apply, cancellationToken);
-            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResult, driftSnapshots, SyncMode.Apply, cancellationToken);
+            await EmitBillingEventsFromEventsListAsync(subscription, justAcknowledgedEvent, eventsListResult, driftSnapshots, SyncMode.Apply, cancellationToken);
 
-            // Apply mode normally consumes Pending stripe_events rows by marking them Processed. When the Stripe
-            // view is unavailable (the integration client swallowed a StripeException or TaskCanceledException
-            // and returned null) the SyncStateFromStripe mutation branches were skipped, so consuming the rows
-            // would silently drop the side effects. Leave them Pending so the next sync retries; the
-            // BillingEvent ledger emission above is idempotent on stripe_event_id and the events.list anchor
-            // (AdvanceLastSyncedStripeEventCreatedAt) is correctly advanced regardless.
+            // Apply mode normally consumes every Pending stripe_events row for this customer by marking
+            // them Processed — both the just-acked event and any orphans accumulated from prior partial
+            // deliveries. When the Stripe view is unavailable (the integration client swallowed a
+            // StripeException or TaskCanceledException and returned null) the SyncStateFromStripe
+            // mutation branches were skipped, so consuming the rows would silently drop their side
+            // effects. Leave them Pending so the next sync retries; the BillingEvent ledger emission
+            // above is idempotent on stripe_event_id and the events.list anchor is correctly advanced
+            // regardless. The mark is column-only: it never reads the durable payload jsonb column.
             if (!stripeViewUnavailable)
             {
-                MarkAllEventsAsProcessed(pendingEvents, subscription);
+                var now = timeProvider.GetUtcNow();
+                await stripeEventRepository.MarkPendingProcessedByStripeCustomerIdAsync(stripeCustomerId, now, subscription.TenantId, subscription.StripeSubscriptionId, cancellationToken);
             }
         }
 
@@ -95,7 +112,7 @@ public sealed class ProcessPendingStripeEvents(
         SendTelemetryEvents(tenant, subscription);
     }
 
-    private async Task ExecuteDetectAsync(StripeCustomerId stripeCustomerId, bool forceSync, CancellationToken cancellationToken)
+    private async Task ExecuteDetectAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         var subscription = await subscriptionRepository.GetByStripeCustomerIdUnfilteredAsync(stripeCustomerId, cancellationToken);
         if (subscription is null)
@@ -105,16 +122,13 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
-        var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
-        // forceSync runs the Stripe sync even with no pending events; the detect-only BillingDriftWorker
-        // sets it so every stale subscription is audited regardless of webhook activity.
-        if (pendingEvents.Length > 0 || forceSync)
-        {
-            var eventsListResult = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Detect, cancellationToken);
-            var (driftSnapshots, _) = await SyncStateFromStripe(tenant, subscription, SyncMode.Detect, cancellationToken);
-            await EmitBillingEventsFromEventsListAsync(subscription, pendingEvents, eventsListResult, driftSnapshots, SyncMode.Detect, cancellationToken);
-        }
+        // Detect mode never consults the stripe_events archive: events.list within Stripe's 30-day window
+        // covers every customer today (see AUDIT-30-DAY-WINDOW.md), and any Pending row that fails to
+        // appear there retries on the next webhook arrival, not on the next worker pass.
+        var eventsListResult = await PullEventsListAndArchiveRecoveredAsync(subscription, stripeCustomerId, SyncMode.Detect, cancellationToken);
+        var (driftSnapshots, _) = await SyncStateFromStripe(tenant, subscription, SyncMode.Detect, cancellationToken);
+        await EmitBillingEventsFromEventsListAsync(subscription, null, eventsListResult, driftSnapshots, SyncMode.Detect, cancellationToken);
 
         // Detect mode normally collects nothing because the mutation branches that drive telemetry are
         // skipped. The Stripe-unavailable drift-skipped event in DetectDrift is the one Detect-mode
@@ -400,19 +414,20 @@ public sealed class ProcessPendingStripeEvents(
     /// <summary>
     ///     Authoritative BillingEvent emission for the hot path. Inputs are strictly in-memory:
     ///     (1) the events.list response Stripe just returned (with payloads carried inline by
-    ///     <see cref="StripeReplayEvent" />) and (2) the just-arrived webhook events whose payload was
-    ///     posted to <c>AcknowledgeStripeWebhook</c> and is still loaded in memory as Pending. The
-    ///     durable <c>stripe_events</c> archive is NEVER queried in this pass — its <c>Payload</c> column
-    ///     is a cold backup only, read by the admin reconcile command. Stripe retains events for 30 days
-    ///     (see https://docs.stripe.com/api/events); the background sweeper keeps the anchor inside the
-    ///     window so the events.list view is always complete.
+    ///     <see cref="StripeReplayEvent" />) and (2) the single just-acked webhook event threaded in-memory
+    ///     from <c>StripeWebhookEndpoints</c> (null for the worker, admin
+    ///     reconcile, and tenant-API drain callers). The durable <c>stripe_events</c> archive is NEVER
+    ///     queried in this pass — its <c>Payload</c> column is a cold backup only, read by the admin
+    ///     disaster-recovery <c>ReplayArchivedTenantStripeEventsCommand</c>. Stripe retains events for
+    ///     30 days (see https://docs.stripe.com/api/events); the background sweeper keeps the anchor
+    ///     inside the window so the events.list view is always complete.
     ///     Idempotent on <c>billing_events.stripe_event_id</c>: rows whose source Stripe event id is
     ///     already recorded are skipped, so re-running this for every webhook (or via the back-office
     ///     reconcile action) is safe.
     /// </summary>
     private async Task EmitBillingEventsFromEventsListAsync(
         Subscription subscription,
-        StripeEvent[] pendingEvents,
+        PendingWebhookEvent? justAcknowledgedEvent,
         StripeEventsListResult eventsListResult,
         DriftSnapshots driftSnapshots,
         SyncMode syncMode,
@@ -421,30 +436,28 @@ public sealed class ProcessPendingStripeEvents(
     {
         if (subscription.StripeCustomerId is null) return;
 
-        // Union the events.list view of the world with the just-arrived webhooks still Pending in this
-        // transaction. Stripe's events.list typically reflects a new webhook within a few seconds, but the
-        // hot path can't depend on that. Dedup by event id; the events.list payload wins when both sources
-        // describe the same event (Stripe's serialization is the authoritative view).
-        var unioned = new Dictionary<string, StripeReplayEvent>(eventsListResult.Events.Length + pendingEvents.Length);
+        // Union the events.list view of the world with the single just-acked webhook still in memory from
+        // the StripeWebhookEndpoints request that triggered this call. Stripe's events.list typically
+        // reflects a new webhook within a few seconds, but the hot path can't depend on that — so the
+        // in-memory event is added if events.list has not yet caught up. Dedup by event id; the events.list
+        // payload wins when both sources describe the same event (Stripe's serialization is the
+        // authoritative view).
+        var unioned = new Dictionary<string, StripeReplayEvent>(eventsListResult.Events.Length + 1);
         foreach (var eventListItem in eventsListResult.Events)
         {
             unioned[eventListItem.EventId] = eventListItem;
         }
 
-        foreach (var pending in pendingEvents)
+        if (justAcknowledgedEvent is not null && !unioned.ContainsKey(justAcknowledgedEvent.EventId))
         {
-            if (unioned.ContainsKey(pending.Id.Value)) continue;
-            // pending.Payload is the webhook body posted to AcknowledgeStripeWebhook — carried in-memory
-            // from the same request, not read from the cold durable archive.
-            // Source the replay timestamp from Stripe's authoritative Event.Created (captured at ingestion
-            // into StripeCreatedAt) so the replayer orders events and writes BillingEvent.OccurredAt at the
-            // moment Stripe says the event occurred. Skip pending rows with a null StripeCreatedAt — the
-            // replayer cannot order them and a Pending row should never have a null timestamp in practice,
-            // but stripe_events is a passive archive so guard defensively at the boundary. For null
-            // ApiVersion, pass empty so the unsupported-version code path surfaces it as drift instead of
-            // matching a real resolver.
-            if (pending.StripeCreatedAt is null) continue;
-            unioned[pending.Id.Value] = new StripeReplayEvent(pending.Id.Value, pending.EventType, pending.StripeCreatedAt.Value, pending.Payload ?? "", pending.ApiVersion ?? "");
+            // justAcknowledgedEvent.Payload is the webhook body threaded in-memory from StripeWebhookEndpoints; it
+            // is the SAME string received from the HTTP request, not a re-read from the stripe_events
+            // archive. The archive is consulted only by ReplayArchivedTenantStripeEventsCommand for
+            // disaster recovery.
+            unioned[justAcknowledgedEvent.EventId] = new StripeReplayEvent(
+                justAcknowledgedEvent.EventId, justAcknowledgedEvent.EventType, justAcknowledgedEvent.StripeCreatedAt,
+                justAcknowledgedEvent.Payload, justAcknowledgedEvent.ApiVersion
+            );
         }
 
         if (unioned.Count == 0)
@@ -719,17 +732,6 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         return eventsListResult;
-    }
-
-    private void MarkAllEventsAsProcessed(StripeEvent[] pendingEvents, Subscription subscription)
-    {
-        var now = timeProvider.GetUtcNow();
-
-        foreach (var pendingEvent in pendingEvents)
-        {
-            pendingEvent.MarkProcessed(now, subscription.TenantId, subscription.StripeSubscriptionId);
-            stripeEventRepository.Update(pendingEvent);
-        }
     }
 
     private void SendTelemetryEvents(Tenant tenant, Subscription subscription)

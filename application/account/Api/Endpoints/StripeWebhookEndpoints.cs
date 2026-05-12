@@ -28,10 +28,10 @@ public sealed class StripeWebhookEndpoints : IEndpoints
                 var acknowledgeResult = await mediator.Send(new AcknowledgeStripeWebhookCommand(payload, signatureHeader));
                 if (!acknowledgeResult.IsSuccess) return Result.From(acknowledgeResult);
 
-                var customerId = acknowledgeResult.Value;
-                if (customerId is not null)
+                var acknowledgedWebhook = acknowledgeResult.Value;
+                if (acknowledgedWebhook is not null)
                 {
-                    await processPendingStripeEvents.ExecuteAsync(customerId, request.HttpContext.RequestAborted);
+                    await processPendingStripeEvents.ExecuteAsync(acknowledgedWebhook.StripeCustomerId, acknowledgedWebhook.JustAcknowledgedEvent, request.HttpContext.RequestAborted);
                 }
 
                 return Result.Success();
