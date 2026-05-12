@@ -518,4 +518,55 @@ public sealed class StripeEventReplayerTests
         emitted[0].EventType.Should().Be(BillingEventType.PaymentMethodUpdated);
         emitted[0].Currency.Should().BeNull();
     }
+
+    [Fact]
+    public void Replay_WhenScheduledDowngradeCancelledInLaterSync_ShouldEmitDowngradeCancelledWithLivePlanPrice()
+    {
+        // Repro: customer is on Premium (299) and schedules a downgrade to Standard (149). We persist a
+        // SubscriptionDowngradeScheduled row carrying ToPlan=Standard, NewAmount=149. The customer then
+        // cancels the scheduled downgrade. Stripe emits subscription_schedule.released without re-emitting
+        // customer.subscription.updated because the active phase didn't change. SyncStateFromStripe still
+        // refreshes the live Subscription aggregate (ScheduledPlan=null, Plan=Premium, CurrentPriceAmount=299).
+        // If the replayer seeds from history alone (latest persisted row's ToPlan=Standard, NewAmount=149),
+        // state.Plan/PlanPrice become Standard/149 and state.ScheduledPlan stays null, so MapScheduleTerminated
+        // either short-circuits to NoOp or emits SubscriptionDowngradeCancelled with newAmount=149 — both wrong.
+        // Seeding from the live aggregate keeps Plan=Premium, PlanPrice=299, ScheduledPlan=Premium so the
+        // emitted row carries the customer's actual current price (299).
+        // Arrange
+        var subscription = Subscription.Create(TenantId.NewId());
+        var anchor = DateTimeOffset.Parse("2026-02-01T10:00:00Z");
+        subscription.SetStripeSubscription(new StripeSubscriptionId("sub_test"), SubscriptionPlan.Premium, 299m, "USD", anchor.AddDays(30), null);
+        var latestPersisted = BillingEvent.Create(
+            subscription.TenantId, subscription.Id, "evt_downgrade_scheduled",
+            BillingEventType.SubscriptionDowngradeScheduled, anchor.AddDays(-1),
+            299m,
+            SubscriptionPlan.Premium,
+            SubscriptionPlan.Standard,
+            299m, 149m, -150m,
+            "USD"
+        );
+        var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersisted, subscription);
+        var stripeEvents = new[]
+        {
+            new StripeReplayEvent(
+                "evt_schedule_released",
+                "subscription_schedule.released",
+                anchor.AddDays(1),
+                """{"data":{"object":{"status":"released"}}}""",
+                MockApiVersion
+            )
+        };
+
+        // Act
+        var emitted = StripeEventReplayer.Replay(subscription, stripeEvents, PlanByPriceId, PriceByPlan, state, "USD");
+
+        // Assert
+        emitted.Should().HaveCount(1);
+        emitted[0].EventType.Should().Be(BillingEventType.SubscriptionDowngradeCancelled);
+        emitted[0].NewAmount.Should().Be(299m);
+        emitted[0].PreviousAmount.Should().Be(299m);
+        emitted[0].AmountDelta.Should().BeNull();
+        emitted[0].CommittedMrr.Should().Be(299m);
+        emitted[0].ToPlan.Should().Be(SubscriptionPlan.Premium);
+    }
 }

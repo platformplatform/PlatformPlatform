@@ -769,29 +769,36 @@ public static class StripeEventReplayer
     }
 
     /// <summary>
-    ///     Seeds a fresh <see cref="ReplayState" /> from the latest persisted <see cref="BillingEvent" /> for
-    ///     a subscription so the next replay batch carries forward Plan, PlanPrice, CancelAtPeriodEnd and
-    ///     CommittedMrr from history instead of starting at the phantom-zero defaults. Without this seed an
-    ///     events.list anchor that has aged past Stripe's 30-day window would emit a fresh
-    ///     <see cref="BillingEvent" /> (e.g. SubscriptionCancelled triggered by a cancel-at-period-end
-    ///     toggle) with <c>previousAmount=0</c>, <c>amountDelta=0</c>, and <c>committedMrr=0</c> — silently
-    ///     rewriting MRR history. Returns a fresh state when <paramref name="latestPersisted" /> is null so
-    ///     callers can use this unconditionally.
+    ///     Seeds a fresh <see cref="ReplayState" /> for the next replay batch. Current-state-of-the-world
+    ///     fields (Plan, PlanPrice, ScheduledPlan, CancelAtPeriodEnd) come from the live
+    ///     <paramref name="subscription" /> aggregate — which was just reconciled from Stripe earlier in the
+    ///     same sync — so the replayer's view of the active plan stays consistent with truth even when a
+    ///     transition (e.g. subscription_schedule.released cancelling a pending downgrade) doesn't emit a
+    ///     paired customer.subscription.updated to refresh history. The running total
+    ///     (<see cref="ReplayState.CommittedMrr" />) comes from <paramref name="latestPersisted" /> so the
+    ///     anchor doesn't reset to zero when events.list re-pulls a partial window. Returns a fresh state
+    ///     with CommittedMrr=0 when <paramref name="latestPersisted" /> is null.
     /// </summary>
-    public static ReplayState SeedReplayStateFromHistory(BillingEvent? latestPersisted)
+    public static ReplayState SeedReplayStateFromHistory(BillingEvent? latestPersisted, Subscription subscription)
     {
-        var state = new ReplayState();
-        if (latestPersisted is null) return state;
+        // When the most recently persisted row is a SubscriptionDowngradeScheduled, history shows a still-
+        // open schedule that the live aggregate may have already discarded. Stripe's
+        // subscription_schedule.released cancels the schedule without re-emitting
+        // customer.subscription.updated, so SyncStateFromStripe nulls ScheduledPlan on the live aggregate
+        // before this seed runs. Falling back to history here lets MapScheduleTerminated classify the
+        // cancellation as SubscriptionDowngradeCancelled instead of a NoOp audit row.
+        var scheduledPlan = latestPersisted?.EventType == BillingEventType.SubscriptionDowngradeScheduled
+            ? latestPersisted.ToPlan
+            : subscription.ScheduledPlan;
 
-        state.Plan = latestPersisted.ToPlan;
-        state.PlanPrice = latestPersisted.NewAmount ?? 0m;
-        state.CommittedMrr = latestPersisted.CommittedMrr;
-        // SubscriptionCancelled is the only event type that flips CancelAtPeriodEnd to true; every other
-        // recorded transition either leaves it false (creation, upgrade, downgrade) or moves it back to
-        // false (reactivate, expire, immediately cancel). Deriving from the latest row keeps this helper
-        // input-only and avoids walking history.
-        state.CancelAtPeriodEnd = latestPersisted.EventType == BillingEventType.SubscriptionCancelled;
-        return state;
+        return new ReplayState
+        {
+            Plan = subscription.Plan,
+            PlanPrice = subscription.CurrentPriceAmount ?? 0m,
+            ScheduledPlan = scheduledPlan,
+            CancelAtPeriodEnd = subscription.CancelAtPeriodEnd,
+            CommittedMrr = latestPersisted?.CommittedMrr ?? 0m
+        };
     }
 
     public sealed class ReplayState

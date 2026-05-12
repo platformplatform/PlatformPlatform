@@ -504,7 +504,7 @@ public sealed class ProcessPendingStripeEvents(
             .OrderByDescending(r => r.OccurredAt)
             .ThenByDescending(r => r.Id.Value)
             .FirstOrDefault();
-        var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersistedBillingEvent);
+        var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersistedBillingEvent, subscription);
 
         // Several SyncStateFromStripe branches (subscriptionExpired, subscriptionImmediatelyCancelled,
         // subscriptionSuspended, IsCustomerDeleted) call Subscription.ResetToFreePlan which nulls

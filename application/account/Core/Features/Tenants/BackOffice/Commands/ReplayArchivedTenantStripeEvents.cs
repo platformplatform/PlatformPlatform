@@ -84,7 +84,7 @@ public sealed class ReplayArchivedTenantStripeEventsHandler(
             .OrderByDescending(r => r.OccurredAt)
             .ThenByDescending(r => r.Id.Value)
             .FirstOrDefault();
-        var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersistedBillingEvent);
+        var state = StripeEventReplayer.SeedReplayStateFromHistory(latestPersistedBillingEvent, subscription);
 
         // GetArchivedEventsOlderThanAsync filters on `StripeCreatedAt < cutoff`, which excludes NULLs by
         // SQL/LINQ semantics, so every row returned is guaranteed to have a non-null StripeCreatedAt. A
