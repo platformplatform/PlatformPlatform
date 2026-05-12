@@ -24,27 +24,30 @@ export const PLAN_TRANSITION_EVENT_TYPES: ReadonlySet<BillingEventType> = new Se
 /** Default `fromPlan` when an event's persisted `fromPlan` is null (e.g. SubscriptionCreated). */
 export const DEFAULT_FROM_PLAN = SubscriptionPlan.Basis;
 
-/** Event types whose filter dropdown entry sits under the "MRR impact" group heading. */
+/**
+ * Event types whose filter dropdown entry sits under the "MRR impact" group heading. Reserved for
+ * events whose primary signal is "revenue moved". Each event appears in exactly one group so the
+ * dropdown never renders the same item twice.
+ */
 export const MRR_IMPACT_EVENT_TYPES: readonly BillingEventType[] = [
-  BillingEventType.SubscriptionCreated,
   BillingEventType.SubscriptionUpgraded,
-  BillingEventType.SubscriptionDowngraded,
   BillingEventType.SubscriptionDowngradeScheduled,
   BillingEventType.SubscriptionDowngradeCancelled,
-  BillingEventType.SubscriptionReactivated,
+  BillingEventType.SubscriptionDowngraded,
   BillingEventType.SubscriptionImmediatelyCancelled,
   BillingEventType.PaymentRefunded
 ];
 
-/** Event types whose filter dropdown entry sits under the "Subscription state" group heading. */
+/**
+ * Event types whose filter dropdown entry sits under the "Subscription state" group heading.
+ * Reserved for events whose primary signal is "the subscription's lifecycle changed". Reactivated
+ * lives here because the state transition is dominant — the MRR uptick is a consequence.
+ */
 export const SUBSCRIPTION_STATE_EVENT_TYPES: readonly BillingEventType[] = [
   BillingEventType.SubscriptionCreated,
   BillingEventType.SubscriptionRenewed,
-  BillingEventType.SubscriptionUpgraded,
-  BillingEventType.SubscriptionDowngraded,
   BillingEventType.SubscriptionReactivated,
   BillingEventType.SubscriptionExpired,
-  BillingEventType.SubscriptionImmediatelyCancelled,
   BillingEventType.SubscriptionSuspended,
   BillingEventType.SubscriptionCancelled
 ];
