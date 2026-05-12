@@ -777,7 +777,7 @@ msgstr "Signed up"
 msgid "Signed up <0>{0}</0><1>{1}</1>"
 msgstr "Signed up <0>{0}</0><1>{1}</1>"
 
-#. placeholder {0}: formatDate(tenant.createdAt)
+#. placeholder {0}: formatDate(tenant.subscribedSince)
 msgid "Since {0}"
 msgstr "Since {0}"
 

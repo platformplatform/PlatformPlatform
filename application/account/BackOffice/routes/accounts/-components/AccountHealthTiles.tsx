@@ -80,10 +80,10 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
           tenantId={tenantId}
           tab="invoices"
           subtitle={
-            tenant ? (
+            tenant?.subscribedSince ? (
               <span className="inline-flex items-center gap-1.5">
                 <CalendarIcon className="size-3" aria-hidden={true} />
-                <Trans>Since {formatDate(tenant.createdAt)}</Trans>
+                <Trans>Since {formatDate(tenant.subscribedSince)}</Trans>
               </span>
             ) : undefined
           }
