@@ -14,6 +14,7 @@ import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 import { CardBrandLogo } from "./CardBrandLogo";
 
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
+type PaymentMethodResponse = NonNullable<TenantDetailResponse["paymentMethod"]>;
 
 const sectionLabelClassName = "text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase";
 
@@ -137,21 +138,36 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
             <Trans>Payment method</Trans>
           </span>
           {tenant.paymentMethod ? (
-            <div className="flex items-center gap-2">
-              <CardBrandLogo brand={tenant.paymentMethod.brand} size="lg" />
-              <div className="flex flex-col leading-tight">
-                <span className="whitespace-nowrap tabular-nums">•••• {tenant.paymentMethod.last4}</span>
-                <span className="whitespace-nowrap text-muted-foreground tabular-nums">
-                  {tenant.paymentMethod.expMonth.toString().padStart(2, "0")}/
-                  {tenant.paymentMethod.expYear.toString().slice(-2)}
-                </span>
-              </div>
-            </div>
+            <PaymentMethodBlock paymentMethod={tenant.paymentMethod} />
           ) : (
             <span className="text-muted-foreground">-</span>
           )}
         </div>
       </div>
     </Card>
+  );
+}
+
+// Renders the brand panel for every payment method. Stripe Link is funded by an underlying card that
+// the pinned Stripe.NET SDK does not expose, so the backend emits a ("link", "****", 0, 0) sentinel;
+// rendering the bullet line and expiry for "link" would surface placeholder data, so we suppress them.
+function PaymentMethodBlock({ paymentMethod }: Readonly<{ paymentMethod: PaymentMethodResponse }>) {
+  const isLink = paymentMethod.brand.toLowerCase() === "link";
+  const hasExpiry = paymentMethod.expMonth > 0 && paymentMethod.expYear > 0;
+
+  return (
+    <div className="flex items-center gap-2">
+      <CardBrandLogo brand={paymentMethod.brand} size="lg" />
+      {!isLink && (
+        <div className="flex flex-col leading-tight">
+          <span className="whitespace-nowrap tabular-nums">•••• {paymentMethod.last4}</span>
+          {hasExpiry && (
+            <span className="whitespace-nowrap text-muted-foreground tabular-nums">
+              {paymentMethod.expMonth.toString().padStart(2, "0")}/{paymentMethod.expYear.toString().slice(-2)}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

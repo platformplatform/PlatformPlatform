@@ -9,6 +9,7 @@ using Stripe.Checkout;
 using PaymentMethod = Account.Features.Subscriptions.Domain.PaymentMethod;
 using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
 using SessionService = Stripe.Checkout.SessionService;
+using StripePaymentMethod = Stripe.PaymentMethod;
 using StripePrice = Stripe.Price;
 using StripeSubscription = Stripe.Subscription;
 
@@ -169,20 +170,8 @@ public sealed class StripeClient(
                 : null;
             var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
 
-            PaymentMethod? paymentMethod = null;
             var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
-            if (defaultPaymentMethod is not null)
-            {
-                if (defaultPaymentMethod.Card is not null)
-                {
-                    paymentMethod = new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
-                }
-                else if (defaultPaymentMethod.Link is not null)
-                {
-                    var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } email ? email[^4..] : "****";
-                    paymentMethod = new PaymentMethod("link", last4, 0, 0);
-                }
-            }
+            var paymentMethod = MapDefaultPaymentMethod(defaultPaymentMethod);
 
             return new SubscriptionSyncResult(
                 plan,
@@ -550,17 +539,7 @@ public sealed class StripeClient(
             var taxIds = await taxIdService.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             var taxId = taxIds.Data.FirstOrDefault()?.Value;
 
-            PaymentMethod? paymentMethod = null;
-            var defaultPaymentMethod = customer.InvoiceSettings?.DefaultPaymentMethod;
-            if (defaultPaymentMethod?.Card is not null)
-            {
-                paymentMethod = new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
-            }
-            else if (defaultPaymentMethod?.Link is not null)
-            {
-                var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } linkEmail ? linkEmail[^4..] : "****";
-                paymentMethod = new PaymentMethod("link", last4, 0, 0);
-            }
+            var paymentMethod = MapDefaultPaymentMethod(customer.InvoiceSettings?.DefaultPaymentMethod);
 
             return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false, paymentMethod);
         }
@@ -1183,6 +1162,29 @@ public sealed class StripeClient(
     }
 
     /// <summary>
+    ///     Maps a Stripe default payment method to the domain <see cref="PaymentMethod" />. Returns <c>null</c> when
+    ///     the input is null or when the payment-method kind is one we do not surface. Card-funded methods carry
+    ///     brand and last4 / expiry directly. Stripe Link is funded by an underlying card, but the pinned Stripe.NET
+    ///     SDK does not expose the backing card on <c>PaymentMethodLink</c>, so we emit a sentinel
+    ///     <c>("link", "****", 0, 0)</c> and let the UI render only the Link wordmark — never fake last4 or 00/0 expiry.
+    /// </summary>
+    public static PaymentMethod? MapDefaultPaymentMethod(StripePaymentMethod? defaultPaymentMethod)
+    {
+        if (defaultPaymentMethod is null) return null;
+        if (defaultPaymentMethod.Card is not null)
+        {
+            return new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
+        }
+
+        if (defaultPaymentMethod.Link is not null)
+        {
+            return new PaymentMethod("link", "****", 0, 0);
+        }
+
+        return null;
+    }
+
+    /// <summary>
     ///     Resolves a Stripe invoice's representative plan via the supplied price-to-plan lookup. Picks the line item
     ///     with the largest positive amount, which on proration upgrade/downgrade invoices is the line for the new
     ///     active plan (the negative line credits unused time on the old plan and would otherwise mis-resolve to it).
@@ -1475,7 +1477,7 @@ public sealed class StripeClient(
             SubscriptionSchedule schedule => schedule.CustomerId,
             Invoice invoice => invoice.CustomerId,
             Charge charge => charge.CustomerId,
-            global::Stripe.PaymentMethod paymentMethod => paymentMethod.CustomerId,
+            StripePaymentMethod paymentMethod => paymentMethod.CustomerId,
             _ => null
         };
     }

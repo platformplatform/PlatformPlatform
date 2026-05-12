@@ -3,6 +3,8 @@ using FluentAssertions;
 using Stripe;
 using Xunit;
 using AccountStripeClient = Account.Integrations.Stripe.StripeClient;
+using DomainPaymentMethod = Account.Features.Subscriptions.Domain.PaymentMethod;
+using StripePaymentMethod = Stripe.PaymentMethod;
 
 namespace Account.Tests.Subscriptions;
 
@@ -269,6 +271,104 @@ public sealed class StripeClientTests
 
         // Assert
         status.Should().Be(PaymentTransactionStatus.Failed);
+    }
+
+    [Fact]
+    public void MapDefaultPaymentMethod_WhenNull_ShouldReturnNull()
+    {
+        // Act
+        var paymentMethod = AccountStripeClient.MapDefaultPaymentMethod(null);
+
+        // Assert
+        paymentMethod.Should().BeNull();
+    }
+
+    [Fact]
+    public void MapDefaultPaymentMethod_WithCard_ShouldReturnCardBrandAndLast4AndExpiry()
+    {
+        // Arrange
+        var stripePaymentMethod = new StripePaymentMethod
+        {
+            Card = new PaymentMethodCard { Brand = "visa", Last4 = "4242", ExpMonth = 12, ExpYear = 2030 }
+        };
+
+        // Act
+        var paymentMethod = AccountStripeClient.MapDefaultPaymentMethod(stripePaymentMethod);
+
+        // Assert
+        paymentMethod.Should().Be(new DomainPaymentMethod("visa", "4242", 12, 2030));
+    }
+
+    [Fact]
+    public void MapDefaultPaymentMethod_WithLinkAndShortEmail_ShouldReturnSentinelNeverEmailTail()
+    {
+        // Stripe Link is funded by an underlying card, but the pinned Stripe.NET SDK does not expose the
+        // backing card on PaymentMethodLink — only Email and PersistentToken. Earlier versions of this code
+        // used email[^4..] as a stand-in for last4, which leaked ".com" / ".net" into the UI rendering as
+        // "•••• .com" with a 00/0 expiry. The agreed sentinel is ("link", "****", 0, 0); the UI suppresses
+        // the bullet and expiry lines for brand "link" and renders only the Link wordmark.
+        // Arrange
+        var stripePaymentMethod = new StripePaymentMethod
+        {
+            Link = new PaymentMethodLink { Email = "x@y.z" }
+        };
+
+        // Act
+        var paymentMethod = AccountStripeClient.MapDefaultPaymentMethod(stripePaymentMethod);
+
+        // The sentinel must not encode any part of the email — comparing against the full record
+        // (last4="****") is stronger than checking the tail and prevents regression to email[^4..].
+        // Assert
+        paymentMethod.Should().Be(new DomainPaymentMethod("link", "****", 0, 0));
+    }
+
+    [Fact]
+    public void MapDefaultPaymentMethod_WithLinkAndLongEmail_ShouldReturnSentinelNeverEmailTail()
+    {
+        // Arrange
+        var stripePaymentMethod = new StripePaymentMethod
+        {
+            Link = new PaymentMethodLink { Email = "very.long.address@example.com" }
+        };
+
+        // Act
+        var paymentMethod = AccountStripeClient.MapDefaultPaymentMethod(stripePaymentMethod);
+
+        // The sentinel must not encode the email tail (".com" was the regression we are guarding against).
+        // Assert
+        paymentMethod.Should().Be(new DomainPaymentMethod("link", "****", 0, 0));
+    }
+
+    [Fact]
+    public void MapDefaultPaymentMethod_WithLinkAndNullEmail_ShouldReturnSentinel()
+    {
+        // Arrange
+        var stripePaymentMethod = new StripePaymentMethod
+        {
+            Link = new PaymentMethodLink { Email = null }
+        };
+
+        // Act
+        var paymentMethod = AccountStripeClient.MapDefaultPaymentMethod(stripePaymentMethod);
+
+        // Assert
+        paymentMethod.Should().Be(new DomainPaymentMethod("link", "****", 0, 0));
+    }
+
+    [Fact]
+    public void MapDefaultPaymentMethod_WithoutCardOrLink_ShouldReturnNull()
+    {
+        // Stripe supports many payment-method kinds (sepa_debit, us_bank_account, etc.) that the platform
+        // does not yet surface. Mapping returns null so callers leave the domain payment method unset rather
+        // than fabricating one.
+        // Arrange
+        var stripePaymentMethod = new StripePaymentMethod();
+
+        // Act
+        var paymentMethod = AccountStripeClient.MapDefaultPaymentMethod(stripePaymentMethod);
+
+        // Assert
+        paymentMethod.Should().BeNull();
     }
 
     private static Invoice BuildInvoiceWithPriceId(string priceId)
