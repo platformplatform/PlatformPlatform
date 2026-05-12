@@ -17,6 +17,7 @@ import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
 import { api, DashboardTrendMetric } from "@/shared/lib/api/client";
 
+import { CurrentPriorTooltip } from "./CurrentPriorTooltip";
 import { DashboardCardShell } from "./DashboardCardShell";
 
 interface DashboardTenantGrowthCardProps {
@@ -33,6 +34,7 @@ export function DashboardTenantGrowthCard({ period }: Readonly<DashboardTenantGr
   const priorPoints = data?.priorPoints ?? [];
   const chartData = points.map((point, index) => ({
     date: point.date,
+    priorDate: priorPoints[index]?.date,
     current: point.value,
     prior: priorPoints[index]?.value ?? 0
   }));
@@ -76,13 +78,12 @@ export function DashboardTenantGrowthCard({ period }: Readonly<DashboardTenantGr
             />
             <Tooltip
               cursor={{ fill: "var(--muted)", opacity: 0.3 }}
-              labelFormatter={(value) => dateFormatter.format(new Date(value as string))}
-              contentStyle={{
-                backgroundColor: "var(--popover)",
-                borderColor: "var(--border)",
-                borderRadius: "0.5rem",
-                color: "var(--popover-foreground)"
-              }}
+              content={
+                <CurrentPriorTooltip
+                  formatValue={(value) => new Intl.NumberFormat(i18n.locale).format(value)}
+                  accentColor="var(--chart-2)"
+                />
+              }
             />
             <Legend wrapperStyle={{ fontSize: "0.75rem" }} iconType="circle" />
             <Bar

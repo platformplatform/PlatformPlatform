@@ -19,6 +19,7 @@ import type { DashboardTrendPeriod } from "@/shared/lib/api/client";
 
 import { api } from "@/shared/lib/api/client";
 
+import { CurrentPriorTooltip } from "./CurrentPriorTooltip";
 import { DashboardCardShell } from "./DashboardCardShell";
 
 interface DashboardMrrTrendCardProps {
@@ -35,6 +36,7 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
   const priorPoints = data?.priorPoints ?? [];
   const chartData = points.map((point, index) => ({
     date: point.date,
+    priorDate: priorPoints[index]?.date,
     current: point.monthlyRecurringRevenue,
     prior: priorPoints[index]?.monthlyRecurringRevenue ?? 0
   }));
@@ -90,14 +92,12 @@ export function DashboardMrrTrendCard({ period }: Readonly<DashboardMrrTrendCard
             />
             <Tooltip
               cursor={false}
-              labelFormatter={(value) => dateFormatter.format(new Date(value as string))}
-              formatter={(value, name) => [currency ? formatCurrency(Number(value), currency) : String(value), name]}
-              contentStyle={{
-                backgroundColor: "var(--popover)",
-                borderColor: "var(--border)",
-                borderRadius: "0.5rem",
-                color: "var(--popover-foreground)"
-              }}
+              content={
+                <CurrentPriorTooltip
+                  formatValue={(value) => (currency ? formatCurrency(value, currency) : String(value))}
+                  accentColor="var(--chart-1)"
+                />
+              }
             />
             <Legend wrapperStyle={{ fontSize: "0.75rem" }} iconType="line" />
             <Line
