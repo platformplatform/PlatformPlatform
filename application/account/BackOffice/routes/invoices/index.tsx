@@ -19,11 +19,23 @@ import {
 } from "@/shared/lib/api/client";
 
 import { InvoicesTable } from "./-components/InvoicesTable";
-import { InvoicesToolbar } from "./-components/InvoicesToolbar";
+import { InvoicesToolbar, type InvoicesView } from "./-components/InvoicesToolbar";
+
+// Drives the URL-controlled split between paid invoices and refunds + credit notes. The backend filter
+// still accepts an open-ended Statuses[] array; the toggle just maps the chosen view onto a fixed status
+// set so operators don't have to think about which low-level statuses make up each business concept.
+const STATUSES_FOR_VIEW: Record<InvoicesView, BackOfficeInvoiceStatusFilter[]> = {
+  invoices: [
+    BackOfficeInvoiceStatusFilter.Paid,
+    BackOfficeInvoiceStatusFilter.Pending,
+    BackOfficeInvoiceStatusFilter.Failed
+  ],
+  refunds: [BackOfficeInvoiceStatusFilter.Refunded, BackOfficeInvoiceStatusFilter.HasCreditNote]
+};
 
 const invoicesSearchSchema = z.object({
   search: z.string().optional(),
-  invoiceStatuses: z.array(z.nativeEnum(BackOfficeInvoiceStatusFilter)).max(10).optional(),
+  view: z.enum(["invoices", "refunds"]).optional(),
   orderBy: z.nativeEnum(SortableBackOfficeInvoiceProperties).optional(),
   sortOrder: z.nativeEnum(SortOrder).optional(),
   pageOffset: z.number().int().nonnegative().optional()
@@ -37,8 +49,9 @@ export const Route = createFileRoute("/invoices/")({
 });
 
 function InvoicesListPage() {
-  const { search, invoiceStatuses, orderBy, sortOrder, pageOffset } = Route.useSearch();
+  const { search, view, orderBy, sortOrder, pageOffset } = Route.useSearch();
   const navigate = useNavigate();
+  const activeView: InvoicesView = view ?? "invoices";
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -47,7 +60,7 @@ function InvoicesListPage() {
       params: {
         query: {
           Search: search,
-          Statuses: invoiceStatuses,
+          Statuses: STATUSES_FOR_VIEW[activeView],
           OrderBy: orderBy,
           SortOrder: sortOrder,
           PageOffset: pageOffset
@@ -58,21 +71,19 @@ function InvoicesListPage() {
   );
 
   const invoices = data?.invoices ?? [];
-  const hasFilters = Boolean(search) || (invoiceStatuses?.length ?? 0) > 0;
+  const hasSearch = Boolean(search);
   const showEmpty = !isLoading && invoices.length === 0;
+  const subtitle =
+    activeView === "refunds"
+      ? t`Refunds and credit notes across all accounts.`
+      : t`Successful, pending, and failed invoices across all accounts.`;
 
   return (
     <SidebarProvider>
       <BackOfficeSideMenu />
       <SidebarInset>
-        <AppLayout
-          variant="center"
-          maxWidth="64rem"
-          browserTitle={t`Invoices`}
-          title={t`Invoices`}
-          subtitle={t`Every invoice, refund, and credit note across all accounts.`}
-        >
-          <InvoicesToolbar search={search} invoiceStatuses={invoiceStatuses ?? []} />
+        <AppLayout variant="center" maxWidth="64rem" browserTitle={t`Invoices`} title={t`Invoices`} subtitle={subtitle}>
+          <InvoicesToolbar search={search} view={activeView} />
 
           {showEmpty ? (
             <Empty>
@@ -81,17 +92,23 @@ function InvoicesListPage() {
                   <ReceiptIcon />
                 </EmptyMedia>
                 <EmptyTitle>
-                  {hasFilters ? <Trans>No invoices match your filters</Trans> : <Trans>No invoices yet</Trans>}
+                  {hasSearch ? (
+                    <Trans>No results match your search</Trans>
+                  ) : activeView === "refunds" ? (
+                    <Trans>No refunds or credit notes yet</Trans>
+                  ) : (
+                    <Trans>No invoices yet</Trans>
+                  )}
                 </EmptyTitle>
                 <EmptyDescription>
-                  {hasFilters ? (
-                    <Trans>Try clearing the search or filters to see more results.</Trans>
+                  {hasSearch ? (
+                    <Trans>Try clearing the search to see more results.</Trans>
                   ) : (
-                    <Trans>Invoices will appear here as accounts subscribe and Stripe webhooks are processed.</Trans>
+                    <Trans>Records will appear here as accounts subscribe and Stripe webhooks are processed.</Trans>
                   )}
                 </EmptyDescription>
               </EmptyHeader>
-              {hasFilters && (
+              {hasSearch && (
                 <EmptyContent>
                   <Button
                     variant="outline"
@@ -99,11 +116,11 @@ function InvoicesListPage() {
                     onClick={() =>
                       navigate({
                         to: "/invoices",
-                        search: () => ({})
+                        search: () => ({ view: activeView === "invoices" ? undefined : activeView })
                       })
                     }
                   >
-                    <Trans>Clear filters</Trans>
+                    <Trans>Clear search</Trans>
                   </Button>
                 </EmptyContent>
               )}

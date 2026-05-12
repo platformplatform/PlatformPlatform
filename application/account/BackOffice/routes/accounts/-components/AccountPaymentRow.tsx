@@ -29,9 +29,25 @@ export function AccountPaymentRow({
   // Refunded rows show the amounts struck through — money came in, then went back out.
   const isRefunded = transaction.status === PaymentTransactionStatus.Refunded;
   const refundedClass = isRefunded ? "text-muted-foreground line-through" : "";
+  // When Stripe issued a credit note against this invoice, surface when it was issued as a subtitle
+  // under the invoice date — operators want to see the refund moment, not just the original charge.
+  const hasCreditNote = transaction.creditNoteUrl != null;
   return (
     <TableRow rowKey={transaction.id}>
-      <TableCell>{renderDate(transaction.date)}</TableCell>
+      <TableCell>
+        <div className="flex flex-col leading-tight">
+          {renderDate(transaction.date)}
+          {hasCreditNote && (
+            <span className="text-xs text-muted-foreground">
+              {transaction.creditNotedAt ? (
+                <Trans>Credit note: {renderDate(transaction.creditNotedAt)}</Trans>
+              ) : (
+                <Trans>Credit note issued</Trans>
+              )}
+            </span>
+          )}
+        </div>
+      </TableCell>
       {showPlan && (
         <TableCell className="hidden md:table-cell">
           {transaction.plan != null ? (

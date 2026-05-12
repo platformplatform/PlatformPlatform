@@ -1,48 +1,22 @@
 import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@repo/ui/components/InputGroup";
-import { MultiSelect } from "@repo/ui/components/MultiSelect";
+import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useNavigate } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { SortableBackOfficeInvoiceProperties } from "@/shared/lib/api/client";
 
-import { BackOfficeInvoiceStatusFilter } from "@/shared/lib/api/client";
+export type InvoicesView = "invoices" | "refunds";
 
 interface InvoicesToolbarProps {
   search: string | undefined;
-  invoiceStatuses: BackOfficeInvoiceStatusFilter[];
+  view: InvoicesView;
 }
 
-// Order matches the typical lifecycle the operator scans for: successful payments first, then the
-// exceptions worth investigating, then the credit-note flag (which is a property, not a status).
-const ALL_STATUS_FILTERS: BackOfficeInvoiceStatusFilter[] = [
-  BackOfficeInvoiceStatusFilter.Paid,
-  BackOfficeInvoiceStatusFilter.Refunded,
-  BackOfficeInvoiceStatusFilter.Failed,
-  BackOfficeInvoiceStatusFilter.Pending,
-  BackOfficeInvoiceStatusFilter.HasCreditNote
-];
-
-function getStatusFilterLabel(filter: BackOfficeInvoiceStatusFilter): string {
-  switch (filter) {
-    case BackOfficeInvoiceStatusFilter.Paid:
-      return t`Paid`;
-    case BackOfficeInvoiceStatusFilter.Refunded:
-      return t`Refunded`;
-    case BackOfficeInvoiceStatusFilter.Failed:
-      return t`Failed`;
-    case BackOfficeInvoiceStatusFilter.Pending:
-      return t`Pending`;
-    case BackOfficeInvoiceStatusFilter.HasCreditNote:
-      return t`Credit note`;
-    default:
-      return String(filter);
-  }
-}
-
-export function InvoicesToolbar({ search, invoiceStatuses }: Readonly<InvoicesToolbarProps>) {
+export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>) {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(search ?? "");
   const debouncedSearch = useDebounce(searchInput, 500);
@@ -54,7 +28,7 @@ export function InvoicesToolbar({ search, invoiceStatuses }: Readonly<InvoicesTo
     navigate({
       to: "/invoices",
       search: (previous) => ({
-        invoiceStatuses: previous.invoiceStatuses,
+        view: previous.view,
         orderBy: previous.orderBy as SortableBackOfficeInvoiceProperties | undefined,
         sortOrder: previous.sortOrder,
         search: debouncedSearch || undefined,
@@ -67,20 +41,22 @@ export function InvoicesToolbar({ search, invoiceStatuses }: Readonly<InvoicesTo
     setSearchInput(search ?? "");
   }, [search]);
 
-  const statusItems = useMemo(
-    () => ALL_STATUS_FILTERS.map((value) => ({ id: value, label: getStatusFilterLabel(value) })),
-    []
-  );
-
-  const handleStatusesChange = (values: string[]) => {
-    const next = values as BackOfficeInvoiceStatusFilter[];
+  const handleViewChange = (values: string[]) => {
+    // ToggleGroup multi-select returns an array; the page treats this as single-select (one chip at a
+    // time) so we collapse to the first value, falling back to the default "invoices" view if the user
+    // somehow deselected everything.
+    const next = (values[0] as InvoicesView | undefined) ?? "invoices";
+    if (next === view) {
+      return;
+    }
     navigate({
       to: "/invoices",
       search: (previous) => ({
         search: previous.search,
         orderBy: previous.orderBy as SortableBackOfficeInvoiceProperties | undefined,
         sortOrder: previous.sortOrder,
-        invoiceStatuses: next.length === 0 ? undefined : next,
+        // "invoices" is the default — keep it out of the URL so the most common path stays clean.
+        view: next === "invoices" ? undefined : next,
         pageOffset: undefined
       })
     });
@@ -112,15 +88,14 @@ export function InvoicesToolbar({ search, invoiceStatuses }: Readonly<InvoicesTo
         </InputGroup>
       </div>
 
-      <div className="min-w-[12rem]">
-        <MultiSelect
-          name="invoice-invoiceStatuses"
-          placeholder={t`All statuses`}
-          items={statusItems}
-          value={invoiceStatuses}
-          onChange={handleStatusesChange}
-        />
-      </div>
+      <ToggleGroup variant="outline" aria-label={t`Invoice view`} value={[view]} onValueChange={handleViewChange}>
+        <ToggleGroupItem value="invoices" className="min-w-[7rem] justify-center">
+          <Trans>Invoices</Trans>
+        </ToggleGroupItem>
+        <ToggleGroupItem value="refunds" className="min-w-[7rem] justify-center">
+          <Trans>Refunds and credit notes</Trans>
+        </ToggleGroupItem>
+      </ToggleGroup>
     </div>
   );
 }

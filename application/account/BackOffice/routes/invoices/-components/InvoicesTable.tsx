@@ -39,7 +39,7 @@ export function InvoicesTable({
         to: "/invoices",
         search: (previous) => ({
           search: previous.search,
-          invoiceStatuses: previous.invoiceStatuses,
+          view: previous.view,
           orderBy: previous.orderBy as SortableBackOfficeInvoiceProperties | undefined,
           sortOrder: previous.sortOrder,
           pageOffset: page === 1 ? undefined : page - 1
@@ -60,7 +60,7 @@ export function InvoicesTable({
         to: "/invoices",
         search: (previous) => ({
           search: previous.search,
-          invoiceStatuses: previous.invoiceStatuses,
+          view: previous.view,
           orderBy: column,
           sortOrder: nextOrder === SortOrder.Descending ? undefined : nextOrder,
           pageOffset: undefined
