@@ -30,12 +30,12 @@ msgstr "{0} blended"
 msgid "{0} blended · {1} over period"
 msgstr "{0} blended · {1} over period"
 
-#. placeholder {0}: formatCurrency(currentTotal, currency)
+#. placeholder {0}: formatCurrency(currentGain, currency)
 #. placeholder {1}: formatDelta(deltaPercent)
 msgid "{0} this period · {1} vs prior period"
 msgstr "{0} this period · {1} vs prior period"
 
-#. placeholder {0}: formatCurrency(currentTotal, currency)
+#. placeholder {0}: formatCurrency(currentGain, currency)
 msgid "{0} this period, excluding VAT"
 msgstr "{0} this period, excluding VAT"
 

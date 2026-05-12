@@ -42,9 +42,9 @@ export function DashboardRevenueTrendCard({ period }: Readonly<DashboardRevenueT
   const dateFormatter = new Intl.DateTimeFormat(i18n.locale, { month: "short", day: "numeric" });
   const compactNumberFormatter = new Intl.NumberFormat(i18n.locale, { notation: "compact", maximumFractionDigits: 1 });
 
-  const currentTotal = points.length > 0 ? points[points.length - 1].revenue : 0;
-  const priorTotal = priorPoints.length > 0 ? priorPoints[priorPoints.length - 1].revenue : 0;
-  const deltaPercent = priorTotal === 0 ? null : Math.round(((currentTotal - priorTotal) / priorTotal) * 100);
+  const currentGain = points.length > 0 ? points[points.length - 1].revenue - points[0].revenue : 0;
+  const priorGain = priorPoints.length > 0 ? priorPoints[priorPoints.length - 1].revenue - priorPoints[0].revenue : 0;
+  const deltaPercent = priorGain === 0 ? null : Math.round(((currentGain - priorGain) / priorGain) * 100);
 
   return (
     <DashboardCardShell
@@ -52,10 +52,10 @@ export function DashboardRevenueTrendCard({ period }: Readonly<DashboardRevenueT
       subtitle={
         data && currency && deltaPercent !== null ? (
           <Trans>
-            {formatCurrency(currentTotal, currency)} this period · {formatDelta(deltaPercent)} vs prior period
+            {formatCurrency(currentGain, currency)} this period · {formatDelta(deltaPercent)} vs prior period
           </Trans>
         ) : data && currency ? (
-          <Trans>{formatCurrency(currentTotal, currency)} this period, excluding VAT</Trans>
+          <Trans>{formatCurrency(currentGain, currency)} this period, excluding VAT</Trans>
         ) : undefined
       }
     >

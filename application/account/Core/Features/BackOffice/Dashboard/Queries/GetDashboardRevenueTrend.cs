@@ -34,12 +34,13 @@ public sealed class GetDashboardRevenueTrendQueryValidator : AbstractValidator<G
 ///     trend period. A successful payment adds <see cref="PaymentTransaction.AmountExcludingTax" /> to its
 ///     <see cref="PaymentTransaction.Date" /> bucket; a refunded payment additionally subtracts the same amount
 ///     from its <see cref="PaymentTransaction.RefundedAt" /> bucket. Each point in the curve is the running
-///     total of those daily net deltas, starting at zero on day one of the period. The prior-period series is
-///     computed the same way against the equivalent window immediately before the current period and also
-///     starts at zero — so when the current line stays above the prior line, the platform is accumulating
-///     revenue faster than the equivalent prior window. Soft-delete semantic: historical revenue from
-///     soft-deleted tenants stays in the curve because payment transactions are immutable historical money
-///     facts that outlive the tenant lifecycle.
+///     total of all daily net deltas from the earliest payment through that day — the same all-time
+///     cumulative the dashboard Total Revenue tile reports, sampled across the period's days. So day one of
+///     the current window already reflects every historical payment up to that day, not zero. The prior-period
+///     series is the same all-time cumulative sampled across the equivalent window immediately before — when
+///     the current line stays above the prior line, the platform is accumulating revenue faster than it did in
+///     the prior window. Soft-delete semantic: historical revenue from soft-deleted tenants stays in the curve
+///     because payment transactions are immutable historical money facts that outlive the tenant lifecycle.
 /// </summary>
 public sealed class GetDashboardRevenueTrendHandler(ISubscriptionRepository subscriptionRepository, IPlatformCurrencyProvider platformCurrencyProvider, TimeProvider timeProvider)
     : IRequestHandler<GetDashboardRevenueTrendQuery, Result<BackOfficeDashboardRevenueTrendResponse>>
@@ -53,11 +54,13 @@ public sealed class GetDashboardRevenueTrendHandler(ISubscriptionRepository subs
 
         var subscriptions = await subscriptionRepository.GetAllWithTransactionsUnfilteredAsync(cancellationToken);
         var deltasByDay = ComputeDailyDeltas(subscriptions.SelectMany(s => s.PaymentTransactions));
+        var cumulativeBeforePrior = deltasByDay.Where(d => d.Key < priorStartDate).Sum(d => d.Value);
+        var cumulativeBeforeCurrent = deltasByDay.Where(d => d.Key < startDate).Sum(d => d.Value);
 
         var points = new BackOfficeDashboardRevenueTrendPoint[days];
         var priorPoints = new BackOfficeDashboardRevenueTrendPoint[days];
-        var currentCumulative = 0m;
-        var priorCumulative = 0m;
+        var currentCumulative = cumulativeBeforeCurrent;
+        var priorCumulative = cumulativeBeforePrior;
         for (var index = 0; index < days; index++)
         {
             var currentDate = startDate.AddDays(index);

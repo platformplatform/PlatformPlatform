@@ -120,10 +120,11 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenPaymentInPriorWindow_ShouldAccumulateOnPriorSeriesOnly()
+    public async Task GetDashboardRevenueTrend_WhenPaymentInPriorWindow_ShouldRollForwardIntoCurrentSeriesStart()
     {
-        // Arrange — a payment in the prior 7-day window must accumulate on PriorPoints, not on Points. A second
-        // payment inside the current window must accumulate only on Points.
+        // Arrange — a payment in the prior 7-day window AND a payment inside the current window. The cumulative
+        // is "all-time through this day" not "within window", so the prior-window payment must already be
+        // reflected on day one of the current series.
         var today = DateTimeOffset.UtcNow.Date;
         var priorWindowPayment = new DateTimeOffset(today.AddDays(-10), TimeSpan.Zero).AddHours(9);
         var currentWindowPayment = new DateTimeOffset(today.AddDays(-2), TimeSpan.Zero).AddHours(9);
@@ -146,10 +147,47 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         payload.Points.Should().HaveCount(7);
         payload.PriorPoints.Should().HaveCount(7);
-        // Current window: cumulative reaches 149 on the day of the current-window payment and stays there.
-        payload.Points[^1].Revenue.Should().Be(149m);
-        // Prior window: cumulative reaches 149 on the day of the prior-window payment and stays there.
+        // Current window day 0 already carries the 149 from the prior-window payment; the day -2 payment lifts
+        // it to 298 for the remainder of the window — last point equals the all-time total.
+        payload.Points[0].Revenue.Should().Be(149m);
+        payload.Points[3].Revenue.Should().Be(149m);
+        payload.Points[4].Revenue.Should().Be(298m);
+        payload.Points[^1].Revenue.Should().Be(298m);
+        // Prior window: no revenue before priorStartDate (today - 13), so day 0 is zero. On day 3 of the prior
+        // window (today - 10) the prior-window payment lifts it to 149 and it stays there.
+        payload.PriorPoints[0].Revenue.Should().Be(0m);
         payload.PriorPoints[^1].Revenue.Should().Be(149m);
+    }
+
+    [Fact]
+    public async Task GetDashboardRevenueTrend_WhenRevenueAccumulatedLongBeforeCurrentWindow_ShouldStartCurrentSeriesAtAllTimeCumulative()
+    {
+        // Arrange — single payment 20 days ago, before both the current 7-day window and its prior window. The
+        // current series should already report 149 on day one and stay there through today (the all-time total).
+        var today = DateTimeOffset.UtcNow.Date;
+        var ancientPayment = new DateTimeOffset(today.AddDays(-20), TimeSpan.Zero).AddHours(9);
+        var tenant = SeedTenant("Ancient History Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedSubscriptionWithTransactions(tenant, subscriptionId,
+            (149m, ancientPayment, PaymentTransactionStatus.Succeeded, null)
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
+        payload.Should().NotBeNull();
+        payload.Points.Should().HaveCount(7);
+        payload.Points.Should().OnlyContain(p => p.Revenue == 149m);
+        payload.PriorPoints.Should().HaveCount(7);
+        // The 20-day-ago payment is also before priorStartDate (today - 13), so the prior series also reports
+        // the constant all-time-through-prior-day total.
+        payload.PriorPoints.Should().OnlyContain(p => p.Revenue == 149m);
     }
 
     [Fact]
