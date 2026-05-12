@@ -25,11 +25,12 @@ export const PLAN_TRANSITION_EVENT_TYPES: ReadonlySet<BillingEventType> = new Se
 export const DEFAULT_FROM_PLAN = SubscriptionPlan.Basis;
 
 /**
- * Event types whose filter dropdown entry sits under the "MRR impact" group heading. Reserved for
- * events whose primary signal is "revenue moved". Each event appears in exactly one group so the
- * dropdown never renders the same item twice.
+ * Event types whose primary signal is "revenue moved". Powers the "MRR impact" pill on the Billing
+ * Events filter toolbar. SubscriptionCreated belongs here because the first subscription is the
+ * first MRR event — the customer began contributing revenue.
  */
 export const MRR_IMPACT_EVENT_TYPES: readonly BillingEventType[] = [
+  BillingEventType.SubscriptionCreated,
   BillingEventType.SubscriptionUpgraded,
   BillingEventType.SubscriptionDowngradeScheduled,
   BillingEventType.SubscriptionDowngradeCancelled,
@@ -39,12 +40,11 @@ export const MRR_IMPACT_EVENT_TYPES: readonly BillingEventType[] = [
 ];
 
 /**
- * Event types whose filter dropdown entry sits under the "Subscription state" group heading.
- * Reserved for events whose primary signal is "the subscription's lifecycle changed". Reactivated
- * lives here because the state transition is dominant — the MRR uptick is a consequence.
+ * Event types whose primary signal is "the subscription's lifecycle changed". Powers the
+ * "Subscription state" pill. Reactivated lives here because the state transition is dominant —
+ * the MRR uptick is a consequence.
  */
 export const SUBSCRIPTION_STATE_EVENT_TYPES: readonly BillingEventType[] = [
-  BillingEventType.SubscriptionCreated,
   BillingEventType.SubscriptionRenewed,
   BillingEventType.SubscriptionReactivated,
   BillingEventType.SubscriptionExpired,

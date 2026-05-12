@@ -10,6 +10,8 @@ import type { components, SortableBillingEventProperties } from "@/shared/lib/ap
 
 import { SortOrder } from "@/shared/lib/api/client";
 
+import type { BillingEventsView } from "./BillingEventsToolbar";
+
 import { BillingEventsTableColumnHeaders } from "./BillingEventsTableColumnHeaders";
 import { BillingEventsTableRow } from "./BillingEventsTableRow";
 
@@ -41,7 +43,7 @@ export function BillingEventsTable({
         to: "/billing-events",
         search: (previous) => ({
           search: previous.search,
-          eventTypes: previous.eventTypes,
+          view: previous.view as BillingEventsView | undefined,
           orderBy: previous.orderBy as SortableBillingEventProperties | undefined,
           sortOrder: previous.sortOrder,
           pageOffset: page === 1 ? undefined : page - 1
@@ -62,7 +64,7 @@ export function BillingEventsTable({
         to: "/billing-events",
         search: (previous) => ({
           search: previous.search,
-          eventTypes: previous.eventTypes,
+          view: previous.view as BillingEventsView | undefined,
           orderBy: column,
           sortOrder: nextOrder === SortOrder.Descending ? undefined : nextOrder,
           pageOffset: undefined

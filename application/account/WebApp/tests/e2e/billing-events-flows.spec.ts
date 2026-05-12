@@ -84,23 +84,15 @@ test.describe("@smoke", () => {
 
     // === FILTERS ===
 
-    await step("Apply Subscribed event-type filter & verify URL reflects selection and table stays visible")(
-      async () => {
-        await page.getByRole("combobox", { name: "All event types" }).click();
-        await page.getByRole("option", { name: "Subscribed" }).click();
-        await page.keyboard.press("Escape");
+    await step("Apply MRR impact view pill & verify URL reflects selection and table stays visible")(async () => {
+      await page.getByRole("button", { name: "MRR impact" }).click();
 
-        await expect(page).toHaveURL(
-          `${BACK_OFFICE_BASE_URL}/billing-events?eventTypes=%5B%22SubscriptionCreated%22%5D`
-        );
-        await expect(page.getByRole("table", { name: "Billing events" })).toBeVisible();
-      }
-    )();
+      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/billing-events?view=mrr`);
+      await expect(page.getByRole("table", { name: "Billing events" })).toBeVisible();
+    })();
 
-    await step("Clear Subscribed event-type filter & verify URL returns to base /billing-events")(async () => {
-      await page.getByRole("combobox", { name: "All event types" }).click();
-      await page.getByRole("option", { name: "Subscribed" }).click();
-      await page.keyboard.press("Escape");
+    await step("Click the All view pill & verify URL returns to base /billing-events")(async () => {
+      await page.getByRole("button", { name: "All" }).click();
 
       await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/billing-events`);
     })();

@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 import type { SortableBackOfficeInvoiceProperties } from "@/shared/lib/api/client";
 
-export type InvoicesView = "invoices" | "refunds";
+export type InvoicesView = "all" | "invoices" | "refunds";
 
 interface InvoicesToolbarProps {
   search: string | undefined;
@@ -28,7 +28,7 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
     navigate({
       to: "/invoices",
       search: (previous) => ({
-        view: previous.view,
+        view: previous.view as InvoicesView | undefined,
         orderBy: previous.orderBy as SortableBackOfficeInvoiceProperties | undefined,
         sortOrder: previous.sortOrder,
         search: debouncedSearch || undefined,
@@ -42,10 +42,10 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
   }, [search]);
 
   const handleViewChange = (values: string[]) => {
-    // ToggleGroup multi-select returns an array; the page treats this as single-select (one chip at a
-    // time) so we collapse to the first value, falling back to the default "invoices" view if the user
+    // ToggleGroup multi-select returns an array; the page treats this as single-select (one pill at a
+    // time) so we collapse to the first value, falling back to the default "all" view if the user
     // somehow deselected everything.
-    const next = (values[0] as InvoicesView | undefined) ?? "invoices";
+    const next = (values[0] as InvoicesView | undefined) ?? "all";
     if (next === view) {
       return;
     }
@@ -55,8 +55,8 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
         search: previous.search,
         orderBy: previous.orderBy as SortableBackOfficeInvoiceProperties | undefined,
         sortOrder: previous.sortOrder,
-        // "invoices" is the default — keep it out of the URL so the most common path stays clean.
-        view: next === "invoices" ? undefined : next,
+        // "all" is the default — keep it out of the URL so the most common path stays clean.
+        view: next === "all" ? undefined : next,
         pageOffset: undefined
       })
     });
@@ -89,10 +89,13 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
       </div>
 
       <ToggleGroup variant="outline" aria-label={t`Invoice view`} value={[view]} onValueChange={handleViewChange}>
+        <ToggleGroupItem value="all" className="min-w-[5rem] justify-center">
+          <Trans>All</Trans>
+        </ToggleGroupItem>
         <ToggleGroupItem value="invoices" className="min-w-[7rem] justify-center">
           <Trans>Invoices</Trans>
         </ToggleGroupItem>
-        <ToggleGroupItem value="refunds" className="min-w-[7rem] justify-center">
+        <ToggleGroupItem value="refunds" className="min-w-[9rem] justify-center">
           <Trans>Refunds and credit notes</Trans>
         </ToggleGroupItem>
       </ToggleGroup>

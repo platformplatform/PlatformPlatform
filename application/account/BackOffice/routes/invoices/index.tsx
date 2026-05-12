@@ -21,10 +21,12 @@ import {
 import { InvoicesTable } from "./-components/InvoicesTable";
 import { InvoicesToolbar, type InvoicesView } from "./-components/InvoicesToolbar";
 
-// Drives the URL-controlled split between paid invoices and refunds + credit notes. The backend filter
-// still accepts an open-ended Statuses[] array; the toggle just maps the chosen view onto a fixed status
-// set so operators don't have to think about which low-level statuses make up each business concept.
-const STATUSES_FOR_VIEW: Record<InvoicesView, BackOfficeInvoiceStatusFilter[]> = {
+// Drives the URL-controlled split between all invoices, paid invoices, and refunds + credit notes.
+// The backend filter accepts an open-ended Statuses[] array; the toggle maps the chosen view onto a
+// fixed status set so operators don't have to think about which low-level statuses make up each
+// business concept. "all" sends no status filter so every row is included.
+const STATUSES_FOR_VIEW: Record<InvoicesView, BackOfficeInvoiceStatusFilter[] | undefined> = {
+  all: undefined,
   invoices: [
     BackOfficeInvoiceStatusFilter.Paid,
     BackOfficeInvoiceStatusFilter.Pending,
@@ -35,7 +37,7 @@ const STATUSES_FOR_VIEW: Record<InvoicesView, BackOfficeInvoiceStatusFilter[]> =
 
 const invoicesSearchSchema = z.object({
   search: z.string().optional(),
-  view: z.enum(["invoices", "refunds"]).optional(),
+  view: z.enum(["all", "invoices", "refunds"]).optional(),
   orderBy: z.nativeEnum(SortableBackOfficeInvoiceProperties).optional(),
   sortOrder: z.nativeEnum(SortOrder).optional(),
   pageOffset: z.number().int().nonnegative().optional()
@@ -51,7 +53,7 @@ export const Route = createFileRoute("/invoices/")({
 function InvoicesListPage() {
   const { search, view, orderBy, sortOrder, pageOffset } = Route.useSearch();
   const navigate = useNavigate();
-  const activeView: InvoicesView = view ?? "invoices";
+  const activeView: InvoicesView = view ?? "all";
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -76,7 +78,9 @@ function InvoicesListPage() {
   const subtitle =
     activeView === "refunds"
       ? t`Refunds and credit notes across all accounts.`
-      : t`Successful, pending, and failed invoices across all accounts.`;
+      : activeView === "invoices"
+        ? t`Successful, pending, and failed invoices across all accounts.`
+        : t`Every invoice, refund, and credit note across all accounts.`;
 
   return (
     <SidebarProvider>
@@ -96,8 +100,10 @@ function InvoicesListPage() {
                     <Trans>No results match your search</Trans>
                   ) : activeView === "refunds" ? (
                     <Trans>No refunds or credit notes yet</Trans>
-                  ) : (
+                  ) : activeView === "invoices" ? (
                     <Trans>No invoices yet</Trans>
+                  ) : (
+                    <Trans>No records yet</Trans>
                   )}
                 </EmptyTitle>
                 <EmptyDescription>
@@ -116,7 +122,7 @@ function InvoicesListPage() {
                     onClick={() =>
                       navigate({
                         to: "/invoices",
-                        search: () => ({ view: activeView === "invoices" ? undefined : activeView })
+                        search: () => ({ view: activeView === "all" ? undefined : activeView })
                       })
                     }
                   >

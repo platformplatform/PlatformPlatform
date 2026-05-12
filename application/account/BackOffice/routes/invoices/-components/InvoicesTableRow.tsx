@@ -1,3 +1,4 @@
+import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
@@ -24,6 +25,9 @@ export function InvoicesTableRow({
   // per-account Invoices tab so operators see consistent semantics across both surfaces.
   const isRefunded = invoice.status === PaymentTransactionStatus.Refunded;
   const refundedClass = isRefunded ? "text-muted-foreground line-through" : "";
+  // When Stripe issued a credit note against this invoice, surface when it was issued as a subtitle
+  // under the invoice date — operators want to see the refund moment, not just the original charge.
+  const hasCreditNote = invoice.creditNoteUrl != null;
 
   return (
     <TableRow rowKey={invoice.id} onClick={() => onRowClick(String(invoice.tenantId))} className="cursor-pointer">
@@ -37,6 +41,15 @@ export function InvoicesTableRow({
         <div className="flex flex-col leading-tight">
           <SmartDateTime date={invoice.date} />
           <span className="text-xs text-muted-foreground tabular-nums">{formatDate(invoice.date, true, true)}</span>
+          {hasCreditNote && (
+            <span className="text-xs text-muted-foreground">
+              {invoice.creditNotedAt ? (
+                <Trans>Credit note: {formatDate(invoice.creditNotedAt, true, true)}</Trans>
+              ) : (
+                <Trans>Credit note issued</Trans>
+              )}
+            </span>
+          )}
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">

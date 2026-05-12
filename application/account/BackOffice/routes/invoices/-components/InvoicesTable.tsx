@@ -9,6 +9,8 @@ import type { components, SortableBackOfficeInvoiceProperties } from "@/shared/l
 
 import { SortOrder } from "@/shared/lib/api/client";
 
+import type { InvoicesView } from "./InvoicesToolbar";
+
 import { InvoicesTableColumnHeaders } from "./InvoicesTableColumnHeaders";
 import { InvoicesTableRow } from "./InvoicesTableRow";
 
@@ -39,7 +41,7 @@ export function InvoicesTable({
         to: "/invoices",
         search: (previous) => ({
           search: previous.search,
-          view: previous.view,
+          view: previous.view as InvoicesView | undefined,
           orderBy: previous.orderBy as SortableBackOfficeInvoiceProperties | undefined,
           sortOrder: previous.sortOrder,
           pageOffset: page === 1 ? undefined : page - 1
@@ -60,7 +62,7 @@ export function InvoicesTable({
         to: "/invoices",
         search: (previous) => ({
           search: previous.search,
-          view: previous.view,
+          view: previous.view as InvoicesView | undefined,
           orderBy: column,
           sortOrder: nextOrder === SortOrder.Descending ? undefined : nextOrder,
           pageOffset: undefined

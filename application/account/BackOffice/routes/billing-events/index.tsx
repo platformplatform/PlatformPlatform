@@ -11,14 +11,30 @@ import { ZapIcon } from "lucide-react";
 import { z } from "zod";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
-import { api, BillingEventType, SortableBillingEventProperties, SortOrder } from "@/shared/lib/api/client";
+import type { BillingEventType} from "@/shared/lib/api/client";
+import { api, SortableBillingEventProperties, SortOrder } from "@/shared/lib/api/client";
+import {
+  MRR_IMPACT_EVENT_TYPES,
+  OTHER_EVENT_TYPES,
+  SUBSCRIPTION_STATE_EVENT_TYPES
+} from "@/shared/lib/billingEventCategories";
 
 import { BillingEventsTable } from "./-components/BillingEventsTable";
-import { BillingEventsToolbar } from "./-components/BillingEventsToolbar";
+import { BillingEventsToolbar, type BillingEventsView } from "./-components/BillingEventsToolbar";
+
+// Drives the URL-controlled view pill. The backend filter accepts an open-ended EventTypes[] array;
+// the pill maps the chosen view onto a fixed event-type set so operators don't have to think about
+// which low-level types make up each business concept.
+const EVENT_TYPES_FOR_VIEW: Record<BillingEventsView, BillingEventType[] | undefined> = {
+  all: undefined,
+  mrr: [...MRR_IMPACT_EVENT_TYPES],
+  state: [...SUBSCRIPTION_STATE_EVENT_TYPES],
+  other: [...OTHER_EVENT_TYPES]
+};
 
 const billingEventsSearchSchema = z.object({
   search: z.string().optional(),
-  eventTypes: z.array(z.nativeEnum(BillingEventType)).max(25).optional(),
+  view: z.enum(["all", "mrr", "state", "other"]).optional(),
   orderBy: z.nativeEnum(SortableBillingEventProperties).optional(),
   sortOrder: z.nativeEnum(SortOrder).optional(),
   pageOffset: z.number().int().nonnegative().optional()
@@ -32,8 +48,9 @@ export const Route = createFileRoute("/billing-events/")({
 });
 
 function BillingEventsListPage() {
-  const { search, eventTypes, orderBy, sortOrder, pageOffset } = Route.useSearch();
+  const { search, view, orderBy, sortOrder, pageOffset } = Route.useSearch();
   const navigate = useNavigate();
+  const activeView: BillingEventsView = view ?? "all";
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -42,7 +59,7 @@ function BillingEventsListPage() {
       params: {
         query: {
           Search: search,
-          EventTypes: eventTypes,
+          EventTypes: EVENT_TYPES_FOR_VIEW[activeView],
           OrderBy: orderBy,
           SortOrder: sortOrder,
           PageOffset: pageOffset
@@ -53,7 +70,7 @@ function BillingEventsListPage() {
   );
 
   const billingEvents = data?.billingEvents ?? [];
-  const hasFilters = Boolean(search) || (eventTypes?.length ?? 0) > 0;
+  const hasFilters = Boolean(search) || activeView !== "all";
   const showEmpty = !isLoading && billingEvents.length === 0;
 
   return (
@@ -67,7 +84,7 @@ function BillingEventsListPage() {
           title={t`Billing events`}
           subtitle={t`Authoritative log of subscription, payment, and billing transitions across all accounts.`}
         >
-          <BillingEventsToolbar search={search} eventTypes={eventTypes ?? []} />
+          <BillingEventsToolbar search={search} view={activeView} />
 
           {showEmpty ? (
             <Empty>

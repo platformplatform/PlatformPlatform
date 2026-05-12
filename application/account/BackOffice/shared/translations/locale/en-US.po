@@ -131,11 +131,11 @@ msgstr "Activity"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All"
+msgstr "All"
+
 msgid "All accounts this user is a member of, with their plan and role."
 msgstr "All accounts this user is a member of, with their plan and role."
-
-msgid "All event types"
-msgstr "All event types"
 
 msgid "All users across every account, most recently seen first. Search and filter to narrow down."
 msgstr "All users across every account, most recently seen first. Search and filter to narrow down."
@@ -258,6 +258,7 @@ msgstr "Credit note"
 msgid "Credit note issued"
 msgstr "Credit note issued"
 
+#. placeholder {0}: formatDate(invoice.creditNotedAt, true, true)
 #. placeholder {0}: renderDate(transaction.creditNotedAt)
 msgid "Credit note: {0}"
 msgstr "Credit note: {0}"
@@ -327,8 +328,14 @@ msgstr "Enter kiosk mode"
 msgid "Event"
 msgstr "Event"
 
+msgid "Event view"
+msgstr "Event view"
+
 msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
 msgstr "Every invoice, refund, and credit note — the money in and out for this subscription."
+
+msgid "Every invoice, refund, and credit note across all accounts."
+msgstr "Every invoice, refund, and credit note across all accounts."
 
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
@@ -542,6 +549,9 @@ msgstr "No recent payments"
 
 msgid "No recent signups"
 msgstr "No recent signups"
+
+msgid "No records yet"
+msgstr "No records yet"
 
 msgid "No refunds or credit notes yet"
 msgstr "No refunds or credit notes yet"
