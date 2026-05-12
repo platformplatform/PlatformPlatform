@@ -137,6 +137,45 @@ public sealed class ReplayArchivedTenantStripeEventsTests : BackOfficeEndpointBa
         committedMrr.Should().Be(0m, "committedMrr after cancellation must drop to zero");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_OnlyReplaysArchivedEventsNotReturnedByStripe()
+    {
+        // Arrange: the mock Stripe events.list returns a default 3-event timeline. Insert one of those
+        // event ids into the archive (Stripe still has it; do NOT replay) plus one extra archive row
+        // whose id is NOT in Stripe's response (Stripe no longer has it; MUST replay).
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", MockStripeClient.MockCustomerId)
+            ]
+        );
+
+        var stripeStillHasOccurredAt = DateTimeOffset.UtcNow.AddDays(-1);
+        InsertArchivedSubscriptionCreatedEventWithId(MockStripeClient.MockSubscriptionCreatedEventId, stripeStillHasOccurredAt);
+
+        var stripeDoesNotHaveOccurredAt = DateTimeOffset.UtcNow.AddDays(-90);
+        var oldEventId = $"evt_archive_old_{Guid.NewGuid():N}";
+        InsertArchivedSubscriptionCreatedEventWithId(oldEventId, stripeDoesNotHaveOccurredAt);
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        client.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/tenants/{DatabaseSeeder.Tenant1.Id}/replay-archived-stripe-events", null);
+
+        // Assert: exactly one billing event replayed — the one Stripe no longer returns. The archive row
+        // whose id matches one of Stripe's events.list ids must be skipped.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<ReplayArchivedTenantStripeEventsResponse>();
+        payload.Should().NotBeNull();
+        payload.BillingEventsAppended.Should().Be(1);
+
+        var replayedEventIds = Connection.ExecuteScalar<string>(
+            "SELECT stripe_event_id FROM billing_events WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        replayedEventIds.Should().Be(oldEventId, "only the archive event Stripe no longer returns must replay; the one Stripe still has must be skipped");
+    }
+
     private decimal? ReadDecimalColumn(string columnName, string stripeEventId)
     {
         // EF Core maps decimal to TEXT in SQLite to preserve precision; the test helper's direct cast to
@@ -151,6 +190,11 @@ public sealed class ReplayArchivedTenantStripeEventsTests : BackOfficeEndpointBa
     private void InsertArchivedSubscriptionCreatedEvent(DateTimeOffset archivedOccurredAt)
     {
         var archivedEventId = $"evt_archive_{Guid.NewGuid():N}";
+        InsertArchivedSubscriptionCreatedEventWithId(archivedEventId, archivedOccurredAt);
+    }
+
+    private void InsertArchivedSubscriptionCreatedEventWithId(string archivedEventId, DateTimeOffset archivedOccurredAt)
+    {
         var archivedPayload = """{"data":{"object":{"currency":"dkk","items":{"data":[{"price":{"id":"price_mock_standard","unit_amount":2999,"currency":"dkk"}}]}}}}""";
         Connection.Insert("stripe_events", [
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),

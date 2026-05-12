@@ -49,6 +49,21 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     ///     out) so every row returned from this method has a non-null <c>StripeCreatedAt</c>.
     /// </summary>
     Task<StripeEvent[]> GetArchivedEventsOlderThanAsync(StripeCustomerId stripeCustomerId, DateTimeOffset cutoff, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns archived stripe_events for a customer whose <c>Id</c> is NOT in <paramref name="excludedEventIds" />
+    ///     and that have no matching <c>billing_events</c> row yet. Used by the disaster-recovery replay
+    ///     command after the caller has asked Stripe's events.list what events Stripe still serves; the
+    ///     resulting id set defines the boundary between "Stripe still has this" (skip) and "archive is the
+    ///     only source" (replay). ID comparison avoids the same-second-sibling-events fragility of any
+    ///     date-based cutoff — an upgrade emits multiple events sharing the same <c>created</c> timestamp,
+    ///     so a date boundary can split or duplicate the sibling group, whereas the id set is exact.
+    ///     Excludes Pending, Ignored, and Failed; orders ASC by <c>StripeCreatedAt</c> so the replayer
+    ///     consumes them in the order Stripe produced them. Bypasses the tenant query filter because
+    ///     reconciliation runs outside an authenticated tenant context. Rows with NULL <c>StripeCreatedAt</c>
+    ///     are excluded so the replayer always sees a usable timestamp.
+    /// </summary>
+    Task<StripeEvent[]> GetArchivedEventsExcludingAsync(StripeCustomerId stripeCustomerId, HashSet<string> excludedEventIds, CancellationToken cancellationToken);
 }
 
 public sealed class StripeEventRepository(AccountDbContext accountDbContext)
@@ -120,5 +135,34 @@ public sealed class StripeEventRepository(AccountDbContext accountDbContext)
 
         var billingEventIdSet = new HashSet<string>(billingEventIds);
         return olderThanCutoff.Where(e => !billingEventIdSet.Contains(e.Id.Value)).ToArray();
+    }
+
+    public async Task<StripeEvent[]> GetArchivedEventsExcludingAsync(StripeCustomerId stripeCustomerId, HashSet<string> excludedEventIds, CancellationToken cancellationToken)
+    {
+        // Materialize first then filter in memory for the same reason as GetArchivedEventsOlderThanAsync:
+        // SQLite (used in tests) cannot translate the cross-table NotContains pattern combined with a
+        // HashSet parameter into a single SQL query, and the per-customer event set is bounded.
+        var candidateEvents = await DbSet
+            .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Processed)
+            .ToArrayAsync(cancellationToken);
+
+        // StripeCreatedAt is nullable on the aggregate; legacy rows from before the column existed have NULL.
+        // The replayer needs the timestamp to order events, so rows with NULL are excluded.
+        var archivedNotInStripe = candidateEvents
+            .Where(e => e.StripeCreatedAt is not null && !excludedEventIds.Contains(e.Id.Value))
+            .OrderBy(e => e.StripeCreatedAt!.Value)
+            .ToArray();
+
+        if (archivedNotInStripe.Length == 0) return [];
+
+        var candidateEventIds = archivedNotInStripe.Select(e => e.Id.Value).ToArray();
+        var billingEventIds = await Context.Set<BillingEvent>()
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(b => candidateEventIds.AsEnumerable().Contains(b.StripeEventId))
+            .Select(b => b.StripeEventId)
+            .ToArrayAsync(cancellationToken);
+
+        var billingEventIdSet = new HashSet<string>(billingEventIds);
+        return archivedNotInStripe.Where(e => !billingEventIdSet.Contains(e.Id.Value)).ToArray();
     }
 }
