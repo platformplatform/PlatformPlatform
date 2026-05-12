@@ -147,7 +147,9 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 null,
                 MockInvoiceUrl,
                 null,
-                SubscriptionPlan.Standard
+                SubscriptionPlan.Standard,
+                null,
+                standardIncludingTax
             )
         };
 
@@ -384,7 +386,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var (standardIncludingTax, standardTaxAmount) = ComputeAmountBreakdown(StandardAmountExcludingTax, currency);
         return Task.FromResult<PaymentTransaction[]?>(
             [
-                new PaymentTransaction(PaymentTransactionId.NewId(), standardIncludingTax, StandardAmountExcludingTax, standardTaxAmount, currency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard)
+                new PaymentTransaction(PaymentTransactionId.NewId(), standardIncludingTax, StandardAmountExcludingTax, standardTaxAmount, currency, PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null, SubscriptionPlan.Standard, null, standardIncludingTax)
             ]
         );
     }

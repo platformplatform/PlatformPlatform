@@ -35,7 +35,7 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
 
         var billingInfoJson = JsonSerializer.Serialize(new BillingInfo("Acme Corp", new BillingAddress("123 Main St", null, "12345", "Springfield", "IL", "US"), null, null));
         var transactions = ImmutableArray.Create(
-            new PaymentTransaction(PaymentTransactionId.NewId(), 199.00m, 199.00m, 0m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium)
+            new PaymentTransaction(PaymentTransactionId.NewId(), 199.00m, 199.00m, 0m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 199.00m)
         );
         var subscribedSince = DateTimeOffset.Parse("2025-02-01T00:00:00Z");
         Connection.Insert("subscriptions", [
@@ -135,9 +135,9 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         );
 
         var transactions = ImmutableArray.Create(
-            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium),
-            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Refunded, DateTimeOffset.Parse("2025-02-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium),
-            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-03-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium)
+            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m),
+            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Refunded, DateTimeOffset.Parse("2025-02-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m),
+            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-03-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m)
         );
         Connection.Insert("subscriptions", [
                 ("tenant_id", tenantId.Value),
@@ -175,7 +175,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantDetailResponse>();
         payload.Should().NotBeNull();
-        payload.LifetimeValue.Should().Be(160.00m);
+        // LTV sums InvoiceTotal (gross-of-VAT) for succeeded transactions only. The Refunded row is excluded.
+        payload.LifetimeValue.Should().Be(200.00m);
     }
 
     [Fact]

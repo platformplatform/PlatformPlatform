@@ -174,13 +174,13 @@ public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
         };
 
         // Act
-        var (displayAmount, amountExcludingTax, taxAmount, clamped) = StripeClient.ComputeInvoiceAmountBreakdown(invoice);
+        var (displayAmount, amountExcludingTax, taxAmount, _, _, clamped) = StripeClient.ComputeInvoiceAmountBreakdown(invoice);
 
         // Assert
         displayAmount.Should().Be(10.00m);
         amountExcludingTax.Should().Be(0m, "clamp at zero keeps the DB CHECK happy and the webhook from 500-ing into infinite Stripe retries");
         taxAmount.Should().Be(16.11m);
-        clamped.Should().BeTrue("tax greater than display is the exact anomaly the warning log + telemetry must surface");
+        clamped.Should().BeTrue("tax greater than total is the exact anomaly the warning log + telemetry must surface");
     }
 
     private DateTimeOffset? ReadLastSyncedStripeEventCreatedAt()

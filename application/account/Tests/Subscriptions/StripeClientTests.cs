@@ -173,12 +173,11 @@ public sealed class StripeClientTests
     }
 
     [Fact]
-    public void ComputeInvoiceAmountBreakdown_WhenZeroNetWithPositiveTax_ShouldClampAmountExcludingTaxAtZeroAndReportClamped()
+    public void ComputeInvoiceAmountBreakdown_WhenZeroNetWithPositiveTaxAndZeroTotal_ShouldClampAmountExcludingTaxAtZeroAndReportClamped()
     {
-        // Stripe auto-tax can produce a zero-net paid invoice (proration credit fully offsets a new charge)
-        // alongside a positive total_taxes. Without the clamp, AmountExcludingTax would go negative and silently
-        // subtract from LTV. The Clamped flag surfaces the anomaly so callers can emit a warning + telemetry
-        // and drift discrepancy without losing the row.
+        // Pathological invoice where Stripe reports zero total but positive tax. Without the clamp,
+        // AmountExcludingTax would go negative and silently subtract from LTV. The Clamped flag surfaces
+        // the anomaly so callers can emit a warning + telemetry without losing the row.
         // Arrange
         var invoice = new Invoice
         {
@@ -189,13 +188,44 @@ public sealed class StripeClientTests
         };
 
         // Act
-        var (displayAmount, amountExcludingTax, taxAmount, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+        var (displayAmount, amountExcludingTax, taxAmount, invoiceTotal, amountFromCredit, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
 
         // Assert
         displayAmount.Should().Be(0m);
         amountExcludingTax.Should().Be(0m);
         taxAmount.Should().Be(16.11m);
-        clamped.Should().BeTrue("display - tax = -16.11 was negative and got clamped");
+        invoiceTotal.Should().Be(0m);
+        amountFromCredit.Should().Be(0m);
+        clamped.Should().BeTrue("invoiceTotal - tax = -16.11 was negative and got clamped");
+    }
+
+    [Fact]
+    public void ComputeInvoiceAmountBreakdown_WhenInvoiceCoveredByCustomerCredit_ShouldRecordInvoiceTotalAndAmountFromCredit()
+    {
+        // Real Symphonic-shaped invoice: customer upgrades Standard → Premium mid-period. Stripe issues a
+        // prorated invoice with Total = 80.56 DKK (= 64.45 ex-VAT + 16.11 VAT). The customer's prior credit
+        // balance fully absorbs the invoice so AmountPaid = 0 from card. AmountExcludingTax must be derived
+        // from the InvoiceTotal (not amountPaid), otherwise it goes negative and clamps to 0, undercounting
+        // LTV by 64.45 every time.
+        // Arrange
+        var invoice = new Invoice
+        {
+            Status = "paid",
+            AmountPaid = 0,
+            Total = 8056,
+            TotalTaxes = [new InvoiceTotalTax { Amount = 1611 }]
+        };
+
+        // Act
+        var (displayAmount, amountExcludingTax, taxAmount, invoiceTotal, amountFromCredit, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+
+        // Assert
+        displayAmount.Should().Be(0m);
+        amountExcludingTax.Should().Be(64.45m);
+        taxAmount.Should().Be(16.11m);
+        invoiceTotal.Should().Be(80.56m);
+        amountFromCredit.Should().Be(80.56m, "the entire invoice total was absorbed by customer credit");
+        clamped.Should().BeFalse("invoiceTotal - tax = 64.45 is non-negative when the breakdown is derived from total instead of amountPaid");
     }
 
     [Fact]
@@ -212,13 +242,15 @@ public sealed class StripeClientTests
         };
 
         // Act
-        var (displayAmount, amountExcludingTax, taxAmount, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
+        var (displayAmount, amountExcludingTax, taxAmount, invoiceTotal, amountFromCredit, clamped) = AccountStripeClient.ComputeInvoiceAmountBreakdown(invoice);
 
         // Assert
         displayAmount.Should().Be(125m);
         amountExcludingTax.Should().Be(100m);
         taxAmount.Should().Be(25m);
-        clamped.Should().BeFalse("display - tax = 100 is non-negative");
+        invoiceTotal.Should().Be(125m);
+        amountFromCredit.Should().Be(0m, "the customer paid the full invoice from card, no credit applied");
+        clamped.Should().BeFalse("invoiceTotal - tax = 100 is non-negative");
     }
 
     [Fact]

@@ -263,7 +263,15 @@ public sealed record PaymentTransaction(
     string? InvoiceUrl,
     string? CreditNoteUrl,
     SubscriptionPlan? Plan = null,
-    DateTimeOffset? RefundedAt = null
+    DateTimeOffset? RefundedAt = null,
+    // InvoiceTotal is the gross amount Stripe billed for this invoice (= AmountExcludingTax + TaxAmount).
+    // Amount is what the customer actually paid from card; AmountFromCredit is the portion absorbed by
+    // their Stripe credit balance (e.g. from a prior credit note). The invariant
+    // `Amount + AmountFromCredit == InvoiceTotal` lets LTV math count credit-absorbed invoices
+    // without conflating them with cash-paid ones. Defaults to 0 so existing JSONB rows backfilled
+    // by migration deserialize cleanly.
+    decimal InvoiceTotal = 0m,
+    decimal AmountFromCredit = 0m
 );
 
 [PublicAPI]

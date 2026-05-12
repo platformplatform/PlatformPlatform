@@ -1046,7 +1046,7 @@ public sealed class StripeClient(
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
                     var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var refundedTimestamp) ? (DateTimeOffset?)refundedTimestamp : null;
-                    var (displayAmount, amountExcludingTax, taxAmount, clamped) = ComputeInvoiceAmountBreakdown(invoice);
+                    var (displayAmount, amountExcludingTax, taxAmount, invoiceTotal, amountFromCredit, clamped) = ComputeInvoiceAmountBreakdown(invoice);
                     if (clamped)
                     {
                         // tax > display is anomalous (Stripe should never produce this) — keep the clamp so the DB
@@ -1073,7 +1073,9 @@ public sealed class StripeClient(
                         invoice.InvoicePdf,
                         creditNotesByInvoiceId.GetValueOrDefault(invoice.Id),
                         plan,
-                        refundedAt
+                        refundedAt,
+                        invoiceTotal,
+                        amountFromCredit
                     );
                 }
             ).ToArray();
@@ -1211,13 +1213,21 @@ public sealed class StripeClient(
     ///     <c>displayAmount - taxAmount</c> was negative — callers emit a structured warning + telemetry +
     ///     drift discrepancy so the anomaly is surfaced instead of silently masked.
     /// </summary>
-    public static (decimal DisplayAmount, decimal AmountExcludingTax, decimal TaxAmount, bool Clamped) ComputeInvoiceAmountBreakdown(Invoice invoice)
+    public static (decimal DisplayAmount, decimal AmountExcludingTax, decimal TaxAmount, decimal InvoiceTotal, decimal AmountFromCredit, bool Clamped) ComputeInvoiceAmountBreakdown(Invoice invoice)
     {
+        // InvoiceTotal is what Stripe billed (gross of VAT). DisplayAmount is what the customer actually
+        // paid from their card on this invoice. The difference (InvoiceTotal - DisplayAmount) is the
+        // portion absorbed by their Stripe credit balance — e.g. from a prior credit note. We persist
+        // all three so LTV counts gross billed and the back-office can show "X DKK paid from card, Y DKK
+        // from credit". The pre-VAT split (AmountExcludingTax) is derived from the InvoiceTotal so it
+        // never goes negative even when AmountPaid is zero on a credit-absorbed invoice.
+        var invoiceTotal = invoice.Total / 100m;
         var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
         var taxAmount = (invoice.TotalTaxes ?? []).Sum(t => t.Amount) / 100m;
-        var rawAmountExcludingTax = displayAmount - taxAmount;
-        var amountExcludingTax = Math.Max(0m, rawAmountExcludingTax);
-        return (displayAmount, amountExcludingTax, taxAmount, rawAmountExcludingTax < 0m);
+        var amountExcludingTax = invoiceTotal - taxAmount;
+        var amountFromCredit = Math.Max(0m, invoiceTotal - displayAmount);
+        var clamped = amountExcludingTax < 0m;
+        return (displayAmount, Math.Max(0m, amountExcludingTax), taxAmount, invoiceTotal, amountFromCredit, clamped);
     }
 
     /// <summary>
