@@ -1,3 +1,15 @@
+## Behavioral Guidelines
+
+1. **Think before coding.** State assumptions explicitly. If uncertain, ask rather than guess. When multiple interpretations exist, present them - don't pick silently.
+
+2. **Goal-driven execution.** Define success criteria before iterating. Loop until verified. Strong success criteria let you loop independently; "make it work" requires constant clarification.
+
+3. **Read before you write.** Before adding code in a file, read the file's exports, the immediate caller, and obvious shared utilities. "Looks orthogonal to me" is the most dangerous phrase in this codebase.
+
+4. **Checkpoint significant steps.** After each step in a multi-step task, summarize what was done, what's verified, and what's left. Don't continue from a state you can't describe back.
+
+5. **Fail loud.** Surface uncertainty, don't hide it. "Completed" is wrong if anything was skipped silently. "Tests pass" is wrong if any were skipped. "Feature works" is wrong if the edge case wasn't verified.
+
 ## Build, Test, and Format
 
 Use the developer CLI skills (`build`, `test`, `format`, `lint`, `e2e`, `aspire-restart`, `team-interrupt`) for all code workflows. They invoke `dotnet run --project developer-cli -- <command>` directly. Never run `dotnet`, `npm`, or `npx` directly - the pre-tool-use Bash hook blocks them.
