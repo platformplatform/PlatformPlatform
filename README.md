@@ -38,6 +38,16 @@ Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/project
 
 Show your support for our project - give us a star on GitHub! It truly means a lot! ⭐
 
+### Back office
+
+Operate the platform: manage account signups, users, and logins, and monitor revenue, MRR, churn, invoices, and Stripe drift.
+
+<img src="https://platformplatformgithub.blob.core.windows.net/BackOffice.gif" alt="PlatformPlatform Back Office" title="PlatformPlatform Back Office" />
+
+### Product demo
+
+End-user flows: tenant signup, account settings, Google login, welcome flow, accessibility and localization, and Stripe-powered subscription signup and management.
+
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/PlatformPlatformDemo.gif" alt="PlatformPlatform Demo" title="PlatformPlatform Demo" />
 
 # Getting Started
