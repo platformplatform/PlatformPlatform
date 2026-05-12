@@ -175,8 +175,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantDetailResponse>();
         payload.Should().NotBeNull();
-        // LTV sums InvoiceTotal (gross-of-VAT) for succeeded transactions only. The Refunded row is excluded.
-        payload.LifetimeValue.Should().Be(200.00m);
+        // LTV sums AmountExcludingTax (ex-VAT revenue) for succeeded transactions only. The Refunded row is excluded.
+        payload.LifetimeValue.Should().Be(160.00m);
     }
 
     [Fact]

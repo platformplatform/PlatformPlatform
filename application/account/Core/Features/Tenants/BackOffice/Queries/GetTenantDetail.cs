@@ -68,7 +68,7 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
 
         var lifetimeValue = subscription?.PaymentTransactions
             .Where(t => t.Status == PaymentTransactionStatus.Succeeded)
-            .Sum(t => t.InvoiceTotal);
+            .Sum(t => t.AmountExcludingTax);
 
         var hasEverSubscribed = subscription?.PaymentTransactions
             .Any(t => t.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
