@@ -79,7 +79,7 @@ export function AccountSidePaneSections({
       <SidePaneSection label={t`Plan & revenue`} className="h-[12.875rem]">
         <div className="flex flex-col gap-3">
           <KpiRow
-            leftLabel={t`Renewal date`}
+            leftLabel={t`Expires`}
             leftValue={tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
             rightLabel={t`MRR`}
             rightValue={
