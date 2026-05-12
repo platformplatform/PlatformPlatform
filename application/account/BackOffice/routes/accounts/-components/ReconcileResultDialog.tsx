@@ -2,6 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -23,10 +24,12 @@ interface Props {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   result: ReconcileResult | null;
+  onRunDisasterRecovery?: () => void;
 }
 
-export function ReconcileResultDialog({ isOpen, onOpenChange, result }: Readonly<Props>) {
+export function ReconcileResultDialog({ isOpen, onOpenChange, result, onRunDisasterRecovery }: Readonly<Props>) {
   const formatDate = useFormatDate();
+  const showDisasterRecovery = result?.hasDriftDetected === true && onRunDisasterRecovery !== undefined;
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Reconcile with Stripe result">
       <AlertDialogContent>
@@ -58,15 +61,21 @@ export function ReconcileResultDialog({ isOpen, onOpenChange, result }: Readonly
             ) : (
               <Trans>
                 Account has {result.driftDiscrepancyCount} drift discrepancies. Last reconciled at{" "}
-                {formatDate(result.reconciledAt)}.
+                {formatDate(result.reconciledAt)}. If standard reconcile cannot clear the drift, disaster recovery from
+                archived Stripe events is available as a last resort.
               </Trans>
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction onClick={() => onOpenChange(false)}>
+          <AlertDialogCancel variant="secondary">
             <Trans>Close</Trans>
-          </AlertDialogAction>
+          </AlertDialogCancel>
+          {showDisasterRecovery && (
+            <AlertDialogAction variant="destructive" onClick={onRunDisasterRecovery}>
+              <Trans>Run disaster recovery</Trans>
+            </AlertDialogAction>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

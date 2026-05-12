@@ -99,8 +99,8 @@ msgstr "Kontovækst"
 
 #. placeholder {0}: result.driftDiscrepancyCount
 #. placeholder {1}: formatDate(result.reconciledAt)
-msgid "Account has {0} drift discrepancies. Last reconciled at {1}."
-msgstr "Konto har {0} afvigelser. Sidst afstemt {1}."
+msgid "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
+msgstr "Kontoen har {0} afvigelser. Sidst afstemt {1}. Hvis standard-afstemning ikke kan rydde afvigelserne, er katastrofegendannelse fra arkiverede Stripe-events tilgængelig som sidste udvej."
 
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
@@ -157,9 +157,6 @@ msgstr "Der opstod en uventet fejl ved behandlingen."
 #. placeholder {1}: formatDate(result.reconciledAt)
 msgid "Appended {0} new billing events. Last reconciled at {1}."
 msgstr "Tilføjede {0} nye faktureringshændelser. Sidst afstemt {1}."
-
-msgid "Archive replay complete"
-msgstr "Arkivafspilning fuldført"
 
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
 msgstr "Autoritativ log over abonnements-, betalings- og faktureringsændringer på tværs af alle konti."
@@ -284,6 +281,12 @@ msgstr "Computer"
 
 msgid "Device"
 msgstr "Enhed"
+
+msgid "Disaster recovery complete"
+msgstr "Katastrofegendannelse fuldført"
+
+msgid "Disaster recovery from archived Stripe events?"
+msgstr "Katastrofegendannelse fra arkiverede Stripe-events?"
 
 msgid "Downgrade cancelled"
 msgstr "Nedgradering annulleret"
@@ -473,9 +476,6 @@ msgstr "Ingen konti matcher dine filtre"
 
 msgid "No accounts yet"
 msgstr "Ingen konti endnu"
-
-msgid "No archived events found."
-msgstr "Ingen arkiverede hændelser fundet."
 
 msgid "No back-office access"
 msgstr "Ingen adgang til Back Office"
@@ -690,11 +690,11 @@ msgstr "Afstemning fuldført med afvigelser fundet"
 #. placeholder {0}: archivedAwaiting.count
 #. placeholder {1}: formatDate(archivedAwaiting.oldestOccurredAt)
 #. placeholder {2}: formatDate(archivedAwaiting.newestOccurredAt)
-msgid "Reconcile found {0} archived events older than Stripe's 30-day window, from {1} to {2}. Replaying writes them into the billing event ledger using the locally stored payload, which may be approximate. Confirm only if you have reviewed the records in Stripe Dashboard."
-msgstr "Afstemning fandt {0} arkiverede hændelser ældre end Stripes 30-dages vindue, fra {1} til {2}. Afspilning skriver dem ind i faktureringshændelseslogen ved hjælp af den lokalt gemte payload, som kan være omtrentlig. Bekræft kun hvis du har gennemgået posterne i Stripe Dashboard."
+msgid "Reconcile found {0} archived events older than Stripe's 30-day window, from {1} to {2}. This is a best-effort recovery from locally stored payloads and may produce incorrect rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+msgstr "Afstemning fandt {0} arkiverede events ældre end Stripes 30-dages vindue, fra {1} til {2}. Dette er en bedst muligt-gendannelse fra lokalt gemte payloads og kan producere forkerte rækker. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."
 
-msgid "Reconcile is a recovery action — it falls back to local cold-backup payloads for events older than Stripe's 30-day window and may write approximate data. Use only when normal sync has missed something."
-msgstr "Afstemning er en gendannelseshandling — den falder tilbage til lokale cold-backup payloads for hændelser ældre end Stripes 30-dages vindue og kan skrive omtrentlige data. Brug kun når normal synkronisering har overset noget."
+msgid "Reconcile rebuilds this tenant's subscription and billing events from Stripe directly using the events.list API (the last 30 days). If the drift is not cleared afterwards, disaster recovery from the locally archived Stripe payloads is available as a last resort."
+msgstr "Afstemning genopbygger denne kontos abonnement og faktureringshændelser direkte fra Stripe via events.list-API'et (de seneste 30 dage). Hvis afvigelserne ikke er ryddet bagefter, er katastrofegendannelse fra de lokalt arkiverede Stripe-payloads tilgængelig som sidste udvej."
 
 msgid "Reconcile with Stripe"
 msgstr "Afstem med Stripe"
@@ -722,12 +722,6 @@ msgstr "Fornyet"
 msgid "Renews {0}"
 msgstr "Fornyes {0}"
 
-msgid "Replay archive"
-msgstr "Afspil arkiv"
-
-msgid "Replay archived Stripe events?"
-msgstr "Afspil arkiverede Stripe-hændelser?"
-
 #. placeholder {0}: result.billingEventsAppended
 #. placeholder {1}: formatDate(result.replayedAt)
 msgid "Replayed {0} archived events into the billing event ledger at {1}."
@@ -738,6 +732,9 @@ msgstr "Tilbagekaldt"
 
 msgid "Role"
 msgstr "Rolle"
+
+msgid "Run disaster recovery"
+msgstr "Kør katastrofegendannelse"
 
 msgid "Scheduled plan change"
 msgstr "Planlagt planændring"
@@ -783,9 +780,6 @@ msgstr "Tilmeldt <0>{0}</0><1>{1}</1>"
 #. placeholder {0}: formatDate(tenant.createdAt)
 msgid "Since {0}"
 msgstr "Siden {0}"
-
-msgid "Skip replay"
-msgstr "Spring afspilning over"
 
 msgid "Small"
 msgstr "Lille"
@@ -840,6 +834,9 @@ msgstr "Tema"
 
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
+
+msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+msgstr "Dette genopbygger faktureringshændelsesloggen fra denne kontos arkiverede Stripe-payloads. Det er en bedst muligt-gendannelse, der kan producere forkerte abonnementstilstande eller faktureringshændelser. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."
 
 msgid "This user has no recorded sessions."
 msgstr "Denne bruger har ingen registrerede sessioner."

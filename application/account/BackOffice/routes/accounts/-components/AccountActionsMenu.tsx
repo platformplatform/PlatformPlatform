@@ -94,6 +94,15 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
     setIsResultOpen(true);
   };
 
+  const handleRunDisasterRecovery = () => {
+    // Operator-initiated escalation from the reconcile-result drift branch. There is no captured
+    // archivedAwaiting snapshot in this flow — the dialog shows the no-snapshot copy that names the
+    // best-effort caveat without quoting a count.
+    setArchivedAwaiting(null);
+    setIsResultOpen(false);
+    setIsReplayConfirmOpen(true);
+  };
+
   const isWorking = reconcileMutation.isPending || replayMutation.isPending;
 
   return (
@@ -145,8 +154,9 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
             </AlertDialogTitle>
             <AlertDialogDescription>
               <Trans>
-                Reconcile is a recovery action — it falls back to local cold-backup payloads for events older than
-                Stripe's 30-day window and may write approximate data. Use only when normal sync has missed something.
+                Reconcile rebuilds this tenant's subscription and billing events from Stripe directly using the
+                events.list API (the last 30 days). If the drift is not cleared afterwards, disaster recovery from the
+                locally archived Stripe payloads is available as a last resort.
               </Trans>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -169,7 +179,12 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
         onSkip={handleSkipReplay}
       />
 
-      <ReconcileResultDialog isOpen={isResultOpen} onOpenChange={setIsResultOpen} result={result} />
+      <ReconcileResultDialog
+        isOpen={isResultOpen}
+        onOpenChange={setIsResultOpen}
+        result={result}
+        onRunDisasterRecovery={handleRunDisasterRecovery}
+      />
 
       <ReplayArchivedResultDialog
         isOpen={isReplayResultOpen}

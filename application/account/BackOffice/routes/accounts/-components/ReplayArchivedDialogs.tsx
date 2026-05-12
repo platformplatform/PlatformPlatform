@@ -11,7 +11,7 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
+import { CheckCircle2Icon, ShieldAlertIcon } from "lucide-react";
 
 export interface ArchivedAwaitingConfirmation {
   count: number;
@@ -41,34 +41,38 @@ export function ReplayArchivedConfirmDialog({
 }: Readonly<ConfirmProps>) {
   const formatDate = useFormatDate();
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Replay archived Stripe events confirm">
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Disaster recovery confirm">
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-amber-100">
-            <AlertTriangleIcon className="text-amber-600" />
+          <AlertDialogMedia className="bg-red-100">
+            <ShieldAlertIcon className="text-red-600" />
           </AlertDialogMedia>
           <AlertDialogTitle>
-            <Trans>Replay archived Stripe events?</Trans>
+            <Trans>Disaster recovery from archived Stripe events?</Trans>
           </AlertDialogTitle>
           <AlertDialogDescription>
             {archivedAwaiting === null ? (
-              <Trans>No archived events found.</Trans>
+              <Trans>
+                This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort
+                recovery that may produce incorrect subscription state or billing event rows. Only run it when standard
+                Reconcile with Stripe has been tried and did not clear the drift.
+              </Trans>
             ) : (
               <Trans>
                 Reconcile found {archivedAwaiting.count} archived events older than Stripe's 30-day window, from{" "}
-                {formatDate(archivedAwaiting.oldestOccurredAt)} to {formatDate(archivedAwaiting.newestOccurredAt)}.
-                Replaying writes them into the billing event ledger using the locally stored payload, which may be
-                approximate. Confirm only if you have reviewed the records in Stripe Dashboard.
+                {formatDate(archivedAwaiting.oldestOccurredAt)} to {formatDate(archivedAwaiting.newestOccurredAt)}. This
+                is a best-effort recovery from locally stored payloads and may produce incorrect rows. Only run it when
+                standard Reconcile with Stripe has been tried and did not clear the drift.
               </Trans>
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel variant="secondary" onClick={onSkip}>
-            <Trans>Skip replay</Trans>
+            <Trans>Cancel</Trans>
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
-            <Trans>Replay archive</Trans>
+          <AlertDialogAction variant="destructive" onClick={onConfirm}>
+            <Trans>Run disaster recovery</Trans>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -85,14 +89,14 @@ interface ResultProps {
 export function ReplayArchivedResultDialog({ isOpen, onOpenChange, result }: Readonly<ResultProps>) {
   const formatDate = useFormatDate();
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Replay archived Stripe events result">
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Disaster recovery result">
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-emerald-100">
             <CheckCircle2Icon className="text-emerald-600" />
           </AlertDialogMedia>
           <AlertDialogTitle>
-            <Trans>Archive replay complete</Trans>
+            <Trans>Disaster recovery complete</Trans>
           </AlertDialogTitle>
           <AlertDialogDescription>
             {result === null ? (
