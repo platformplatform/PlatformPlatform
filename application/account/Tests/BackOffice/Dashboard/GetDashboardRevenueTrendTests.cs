@@ -16,9 +16,9 @@ namespace Account.Tests.BackOffice.Dashboard;
 public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
 {
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenPaymentsAcrossMultipleDays_ShouldReturnDailyBucketsIncludingEmptyDays()
+    public async Task GetDashboardRevenueTrend_WhenPaymentsAcrossMultipleDays_ShouldAccumulateRevenueInPeriod()
     {
-        // Arrange — seed payments on day -3 and today; days -2 and -1 should appear as empty zero buckets.
+        // Arrange — two payments inside the last 7 days (-3 and today). Curve cumulates from zero to 298.
         var today = DateTimeOffset.UtcNow.Date;
         var threeDaysAgo = new DateTimeOffset(today.AddDays(-3), TimeSpan.Zero).AddHours(9);
         var todayTimestamp = new DateTimeOffset(today, TimeSpan.Zero).AddHours(9);
@@ -33,25 +33,32 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend");
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
+        payload.Period.Should().Be(DashboardTrendPeriod.Last7Days);
         payload.Currency.Should().Be(MockStripeClient.MockStandardCurrency);
-        payload.Points.Should().HaveCount(4); // three days ago, two days ago (empty), one day ago (empty), today
-        payload.Points[0].Revenue.Should().Be(149m);
+        payload.Points.Should().HaveCount(7);
+        // Day 0 (today - 6 days) through Day 2 (today - 4 days): no deltas — cumulative stays at zero.
+        payload.Points[0].Revenue.Should().Be(0m);
         payload.Points[1].Revenue.Should().Be(0m);
         payload.Points[2].Revenue.Should().Be(0m);
+        // Day 3 (today - 3 days): +149 — cumulative reaches 149.
         payload.Points[3].Revenue.Should().Be(149m);
+        payload.Points[4].Revenue.Should().Be(149m);
+        payload.Points[5].Revenue.Should().Be(149m);
+        // Day 6 (today): another +149 — cumulative reaches 298.
+        payload.Points[6].Revenue.Should().Be(298m);
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefundedOnLaterDay_ShouldAddOnPaidDateAndSubtractOnRefundedDate()
+    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefundedOnLaterDay_ShouldDipOnRefundDate()
     {
-        // Arrange — one transaction paid on day -5 and refunded on day -1. The curve must show +149 on the paid
-        // day and -149 on the refunded day so the dip aligns with when money actually went back out.
+        // Arrange — one transaction paid on day -5 and refunded on day -1. Cumulative jumps to 149 on the paid day
+        // and drops back to zero on the refund day.
         var today = DateTimeOffset.UtcNow.Date;
         var paidOn = new DateTimeOffset(today.AddDays(-5), TimeSpan.Zero).AddHours(9);
         var refundedOn = new DateTimeOffset(today.AddDays(-1), TimeSpan.Zero).AddHours(15);
@@ -65,23 +72,27 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend");
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
-        payload.Points.Should().HaveCount(6); // -5, -4, -3, -2, -1, today
-        payload.Points[0].Revenue.Should().Be(149m); // -5 paid
-        payload.Points[1].Revenue.Should().Be(0m);
-        payload.Points[2].Revenue.Should().Be(0m);
-        payload.Points[3].Revenue.Should().Be(0m);
-        payload.Points[4].Revenue.Should().Be(-149m); // -1 refunded
+        payload.Points.Should().HaveCount(7);
+        // Day 0 (today - 6 days) — empty.
+        payload.Points[0].Revenue.Should().Be(0m);
+        // Day 1 (today - 5 days) — paid, cumulative reaches 149.
+        payload.Points[1].Revenue.Should().Be(149m);
+        payload.Points[2].Revenue.Should().Be(149m);
+        payload.Points[3].Revenue.Should().Be(149m);
+        payload.Points[4].Revenue.Should().Be(149m);
+        // Day 5 (today - 1 day) — refunded, cumulative drops back to zero.
         payload.Points[5].Revenue.Should().Be(0m);
+        payload.Points[6].Revenue.Should().Be(0m);
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenFailedTransactions_ShouldBeExcludedFromSum()
+    public async Task GetDashboardRevenueTrend_WhenFailedTransactions_ShouldBeExcludedFromCumulative()
     {
         // Arrange — one succeeded and one failed on the same day; only succeeded contributes.
         var today = DateTimeOffset.UtcNow.Date;
@@ -97,31 +108,68 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend");
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
-        payload.Points.Should().HaveCount(1);
-        payload.Points[0].Revenue.Should().Be(149m);
+        payload.Points.Should().HaveCount(7);
+        // Only the most recent day (today) carries the 149 delta — cumulative jumps to 149 on the last point.
+        payload.Points[6].Revenue.Should().Be(149m);
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenNoPaymentTransactions_ShouldReturnEmptyPoints()
+    public async Task GetDashboardRevenueTrend_WhenPaymentInPriorWindow_ShouldAccumulateOnPriorSeriesOnly()
     {
-        // Arrange — no subscriptions seeded with transactions.
+        // Arrange — a payment in the prior 7-day window must accumulate on PriorPoints, not on Points. A second
+        // payment inside the current window must accumulate only on Points.
+        var today = DateTimeOffset.UtcNow.Date;
+        var priorWindowPayment = new DateTimeOffset(today.AddDays(-10), TimeSpan.Zero).AddHours(9);
+        var currentWindowPayment = new DateTimeOffset(today.AddDays(-2), TimeSpan.Zero).AddHours(9);
+        var tenant = SeedTenant("Two Windows Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedSubscriptionWithTransactions(tenant, subscriptionId,
+            (149m, priorWindowPayment, PaymentTransactionStatus.Succeeded, null),
+            (149m, currentWindowPayment, PaymentTransactionStatus.Succeeded, null)
+        );
+
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act
-        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend");
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
-        payload.Points.Should().BeEmpty();
+        payload.Points.Should().HaveCount(7);
+        payload.PriorPoints.Should().HaveCount(7);
+        // Current window: cumulative reaches 149 on the day of the current-window payment and stays there.
+        payload.Points[^1].Revenue.Should().Be(149m);
+        // Prior window: cumulative reaches 149 on the day of the prior-window payment and stays there.
+        payload.PriorPoints[^1].Revenue.Should().Be(149m);
+    }
+
+    [Fact]
+    public async Task GetDashboardRevenueTrend_WhenNoPaymentTransactions_ShouldReturnZeroFilledSeries()
+    {
+        // Arrange — no subscriptions seeded with transactions; both series fill the period with zeros.
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
+        payload.Should().NotBeNull();
+        payload.Points.Should().HaveCount(7);
+        payload.Points.Should().OnlyContain(p => p.Revenue == 0m);
+        payload.PriorPoints.Should().HaveCount(7);
+        payload.PriorPoints.Should().OnlyContain(p => p.Revenue == 0m);
     }
 
     [Fact]

@@ -29,7 +29,7 @@ export function DashboardSections() {
           <DashboardPlanDistributionCard />
         </div>
       )}
-      {isSubscriptionEnabled && <DashboardRevenueTrendCard />}
+      {isSubscriptionEnabled && <DashboardRevenueTrendCard period={period} />}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardTenantGrowthCard period={period} />
         <DashboardUserLoginsCard period={period} />

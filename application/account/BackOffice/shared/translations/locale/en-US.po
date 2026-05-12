@@ -21,10 +21,6 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 
-#. placeholder {0}: formatCurrency(lifetimeRevenue, currency)
-msgid "{0} all-time, excluding VAT"
-msgstr "{0} all-time, excluding VAT"
-
 #. placeholder {0}: formatCurrency(blended, currency)
 msgid "{0} blended"
 msgstr "{0} blended"
@@ -33,6 +29,15 @@ msgstr "{0} blended"
 #. placeholder {1}: formatDelta(deltaPercent)
 msgid "{0} blended · {1} over period"
 msgstr "{0} blended · {1} over period"
+
+#. placeholder {0}: formatCurrency(currentTotal, currency)
+#. placeholder {1}: formatDelta(deltaPercent)
+msgid "{0} this period · {1} vs prior period"
+msgstr "{0} this period · {1} vs prior period"
+
+#. placeholder {0}: formatCurrency(currentTotal, currency)
+msgid "{0} this period, excluding VAT"
+msgstr "{0} this period, excluding VAT"
 
 msgid "{activeUsers} active"
 msgstr "{activeUsers} active"
