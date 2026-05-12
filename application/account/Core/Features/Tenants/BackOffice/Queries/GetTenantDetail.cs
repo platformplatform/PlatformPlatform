@@ -66,8 +66,10 @@ public sealed class GetTenantDetailHandler(ITenantRepository tenantRepository, I
 
         var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(tenant.Id, cancellationToken);
 
+        // Net lifetime value: only count successful payments that were NOT later credit-noted or refunded.
+        // Money returned to the customer (via credit note or refund) is not revenue, so it doesn't contribute.
         var lifetimeValue = subscription?.PaymentTransactions
-            .Where(t => t.Status == PaymentTransactionStatus.Succeeded)
+            .Where(t => t is { Status: PaymentTransactionStatus.Succeeded, CreditNoteUrl: null, RefundedAt: null })
             .Sum(t => t.AmountExcludingTax);
 
         var hasEverSubscribed = subscription?.PaymentTransactions

@@ -55,10 +55,11 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefundedOnLaterDay_ShouldDipOnRefundDate()
+    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefunded_ShouldExcludeFromCumulative()
     {
-        // Arrange — one transaction paid on day -5 and refunded on day -1. Cumulative jumps to 149 on the paid day
-        // and drops back to zero on the refund day.
+        // Arrange — a refunded transaction contributes 0 to revenue. Net revenue rule: a transaction that was
+        // later reversed (Refunded status OR Succeeded with RefundedAt set OR Succeeded with CreditNoteUrl) is
+        // excluded entirely — no add on payment day, no subtract on reversal day. The cumulative line stays at 0.
         var today = DateTimeOffset.UtcNow.Date;
         var paidOn = new DateTimeOffset(today.AddDays(-5), TimeSpan.Zero).AddHours(9);
         var refundedOn = new DateTimeOffset(today.AddDays(-1), TimeSpan.Zero).AddHours(15);
@@ -79,16 +80,35 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
         payload.Points.Should().HaveCount(7);
-        // Day 0 (today - 6 days) — empty.
-        payload.Points[0].Revenue.Should().Be(0m);
-        // Day 1 (today - 5 days) — paid, cumulative reaches 149.
-        payload.Points[1].Revenue.Should().Be(149m);
-        payload.Points[2].Revenue.Should().Be(149m);
-        payload.Points[3].Revenue.Should().Be(149m);
-        payload.Points[4].Revenue.Should().Be(149m);
-        // Day 5 (today - 1 day) — refunded, cumulative drops back to zero.
-        payload.Points[5].Revenue.Should().Be(0m);
-        payload.Points[6].Revenue.Should().Be(0m);
+        // Every point stays at 0 — the refunded transaction contributes nothing to revenue.
+        payload.Points.Should().AllSatisfy(p => p.Revenue.Should().Be(0m));
+    }
+
+    [Fact]
+    public async Task GetDashboardRevenueTrend_WhenTransactionIsCreditNoted_ShouldExcludeFromCumulative()
+    {
+        // Arrange — a paid transaction that was later credit-noted (Status stays Succeeded but CreditNoteUrl set).
+        // Same net-revenue rule: excluded entirely. Cumulative stays at 0.
+        var today = DateTimeOffset.UtcNow.Date;
+        var paidOn = new DateTimeOffset(today.AddDays(-3), TimeSpan.Zero).AddHours(9);
+        var tenant = SeedTenant("Credit Noted Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedSubscriptionWithTransactions(tenant, subscriptionId,
+            (149m, paidOn, PaymentTransactionStatus.Succeeded, null, "https://stripe.com/credit_note/test")
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
+        payload.Should().NotBeNull();
+        payload.Points.Should().HaveCount(7);
+        payload.Points.Should().AllSatisfy(p => p.Revenue.Should().Be(0m));
     }
 
     [Fact]
@@ -241,6 +261,11 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
 
     private void SeedSubscriptionWithTransactions(TenantId tenantId, SubscriptionId subscriptionId, params (decimal Amount, DateTimeOffset Date, PaymentTransactionStatus Status, DateTimeOffset? RefundedAt)[] transactions)
     {
+        SeedSubscriptionWithTransactions(tenantId, subscriptionId, transactions.Select(t => (t.Amount, t.Date, t.Status, t.RefundedAt, (string?)null)).ToArray());
+    }
+
+    private void SeedSubscriptionWithTransactions(TenantId tenantId, SubscriptionId subscriptionId, params (decimal Amount, DateTimeOffset Date, PaymentTransactionStatus Status, DateTimeOffset? RefundedAt, string? CreditNoteUrl)[] transactions)
+    {
         var paymentTransactions = JsonSerializer.Serialize(transactions.Select(t =>
                 new PaymentTransaction(
                     PaymentTransactionId.NewId(),
@@ -252,7 +277,7 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
                     t.Date,
                     null,
                     null,
-                    null,
+                    t.CreditNoteUrl,
                     SubscriptionPlan.Standard,
                     t.RefundedAt,
                     t.Amount

@@ -135,9 +135,16 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         );
 
         var transactions = ImmutableArray.Create(
+            // Plain paid → counts
             new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m),
+            // Refunded status → excluded
             new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Refunded, DateTimeOffset.Parse("2025-02-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m),
-            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-03-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m)
+            // Plain paid → counts
+            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-03-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, null, 100.00m),
+            // Paid+credit-noted (Succeeded but later reversed by credit note) → excluded
+            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-04-01T00:00:00Z"), null, null, "https://stripe.com/credit_note/test", SubscriptionPlan.Premium, null, 100.00m),
+            // Paid+refunded-via-flag (Succeeded but RefundedAt set, no credit note) → excluded
+            new PaymentTransaction(PaymentTransactionId.NewId(), 100.00m, 80.00m, 20.00m, MockStripeClient.MockStandardCurrency, PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-05-01T00:00:00Z"), null, null, null, SubscriptionPlan.Premium, DateTimeOffset.Parse("2025-05-15T00:00:00Z"), 100.00m)
         );
         Connection.Insert("subscriptions", [
                 ("tenant_id", tenantId.Value),
@@ -175,7 +182,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantDetailResponse>();
         payload.Should().NotBeNull();
-        // LTV sums AmountExcludingTax (ex-VAT revenue) for succeeded transactions only. The Refunded row is excluded.
+        // LTV sums AmountExcludingTax for transactions that are Succeeded AND not later reversed. Excluded:
+        // the Refunded-status row, the credit-noted row, and the refunded-via-flag row. Two plain paid rows count.
         payload.LifetimeValue.Should().Be(160.00m);
     }
 

@@ -102,11 +102,11 @@ public sealed class GetDashboardKpisHandler(
         var totalMonthlyRecurringRevenue = paidSubscriptions.Sum(MrrCalculator.ForwardMrr);
 
         // Total Revenue: ex-VAT lifetime revenue across every subscription (paid + cancelled). VAT is collected
-        // on behalf of tax authorities and never our revenue, so the sum uses AmountExcludingTax. Refunded rows
-        // are excluded — money returned to the customer is not revenue.
+        // on behalf of tax authorities and never our revenue, so the sum uses AmountExcludingTax. Credit-noted
+        // and refunded rows are excluded — money returned to the customer is not revenue.
         var totalRevenue = paidSubscriptions.Concat(freePlanSubscriptions)
             .SelectMany(s => s.PaymentTransactions)
-            .Where(t => t.Status == PaymentTransactionStatus.Succeeded)
+            .Where(t => t is { Status: PaymentTransactionStatus.Succeeded, CreditNoteUrl: null, RefundedAt: null })
             .Sum(t => t.AmountExcludingTax);
 
         // Period-over-period MRR delta mirrors the MRR trend card's "over period" subtitle: today's
