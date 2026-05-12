@@ -466,7 +466,14 @@ public sealed class ProcessPendingStripeEvents(
             // (e.g. ScheduledPriceMissing) sees the healed values, not the stale pre-sync state.
             var emptyUnionedLocalAfterSyncSnapshot = StripeSyncSnapshot.FromSubscription(subscription);
             var driftSnapshotsForEmptyUnion = driftSnapshots with { LocalBeforeSync = emptyUnionedLocalAfterSyncSnapshot };
-            await DetectDriftAsync(subscription, driftSnapshotsForEmptyUnion, 0, false, [], [], syncMode, cancellationToken);
+            // The empty-union branch fires when Stripe's events.list returns nothing new since the
+            // last sync anchor — typical for a sync that runs shortly after a successful one. The drift
+            // detector still needs the existing billing_events count for its MissingEvent check;
+            // passing 0 here would falsely flag every healthy customer as "no billing events recorded".
+            // The count is re-queried here (instead of relying on a stored value) so any stale drift
+            // emitted by an earlier pass that read 0 before commit gets corrected on the next sync.
+            var existingBillingEventIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
+            await DetectDriftAsync(subscription, driftSnapshotsForEmptyUnion, existingBillingEventIds.Count, false, [], [], syncMode, cancellationToken);
             return;
         }
 
@@ -582,7 +589,11 @@ public sealed class ProcessPendingStripeEvents(
             }
         }
 
-        var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
+        // Re-query the canonical billing_events count fresh from the repository so DetectDriftAsync sees
+        // the latest committed state. Prevents a stuck MissingEvent: if an earlier worker pass read 0
+        // (events not yet committed) and persisted that drift, this fresh count corrects the picture.
+        var freshExistingIds = await billingEventRepository.GetExistingStripeEventIdsUnfilteredAsync(subscription.Id, cancellationToken);
+        var totalBillingEvents = Math.Max(freshExistingIds.Count, existingStripeEventIds.Count + appendedCount);
 
         // Re-snapshot the local subscription after the Apply-mode heal pass so the drift detector compares
         // the healed state — not the stale pre-sync state — against Stripe. Without this, a heal that
