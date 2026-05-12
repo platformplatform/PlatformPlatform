@@ -1,3 +1,4 @@
+using Account.Features.BackOffice.Invoices.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using FluentValidation;
@@ -20,6 +21,7 @@ public sealed record TenantPaymentHistoryResponse(int TotalCount, int PageSize, 
 [PublicAPI]
 public sealed record TenantPaymentTransaction(
     PaymentTransactionId Id,
+    BackOfficeInvoiceRowKind RowKind,
     decimal Amount,
     decimal AmountExcludingTax,
     decimal TaxAmount,
@@ -55,21 +57,38 @@ public sealed class GetTenantPaymentHistoryHandler(ITenantRepository tenantRepos
         }
 
         var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(tenant.Id, cancellationToken);
-        var transactions = subscription?.PaymentTransactions.OrderByDescending(t => t.Date).ToArray() ?? [];
+        var rows = (subscription?.PaymentTransactions ?? [])
+            .SelectMany(ProjectRows)
+            .OrderByDescending(r => r.Date)
+            .ToArray();
 
-        var totalCount = transactions.Length;
+        var totalCount = rows.Length;
         var totalPages = totalCount == 0 ? 0 : (totalCount - 1) / query.PageSize + 1;
         if (query.PageOffset > 0 && query.PageOffset >= totalPages)
         {
             return Result<TenantPaymentHistoryResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
         }
 
-        var paged = transactions
-            .Skip(query.PageOffset * query.PageSize)
-            .Take(query.PageSize)
-            .Select(t => new TenantPaymentTransaction(t.Id, t.Amount, t.AmountExcludingTax, t.TaxAmount, t.Currency, t.Status, t.Date, t.RefundedAt, t.FailureReason, t.InvoiceUrl, t.CreditNoteUrl, t.CreditNotedAt, t.Plan))
-            .ToArray();
+        var paged = rows.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
 
         return new TenantPaymentHistoryResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
+    }
+
+    private static IEnumerable<TenantPaymentTransaction> ProjectRows(PaymentTransaction transaction)
+    {
+        yield return new TenantPaymentTransaction(
+            transaction.Id, BackOfficeInvoiceRowKind.Invoice, transaction.Amount, transaction.AmountExcludingTax,
+            transaction.TaxAmount, transaction.Currency, transaction.Status, transaction.Date, transaction.RefundedAt,
+            transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
+        );
+
+        if (transaction.CreditNoteUrl is not null && transaction.CreditNotedAt is not null)
+        {
+            yield return new TenantPaymentTransaction(
+                transaction.Id, BackOfficeInvoiceRowKind.CreditNote, transaction.Amount, transaction.AmountExcludingTax,
+                transaction.TaxAmount, transaction.Currency, transaction.Status, transaction.CreditNotedAt.Value, transaction.RefundedAt,
+                transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
+            );
+        }
     }
 }

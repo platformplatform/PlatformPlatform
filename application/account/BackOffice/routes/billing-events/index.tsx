@@ -10,8 +10,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ZapIcon } from "lucide-react";
 import { z } from "zod";
 
+import type { BillingEventType } from "@/shared/lib/api/client";
+
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
-import type { BillingEventType} from "@/shared/lib/api/client";
 import { api, SortableBillingEventProperties, SortOrder } from "@/shared/lib/api/client";
 import {
   MRR_IMPACT_EVENT_TYPES,

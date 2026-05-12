@@ -255,14 +255,6 @@ msgstr "Created <0>{0}</0><1>{1}</1>"
 msgid "Credit note"
 msgstr "Credit note"
 
-msgid "Credit note issued"
-msgstr "Credit note issued"
-
-#. placeholder {0}: formatDate(invoice.creditNotedAt, true, true)
-#. placeholder {0}: renderDate(transaction.creditNotedAt)
-msgid "Credit note: {0}"
-msgstr "Credit note: {0}"
-
 msgid "Current period"
 msgstr "Current period"
 

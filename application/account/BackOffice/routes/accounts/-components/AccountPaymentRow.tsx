@@ -10,7 +10,7 @@ import { DownloadIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { PaymentTransactionStatus } from "@/shared/lib/api/client";
+import { BackOfficeInvoiceRowKind, PaymentTransactionStatus } from "@/shared/lib/api/client";
 import { getPaymentStatusLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 type PaymentTransaction = components["schemas"]["TenantPaymentTransaction"];
@@ -26,27 +26,16 @@ export function AccountPaymentRow({
   showPlan?: boolean;
   showActions?: boolean;
 }>) {
-  // Refunded rows show the amounts struck through — money came in, then went back out.
+  // Credit-note rows always show the amounts struck through to indicate the reversal of the underlying
+  // invoice. Refunded invoice rows also strike through — the money came in then went back out.
+  const isCreditNote = transaction.rowKind === BackOfficeInvoiceRowKind.CreditNote;
   const isRefunded = transaction.status === PaymentTransactionStatus.Refunded;
-  const refundedClass = isRefunded ? "text-muted-foreground line-through" : "";
-  // When Stripe issued a credit note against this invoice, surface when it was issued as a subtitle
-  // under the invoice date — operators want to see the refund moment, not just the original charge.
-  const hasCreditNote = transaction.creditNoteUrl != null;
+  const reverseAmounts = isCreditNote || isRefunded;
+  const reverseClass = reverseAmounts ? "text-muted-foreground line-through" : "";
   return (
-    <TableRow rowKey={transaction.id}>
+    <TableRow rowKey={`${transaction.id}-${transaction.rowKind}`}>
       <TableCell>
-        <div className="flex flex-col leading-tight">
-          {renderDate(transaction.date)}
-          {hasCreditNote && (
-            <span className="text-xs text-muted-foreground">
-              {transaction.creditNotedAt ? (
-                <Trans>Credit note: {renderDate(transaction.creditNotedAt)}</Trans>
-              ) : (
-                <Trans>Credit note issued</Trans>
-              )}
-            </span>
-          )}
-        </div>
+        <div className="flex flex-col leading-tight">{renderDate(transaction.date)}</div>
       </TableCell>
       {showPlan && (
         <TableCell className="hidden md:table-cell">
@@ -57,65 +46,70 @@ export function AccountPaymentRow({
           )}
         </TableCell>
       )}
-      <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${refundedClass}`}>
+      <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${reverseClass}`}>
         {formatCurrency(transaction.amountExcludingTax, transaction.currency)}
       </TableCell>
       <TableCell
-        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${isRefunded ? "line-through" : ""}`}
+        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${reverseAmounts ? "line-through" : ""}`}
       >
         {formatCurrency(transaction.taxAmount, transaction.currency)}
       </TableCell>
-      <TableCell className={`text-right whitespace-nowrap tabular-nums ${refundedClass}`}>
+      <TableCell className={`text-right whitespace-nowrap tabular-nums ${reverseClass}`}>
         {formatCurrency(transaction.amount, transaction.currency)}
       </TableCell>
       <TableCell>
-        <PaymentStatusBadge status={transaction.status} failureReason={transaction.failureReason} />
+        <RowKindBadge
+          rowKind={transaction.rowKind}
+          status={transaction.status}
+          failureReason={transaction.failureReason}
+        />
       </TableCell>
       {showActions && (
         <TableCell className="text-right">
           <div className="flex items-center justify-end gap-2">
-            {transaction.invoiceUrl && (
-              <Button
-                size="xs"
-                variant="default"
-                nativeButton={false}
-                className="gap-1 max-sm:w-fit"
-                render={
-                  <a
-                    href={transaction.invoiceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={t`Open invoice`}
-                  />
-                }
-              >
-                <DownloadIcon className="size-3" />
-                <span className="hidden md:inline">
-                  <Trans>Invoice</Trans>
-                </span>
-              </Button>
-            )}
-            {transaction.creditNoteUrl && (
-              <Button
-                size="xs"
-                variant="default"
-                nativeButton={false}
-                className="gap-1 max-sm:w-fit"
-                render={
-                  <a
-                    href={transaction.creditNoteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={t`Open credit note`}
-                  />
-                }
-              >
-                <DownloadIcon className="size-3" />
-                <span className="hidden md:inline">
-                  <Trans>Credit note</Trans>
-                </span>
-              </Button>
-            )}
+            {isCreditNote
+              ? transaction.creditNoteUrl && (
+                  <Button
+                    size="xs"
+                    variant="default"
+                    nativeButton={false}
+                    className="gap-1 max-sm:w-fit"
+                    render={
+                      <a
+                        href={transaction.creditNoteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={t`Open credit note`}
+                      />
+                    }
+                  >
+                    <DownloadIcon className="size-3" />
+                    <span className="hidden md:inline">
+                      <Trans>Credit note</Trans>
+                    </span>
+                  </Button>
+                )
+              : transaction.invoiceUrl && (
+                  <Button
+                    size="xs"
+                    variant="default"
+                    nativeButton={false}
+                    className="gap-1 max-sm:w-fit"
+                    render={
+                      <a
+                        href={transaction.invoiceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={t`Open invoice`}
+                      />
+                    }
+                  >
+                    <DownloadIcon className="size-3" />
+                    <span className="hidden md:inline">
+                      <Trans>Invoice</Trans>
+                    </span>
+                  </Button>
+                )}
           </div>
         </TableCell>
       )}
@@ -123,10 +117,19 @@ export function AccountPaymentRow({
   );
 }
 
-function PaymentStatusBadge({
+function RowKindBadge({
+  rowKind,
   status,
   failureReason
-}: Readonly<{ status: PaymentTransactionStatus; failureReason: string | null }>) {
+}: Readonly<{ rowKind: BackOfficeInvoiceRowKind; status: PaymentTransactionStatus; failureReason: string | null }>) {
+  if (rowKind === BackOfficeInvoiceRowKind.CreditNote) {
+    return (
+      <Badge variant="secondary" className="text-muted-foreground">
+        <Trans>Credit note</Trans>
+      </Badge>
+    );
+  }
+
   const variant = status === PaymentTransactionStatus.Failed ? "outline" : "secondary";
   const className =
     status === PaymentTransactionStatus.Failed

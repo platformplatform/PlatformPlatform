@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Account.Features.BackOffice.Invoices.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.BackOffice.Queries;
 using Account.Tests.BackOffice;
@@ -18,7 +19,7 @@ public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
     [Fact]
     public async Task GetTenantPaymentHistory_WhenSubscriptionHasTransactions_ShouldReturnPagedTransactions()
     {
-        // Arrange
+        // Arrange — three transactions, none with credit notes, so each projects to a single Invoice row.
         var tenant = DatabaseSeeder.Tenant1;
         var transactions = ImmutableArray.Create(
             new PaymentTransaction(PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD", PaymentTransactionStatus.Succeeded, DateTimeOffset.Parse("2025-01-01T00:00:00Z"), null, "https://stripe.test/inv1", null, SubscriptionPlan.Standard),
@@ -45,10 +46,11 @@ public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
         payload.Transactions[0].Date.Should().BeAfter(payload.Transactions[1].Date);
         payload.Transactions[0].Status.Should().Be(PaymentTransactionStatus.Failed);
         payload.Transactions[0].Plan.Should().Be(SubscriptionPlan.Standard);
+        payload.Transactions.Should().AllSatisfy(t => t.RowKind.Should().Be(BackOfficeInvoiceRowKind.Invoice));
     }
 
     [Fact]
-    public async Task GetTenantPaymentHistory_WhenTransactionHasCreditNote_ShouldReturnCreditNotedAt()
+    public async Task GetTenantPaymentHistory_WhenTransactionHasCreditNote_ShouldEmitTwoRowsSortedByOwnDate()
     {
         // Arrange — a refunded transaction with a credit note issued three days after the original invoice.
         var tenant = DatabaseSeeder.Tenant1;
@@ -72,14 +74,18 @@ public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
         // Act
         var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/payment-history");
 
-        // Assert
+        // Assert — invoice row at invoiceDate AND credit-note row at creditNoteDate, descending so credit note first.
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<TenantPaymentHistoryResponse>();
         payload.Should().NotBeNull();
-        payload.Transactions.Should().ContainSingle();
+        payload.TotalCount.Should().Be(2);
+        payload.Transactions.Should().HaveCount(2);
+        payload.Transactions[0].RowKind.Should().Be(BackOfficeInvoiceRowKind.CreditNote);
+        payload.Transactions[0].Date.Should().Be(creditNoteDate);
         payload.Transactions[0].CreditNoteUrl.Should().Be("https://stripe.test/cn-pdf");
-        payload.Transactions[0].CreditNotedAt.Should().Be(creditNoteDate);
-        payload.Transactions[0].Date.Should().Be(invoiceDate);
+        payload.Transactions[1].RowKind.Should().Be(BackOfficeInvoiceRowKind.Invoice);
+        payload.Transactions[1].Date.Should().Be(invoiceDate);
+        payload.Transactions[1].CreditNotedAt.Should().Be(creditNoteDate);
     }
 
     [Fact]

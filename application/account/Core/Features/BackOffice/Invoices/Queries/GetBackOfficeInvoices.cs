@@ -29,6 +29,7 @@ public sealed record BackOfficeInvoicesResponse(int TotalCount, int PageSize, in
 [PublicAPI]
 public sealed record BackOfficeInvoiceSummary(
     PaymentTransactionId Id,
+    BackOfficeInvoiceRowKind RowKind,
     TenantId TenantId,
     string TenantName,
     string? TenantLogoUrl,
@@ -47,9 +48,22 @@ public sealed record BackOfficeInvoiceSummary(
 );
 
 /// <summary>
+///     Each PaymentTransaction projects to one Invoice row, plus one CreditNote row when Stripe issued
+///     a credit note against it. Two rows let operators see both moments in time — the original payment
+///     and the reversal — sorted independently in the timeline.
+/// </summary>
+[PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum BackOfficeInvoiceRowKind
+{
+    Invoice,
+    CreditNote
+}
+
+/// <summary>
 ///     Filter values exposed by the back-office invoices toolbar. The first four mirror
 ///     <see cref="PaymentTransactionStatus" /> directly; <see cref="HasCreditNote" /> is a virtual filter
-///     that selects rows where Stripe issued a credit note (CreditNoteUrl set) regardless of payment status.
+///     that selects credit-note rows regardless of the underlying invoice's payment status.
 /// </summary>
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -100,30 +114,7 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
 
         var summaries = subscriptions
             .Where(s => tenantsById.ContainsKey(s.TenantId))
-            .SelectMany(subscription => subscription.PaymentTransactions.Select(transaction =>
-                    {
-                        var tenant = tenantsById[subscription.TenantId];
-                        return new BackOfficeInvoiceSummary(
-                            transaction.Id,
-                            tenant.Id,
-                            tenant.Name,
-                            tenant.Logo.Url,
-                            transaction.Date,
-                            transaction.Plan,
-                            transaction.Amount,
-                            transaction.AmountExcludingTax,
-                            transaction.TaxAmount,
-                            transaction.Currency,
-                            transaction.Status,
-                            transaction.FailureReason,
-                            transaction.InvoiceUrl,
-                            transaction.CreditNoteUrl,
-                            transaction.CreditNotedAt,
-                            transaction.RefundedAt
-                        );
-                    }
-                )
-            )
+            .SelectMany(subscription => subscription.PaymentTransactions.SelectMany(transaction => ProjectRows(transaction, tenantsById[subscription.TenantId])))
             .ToArray();
 
         if (!string.IsNullOrWhiteSpace(query.Search))
@@ -160,15 +151,65 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
         return new BackOfficeInvoicesResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
     }
 
+    private static IEnumerable<BackOfficeInvoiceSummary> ProjectRows(PaymentTransaction transaction, Tenant tenant)
+    {
+        yield return new BackOfficeInvoiceSummary(
+            transaction.Id,
+            BackOfficeInvoiceRowKind.Invoice,
+            tenant.Id,
+            tenant.Name,
+            tenant.Logo.Url,
+            transaction.Date,
+            transaction.Plan,
+            transaction.Amount,
+            transaction.AmountExcludingTax,
+            transaction.TaxAmount,
+            transaction.Currency,
+            transaction.Status,
+            transaction.FailureReason,
+            transaction.InvoiceUrl,
+            transaction.CreditNoteUrl,
+            transaction.CreditNotedAt,
+            transaction.RefundedAt
+        );
+
+        if (transaction.CreditNoteUrl is not null && transaction.CreditNotedAt is not null)
+        {
+            yield return new BackOfficeInvoiceSummary(
+                transaction.Id,
+                BackOfficeInvoiceRowKind.CreditNote,
+                tenant.Id,
+                tenant.Name,
+                tenant.Logo.Url,
+                transaction.CreditNotedAt.Value,
+                transaction.Plan,
+                transaction.Amount,
+                transaction.AmountExcludingTax,
+                transaction.TaxAmount,
+                transaction.Currency,
+                transaction.Status,
+                transaction.FailureReason,
+                transaction.InvoiceUrl,
+                transaction.CreditNoteUrl,
+                transaction.CreditNotedAt,
+                transaction.RefundedAt
+            );
+        }
+    }
+
     private static bool MatchesStatusFilter(BackOfficeInvoiceSummary summary, BackOfficeInvoiceStatusFilter filter)
     {
         return filter switch
         {
-            BackOfficeInvoiceStatusFilter.Paid => summary.Status == PaymentTransactionStatus.Succeeded,
-            BackOfficeInvoiceStatusFilter.Refunded => summary.Status == PaymentTransactionStatus.Refunded,
-            BackOfficeInvoiceStatusFilter.Failed => summary.Status == PaymentTransactionStatus.Failed,
-            BackOfficeInvoiceStatusFilter.Pending => summary.Status == PaymentTransactionStatus.Pending,
-            BackOfficeInvoiceStatusFilter.HasCreditNote => !string.IsNullOrEmpty(summary.CreditNoteUrl),
+            // Invoice-side status filters only match RowKind=Invoice — credit-note rows surface via HasCreditNote.
+            BackOfficeInvoiceStatusFilter.Paid => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Succeeded },
+            BackOfficeInvoiceStatusFilter.Failed => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Failed },
+            BackOfficeInvoiceStatusFilter.Pending => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Pending },
+            // Refunded invoice rows surface here only when no credit note exists for the transaction —
+            // when there IS a credit note, the credit-note row carries the refund signal instead, so we
+            // skip the duplicate invoice-side entry.
+            BackOfficeInvoiceStatusFilter.Refunded => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Refunded, CreditNoteUrl: null },
+            BackOfficeInvoiceStatusFilter.HasCreditNote => summary.RowKind == BackOfficeInvoiceRowKind.CreditNote,
             _ => false
         };
     }

@@ -8,7 +8,7 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import type { components } from "@/shared/lib/api/client";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
-import { PaymentTransactionStatus } from "@/shared/lib/api/client";
+import { BackOfficeInvoiceRowKind, PaymentTransactionStatus } from "@/shared/lib/api/client";
 import { getPaymentStatusLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 type Invoice = components["schemas"]["BackOfficeInvoiceSummary"];
@@ -21,16 +21,19 @@ export function InvoicesTableRow({
   onRowClick: (tenantId: string) => void;
 }>) {
   const formatDate = useFormatDate();
-  // Refunded rows show the amounts struck through — money came in, then went back out. Mirrors the
-  // per-account Invoices tab so operators see consistent semantics across both surfaces.
+  // Credit-note rows always show the amounts struck through to indicate the reversal of the underlying
+  // invoice. Refunded invoice rows also strike through — the money came in then went back out.
+  const isCreditNote = invoice.rowKind === BackOfficeInvoiceRowKind.CreditNote;
   const isRefunded = invoice.status === PaymentTransactionStatus.Refunded;
-  const refundedClass = isRefunded ? "text-muted-foreground line-through" : "";
-  // When Stripe issued a credit note against this invoice, surface when it was issued as a subtitle
-  // under the invoice date — operators want to see the refund moment, not just the original charge.
-  const hasCreditNote = invoice.creditNoteUrl != null;
+  const reverseAmounts = isCreditNote || isRefunded;
+  const reverseClass = reverseAmounts ? "text-muted-foreground line-through" : "";
 
   return (
-    <TableRow rowKey={invoice.id} onClick={() => onRowClick(String(invoice.tenantId))} className="cursor-pointer">
+    <TableRow
+      rowKey={`${invoice.id}-${invoice.rowKind}`}
+      onClick={() => onRowClick(String(invoice.tenantId))}
+      className="cursor-pointer"
+    >
       <TableCell>
         <div className="flex min-w-0 items-center gap-3">
           <TenantLogo logoUrl={invoice.tenantLogoUrl} tenantName={invoice.tenantName} size="md" className="size-10" />
@@ -41,15 +44,6 @@ export function InvoicesTableRow({
         <div className="flex flex-col leading-tight">
           <SmartDateTime date={invoice.date} />
           <span className="text-xs text-muted-foreground tabular-nums">{formatDate(invoice.date, true, true)}</span>
-          {hasCreditNote && (
-            <span className="text-xs text-muted-foreground">
-              {invoice.creditNotedAt ? (
-                <Trans>Credit note: {formatDate(invoice.creditNotedAt, true, true)}</Trans>
-              ) : (
-                <Trans>Credit note issued</Trans>
-              )}
-            </span>
-          )}
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
@@ -59,28 +53,37 @@ export function InvoicesTableRow({
           <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${refundedClass}`}>
+      <TableCell className={`hidden text-right whitespace-nowrap tabular-nums md:table-cell ${reverseClass}`}>
         {formatCurrency(invoice.amountExcludingTax, invoice.currency)}
       </TableCell>
       <TableCell
-        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums xl:table-cell ${isRefunded ? "line-through" : ""}`}
+        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums xl:table-cell ${reverseAmounts ? "line-through" : ""}`}
       >
         {formatCurrency(invoice.taxAmount, invoice.currency)}
       </TableCell>
-      <TableCell className={`text-right whitespace-nowrap tabular-nums ${refundedClass}`}>
+      <TableCell className={`text-right whitespace-nowrap tabular-nums ${reverseClass}`}>
         {formatCurrency(invoice.amount, invoice.currency)}
       </TableCell>
       <TableCell>
-        <PaymentStatusBadge status={invoice.status} failureReason={invoice.failureReason} />
+        <RowKindBadge rowKind={invoice.rowKind} status={invoice.status} failureReason={invoice.failureReason} />
       </TableCell>
     </TableRow>
   );
 }
 
-function PaymentStatusBadge({
+function RowKindBadge({
+  rowKind,
   status,
   failureReason
-}: Readonly<{ status: PaymentTransactionStatus; failureReason: string | null }>) {
+}: Readonly<{ rowKind: BackOfficeInvoiceRowKind; status: PaymentTransactionStatus; failureReason: string | null }>) {
+  if (rowKind === BackOfficeInvoiceRowKind.CreditNote) {
+    return (
+      <Badge variant="secondary" className="text-muted-foreground">
+        <Trans>Credit note</Trans>
+      </Badge>
+    );
+  }
+
   const variant = status === PaymentTransactionStatus.Failed ? "outline" : "secondary";
   const className =
     status === PaymentTransactionStatus.Failed
