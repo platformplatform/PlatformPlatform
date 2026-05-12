@@ -217,6 +217,125 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
     }
 
     [Fact]
+    public async Task Reconcile_WhenLatestPersistedRowHasSameSecondSiblings_ShouldNotEmitFalsePositiveStaleDriftForSiblings()
+    {
+        // Stripe routinely emits multiple events at the same `created` timestamp. A Standard-to-Premium
+        // upgrade emits three sibling events at the same second: a per-plan NoOp before, the
+        // SubscriptionUpgraded itself, and a per-plan NoOp after. The boundary skip picks ONE of those as
+        // the seed source; re-replaying any of its siblings from a state seeded by that pick produces
+        // structurally different denormalized fields by construction. Suppressing only the seed row by
+        // event id would leave sibling false-positives firing forever — exactly the scenario we observed
+        // on `cus_UO5zFt8uzYpDm7`. The staleness loop must skip the entire same-second cluster.
+        // Arrange
+        SetupSubscription();
+
+        var now = TimeProvider.GetUtcNow();
+        var clusterOccurredAt = now.AddDays(-1);
+        var preNoOpEventId = "evt_mock_cluster_noop_pre";
+        var upgradedEventId = "evt_mock_cluster_upgraded";
+        var postNoOpEventId = "evt_mock_cluster_noop_post";
+        var noOpPayload = """{"data":{"object":{"name":"Acme Inc"}}}""";
+        var upgradedPayload = """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_premium"}}]}}}}""";
+
+        // events.list returns all three siblings at the same Stripe Created — exactly how Stripe presents
+        // an upgrade flow in steady state.
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(preNoOpEventId, "customer.updated", clusterOccurredAt, noOpPayload, MockStripeClient.MockApiVersion));
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(upgradedEventId, "customer.subscription.updated", clusterOccurredAt, upgradedPayload, MockStripeClient.MockApiVersion));
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(postNoOpEventId, "customer.updated", clusterOccurredAt, noOpPayload, MockStripeClient.MockApiVersion));
+
+        // Persisted rows for the three siblings. CommittedMrr values mirror the original persistence
+        // ordering. The pre-NoOp carries the pre-upgrade total; the Upgraded carries the actual delta
+        // math; the post-NoOp carries the post-upgrade total. Re-replaying from a seed at any single
+        // sibling produces different values for the others by construction.
+        Connection.Insert("billing_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", DatabaseSeeder.Tenant1Subscription.Id.Value),
+                ("created_at", clusterOccurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", preNoOpEventId),
+                ("event_type", nameof(BillingEventType.BillingInfoUpdated)),
+                ("from_plan", null),
+                ("to_plan", null),
+                ("previous_amount", null),
+                ("new_amount", null),
+                ("amount_delta", null),
+                ("committed_mrr", MockStripeClient.StandardAmountExcludingTax),
+                ("currency", null),
+                ("occurred_at", clusterOccurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
+            ]
+        );
+
+        Connection.Insert("billing_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", DatabaseSeeder.Tenant1Subscription.Id.Value),
+                ("created_at", clusterOccurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", upgradedEventId),
+                ("event_type", nameof(BillingEventType.SubscriptionUpgraded)),
+                ("from_plan", nameof(SubscriptionPlan.Standard)),
+                ("to_plan", nameof(SubscriptionPlan.Premium)),
+                ("previous_amount", MockStripeClient.StandardAmountExcludingTax),
+                ("new_amount", MockStripeClient.PremiumAmountExcludingTax),
+                ("amount_delta", MockStripeClient.PremiumAmountExcludingTax - MockStripeClient.StandardAmountExcludingTax),
+                ("committed_mrr", MockStripeClient.PremiumAmountExcludingTax),
+                ("currency", MockStripeClient.MockStandardCurrency),
+                ("occurred_at", clusterOccurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
+            ]
+        );
+
+        Connection.Insert("billing_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", DatabaseSeeder.Tenant1Subscription.Id.Value),
+                ("created_at", clusterOccurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", postNoOpEventId),
+                ("event_type", nameof(BillingEventType.BillingInfoUpdated)),
+                ("from_plan", null),
+                ("to_plan", null),
+                ("previous_amount", null),
+                ("new_amount", null),
+                ("amount_delta", null),
+                ("committed_mrr", MockStripeClient.PremiumAmountExcludingTax),
+                ("currency", null),
+                ("occurred_at", clusterOccurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
+            ]
+        );
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.updated");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var driftDiscrepanciesJson = Connection.ExecuteScalar<string>(
+            "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        driftDiscrepanciesJson.Should().NotContain(
+            nameof(DriftDiscrepancyKind.BillingEventDenormalizationStale),
+            "same-second sibling rows mismatch under self-seeded replay by construction and must not fire drift"
+        );
+
+        var hasDriftDetected = Connection.ExecuteScalar<long>(
+            "SELECT has_drift_detected FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        hasDriftDetected.Should().Be(0, "Reconcile must clear the drift flag for an in-window customer whose only mismatches are structural same-second-sibling artifacts");
+    }
+
+    [Fact]
     public async Task Reconcile_WhenEventsListReturnsEventNotInLocalArchive_ShouldInsertAsRecovered()
     {
         // fresh subscription with no recorded events. The MockStripeClient.GetEventsForCustomerAsync

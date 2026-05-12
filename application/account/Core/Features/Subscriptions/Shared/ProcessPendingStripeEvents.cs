@@ -552,22 +552,24 @@ public sealed class ProcessPendingStripeEvents(
         // forbids mutating the persisted row, so surface the wrongness via drift instead so an operator
         // can investigate.
         //
-        // EXCEPT: Stripe's events.list?created.gte=X is inclusive on X, so the boundary event whose
-        // persisted row IS the seed source re-appears in supportedEvents on every subsequent sync. By
-        // construction, re-replaying that event from a state seeded by its own output produces different
-        // denormalized fields (previousMrr comes from the post-event state, not the pre-event state).
-        // Comparing the re-replay against the persisted row would surface a false-positive that no
-        // operator action can clear and that the BillingDriftWorker would assert anew every 23h. Skip
-        // exactly that row — any subsequent event in the same supportedEvents batch is replayed from its
-        // true prior state and remains comparable.
-        var seedEventId = latestPersistedBillingEvent?.StripeEventId;
+        // EXCEPT: Stripe's events.list?created.gte=X is inclusive on X, AND Stripe routinely emits multiple
+        // events at the same `created` timestamp (e.g. a Standard-to-Premium upgrade emits three sibling
+        // events with identical `created`: a per-plan NoOp from the prior plan, a per-plan NoOp on the new
+        // plan, and the SubscriptionUpgraded itself). The "latest persisted" pick selects ONE row from such
+        // a same-second cluster; re-replaying any of its siblings from a state seeded by that row produces
+        // structurally different denormalized fields by construction (the previousMrr at their original
+        // persistence time is not the post-state of whichever sibling we happened to pick as the seed).
+        // Skip the entire same-second cluster by OccurredAt equality. Events strictly older than the seed
+        // (genuine out-of-order recovery) and events strictly newer than the seed (forward replay) both
+        // remain comparable; mismatches there are real and worth flagging.
+        var seedOccurredAt = latestPersistedBillingEvent?.OccurredAt;
         var persistedRows = await billingEventRepository.GetBySubscriptionIdUnfilteredAsync(subscription.Id, cancellationToken);
         var persistedByStripeId = persistedRows.ToDictionary(r => r.StripeEventId);
         var staleBillingEvents = new List<BillingEvent>();
         foreach (var replayed in replayedEvents)
         {
             if (!persistedByStripeId.TryGetValue(replayed.StripeEventId, out var persisted)) continue;
-            if (replayed.StripeEventId == seedEventId) continue;
+            if (seedOccurredAt is not null && replayed.OccurredAt == seedOccurredAt) continue;
             if (persisted.CommittedMrr != replayed.CommittedMrr
                 || persisted.AmountDelta != replayed.AmountDelta
                 || persisted.PreviousAmount != replayed.PreviousAmount
