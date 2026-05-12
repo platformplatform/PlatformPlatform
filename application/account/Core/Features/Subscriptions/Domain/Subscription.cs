@@ -296,23 +296,6 @@ public enum DriftDiscrepancyKind
     UnclassifiedStripeEvent,
 
     /// <summary>
-    ///     A subscription resource (payment transaction, schedule, etc.) implies a Stripe event
-    ///     should exist in our archive but doesn't. The event is still within Stripe's 30-day
-    ///     events.list retention window, so the next reconciliation pass should automatically
-    ///     recover it. The drift banner shows a countdown of the remaining time before this
-    ///     escalates to <see cref="MissingHistoricalEventUnrecoverable" />.
-    /// </summary>
-    MissingHistoricalEvent,
-
-    /// <summary>
-    ///     A subscription resource implies a Stripe event should exist in our archive but doesn't,
-    ///     and Stripe's 30-day events.list retention window has closed. The data is permanently
-    ///     lost from Stripe — escalates to a P1 incident on the drift banner so the missed
-    ///     reconciliation can be investigated and the underlying bug fixed.
-    /// </summary>
-    MissingHistoricalEventUnrecoverable,
-
-    /// <summary>
     ///     Stripe sent an event whose <c>api_version</c> doesn't have a matching
     ///     <c>IStripeEventPayloadResolver</c>. The event is preserved unchanged in
     ///     <c>stripe_events</c>; the replayer skips it and surfaces this discrepancy so the

@@ -453,7 +453,7 @@ public sealed class ProcessPendingStripeEvents(
             // (e.g. ScheduledPriceMissing) sees the healed values, not the stale pre-sync state.
             var emptyUnionedLocalAfterSyncSnapshot = StripeSyncSnapshot.FromSubscription(subscription);
             var driftSnapshotsForEmptyUnion = driftSnapshots with { LocalBeforeSync = emptyUnionedLocalAfterSyncSnapshot };
-            await DetectDriftAsync(subscription, driftSnapshotsForEmptyUnion, 0, false, [], [], [], [], syncMode, cancellationToken);
+            await DetectDriftAsync(subscription, driftSnapshotsForEmptyUnion, 0, false, [], [], syncMode, cancellationToken);
             return;
         }
 
@@ -554,10 +554,6 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         var totalBillingEvents = existingStripeEventIds.Count + appendedCount;
-        var eventTypesPresent = unioned.Values.Select(e => e.EventType).ToHashSet();
-        var billingEventTypesPresent = persistedRows.Select(r => r.EventType)
-            .Concat(replayedEvents.Select(r => r.EventType))
-            .ToHashSet();
 
         // Re-snapshot the local subscription after the Apply-mode heal pass so the drift detector compares
         // the healed state — not the stale pre-sync state — against Stripe. Without this, a heal that
@@ -567,7 +563,7 @@ public sealed class ProcessPendingStripeEvents(
         var localAfterSyncSnapshot = StripeSyncSnapshot.FromSubscription(subscription);
         var driftSnapshotsForDetection = driftSnapshots with { LocalBeforeSync = localAfterSyncSnapshot };
 
-        await DetectDriftAsync(subscription, driftSnapshotsForDetection, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, eventTypesPresent, billingEventTypesPresent, staleBillingEvents, syncMode, cancellationToken);
+        await DetectDriftAsync(subscription, driftSnapshotsForDetection, totalBillingEvents, state.HasUnclassifiedEvent, unsupportedVersions, staleBillingEvents, syncMode, cancellationToken);
     }
 
     private async Task DetectDriftAsync(
@@ -576,8 +572,6 @@ public sealed class ProcessPendingStripeEvents(
         int billingEventCount,
         bool hasUnclassifiedEvent,
         HashSet<string> unsupportedApiVersions,
-        HashSet<string> eventTypesPresent,
-        HashSet<BillingEventType> billingEventTypesPresent,
         IReadOnlyList<BillingEvent> staleBillingEvents,
         SyncMode syncMode,
         CancellationToken cancellationToken
@@ -588,7 +582,7 @@ public sealed class ProcessPendingStripeEvents(
         // otherwise self-compare the pre-sync local snapshot against itself, find no divergence, and still
         // advance DriftCheckedAt via SetDriftStatus — which would mask a real Stripe outage from the worker's
         // staleness tripwire for 23h. Skip the SetDriftStatus call so the row stays stale and the next pass
-        // retries. The webhook hot path (Apply mode) keeps the legacy fallback so non-mismatch coverage checks
+        // retries. The webhook hot path (Apply mode) keeps the legacy fallback so the remaining drift checks
         // still run, and Stripe's webhook retry handles the recovery.
         if (syncMode == SyncMode.Detect && driftSnapshots.Stripe is null)
         {
@@ -601,8 +595,7 @@ public sealed class ProcessPendingStripeEvents(
         try
         {
             // The Stripe snapshot is null when the customer fetch failed earlier in the sync, so fall back
-            // to the local pre-sync view (no SubscriptionStateMismatch can be detected without a Stripe view,
-            // but the other coverage checks still run).
+            // to the local pre-sync view (no SubscriptionStateMismatch can be detected without a Stripe view).
             var stripeSnapshot = driftSnapshots.Stripe ?? driftSnapshots.LocalBeforeSync;
             var discrepancies = BillingDriftDetector.Detect(driftSnapshots.LocalBeforeSync, stripeSnapshot, subscription.PaymentTransactions.Length, billingEventCount);
             if (hasUnclassifiedEvent)
@@ -656,9 +649,6 @@ public sealed class ProcessPendingStripeEvents(
                 );
             }
 
-            var coverageDiscrepancies = CheckResourceCoverage(subscription, now, eventTypesPresent, billingEventTypesPresent);
-            discrepancies = discrepancies.AddRange(coverageDiscrepancies);
-
             subscription.SetDriftStatus(discrepancies, now);
             if (syncMode == SyncMode.Detect)
             {
@@ -679,109 +669,6 @@ public sealed class ProcessPendingStripeEvents(
         {
             logger.LogWarning(ex, "Drift detection threw while syncing Stripe customer '{StripeCustomerId}', existing drift status preserved", subscription.StripeCustomerId);
         }
-    }
-
-    /// <summary>
-    ///     Per-resource audit: walks every Stripe-tracked resource on the subscription and verifies
-    ///     a corresponding event exists in the in-memory union of events.list output and just-arrived
-    ///     webhook events. Each missing event becomes a drift discrepancy. The recovery countdown is
-    ///     driven by the resource's known timestamp: if the resource timestamp is within Stripe's
-    ///     30-day events.list window the discrepancy is
-    ///     <see cref="DriftDiscrepancyKind.MissingHistoricalEvent" /> (auto-recoverable on next
-    ///     reconciliation pass); past the window it escalates to
-    ///     <see cref="DriftDiscrepancyKind.MissingHistoricalEventUnrecoverable" /> (P1: data is
-    ///     permanently lost from Stripe and must be investigated as a reconciliation bug).
-    ///     TODO: if a coverage kind proves too noisy in production, expose per-kind suppression via
-    ///     IConfiguration (e.g. BillingDrift:DisabledCoverageKinds:0=PaymentMethodAttached) so operators
-    ///     can silence it without a deploy.
-    /// </summary>
-    private static DriftDiscrepancy[] CheckResourceCoverage(Subscription subscription, DateTimeOffset now, HashSet<string> eventTypesPresent, HashSet<BillingEventType> billingEventTypesPresent)
-    {
-        var discrepancies = new List<DriftDiscrepancy>();
-        if (subscription.StripeCustomerId is null) return [.. discrepancies];
-
-        // Source the SubscriptionCreated coverage check from the BillingEvent log, not the denormalized
-        // SubscribedSince column. The log is authoritative: any SubscriptionCreated row means a paid run
-        // happened, so the corresponding customer.subscription.created stripe_events row must exist too.
-        if (billingEventTypesPresent.Contains(BillingEventType.SubscriptionCreated) && !eventTypesPresent.Contains("customer.subscription.created"))
-        {
-            var subscribedSince = subscription.SubscribedSince ?? subscription.CreatedAt;
-            discrepancies.Add(BuildCoverageDiscrepancy(
-                    "customer.subscription.created", subscribedSince, now,
-                    "Subscription has a SubscriptionCreated billing_events row but no customer.subscription.created stripe_events row is recorded.",
-                    BillingEventType.SubscriptionCreated
-                )
-            );
-        }
-
-        var succeededTransactions = subscription.PaymentTransactions.Where(t => t.Status == PaymentTransactionStatus.Succeeded).ToArray();
-        if (succeededTransactions.Length > 0 && !eventTypesPresent.Contains("invoice.payment_succeeded"))
-        {
-            var earliest = succeededTransactions.Min(t => t.Date);
-            discrepancies.Add(BuildCoverageDiscrepancy(
-                    "invoice.payment_succeeded", earliest, now,
-                    $"Subscription has {succeededTransactions.Length} succeeded payments but no invoice.payment_succeeded event is recorded.",
-                    BillingEventType.SubscriptionRenewed
-                )
-            );
-        }
-
-        var refundedTransactions = subscription.PaymentTransactions.Where(t => t.Status == PaymentTransactionStatus.Refunded).ToArray();
-        if (refundedTransactions.Length > 0 && !eventTypesPresent.Contains("charge.refunded"))
-        {
-            var earliestRefund = refundedTransactions.Min(t => t.RefundedAt ?? t.Date);
-            discrepancies.Add(BuildCoverageDiscrepancy(
-                    "charge.refunded", earliestRefund, now,
-                    $"Subscription has {refundedTransactions.Length} refunded payments but no charge.refunded event is recorded.",
-                    BillingEventType.PaymentRefunded
-                )
-            );
-        }
-
-        if (subscription.ScheduledPlan is not null && !eventTypesPresent.Contains("subscription_schedule.updated"))
-        {
-            var scheduledAt = subscription.ModifiedAt ?? subscription.CreatedAt;
-            discrepancies.Add(BuildCoverageDiscrepancy(
-                    "subscription_schedule.updated", scheduledAt, now,
-                    $"Subscription has a scheduled plan ({subscription.ScheduledPlan}) but no subscription_schedule.updated event is recorded.",
-                    BillingEventType.SubscriptionDowngradeScheduled
-                )
-            );
-        }
-
-        if (subscription.PaymentMethod is not null && !eventTypesPresent.Contains("payment_method.attached"))
-        {
-            var attachedAt = subscription.SubscribedSince ?? subscription.CreatedAt;
-            discrepancies.Add(BuildCoverageDiscrepancy(
-                    "payment_method.attached", attachedAt, now,
-                    "Subscription has a payment method but no payment_method.attached event is recorded.",
-                    BillingEventType.PaymentMethodUpdated
-                )
-            );
-        }
-
-        return [.. discrepancies];
-    }
-
-    private static DriftDiscrepancy BuildCoverageDiscrepancy(
-        string expectedEventType,
-        DateTimeOffset eventOccurredAt,
-        DateTimeOffset now,
-        string description,
-        BillingEventType billingEventType
-    )
-    {
-        var stripeRetentionWindow = TimeSpan.FromDays(30);
-        var withinWindow = now - eventOccurredAt < stripeRetentionWindow;
-        var kind = withinWindow ? DriftDiscrepancyKind.MissingHistoricalEvent : DriftDiscrepancyKind.MissingHistoricalEventUnrecoverable;
-        var severity = withinWindow ? DriftSeverity.Warning : DriftSeverity.Critical;
-        return new DriftDiscrepancy(
-            kind,
-            $"{description} Expected event type: {expectedEventType}.",
-            severity,
-            billingEventType,
-            OccurredAt: eventOccurredAt
-        );
     }
 
     /// <summary>

@@ -17,8 +17,6 @@ namespace Account.Workers;
 /// </summary>
 public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfiguration configuration, TimeProvider timeProvider, ILogger<BillingDriftWorker> logger) : BackgroundService
 {
-    private static readonly TimeSpan DefaultStaleness = TimeSpan.FromHours(23);
-
     // Each iteration spends most of its budget waiting on two Stripe network round-trips (events.list and
     // SyncSubscriptionState) at ~5-10s end-to-end. Serial iteration over a thousand subscriptions would
     // take tens of minutes; parallelising across 8 in-flight Stripe requests keeps a worker pass under a
@@ -26,6 +24,7 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
     // detect-mode path does not take a row lock (see ProcessPendingStripeEvents), so concurrent iterations
     // cannot block each other on persistence.
     private const int MaxDegreeOfParallelism = 8;
+    private static readonly TimeSpan DefaultStaleness = TimeSpan.FromHours(23);
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
@@ -62,45 +61,46 @@ public sealed class BillingDriftWorker(IServiceProvider serviceProvider, IConfig
         };
 
         await Parallel.ForEachAsync(dueSubscriptions, parallelOptions, async (subscription, iterationToken) =>
-        {
-            if (subscription.StripeCustomerId is null)
             {
-                Interlocked.Increment(ref skipped);
-                return;
-            }
+                if (subscription.StripeCustomerId is null)
+                {
+                    Interlocked.Increment(ref skipped);
+                    return;
+                }
 
-            // Each iteration runs in its own DI scope because EF Core DbContext is not thread-safe and
-            // ProcessPendingStripeEvents resolves a scoped DbContext per call.
-            using var iterationScope = serviceProvider.CreateScope();
-            var processor = iterationScope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+                // Each iteration runs in its own DI scope because EF Core DbContext is not thread-safe and
+                // ProcessPendingStripeEvents resolves a scoped DbContext per call.
+                using var iterationScope = serviceProvider.CreateScope();
+                var processor = iterationScope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
 
-            using var iterationCancellationTokenSource = BillingDriftIterationTimeout.CreateLinkedTokenSource(iterationToken);
+                using var iterationCancellationTokenSource = BillingDriftIterationTimeout.CreateLinkedTokenSource(iterationToken);
 
-            try
-            {
-                await processor.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Detect, iterationCancellationTokenSource.Token);
-                Interlocked.Increment(ref processed);
+                try
+                {
+                    await processor.ExecuteAsync(subscription.StripeCustomerId, true, SyncMode.Detect, iterationCancellationTokenSource.Token);
+                    Interlocked.Increment(ref processed);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    // Caller cancellation propagates out of ForEachAsync.
+                    throw;
+                }
+                catch (OperationCanceledException)
+                {
+                    // Per-iteration timeout: the row stays stale, the next pass retries. Releasing the lock
+                    // immediately is more important than completing this single check.
+                    Interlocked.Increment(ref timedOut);
+                    logger.LogWarning("Billing drift worker timed out after '{Timeout}' for customer '{StripeCustomerId}'", BillingDriftIterationTimeout.Value, subscription.StripeCustomerId);
+                }
+                catch (Exception ex)
+                {
+                    // Per-subscription failure must not kill the whole pass; one bad customer cannot block drift
+                    // detection for everyone else.
+                    Interlocked.Increment(ref failed);
+                    logger.LogError(ex, "Billing drift worker failed for customer '{StripeCustomerId}'", subscription.StripeCustomerId);
+                }
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                // Caller cancellation propagates out of ForEachAsync.
-                throw;
-            }
-            catch (OperationCanceledException)
-            {
-                // Per-iteration timeout: the row stays stale, the next pass retries. Releasing the lock
-                // immediately is more important than completing this single check.
-                Interlocked.Increment(ref timedOut);
-                logger.LogWarning("Billing drift worker timed out after '{Timeout}' for customer '{StripeCustomerId}'", BillingDriftIterationTimeout.Value, subscription.StripeCustomerId);
-            }
-            catch (Exception ex)
-            {
-                // Per-subscription failure must not kill the whole pass; one bad customer cannot block drift
-                // detection for everyone else.
-                Interlocked.Increment(ref failed);
-                logger.LogError(ex, "Billing drift worker failed for customer '{StripeCustomerId}'", subscription.StripeCustomerId);
-            }
-        });
+        );
 
         logger.LogInformation("Billing drift worker completed: processed {Processed}, skipped {Skipped}, failed {Failed}, timed out {TimedOut}", processed, skipped, failed, timedOut);
     }
