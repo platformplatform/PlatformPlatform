@@ -206,46 +206,61 @@ test.describe("@comprehensive", () => {
       expect(response.ok()).toBe(true);
     })();
 
-    // === TENANTS: STATE CHIPS (multi-select; default Enabled pressed; All sentinel renders both pressed) ===
+    // === TENANTS: STATE CHIPS (single-select; default Enabled pressed; All/Enabled/Disabled exclusive) ===
 
     const accountsTable = page.getByRole("table", { name: "Accounts" });
     const stateGroup = page.getByRole("group", { name: "State" });
+    const allChip = stateGroup.getByRole("button", { name: "All" });
     const enabledChip = stateGroup.getByRole("button", { name: "Enabled" });
     const disabledChip = stateGroup.getByRole("button", { name: "Disabled" });
 
-    await step("Reload bare URL & verify Enabled chip is pressed by default and Disabled chip is unpressed")(
+    await step("Reload bare URL & verify Enabled chip is pressed by default and the other chips are unpressed")(
       async () => {
         await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
 
         await expect(enabledChip).toHaveAttribute("aria-pressed", "true");
         await expect(disabledChip).toHaveAttribute("aria-pressed", "false");
+        await expect(allChip).toHaveAttribute("aria-pressed", "false");
         await expect(accountsTable).toBeVisible();
       }
     )();
 
-    await step("Click Disabled chip from default & verify URL switches to the All state and the table shows all rows")(
+    await step("Click Disabled chip from default & verify URL switches to Disabled and only Disabled is pressed")(
       async () => {
         await disabledChip.click();
-
-        await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features?tenantsState=All`);
-        await expect(accountsTable).toBeVisible();
-      }
-    )();
-
-    await step("Reload from the All URL & verify both chips appear pressed")(async () => {
-      await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features?tenantsState=All`);
-
-      await expect(enabledChip).toHaveAttribute("aria-pressed", "true");
-      await expect(disabledChip).toHaveAttribute("aria-pressed", "true");
-    })();
-
-    await step("Click Enabled chip from the All state & verify only Disabled remains pressed and URL is Disabled")(
-      async () => {
-        await enabledChip.click();
 
         await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features?tenantsState=Disabled`);
         await expect(disabledChip).toHaveAttribute("aria-pressed", "true");
         await expect(enabledChip).toHaveAttribute("aria-pressed", "false");
+        await expect(accountsTable).toBeVisible();
+      }
+    )();
+
+    await step("Click All chip from Disabled & verify URL switches to All and only All is pressed")(async () => {
+      await allChip.click();
+
+      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features?tenantsState=All`);
+      await expect(allChip).toHaveAttribute("aria-pressed", "true");
+      await expect(enabledChip).toHaveAttribute("aria-pressed", "false");
+      await expect(disabledChip).toHaveAttribute("aria-pressed", "false");
+    })();
+
+    await step("Reload from the All URL & verify only the All chip is pressed")(async () => {
+      await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features?tenantsState=All`);
+
+      await expect(allChip).toHaveAttribute("aria-pressed", "true");
+      await expect(enabledChip).toHaveAttribute("aria-pressed", "false");
+      await expect(disabledChip).toHaveAttribute("aria-pressed", "false");
+    })();
+
+    await step("Click Enabled chip from the All state & verify URL drops the state param and only Enabled is pressed")(
+      async () => {
+        await enabledChip.click();
+
+        await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
+        await expect(enabledChip).toHaveAttribute("aria-pressed", "true");
+        await expect(allChip).toHaveAttribute("aria-pressed", "false");
+        await expect(disabledChip).toHaveAttribute("aria-pressed", "false");
       }
     )();
 
