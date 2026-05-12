@@ -44,6 +44,12 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         // created event ahead of the deleted event, so a fresh classification produces a correct deleted
         // row (AmountDelta=-29, PreviousAmount=29), but the append-only invariant forbids mutating the
         // persisted row.
+        //
+        // The staleness loop skips the seed-boundary row (the latest persisted) by design — see the
+        // comment in ProcessPendingStripeEvents around the staleness loop — so this test pins a newer
+        // BillingInfoUpdated row after the deleted to keep the deleted comparable for the staleness
+        // detector. Without it the deleted would BE the seed boundary and its mismatch would be
+        // legitimately suppressed.
         // Arrange
         SetupSubscription();
 
@@ -56,11 +62,16 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
         var deletedOccurredAt = now.AddMinutes(-30);
         var deletedPayload = """{"data":{"object":{"status":"canceled","cancel_at_period_end":false}}}""";
 
+        var billingInfoEventId = "evt_mock_billing_info_updated_after_deleted";
+        var billingInfoOccurredAt = now.AddMinutes(-5);
+        var billingInfoPayload = """{"data":{"object":{"name":"Acme Inc"}}}""";
+
         // Stripe's events.list returns the historical created+deleted pair on the next sync. The hot path
         // emitter drives BillingEvent classification straight from this response (never the local archive),
         // so the deleted row's fresh denormalized fields will not match the previously-persisted row.
         StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(createdEventId, "customer.subscription.created", createdOccurredAt, createdPayload, MockStripeClient.MockApiVersion));
         StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(deletedEventId, "customer.subscription.deleted", deletedOccurredAt, deletedPayload, MockStripeClient.MockApiVersion));
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(billingInfoEventId, "customer.updated", billingInfoOccurredAt, billingInfoPayload, MockStripeClient.MockApiVersion));
 
         Connection.Insert("billing_events", [
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
@@ -78,6 +89,27 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
                 ("committed_mrr", 0m),
                 ("currency", MockStripeClient.MockStandardCurrency),
                 ("occurred_at", deletedOccurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
+            ]
+        );
+
+        Connection.Insert("billing_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", DatabaseSeeder.Tenant1Subscription.Id.Value),
+                ("created_at", billingInfoOccurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", billingInfoEventId),
+                ("event_type", nameof(BillingEventType.BillingInfoUpdated)),
+                ("from_plan", null),
+                ("to_plan", null),
+                ("previous_amount", null),
+                ("new_amount", null),
+                ("amount_delta", null),
+                ("committed_mrr", 0m),
+                ("currency", null),
+                ("occurred_at", billingInfoOccurredAt),
                 ("cancellation_reason", null),
                 ("suspension_reason", null)
             ]
@@ -112,6 +144,76 @@ public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbCont
             nameof(DriftDiscrepancyKind.BillingEventDenormalizationStale),
             "the persisted deleted row's denormalized fields no longer match a fresh classification and must be surfaced as drift"
         );
+    }
+
+    [Fact]
+    public async Task Reconcile_WhenLatestPersistedRowIsBoundaryAndReReplays_ShouldNotEmitFalsePositiveStaleDrift()
+    {
+        // Stripe's events.list?created.gte=X is inclusive on X. After Apply mode advances the anchor to
+        // supportedEvents.Max(CreatedAt), the very next sync re-pulls the boundary event. Replay seeds
+        // from that event's persisted denormalized fields, then re-runs the event from a state that IS
+        // its own output — by construction the per-event previousMrr / amountDelta / newAmount come out
+        // different from what's persisted, even when the persisted row is correct. Without the boundary
+        // skip the staleness loop fires BillingEventDenormalizationStale on every sync forever, neither
+        // Reconcile nor Acknowledge can clear it, and the back-office offers disaster recovery for an
+        // in-window customer where it's structurally pointless.
+        // Arrange
+        SetupSubscription();
+
+        var now = TimeProvider.GetUtcNow();
+        var upgradedEventId = "evt_mock_boundary_upgraded";
+        var upgradedOccurredAt = now.AddDays(-1);
+        var upgradedPayload = """{"data":{"object":{"items":{"data":[{"price":{"id":"price_mock_premium"}}]}}}}""";
+
+        // events.list returns the boundary event again on this sync (inclusive cursor) — same id, same
+        // CreatedAt — exactly as Stripe's API does in steady state.
+        StripeState.EventsListAdditionalEvents.Add(new StripeReplayEvent(upgradedEventId, "customer.subscription.updated", upgradedOccurredAt, upgradedPayload, MockStripeClient.MockApiVersion));
+
+        // The persisted row carries the correct denormalized fields a prior sync produced.
+        Connection.Insert("billing_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", BillingEventId.NewId().Value),
+                ("subscription_id", DatabaseSeeder.Tenant1Subscription.Id.Value),
+                ("created_at", upgradedOccurredAt),
+                ("modified_at", null),
+                ("stripe_event_id", upgradedEventId),
+                ("event_type", nameof(BillingEventType.SubscriptionUpgraded)),
+                ("from_plan", nameof(SubscriptionPlan.Standard)),
+                ("to_plan", nameof(SubscriptionPlan.Premium)),
+                ("previous_amount", MockStripeClient.StandardAmountExcludingTax),
+                ("new_amount", MockStripeClient.PremiumAmountExcludingTax),
+                ("amount_delta", MockStripeClient.PremiumAmountExcludingTax - MockStripeClient.StandardAmountExcludingTax),
+                ("committed_mrr", MockStripeClient.PremiumAmountExcludingTax),
+                ("currency", MockStripeClient.MockStandardCurrency),
+                ("occurred_at", upgradedOccurredAt),
+                ("cancellation_reason", null),
+                ("suspension_reason", null)
+            ]
+        );
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.updated");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var driftDiscrepanciesJson = Connection.ExecuteScalar<string>(
+            "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        driftDiscrepanciesJson.Should().NotContain(
+            nameof(DriftDiscrepancyKind.BillingEventDenormalizationStale),
+            "the boundary row's mismatch is a structural artifact of self-seeding and must not fire drift"
+        );
+
+        var hasDriftDetected = Connection.ExecuteScalar<long>(
+            "SELECT has_drift_detected FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        hasDriftDetected.Should().Be(0, "Reconcile must clear the drift flag for an in-window customer with correct persisted denormalization");
     }
 
     [Fact]
