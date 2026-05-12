@@ -91,6 +91,56 @@ public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetBackOfficeInvoices_WhenLegacyTransactionHasCreditNoteUrlButNullDates_ShouldStillProjectTwoRowsDatedByPaymentDate()
+    {
+        // Arrange — a legacy refunded transaction whose CreditNoteUrl is set but whose CreditNotedAt and
+        // RefundedAt were never backfilled (pre-fix data). The projection should still surface a credit-note
+        // row at the only timestamp available — the original payment date.
+        var paymentDate = "2025-04-01T00:00:00Z";
+        SeedTransactions(RefundedWithLegacyNullDates("inv_legacy", paymentDate));
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/invoices?PageSize=10");
+
+        // Assert — two rows: Invoice (Refunded) and CreditNote, both dated by the original payment date.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(2);
+        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.Invoice && i.Status == PaymentTransactionStatus.Refunded);
+        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.CreditNote);
+        payload.Invoices.Should().AllSatisfy(i => i.Date.Should().Be(DateTimeOffset.Parse(paymentDate)));
+    }
+
+    [Fact]
+    public async Task GetBackOfficeInvoices_WithRefundsAndCreditNotesFilter_ShouldIncludeLegacyCreditNotedRows()
+    {
+        // Arrange — a legacy refunded transaction (CreditNoteUrl set, dates null) plus a plain paid invoice.
+        // The Refunds-and-credit-notes filter must surface the legacy credit-note row, not return empty.
+        SeedTransactions(
+            Paid("inv_paid", "2025-04-01T00:00:00Z"),
+            RefundedWithLegacyNullDates("inv_legacy", "2025-04-15T00:00:00Z")
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/invoices?Statuses=Refunded&Statuses=HasCreditNote&PageSize=10");
+
+        // Assert — exactly the credit-note row from the legacy transaction.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(1);
+        payload.Invoices[0].RowKind.Should().Be(BackOfficeInvoiceRowKind.CreditNote);
+        payload.Invoices[0].CreditNoteUrl.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task GetBackOfficeInvoices_WhenTransactionHasCreditNote_ShouldEmitTwoRowsSortedByOwnDate()
     {
         // Arrange — one paid transaction on 2025-02-01 with a credit note issued on 2025-02-05.
@@ -151,6 +201,18 @@ public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
             PaymentTransactionStatus.Refunded, date,
             null, $"https://stripe.test/{invoiceMarker}", $"https://stripe.test/{invoiceMarker}-cn",
             SubscriptionPlan.Standard, date.AddDays(3), CreditNotedAt: date.AddDays(3)
+        );
+    }
+
+    private static PaymentTransaction RefundedWithLegacyNullDates(string invoiceMarker, string isoDate)
+    {
+        // Mirrors pre-fix production data: a credit-noted refund where neither RefundedAt nor
+        // CreditNotedAt were populated by the producer. Used to verify the projection's date fallback.
+        return new PaymentTransaction(
+            PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD",
+            PaymentTransactionStatus.Refunded, DateTimeOffset.Parse(isoDate),
+            null, $"https://stripe.test/{invoiceMarker}", $"https://stripe.test/{invoiceMarker}-cn",
+            SubscriptionPlan.Standard
         );
     }
 }

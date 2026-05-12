@@ -1017,7 +1017,7 @@ public sealed class StripeClient(
 
             var chargeService = new ChargeService();
             var charges = await chargeService.ListAsync(
-                new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.refunds"] },
                 GetRequestOptions(), cancellationToken
             );
             var refundedAmountByPaymentIntentId = charges.Data

@@ -173,15 +173,18 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
             transaction.RefundedAt
         );
 
-        if (transaction.CreditNoteUrl is not null && transaction.CreditNotedAt is not null)
+        if (transaction.CreditNoteUrl is not null || transaction.RefundedAt is not null)
         {
+            // Date falls through CreditNotedAt → RefundedAt → original Date so legacy rows whose
+            // timestamps were never backfilled still surface as their own row at the only timestamp
+            // we have. The producer populates the precise dates on fresh Reconcile passes.
             yield return new BackOfficeInvoiceSummary(
                 transaction.Id,
                 BackOfficeInvoiceRowKind.CreditNote,
                 tenant.Id,
                 tenant.Name,
                 tenant.Logo.Url,
-                transaction.CreditNotedAt.Value,
+                transaction.CreditNotedAt ?? transaction.RefundedAt ?? transaction.Date,
                 transaction.Plan,
                 transaction.Amount,
                 transaction.AmountExcludingTax,
@@ -205,10 +208,10 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
             BackOfficeInvoiceStatusFilter.Paid => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Succeeded },
             BackOfficeInvoiceStatusFilter.Failed => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Failed },
             BackOfficeInvoiceStatusFilter.Pending => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Pending },
-            // Refunded invoice rows surface here only when no credit note exists for the transaction —
-            // when there IS a credit note, the credit-note row carries the refund signal instead, so we
-            // skip the duplicate invoice-side entry.
-            BackOfficeInvoiceStatusFilter.Refunded => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Refunded, CreditNoteUrl: null },
+            // Refunded invoice rows surface here only when no reversal sibling exists for the
+            // transaction — when there IS a CreditNote row, that row carries the refund signal and
+            // we skip the duplicate invoice-side entry.
+            BackOfficeInvoiceStatusFilter.Refunded => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Refunded, CreditNoteUrl: null, RefundedAt: null },
             BackOfficeInvoiceStatusFilter.HasCreditNote => summary.RowKind == BackOfficeInvoiceRowKind.CreditNote,
             _ => false
         };

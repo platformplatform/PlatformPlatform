@@ -82,11 +82,13 @@ public sealed class GetTenantPaymentHistoryHandler(ITenantRepository tenantRepos
             transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
         );
 
-        if (transaction.CreditNoteUrl is not null && transaction.CreditNotedAt is not null)
+        if (transaction.CreditNoteUrl is not null || transaction.RefundedAt is not null)
         {
+            // Date falls through CreditNotedAt → RefundedAt → original Date so legacy rows whose
+            // timestamps were never backfilled still surface as their own reversal row.
             yield return new TenantPaymentTransaction(
                 transaction.Id, BackOfficeInvoiceRowKind.CreditNote, transaction.Amount, transaction.AmountExcludingTax,
-                transaction.TaxAmount, transaction.Currency, transaction.Status, transaction.CreditNotedAt.Value, transaction.RefundedAt,
+                transaction.TaxAmount, transaction.Currency, transaction.Status, transaction.CreditNotedAt ?? transaction.RefundedAt ?? transaction.Date, transaction.RefundedAt,
                 transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
             );
         }
