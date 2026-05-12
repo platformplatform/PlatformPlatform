@@ -10,6 +10,7 @@ import { DashboardRecentLoginsCard } from "./DashboardRecentLoginsCard";
 import { DashboardRecentPaymentsCard } from "./DashboardRecentPaymentsCard";
 import { DashboardRecentSignupsCard } from "./DashboardRecentSignupsCard";
 import { DashboardRecentStripeEventsCard } from "./DashboardRecentStripeEventsCard";
+import { DashboardRevenueTrendCard } from "./DashboardRevenueTrendCard";
 import { DashboardTenantGrowthCard } from "./DashboardTenantGrowthCard";
 import { DashboardUserLoginsCard } from "./DashboardUserLoginsCard";
 
@@ -28,6 +29,7 @@ export function DashboardSections() {
           <DashboardPlanDistributionCard />
         </div>
       )}
+      {isSubscriptionEnabled && <DashboardRevenueTrendCard />}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardTenantGrowthCard period={period} />
         <DashboardUserLoginsCard period={period} />

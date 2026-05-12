@@ -21,6 +21,10 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 
+#. placeholder {0}: formatCurrency(lifetimeRevenue, currency)
+msgid "{0} all-time, excluding VAT"
+msgstr "{0} hele perioden, eksklusiv moms"
+
 #. placeholder {0}: formatCurrency(blended, currency)
 msgid "{0} blended"
 msgstr "{0} samlet"
@@ -729,6 +733,9 @@ msgstr "Fornyes {0}"
 #. placeholder {1}: formatDate(result.replayedAt)
 msgid "Replayed {0} archived events into the billing event ledger at {1}."
 msgstr "Afspillede {0} arkiverede hændelser til faktureringshændelseslogen {1}."
+
+msgid "Revenue"
+msgstr "Omsætning"
 
 msgid "Revoked"
 msgstr "Tilbagekaldt"

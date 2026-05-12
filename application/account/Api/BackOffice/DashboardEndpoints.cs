@@ -34,6 +34,10 @@ public sealed class DashboardEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<BackOfficeDashboardMrrTrendResponse>();
 
+        group.MapGet("/revenue-trend", async Task<ApiResult<BackOfficeDashboardRevenueTrendResponse>> ([AsParameters] GetDashboardRevenueTrendQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<BackOfficeDashboardRevenueTrendResponse>();
+
         group.MapGet("/plan-distribution", async Task<ApiResult<BackOfficeDashboardPlanDistributionResponse>> ([AsParameters] GetDashboardPlanDistributionQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<BackOfficeDashboardPlanDistributionResponse>();

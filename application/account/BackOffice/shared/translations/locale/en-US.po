@@ -21,6 +21,10 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 
+#. placeholder {0}: formatCurrency(lifetimeRevenue, currency)
+msgid "{0} all-time, excluding VAT"
+msgstr "{0} all-time, excluding VAT"
+
 #. placeholder {0}: formatCurrency(blended, currency)
 msgid "{0} blended"
 msgstr "{0} blended"
@@ -729,6 +733,9 @@ msgstr "Renews {0}"
 #. placeholder {1}: formatDate(result.replayedAt)
 msgid "Replayed {0} archived events into the billing event ledger at {1}."
 msgstr "Replayed {0} archived events into the billing event ledger at {1}."
+
+msgid "Revenue"
+msgstr "Revenue"
 
 msgid "Revoked"
 msgstr "Revoked"
