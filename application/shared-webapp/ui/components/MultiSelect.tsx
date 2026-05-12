@@ -1,5 +1,5 @@
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { useFieldError } from "../hooks/useFieldError";
 import { cn } from "../utils";
@@ -12,6 +12,10 @@ export interface MultiSelectItem {
   id: string;
   label: string;
   icon?: ReactNode;
+  // Optional group label rendered as a section header before the first item of each group.
+  // Items with the same `id` in different groups all share the toggled state — selecting one
+  // selects every duplicate.
+  group?: string;
 }
 
 export interface MultiSelectProps {
@@ -165,29 +169,37 @@ export function MultiSelect({
               aria-multiselectable="true"
               className="flex flex-col"
             >
-              {items.map((item) => {
+              {items.map((item, index) => {
                 const checked = value.includes(item.id);
+                const previousGroup = index > 0 ? items[index - 1].group : undefined;
+                const showGroupHeader = item.group != null && item.group !== previousGroup;
                 return (
-                  <div
-                    key={item.id}
-                    role="option"
-                    aria-selected={checked}
-                    tabIndex={-1}
-                    onClick={() => handleToggle(item.id)}
-                    onKeyDown={(e) => handleKeyDown(e, item.id)}
-                    className={cn(
-                      "relative flex cursor-pointer items-center gap-2 rounded-sm py-3 pr-8 pl-2 text-sm outline-hidden select-none hover:bg-accent focus:bg-accent active:bg-accent",
-                      checked && "bg-accent"
+                  <Fragment key={`${item.group ?? ""}-${item.id}`}>
+                    {showGroupHeader && (
+                      <div className="px-2 pt-2 pb-1 text-xs font-medium text-muted-foreground select-none">
+                        {item.group}
+                      </div>
                     )}
-                  >
-                    {item.icon && <span className="shrink-0 [&_svg:not([class*='size-'])]:size-4">{item.icon}</span>}
-                    <span className="whitespace-nowrap">{item.label}</span>
-                    {checked && (
-                      <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
-                        <CheckIcon className="size-4" />
-                      </span>
-                    )}
-                  </div>
+                    <div
+                      role="option"
+                      aria-selected={checked}
+                      tabIndex={-1}
+                      onClick={() => handleToggle(item.id)}
+                      onKeyDown={(e) => handleKeyDown(e, item.id)}
+                      className={cn(
+                        "relative flex cursor-pointer items-center gap-2 rounded-sm py-3 pr-8 pl-2 text-sm outline-hidden select-none hover:bg-accent focus:bg-accent active:bg-accent",
+                        checked && "bg-accent"
+                      )}
+                    >
+                      {item.icon && <span className="shrink-0 [&_svg:not([class*='size-'])]:size-4">{item.icon}</span>}
+                      <span className="whitespace-nowrap">{item.label}</span>
+                      {checked && (
+                        <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
+                          <CheckIcon className="size-4" />
+                        </span>
+                      )}
+                    </div>
+                  </Fragment>
                 );
               })}
             </div>

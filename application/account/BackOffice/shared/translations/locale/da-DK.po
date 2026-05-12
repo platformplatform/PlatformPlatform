@@ -137,9 +137,6 @@ msgstr "Alle konti, brugeren er medlem af, med deres plan og rolle."
 msgid "All event types"
 msgstr "Alle hændelsestyper"
 
-msgid "All statuses"
-msgstr "Alle statusser"
-
 msgid "All users across every account, most recently seen first. Search and filter to narrow down."
 msgstr "Alle brugere på tværs af konti, senest sete først. Søg og filtrér for at indsnævre."
 
@@ -258,6 +255,13 @@ msgstr "Oprettet <0>{0}</0><1>{1}</1>"
 msgid "Credit note"
 msgstr "Kreditnota"
 
+msgid "Credit note issued"
+msgstr "Kreditnota udstedt"
+
+#. placeholder {0}: renderDate(transaction.creditNotedAt)
+msgid "Credit note: {0}"
+msgstr "Kreditnota: {0}"
+
 msgid "Current period"
 msgstr "Aktuel periode"
 
@@ -326,9 +330,6 @@ msgstr "Hændelse"
 msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
 msgstr "Alle fakturaer, refusioner og kreditnotaer — pengene ind og ud for dette abonnement."
 
-msgid "Every invoice, refund, and credit note across all accounts."
-msgstr "Alle fakturaer, refusioner og kreditnotaer på tværs af alle konti."
-
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Alle log-ind-forsøg de seneste 30 dage, lykkedes eller mislykkedes, på tværs af e-mail og eksterne udbydere."
 
@@ -361,6 +362,9 @@ msgstr "Inaktive"
 
 msgid "Invoice"
 msgstr "Faktura"
+
+msgid "Invoice view"
+msgstr "Fakturavisning"
 
 msgid "Invoices"
 msgstr "Fakturaer"
@@ -500,9 +504,6 @@ msgstr "Ingen faktureringshændelser endnu"
 msgid "No change"
 msgstr "Ingen ændring"
 
-msgid "No invoices match your filters"
-msgstr "Ingen fakturaer matcher dine filtre"
-
 msgid "No invoices yet"
 msgstr "Ingen fakturaer endnu"
 
@@ -542,8 +543,14 @@ msgstr "Ingen nylige betalinger"
 msgid "No recent signups"
 msgstr "Ingen nylige tilmeldinger"
 
+msgid "No refunds or credit notes yet"
+msgstr "Ingen refunderinger eller kreditnotaer endnu"
+
 msgid "No result available."
 msgstr "Intet resultat tilgængeligt."
+
+msgid "No results match your search"
+msgstr "Ingen resultater matcher din søgning"
 
 msgid "No sessions"
 msgstr "Ingen sessioner"
@@ -589,6 +596,9 @@ msgstr "Åbn i Stripe"
 
 msgid "Open invoice"
 msgstr "Åbn faktura"
+
+msgid "Other"
+msgstr "Andet"
 
 msgid "Outcome"
 msgstr "Resultat"
@@ -713,8 +723,17 @@ msgstr "Afstem med Stripe?"
 msgid "Reconciling..."
 msgstr "Afstemmer..."
 
+msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Posteringer vises her, når konti abonnerer, og Stripe-webhooks behandles."
+
 msgid "Refunded"
 msgstr "Refunderet"
+
+msgid "Refunds and credit notes"
+msgstr "Refunderinger og kreditnotaer"
+
+msgid "Refunds and credit notes across all accounts."
+msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
 
 msgid "Renewal"
 msgstr "Fornyelse"
@@ -810,6 +829,9 @@ msgstr "Tilmeldt"
 msgid "Subscribed since"
 msgstr "Abonneret siden"
 
+msgid "Subscription state"
+msgstr "Abonnementstilstand"
+
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 msgstr "Abonnements-, betalings- og faktureringsændringer vises her, når Stripe-webhooks behandles."
 
@@ -827,6 +849,9 @@ msgstr "Gennemført"
 
 msgid "Successful logins will appear here as users sign in."
 msgstr "Vellykkede logins vises her, når brugere logger ind."
+
+msgid "Successful, pending, and failed invoices across all accounts."
+msgstr "Gennemførte, afventende og mislykkede fakturaer på tværs af alle konti."
 
 msgid "Suspended"
 msgstr "Suspenderet"
@@ -875,6 +900,9 @@ msgstr "Prøv igen"
 
 msgid "Try clearing the search or filters to see more results."
 msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
+
+msgid "Try clearing the search to see more results."
+msgstr "Prøv at rydde søgningen for at se flere resultater."
 
 msgid "Unclassified"
 msgstr "Uklassificeret"

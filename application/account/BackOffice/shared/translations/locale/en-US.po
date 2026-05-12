@@ -137,9 +137,6 @@ msgstr "All accounts this user is a member of, with their plan and role."
 msgid "All event types"
 msgstr "All event types"
 
-msgid "All statuses"
-msgstr "All statuses"
-
 msgid "All users across every account, most recently seen first. Search and filter to narrow down."
 msgstr "All users across every account, most recently seen first. Search and filter to narrow down."
 
@@ -258,6 +255,13 @@ msgstr "Created <0>{0}</0><1>{1}</1>"
 msgid "Credit note"
 msgstr "Credit note"
 
+msgid "Credit note issued"
+msgstr "Credit note issued"
+
+#. placeholder {0}: renderDate(transaction.creditNotedAt)
+msgid "Credit note: {0}"
+msgstr "Credit note: {0}"
+
 msgid "Current period"
 msgstr "Current period"
 
@@ -326,9 +330,6 @@ msgstr "Event"
 msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
 msgstr "Every invoice, refund, and credit note — the money in and out for this subscription."
 
-msgid "Every invoice, refund, and credit note across all accounts."
-msgstr "Every invoice, refund, and credit note across all accounts."
-
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 
@@ -361,6 +362,9 @@ msgstr "Inactive"
 
 msgid "Invoice"
 msgstr "Invoice"
+
+msgid "Invoice view"
+msgstr "Invoice view"
 
 msgid "Invoices"
 msgstr "Invoices"
@@ -500,9 +504,6 @@ msgstr "No billing events yet"
 msgid "No change"
 msgstr "No change"
 
-msgid "No invoices match your filters"
-msgstr "No invoices match your filters"
-
 msgid "No invoices yet"
 msgstr "No invoices yet"
 
@@ -542,8 +543,14 @@ msgstr "No recent payments"
 msgid "No recent signups"
 msgstr "No recent signups"
 
+msgid "No refunds or credit notes yet"
+msgstr "No refunds or credit notes yet"
+
 msgid "No result available."
 msgstr "No result available."
+
+msgid "No results match your search"
+msgstr "No results match your search"
 
 msgid "No sessions"
 msgstr "No sessions"
@@ -589,6 +596,9 @@ msgstr "Open in Stripe"
 
 msgid "Open invoice"
 msgstr "Open invoice"
+
+msgid "Other"
+msgstr "Other"
 
 msgid "Outcome"
 msgstr "Outcome"
@@ -713,8 +723,17 @@ msgstr "Reconcile with Stripe?"
 msgid "Reconciling..."
 msgstr "Reconciling..."
 
+msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Records will appear here as accounts subscribe and Stripe webhooks are processed."
+
 msgid "Refunded"
 msgstr "Refunded"
+
+msgid "Refunds and credit notes"
+msgstr "Refunds and credit notes"
+
+msgid "Refunds and credit notes across all accounts."
+msgstr "Refunds and credit notes across all accounts."
 
 msgid "Renewal"
 msgstr "Renewal"
@@ -810,6 +829,9 @@ msgstr "Subscribed"
 msgid "Subscribed since"
 msgstr "Subscribed since"
 
+msgid "Subscription state"
+msgstr "Subscription state"
+
 msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 msgstr "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
 
@@ -827,6 +849,9 @@ msgstr "Succeeded"
 
 msgid "Successful logins will appear here as users sign in."
 msgstr "Successful logins will appear here as users sign in."
+
+msgid "Successful, pending, and failed invoices across all accounts."
+msgstr "Successful, pending, and failed invoices across all accounts."
 
 msgid "Suspended"
 msgstr "Suspended"
@@ -875,6 +900,9 @@ msgstr "Try again"
 
 msgid "Try clearing the search or filters to see more results."
 msgstr "Try clearing the search or filters to see more results."
+
+msgid "Try clearing the search to see more results."
+msgstr "Try clearing the search to see more results."
 
 msgid "Unclassified"
 msgstr "Unclassified"

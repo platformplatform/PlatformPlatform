@@ -6,43 +6,19 @@ import { useNavigate } from "@tanstack/react-router";
 import { SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import type { SortableBillingEventProperties } from "@/shared/lib/api/client";
+import type { BillingEventType, SortableBillingEventProperties } from "@/shared/lib/api/client";
 
-import { BillingEventType } from "@/shared/lib/api/client";
 import { getBillingEventTypeLabel } from "@/shared/lib/api/labels";
+import {
+  MRR_IMPACT_EVENT_TYPES,
+  OTHER_EVENT_TYPES,
+  SUBSCRIPTION_STATE_EVENT_TYPES
+} from "@/shared/lib/billingEventCategories";
 
 interface BillingEventsToolbarProps {
   search: string | undefined;
   eventTypes: BillingEventType[];
 }
-
-// Order matches the BillingEventType enum so the dropdown reads in the same lifecycle order operators
-// see in our domain log (creation → renewal → upgrade → downgrade → cancellation → payment → audit).
-// IMPORTANT: this list mirrors the C# BillingEventType enum (see application/account/Core/Features/
-// Subscriptions/Domain/BillingEvent.cs). Add new enum values here too — the enum's doc comment also
-// flags this requirement.
-const ALL_EVENT_TYPES: BillingEventType[] = [
-  BillingEventType.SubscriptionCreated,
-  BillingEventType.SubscriptionRenewed,
-  BillingEventType.SubscriptionUpgraded,
-  BillingEventType.SubscriptionDowngradeScheduled,
-  BillingEventType.SubscriptionDowngradeCancelled,
-  BillingEventType.SubscriptionDowngraded,
-  BillingEventType.SubscriptionCancelled,
-  BillingEventType.SubscriptionReactivated,
-  BillingEventType.SubscriptionExpired,
-  BillingEventType.SubscriptionImmediatelyCancelled,
-  BillingEventType.SubscriptionSuspended,
-  BillingEventType.SubscriptionPastDue,
-  BillingEventType.PaymentFailed,
-  BillingEventType.PaymentRecovered,
-  BillingEventType.PaymentRefunded,
-  BillingEventType.BillingInfoAdded,
-  BillingEventType.BillingInfoUpdated,
-  BillingEventType.PaymentMethodUpdated,
-  BillingEventType.NoOp,
-  BillingEventType.Unclassified
-];
 
 export function BillingEventsToolbar({ search, eventTypes }: Readonly<BillingEventsToolbarProps>) {
   const navigate = useNavigate();
@@ -69,9 +45,28 @@ export function BillingEventsToolbar({ search, eventTypes }: Readonly<BillingEve
     setSearchInput(search ?? "");
   }, [search]);
 
+  const mrrImpactGroup = t`MRR impact`;
+  const subscriptionStateGroup = t`Subscription state`;
+  const otherGroup = t`Other`;
   const eventTypeItems = useMemo(
-    () => ALL_EVENT_TYPES.map((value) => ({ id: value, label: getBillingEventTypeLabel(value) })),
-    []
+    () => [
+      ...MRR_IMPACT_EVENT_TYPES.map((value) => ({
+        id: value,
+        label: getBillingEventTypeLabel(value),
+        group: mrrImpactGroup
+      })),
+      ...SUBSCRIPTION_STATE_EVENT_TYPES.map((value) => ({
+        id: value,
+        label: getBillingEventTypeLabel(value),
+        group: subscriptionStateGroup
+      })),
+      ...OTHER_EVENT_TYPES.map((value) => ({
+        id: value,
+        label: getBillingEventTypeLabel(value),
+        group: otherGroup
+      }))
+    ],
+    [mrrImpactGroup, subscriptionStateGroup, otherGroup]
   );
 
   const handleEventTypesChange = (values: string[]) => {

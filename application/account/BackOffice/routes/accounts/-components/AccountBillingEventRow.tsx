@@ -7,6 +7,7 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import type { components } from "@/shared/lib/api/client";
 
 import { getBillingEventTypeLabel, getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { DEFAULT_FROM_PLAN, PLAN_TRANSITION_EVENT_TYPES } from "@/shared/lib/billingEventCategories";
 import { BILLING_EVENT_VARIANT } from "@/shared/lib/billingEventStyle";
 
 type BillingEventSummary = components["schemas"]["BillingEventSummary"];
@@ -22,7 +23,7 @@ export function AccountBillingEventRow({
 }>) {
   const variant = BILLING_EVENT_VARIANT[event.eventType];
   const Icon = variant.icon;
-  const showPlanTransition = event.fromPlan != null && event.toPlan != null && event.fromPlan !== event.toPlan;
+  const showPlanTransition = PLAN_TRANSITION_EVENT_TYPES.has(event.eventType) && event.toPlan != null;
   return (
     <TableRow rowKey={event.id}>
       <TableCell className="align-top whitespace-nowrap">
@@ -39,17 +40,13 @@ export function AccountBillingEventRow({
       <TableCell className="hidden md:table-cell">
         {showPlanTransition ? (
           <span className="inline-flex items-center gap-1 whitespace-nowrap">
-            <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan!)}</Badge>
+            <Badge variant="secondary">{getSubscriptionPlanLabel(event.fromPlan ?? DEFAULT_FROM_PLAN)}</Badge>
             <span aria-hidden={true} className="text-muted-foreground">
               →
             </span>
             <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan!)}</Badge>
           </span>
-        ) : event.toPlan != null ? (
-          <Badge variant="secondary">{getSubscriptionPlanLabel(event.toPlan)}</Badge>
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
+        ) : null}
       </TableCell>
       {isCompact ? <CompactAmountCell event={event} /> : <MrrImpactAndAfterCells event={event} />}
     </TableRow>
