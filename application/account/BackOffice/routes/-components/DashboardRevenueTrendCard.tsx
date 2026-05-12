@@ -14,9 +14,9 @@ export function DashboardRevenueTrendCard() {
   const { data, isLoading } = api.useQuery("get", "/api/back-office/dashboard/revenue-trend", {});
 
   const points = data?.points ?? [];
-  const chartData = points.map((point) => ({ month: point.month, revenue: point.revenue }));
+  const chartData = points.map((point) => ({ date: point.date, revenue: point.revenue }));
   const currency = data?.currency ?? null;
-  const monthFormatter = new Intl.DateTimeFormat(i18n.locale, { month: "short", year: "2-digit" });
+  const dateFormatter = new Intl.DateTimeFormat(i18n.locale, { day: "numeric", month: "short" });
   const compactNumberFormatter = new Intl.NumberFormat(i18n.locale, { notation: "compact", maximumFractionDigits: 1 });
 
   const lifetimeRevenue = points.reduce((sum, point) => sum + point.revenue, 0);
@@ -41,12 +41,12 @@ export function DashboardRevenueTrendCard() {
             </defs>
             <CartesianGrid vertical={false} stroke="var(--border)" strokeOpacity={0.5} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value: string) => monthFormatter.format(new Date(value))}
+              tickFormatter={(value: string) => dateFormatter.format(new Date(value))}
               stroke="var(--muted-foreground)"
             />
             <YAxis
@@ -59,7 +59,7 @@ export function DashboardRevenueTrendCard() {
             />
             <Tooltip
               cursor={false}
-              labelFormatter={(value) => monthFormatter.format(new Date(value as string))}
+              labelFormatter={(value) => dateFormatter.format(new Date(value as string))}
               formatter={(value) => [currency ? formatCurrency(Number(value), currency) : String(value), t`Revenue`]}
               contentStyle={{
                 backgroundColor: "var(--popover)",

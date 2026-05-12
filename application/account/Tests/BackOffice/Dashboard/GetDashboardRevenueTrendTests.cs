@@ -16,17 +16,17 @@ namespace Account.Tests.BackOffice.Dashboard;
 public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
 {
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenThreeMonthsOfPayments_ShouldReturnMonthlyBucketsIncludingEmptyMonths()
+    public async Task GetDashboardRevenueTrend_WhenPaymentsAcrossMultipleDays_ShouldReturnDailyBucketsIncludingEmptyDays()
     {
-        // Arrange — seed payments across 3 months with the middle month empty so the gap-fill behaviour is exercised.
-        var now = DateTimeOffset.UtcNow;
-        var threeMonthsAgo = new DateTimeOffset(now.Year, now.Month, 15, 0, 0, 0, TimeSpan.Zero).AddMonths(-3);
-        var thisMonth = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero).AddDays(2);
+        // Arrange — seed payments on day -3 and today; days -2 and -1 should appear as empty zero buckets.
+        var today = DateTimeOffset.UtcNow.Date;
+        var threeDaysAgo = new DateTimeOffset(today.AddDays(-3), TimeSpan.Zero).AddHours(9);
+        var todayTimestamp = new DateTimeOffset(today, TimeSpan.Zero).AddHours(9);
         var tenant = SeedTenant("Paying Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedSubscriptionWithTransactions(tenant, subscriptionId,
-            (149m, threeMonthsAgo, PaymentTransactionStatus.Succeeded, null),
-            (149m, thisMonth, PaymentTransactionStatus.Succeeded, null)
+            (149m, threeDaysAgo, PaymentTransactionStatus.Succeeded, null),
+            (149m, todayTimestamp, PaymentTransactionStatus.Succeeded, null)
         );
 
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
@@ -40,7 +40,7 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
         payload.Currency.Should().Be(MockStripeClient.MockStandardCurrency);
-        payload.Points.Should().HaveCount(4); // 3 months ago, 2 months ago (empty), 1 month ago (empty), current month
+        payload.Points.Should().HaveCount(4); // three days ago, two days ago (empty), one day ago (empty), today
         payload.Points[0].Revenue.Should().Be(149m);
         payload.Points[1].Revenue.Should().Be(0m);
         payload.Points[2].Revenue.Should().Be(0m);
@@ -48,17 +48,49 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenTransactionsAreRefundedOrFailed_ShouldExcludeFromSum()
+    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefundedOnLaterDay_ShouldAddOnPaidDateAndSubtractOnRefundedDate()
     {
-        // Arrange — three payments in the same month: one succeeded, one refunded, one failed.
-        var now = DateTimeOffset.UtcNow;
-        var thisMonth = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero).AddDays(2);
+        // Arrange — one transaction paid on day -5 and refunded on day -1. The curve must show +149 on the paid
+        // day and -149 on the refunded day so the dip aligns with when money actually went back out.
+        var today = DateTimeOffset.UtcNow.Date;
+        var paidOn = new DateTimeOffset(today.AddDays(-5), TimeSpan.Zero).AddHours(9);
+        var refundedOn = new DateTimeOffset(today.AddDays(-1), TimeSpan.Zero).AddHours(15);
+        var tenant = SeedTenant("Refunded Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedSubscriptionWithTransactions(tenant, subscriptionId,
+            (149m, paidOn, PaymentTransactionStatus.Refunded, refundedOn)
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
+        payload.Should().NotBeNull();
+        payload.Points.Should().HaveCount(6); // -5, -4, -3, -2, -1, today
+        payload.Points[0].Revenue.Should().Be(149m); // -5 paid
+        payload.Points[1].Revenue.Should().Be(0m);
+        payload.Points[2].Revenue.Should().Be(0m);
+        payload.Points[3].Revenue.Should().Be(0m);
+        payload.Points[4].Revenue.Should().Be(-149m); // -1 refunded
+        payload.Points[5].Revenue.Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task GetDashboardRevenueTrend_WhenFailedTransactions_ShouldBeExcludedFromSum()
+    {
+        // Arrange — one succeeded and one failed on the same day; only succeeded contributes.
+        var today = DateTimeOffset.UtcNow.Date;
+        var todayTimestamp = new DateTimeOffset(today, TimeSpan.Zero).AddHours(9);
         var tenant = SeedTenant("Mixed Status Co");
         var subscriptionId = SubscriptionId.NewId();
         SeedSubscriptionWithTransactions(tenant, subscriptionId,
-            (149m, thisMonth, PaymentTransactionStatus.Succeeded, null),
-            (149m, thisMonth, PaymentTransactionStatus.Refunded, thisMonth),
-            (149m, thisMonth, PaymentTransactionStatus.Failed, null)
+            (149m, todayTimestamp, PaymentTransactionStatus.Succeeded, null),
+            (149m, todayTimestamp, PaymentTransactionStatus.Failed, null)
         );
 
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
@@ -72,7 +104,7 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
         payload.Points.Should().HaveCount(1);
-        payload.Points[0].Revenue.Should().Be(149m); // refunded + failed excluded
+        payload.Points[0].Revenue.Should().Be(149m);
     }
 
     [Fact]
