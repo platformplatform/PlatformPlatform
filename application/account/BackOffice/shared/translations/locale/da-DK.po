@@ -740,9 +740,6 @@ msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
 msgid "Renewal"
 msgstr "Fornyelse"
 
-msgid "Renewal date"
-msgstr "Fornyelsesdato"
-
 msgid "Renewed"
 msgstr "Fornyet"
 

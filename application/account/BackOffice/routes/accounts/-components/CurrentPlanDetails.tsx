@@ -28,6 +28,7 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
 
   const isCanceling = tenant.cancelAtPeriodEnd;
   const isDowngrading = !isCanceling && tenant.scheduledPlan !== null;
+  const isCanceled = tenant.plan === "Basis" && tenant.hasEverSubscribed && !isCanceling && !isDowngrading;
   const newMonthlyAmount =
     isCanceling && tenant.currency !== null
       ? formatCurrency(0, tenant.currency)
@@ -94,9 +95,7 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className={sectionLabelClassName}>
-            {isCanceling ? <Trans>Expires</Trans> : <Trans>Renewal date</Trans>}
-          </span>
+          <span className={sectionLabelClassName}>{isCanceled ? <Trans>Expired</Trans> : <Trans>Expires</Trans>}</span>
           <span className="whitespace-nowrap tabular-nums">
             {tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
           </span>

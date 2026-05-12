@@ -69,6 +69,7 @@ export function AccountSidePaneSections({
 
   const isCanceling = tenant.plannedChange === PlannedSubscriptionChange.Cancellation;
   const isDowngrading = tenant.plannedChange === PlannedSubscriptionChange.ScheduledPlanChange;
+  const isCanceled = tenant.plan === "Basis" && tenant.hasEverSubscribed && !isCanceling && !isDowngrading;
   const newMrrAmount = isCanceling ? 0 : isDowngrading ? (detail?.scheduledPriceAmount ?? null) : null;
   const showStrikedMrr = (isCanceling || isDowngrading) && newMrrAmount !== null;
 
@@ -79,7 +80,7 @@ export function AccountSidePaneSections({
       <SidePaneSection label={t`Plan & revenue`} className="h-[12.875rem]">
         <div className="flex flex-col gap-3">
           <KpiRow
-            leftLabel={t`Expires`}
+            leftLabel={isCanceled ? t`Expired` : t`Expires`}
             leftValue={tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
             rightLabel={t`MRR`}
             rightValue={

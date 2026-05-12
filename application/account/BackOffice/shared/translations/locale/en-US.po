@@ -740,9 +740,6 @@ msgstr "Refunds and credit notes across all accounts."
 msgid "Renewal"
 msgstr "Renewal"
 
-msgid "Renewal date"
-msgstr "Renewal date"
-
 msgid "Renewed"
 msgstr "Renewed"
 

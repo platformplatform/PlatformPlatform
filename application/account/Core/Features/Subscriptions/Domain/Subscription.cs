@@ -207,7 +207,9 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         StripeSubscriptionId = null;
         CurrentPriceAmount = null;
         CurrentPriceCurrency = null;
-        CurrentPeriodEnd = null;
+        // CurrentPeriodEnd is intentionally preserved as the "expired on" date for canceled
+        // subscriptions: it's the last date the subscription was active. The back-office uses it to
+        // render "Expired {date}" instead of just "—" for tenants that have been fully reset.
         CancelAtPeriodEnd = false;
         FirstPaymentFailedAt = null;
         CancellationReason = null;
