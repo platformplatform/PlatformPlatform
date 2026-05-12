@@ -740,6 +740,9 @@ msgstr "Refunds and credit notes across all accounts."
 msgid "Renewal"
 msgstr "Renewal"
 
+msgid "Renewal date"
+msgstr "Renewal date"
+
 msgid "Renewed"
 msgstr "Renewed"
 
@@ -935,6 +938,9 @@ msgstr "Users will appear here as accounts are created."
 
 msgid "VAT"
 msgstr "VAT"
+
+msgid "VAT number"
+msgstr "VAT number"
 
 msgid "View accounts"
 msgstr "View accounts"

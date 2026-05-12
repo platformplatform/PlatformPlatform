@@ -95,7 +95,9 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className={sectionLabelClassName}>{isCanceled ? <Trans>Expired</Trans> : <Trans>Expires</Trans>}</span>
+          <span className={sectionLabelClassName}>
+            {isCanceled ? <Trans>Expired</Trans> : isCanceling ? <Trans>Expires</Trans> : <Trans>Renewal date</Trans>}
+          </span>
           <span className="whitespace-nowrap tabular-nums">
             {tenant.renewalDate ? formatDate(tenant.renewalDate) : "-"}
           </span>
@@ -119,11 +121,6 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
                   <span>{country}</span>
                 </div>
               )}
-              {tenant.taxId && (
-                <div className="text-muted-foreground tabular-nums">
-                  <Trans>VAT</Trans> {tenant.taxId}
-                </div>
-              )}
             </address>
           ) : (
             <span className="text-muted-foreground">
@@ -132,14 +129,25 @@ export function CurrentPlanDetails({ tenant }: Readonly<{ tenant: TenantDetailRe
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <span className={sectionLabelClassName}>
-            <Trans>Payment method</Trans>
-          </span>
-          {tenant.paymentMethod ? (
-            <PaymentMethodBlock paymentMethod={tenant.paymentMethod} />
-          ) : (
-            <span className="text-muted-foreground">-</span>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <span className={sectionLabelClassName}>
+              <Trans>Payment method</Trans>
+            </span>
+            {tenant.paymentMethod ? (
+              <PaymentMethodBlock paymentMethod={tenant.paymentMethod} />
+            ) : (
+              <span className="text-muted-foreground">-</span>
+            )}
+          </div>
+
+          {tenant.taxId && (
+            <div className="flex flex-col gap-2">
+              <span className={sectionLabelClassName}>
+                <Trans>VAT number</Trans>
+              </span>
+              <span className="tabular-nums">{tenant.taxId}</span>
+            </div>
           )}
         </div>
       </div>

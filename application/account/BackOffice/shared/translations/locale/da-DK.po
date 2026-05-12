@@ -740,6 +740,9 @@ msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
 msgid "Renewal"
 msgstr "Fornyelse"
 
+msgid "Renewal date"
+msgstr "Fornyelsesdato"
+
 msgid "Renewed"
 msgstr "Fornyet"
 
@@ -935,6 +938,9 @@ msgstr "Brugere vises her, efterhånden som konti oprettes."
 
 msgid "VAT"
 msgstr "Moms"
+
+msgid "VAT number"
+msgstr "Momsnummer"
 
 msgid "View accounts"
 msgstr "Vis konti"
