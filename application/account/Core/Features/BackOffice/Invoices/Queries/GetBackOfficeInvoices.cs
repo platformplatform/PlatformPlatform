@@ -42,6 +42,7 @@ public sealed record BackOfficeInvoiceSummary(
     string? FailureReason,
     string? InvoiceUrl,
     string? CreditNoteUrl,
+    DateTimeOffset? CreditNotedAt,
     DateTimeOffset? RefundedAt
 );
 
@@ -117,6 +118,7 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
                             transaction.FailureReason,
                             transaction.InvoiceUrl,
                             transaction.CreditNoteUrl,
+                            transaction.CreditNotedAt,
                             transaction.RefundedAt
                         );
                     }

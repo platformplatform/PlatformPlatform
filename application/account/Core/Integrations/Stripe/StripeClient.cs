@@ -1036,7 +1036,13 @@ public sealed class StripeClient(
                 new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
                 GetRequestOptions(), cancellationToken
             );
-            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+            // Capture both the PDF URL (for the operator-facing "Credit note" download button) and the
+            // credit note's Created timestamp (so the back-office invoices UI can show when the credit
+            // note was actually issued, not just the original invoice date). If multiple credit notes
+            // exist for one invoice, take the most recent.
+            var creditNotesByInvoiceId = creditNotes.Data
+                .GroupBy(cn => cn.InvoiceId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(cn => cn.Created).First());
 
             // Build a priceId → SubscriptionPlan lookup once (per Stripe customer sync) so the per-invoice loop is allocation-free.
             var planByPriceId = await BuildPlanByPriceIdAsync(cancellationToken);
@@ -1060,6 +1066,7 @@ public sealed class StripeClient(
                     }
 
                     var plan = ResolvePlanForInvoice(invoice, planByPriceId);
+                    var creditNote = creditNotesByInvoiceId.GetValueOrDefault(invoice.Id);
 
                     return new PaymentTransaction(
                         PaymentTransactionId.NewId(),
@@ -1071,11 +1078,12 @@ public sealed class StripeClient(
                         invoice.Created,
                         invoice.Status == "uncollectible" ? "Payment failed." : null,
                         invoice.InvoicePdf,
-                        creditNotesByInvoiceId.GetValueOrDefault(invoice.Id),
+                        creditNote?.Pdf,
                         plan,
                         refundedAt,
                         invoiceTotal,
-                        amountFromCredit
+                        amountFromCredit,
+                        creditNote?.Created
                     );
                 }
             ).ToArray();

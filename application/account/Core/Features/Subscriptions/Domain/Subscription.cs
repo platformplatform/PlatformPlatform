@@ -271,7 +271,12 @@ public sealed record PaymentTransaction(
     // without conflating them with cash-paid ones. Defaults to 0 so existing JSONB rows backfilled
     // by migration deserialize cleanly.
     decimal InvoiceTotal = 0m,
-    decimal AmountFromCredit = 0m
+    decimal AmountFromCredit = 0m,
+    // Stripe's timestamp for when a credit note was issued against this invoice. Null when no credit
+    // note exists, or for legacy rows where the producer didn't yet capture it. Surfaces on the
+    // back-office invoices UI so refunded rows show the actual credit-note date, not just the
+    // original invoice date.
+    DateTimeOffset? CreditNotedAt = null
 );
 
 [PublicAPI]

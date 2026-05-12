@@ -48,6 +48,41 @@ public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetTenantPaymentHistory_WhenTransactionHasCreditNote_ShouldReturnCreditNotedAt()
+    {
+        // Arrange — a refunded transaction with a credit note issued three days after the original invoice.
+        var tenant = DatabaseSeeder.Tenant1;
+        var invoiceDate = DateTimeOffset.Parse("2025-01-01T00:00:00Z");
+        var creditNoteDate = DateTimeOffset.Parse("2025-01-04T10:30:00Z");
+        var transactions = ImmutableArray.Create(
+            new PaymentTransaction(
+                PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD", PaymentTransactionStatus.Refunded,
+                invoiceDate, null, "https://stripe.test/inv-cn", "https://stripe.test/cn-pdf",
+                SubscriptionPlan.Standard, creditNoteDate, CreditNotedAt: creditNoteDate
+            )
+        );
+        Connection.Update("subscriptions", "tenant_id", tenant.Id.Value, [
+                ("payment_transactions", JsonSerializer.Serialize(transactions.ToArray()))
+            ]
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/payment-history");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantPaymentHistoryResponse>();
+        payload.Should().NotBeNull();
+        payload.Transactions.Should().ContainSingle();
+        payload.Transactions[0].CreditNoteUrl.Should().Be("https://stripe.test/cn-pdf");
+        payload.Transactions[0].CreditNotedAt.Should().Be(creditNoteDate);
+        payload.Transactions[0].Date.Should().Be(invoiceDate);
+    }
+
+    [Fact]
     public async Task GetTenantPaymentHistory_WhenSubscriptionHasNoTransactions_ShouldReturnEmpty()
     {
         // Arrange
