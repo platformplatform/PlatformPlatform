@@ -25,9 +25,12 @@ export const PLAN_TRANSITION_EVENT_TYPES: ReadonlySet<BillingEventType> = new Se
 export const DEFAULT_FROM_PLAN = SubscriptionPlan.Basis;
 
 /**
- * Event types whose primary signal is "revenue moved". Powers the "MRR impact" pill on the Billing
- * Events filter toolbar. SubscriptionCreated belongs here because the first subscription is the
- * first MRR event — the customer began contributing revenue.
+ * Event types that change recurring revenue. Powers the "MRR impact" pill on the Billing Events
+ * filter toolbar. Includes every subscription transition that moves committed MRR up or down —
+ * Subscribed/Upgraded/Reactivated raise it, Cancelled/Downgraded/Expired/ImmediatelyCancelled
+ * lower it. Downgrade schedule/cancel preview a future MRR change so they belong here too.
+ * Events can appear in more than one category (an Upgrade also transitions state) — the pill
+ * filters are independent lenses, not a partition.
  */
 export const MRR_IMPACT_EVENT_TYPES: readonly BillingEventType[] = [
   BillingEventType.SubscriptionCreated,
@@ -35,31 +38,44 @@ export const MRR_IMPACT_EVENT_TYPES: readonly BillingEventType[] = [
   BillingEventType.SubscriptionDowngradeScheduled,
   BillingEventType.SubscriptionDowngradeCancelled,
   BillingEventType.SubscriptionDowngraded,
-  BillingEventType.SubscriptionImmediatelyCancelled,
-  BillingEventType.PaymentRefunded
+  BillingEventType.SubscriptionReactivated,
+  BillingEventType.SubscriptionCancelled,
+  BillingEventType.SubscriptionExpired,
+  BillingEventType.SubscriptionImmediatelyCancelled
 ];
 
 /**
- * Event types whose primary signal is "the subscription's lifecycle changed". Powers the
- * "Subscription state" pill. Reactivated lives here because the state transition is dominant —
- * the MRR uptick is a consequence.
+ * Event types that change the subscription's effective plan or terminal state. Powers the
+ * "Subscription state" pill. Strict semantics: a row qualifies only when the plan the customer
+ * is currently on actually changes (immediately or by the event taking effect). Excludes
+ * scheduled future changes (DowngradeScheduled), reversals of scheduled changes
+ * (DowngradeCancelled, Reactivated — the effective plan didn't move), soft cancels that don't
+ * take effect until period end (Cancelled — the customer is still on the same plan), and
+ * Renewed (same plan, new period). Overlaps with MRR impact for any state transition that
+ * also moves committed revenue.
  */
 export const SUBSCRIPTION_STATE_EVENT_TYPES: readonly BillingEventType[] = [
-  BillingEventType.SubscriptionRenewed,
-  BillingEventType.SubscriptionReactivated,
+  BillingEventType.SubscriptionCreated,
+  BillingEventType.SubscriptionUpgraded,
+  BillingEventType.SubscriptionDowngraded,
   BillingEventType.SubscriptionExpired,
-  BillingEventType.SubscriptionSuspended,
-  BillingEventType.SubscriptionCancelled
+  BillingEventType.SubscriptionImmediatelyCancelled,
+  BillingEventType.SubscriptionSuspended
 ];
 
 /**
- * Event types that don't fit either MRR impact or Subscription state — payment hiccups, billing
- * metadata changes, audit catch-alls. Grouped under "Other" in the filter dropdown.
+ * Payment-flow, billing-metadata, and same-plan-renewal events that neither change committed MRR
+ * nor mutate the subscription's effective plan. Renewed reuses the same plan into a new period
+ * (no plan change). Refunds are a backwards money flow on an existing charge. Past-due/failed/
+ * recovered are payment hiccups, not state transitions on the Subscription aggregate. Grouped
+ * under "Other".
  */
 export const OTHER_EVENT_TYPES: readonly BillingEventType[] = [
+  BillingEventType.SubscriptionRenewed,
   BillingEventType.SubscriptionPastDue,
   BillingEventType.PaymentFailed,
   BillingEventType.PaymentRecovered,
+  BillingEventType.PaymentRefunded,
   BillingEventType.BillingInfoAdded,
   BillingEventType.BillingInfoUpdated,
   BillingEventType.PaymentMethodUpdated,
