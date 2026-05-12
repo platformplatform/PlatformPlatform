@@ -116,7 +116,7 @@ export function AccountBillingHistorySection({
           <TableBody>
             {transactions.map((transaction) => (
               <AccountPaymentRow
-                key={transaction.id}
+                key={`${transaction.id}-${transaction.rowKind}`}
                 transaction={transaction}
                 renderDate={renderDate}
                 showPlan={!isCompact}

@@ -26,12 +26,12 @@ export function AccountPaymentRow({
   showPlan?: boolean;
   showActions?: boolean;
 }>) {
-  // Credit-note rows always show the amounts struck through to indicate the reversal of the underlying
-  // invoice. Refunded invoice rows also strike through — the money came in then went back out.
+  // Strikethrough only on reversal rows (CreditNote, Refund). The Invoice row always carries the
+  // original payment outcome and never gets strikethrough — the reversal lives in its own row.
   const isCreditNote = transaction.rowKind === BackOfficeInvoiceRowKind.CreditNote;
-  const isRefunded = transaction.status === PaymentTransactionStatus.Refunded;
-  const reverseAmounts = isCreditNote || isRefunded;
-  const reverseClass = reverseAmounts ? "text-muted-foreground line-through" : "";
+  const isRefundRow = transaction.rowKind === BackOfficeInvoiceRowKind.Refund;
+  const isReversal = isCreditNote || isRefundRow;
+  const reverseClass = isReversal ? "text-muted-foreground line-through" : "";
   return (
     <TableRow rowKey={`${transaction.id}-${transaction.rowKind}`}>
       <TableCell>
@@ -50,7 +50,7 @@ export function AccountPaymentRow({
         {formatCurrency(transaction.amountExcludingTax, transaction.currency)}
       </TableCell>
       <TableCell
-        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${reverseAmounts ? "line-through" : ""}`}
+        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums md:table-cell ${isReversal ? "line-through" : ""}`}
       >
         {formatCurrency(transaction.taxAmount, transaction.currency)}
       </TableCell>
@@ -67,49 +67,48 @@ export function AccountPaymentRow({
       {showActions && (
         <TableCell className="text-right">
           <div className="flex items-center justify-end gap-2">
-            {isCreditNote
-              ? transaction.creditNoteUrl && (
-                  <Button
-                    size="xs"
-                    variant="default"
-                    nativeButton={false}
-                    className="gap-1 max-sm:w-fit"
-                    render={
-                      <a
-                        href={transaction.creditNoteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={t`Open credit note`}
-                      />
-                    }
-                  >
-                    <DownloadIcon className="size-3" />
-                    <span className="hidden md:inline">
-                      <Trans>Credit note</Trans>
-                    </span>
-                  </Button>
-                )
-              : transaction.invoiceUrl && (
-                  <Button
-                    size="xs"
-                    variant="default"
-                    nativeButton={false}
-                    className="gap-1 max-sm:w-fit"
-                    render={
-                      <a
-                        href={transaction.invoiceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={t`Open invoice`}
-                      />
-                    }
-                  >
-                    <DownloadIcon className="size-3" />
-                    <span className="hidden md:inline">
-                      <Trans>Invoice</Trans>
-                    </span>
-                  </Button>
-                )}
+            {isCreditNote && transaction.creditNoteUrl && (
+              <Button
+                size="xs"
+                variant="default"
+                nativeButton={false}
+                className="gap-1 max-sm:w-fit"
+                render={
+                  <a
+                    href={transaction.creditNoteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t`Open credit note`}
+                  />
+                }
+              >
+                <DownloadIcon className="size-3" />
+                <span className="hidden md:inline">
+                  <Trans>Credit note</Trans>
+                </span>
+              </Button>
+            )}
+            {!isCreditNote && !isRefundRow && transaction.invoiceUrl && (
+              <Button
+                size="xs"
+                variant="default"
+                nativeButton={false}
+                className="gap-1 max-sm:w-fit"
+                render={
+                  <a
+                    href={transaction.invoiceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={t`Open invoice`}
+                  />
+                }
+              >
+                <DownloadIcon className="size-3" />
+                <span className="hidden md:inline">
+                  <Trans>Invoice</Trans>
+                </span>
+              </Button>
+            )}
           </div>
         </TableCell>
       )}
@@ -126,6 +125,14 @@ function RowKindBadge({
     return (
       <Badge variant="secondary" className="text-muted-foreground">
         <Trans>Credit note</Trans>
+      </Badge>
+    );
+  }
+
+  if (rowKind === BackOfficeInvoiceRowKind.Refund) {
+    return (
+      <Badge variant="secondary" className="text-muted-foreground">
+        <Trans>Refunded</Trans>
       </Badge>
     );
   }

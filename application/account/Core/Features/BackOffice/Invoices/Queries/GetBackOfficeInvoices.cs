@@ -48,22 +48,26 @@ public sealed record BackOfficeInvoiceSummary(
 );
 
 /// <summary>
-///     Each PaymentTransaction projects to one Invoice row, plus one CreditNote row when Stripe issued
-///     a credit note against it. Two rows let operators see both moments in time — the original payment
-///     and the reversal — sorted independently in the timeline.
+///     Each PaymentTransaction projects to one Invoice row (always) plus an optional reversal row —
+///     either CreditNote (when Stripe issued a credit note) or Refund (the edge case where a Stripe
+///     pro-rated refund happened without a credit note). The Invoice row always carries the original
+///     payment outcome (Paid / Pending / Failed); the reversal row carries the later state change.
 /// </summary>
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum BackOfficeInvoiceRowKind
 {
     Invoice,
-    CreditNote
+    CreditNote,
+    Refund
 }
 
 /// <summary>
-///     Filter values exposed by the back-office invoices toolbar. The first four mirror
-///     <see cref="PaymentTransactionStatus" /> directly; <see cref="HasCreditNote" /> is a virtual filter
-///     that selects credit-note rows regardless of the underlying invoice's payment status.
+///     Filter values exposed by the back-office invoices toolbar. <see cref="Paid" />, <see cref="Failed" />,
+///     and <see cref="Pending" /> match Invoice rows by their original payment outcome.
+///     <see cref="Refunded" /> matches RowKind=Refund rows (refund-without-credit-note edge case).
+///     <see cref="HasCreditNote" /> matches RowKind=CreditNote rows. The "Refunds and credit notes" UI
+///     toggle sends both <see cref="Refunded" /> and <see cref="HasCreditNote" />.
 /// </summary>
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -153,6 +157,14 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
 
     private static IEnumerable<BackOfficeInvoiceSummary> ProjectRows(PaymentTransaction transaction, Tenant tenant)
     {
+        // Invoice row: always emitted. Status reflects the ORIGINAL payment outcome — a later refund
+        // or credit note doesn't flip the invoice row to "Refunded"; it gets its own row instead. The
+        // Refunded enum value at the transaction level becomes Succeeded on the invoice row because
+        // every refunded transaction had a successful original charge.
+        var invoiceRowStatus = transaction.Status == PaymentTransactionStatus.Refunded
+            ? PaymentTransactionStatus.Succeeded
+            : transaction.Status;
+
         yield return new BackOfficeInvoiceSummary(
             transaction.Id,
             BackOfficeInvoiceRowKind.Invoice,
@@ -165,7 +177,7 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
             transaction.AmountExcludingTax,
             transaction.TaxAmount,
             transaction.Currency,
-            transaction.Status,
+            invoiceRowStatus,
             transaction.FailureReason,
             transaction.InvoiceUrl,
             transaction.CreditNoteUrl,
@@ -173,11 +185,12 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
             transaction.RefundedAt
         );
 
-        if (transaction.CreditNoteUrl is not null || transaction.RefundedAt is not null)
+        if (transaction.CreditNoteUrl is not null)
         {
-            // Date falls through CreditNotedAt → RefundedAt → original Date so legacy rows whose
-            // timestamps were never backfilled still surface as their own row at the only timestamp
-            // we have. The producer populates the precise dates on fresh Reconcile passes.
+            // CreditNote row: emitted whenever a Stripe credit note exists. Date falls through
+            // CreditNotedAt → RefundedAt → original Date so legacy rows whose timestamps were never
+            // backfilled still surface as their own row at the only timestamp we have. The producer
+            // populates the precise dates on fresh Reconcile passes.
             yield return new BackOfficeInvoiceSummary(
                 transaction.Id,
                 BackOfficeInvoiceRowKind.CreditNote,
@@ -190,7 +203,32 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
                 transaction.AmountExcludingTax,
                 transaction.TaxAmount,
                 transaction.Currency,
-                transaction.Status,
+                PaymentTransactionStatus.Refunded,
+                transaction.FailureReason,
+                transaction.InvoiceUrl,
+                transaction.CreditNoteUrl,
+                transaction.CreditNotedAt,
+                transaction.RefundedAt
+            );
+        }
+        else if (transaction.Status == PaymentTransactionStatus.Refunded || transaction.RefundedAt is not null)
+        {
+            // Refund row (edge case): Stripe pro-rated refunds don't always create a credit note —
+            // when one happens the refund is the standalone reversal. Skip when a CreditNote sibling
+            // already exists (per the user model: the credit note encompasses the refund).
+            yield return new BackOfficeInvoiceSummary(
+                transaction.Id,
+                BackOfficeInvoiceRowKind.Refund,
+                tenant.Id,
+                tenant.Name,
+                tenant.Logo.Url,
+                transaction.RefundedAt ?? transaction.Date,
+                transaction.Plan,
+                transaction.Amount,
+                transaction.AmountExcludingTax,
+                transaction.TaxAmount,
+                transaction.Currency,
+                PaymentTransactionStatus.Refunded,
                 transaction.FailureReason,
                 transaction.InvoiceUrl,
                 transaction.CreditNoteUrl,
@@ -204,14 +242,11 @@ public sealed class GetBackOfficeInvoicesHandler(ISubscriptionRepository subscri
     {
         return filter switch
         {
-            // Invoice-side status filters only match RowKind=Invoice — credit-note rows surface via HasCreditNote.
+            // Invoice-side status filters only match RowKind=Invoice — reversal rows surface via Refunded / HasCreditNote.
             BackOfficeInvoiceStatusFilter.Paid => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Succeeded },
             BackOfficeInvoiceStatusFilter.Failed => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Failed },
             BackOfficeInvoiceStatusFilter.Pending => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Pending },
-            // Refunded invoice rows surface here only when no reversal sibling exists for the
-            // transaction — when there IS a CreditNote row, that row carries the refund signal and
-            // we skip the duplicate invoice-side entry.
-            BackOfficeInvoiceStatusFilter.Refunded => summary is { RowKind: BackOfficeInvoiceRowKind.Invoice, Status: PaymentTransactionStatus.Refunded, CreditNoteUrl: null, RefundedAt: null },
+            BackOfficeInvoiceStatusFilter.Refunded => summary.RowKind == BackOfficeInvoiceRowKind.Refund,
             BackOfficeInvoiceStatusFilter.HasCreditNote => summary.RowKind == BackOfficeInvoiceRowKind.CreditNote,
             _ => false
         };

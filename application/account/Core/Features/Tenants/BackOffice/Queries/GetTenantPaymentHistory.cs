@@ -76,19 +76,39 @@ public sealed class GetTenantPaymentHistoryHandler(ITenantRepository tenantRepos
 
     private static IEnumerable<TenantPaymentTransaction> ProjectRows(PaymentTransaction transaction)
     {
+        // Invoice row: always emitted. Status reflects the ORIGINAL payment outcome — a later refund
+        // or credit note doesn't flip the invoice row to "Refunded"; it gets its own row instead.
+        var invoiceRowStatus = transaction.Status == PaymentTransactionStatus.Refunded
+            ? PaymentTransactionStatus.Succeeded
+            : transaction.Status;
+
         yield return new TenantPaymentTransaction(
             transaction.Id, BackOfficeInvoiceRowKind.Invoice, transaction.Amount, transaction.AmountExcludingTax,
-            transaction.TaxAmount, transaction.Currency, transaction.Status, transaction.Date, transaction.RefundedAt,
+            transaction.TaxAmount, transaction.Currency, invoiceRowStatus, transaction.Date, transaction.RefundedAt,
             transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
         );
 
-        if (transaction.CreditNoteUrl is not null || transaction.RefundedAt is not null)
+        if (transaction.CreditNoteUrl is not null)
         {
-            // Date falls through CreditNotedAt → RefundedAt → original Date so legacy rows whose
-            // timestamps were never backfilled still surface as their own reversal row.
+            // CreditNote row: emitted whenever a Stripe credit note exists. Date falls through
+            // CreditNotedAt → RefundedAt → original Date so legacy rows whose timestamps were never
+            // backfilled still surface as their own reversal row.
             yield return new TenantPaymentTransaction(
                 transaction.Id, BackOfficeInvoiceRowKind.CreditNote, transaction.Amount, transaction.AmountExcludingTax,
-                transaction.TaxAmount, transaction.Currency, transaction.Status, transaction.CreditNotedAt ?? transaction.RefundedAt ?? transaction.Date, transaction.RefundedAt,
+                transaction.TaxAmount, transaction.Currency, PaymentTransactionStatus.Refunded,
+                transaction.CreditNotedAt ?? transaction.RefundedAt ?? transaction.Date, transaction.RefundedAt,
+                transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
+            );
+        }
+        else if (transaction.Status == PaymentTransactionStatus.Refunded || transaction.RefundedAt is not null)
+        {
+            // Refund row (edge case): Stripe pro-rated refunds don't always create a credit note —
+            // when one happens the refund is the standalone reversal. Skip when a CreditNote sibling
+            // already exists (the credit note encompasses the refund).
+            yield return new TenantPaymentTransaction(
+                transaction.Id, BackOfficeInvoiceRowKind.Refund, transaction.Amount, transaction.AmountExcludingTax,
+                transaction.TaxAmount, transaction.Currency, PaymentTransactionStatus.Refunded,
+                transaction.RefundedAt ?? transaction.Date, transaction.RefundedAt,
                 transaction.FailureReason, transaction.InvoiceUrl, transaction.CreditNoteUrl, transaction.CreditNotedAt, transaction.Plan
             );
         }

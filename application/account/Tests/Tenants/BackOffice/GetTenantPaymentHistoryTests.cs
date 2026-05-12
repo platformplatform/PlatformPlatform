@@ -82,10 +82,47 @@ public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
         payload.Transactions.Should().HaveCount(2);
         payload.Transactions[0].RowKind.Should().Be(BackOfficeInvoiceRowKind.CreditNote);
         payload.Transactions[0].Date.Should().Be(creditNoteDate);
+        payload.Transactions[0].Status.Should().Be(PaymentTransactionStatus.Refunded);
         payload.Transactions[0].CreditNoteUrl.Should().Be("https://stripe.test/cn-pdf");
         payload.Transactions[1].RowKind.Should().Be(BackOfficeInvoiceRowKind.Invoice);
         payload.Transactions[1].Date.Should().Be(invoiceDate);
+        payload.Transactions[1].Status.Should().Be(PaymentTransactionStatus.Succeeded);
         payload.Transactions[1].CreditNotedAt.Should().Be(creditNoteDate);
+    }
+
+    [Fact]
+    public async Task GetTenantPaymentHistory_WhenRefundWithoutCreditNote_ShouldEmitInvoiceAndRefundRows()
+    {
+        // Arrange — Stripe pro-rated refund edge case (Symphonic-style): refund without a credit note.
+        var tenant = DatabaseSeeder.Tenant1;
+        var invoiceDate = DateTimeOffset.Parse("2025-04-01T00:00:00Z");
+        var refundDate = DateTimeOffset.Parse("2025-04-05T00:00:00Z");
+        var transactions = ImmutableArray.Create(
+            new PaymentTransaction(
+                PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD", PaymentTransactionStatus.Refunded,
+                invoiceDate, null, "https://stripe.test/inv-refund-only", null,
+                SubscriptionPlan.Standard, refundDate
+            )
+        );
+        Connection.Update("subscriptions", "tenant_id", tenant.Id.Value, [
+                ("payment_transactions", JsonSerializer.Serialize(transactions.ToArray()))
+            ]
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenant.Id}/payment-history");
+
+        // Assert — Invoice (Succeeded) + Refund (no CreditNote row since CreditNoteUrl is null).
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<TenantPaymentHistoryResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(2);
+        payload.Transactions.Should().Contain(t => t.RowKind == BackOfficeInvoiceRowKind.Invoice && t.Status == PaymentTransactionStatus.Succeeded && t.Date == invoiceDate);
+        payload.Transactions.Should().Contain(t => t.RowKind == BackOfficeInvoiceRowKind.Refund && t.Status == PaymentTransactionStatus.Refunded && t.Date == refundDate);
+        payload.Transactions.Should().NotContain(t => t.RowKind == BackOfficeInvoiceRowKind.CreditNote);
     }
 
     [Fact]

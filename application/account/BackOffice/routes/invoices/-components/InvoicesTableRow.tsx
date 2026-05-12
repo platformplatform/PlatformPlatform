@@ -21,12 +21,11 @@ export function InvoicesTableRow({
   onRowClick: (tenantId: string) => void;
 }>) {
   const formatDate = useFormatDate();
-  // Credit-note rows always show the amounts struck through to indicate the reversal of the underlying
-  // invoice. Refunded invoice rows also strike through — the money came in then went back out.
-  const isCreditNote = invoice.rowKind === BackOfficeInvoiceRowKind.CreditNote;
-  const isRefunded = invoice.status === PaymentTransactionStatus.Refunded;
-  const reverseAmounts = isCreditNote || isRefunded;
-  const reverseClass = reverseAmounts ? "text-muted-foreground line-through" : "";
+  // Strikethrough only on reversal rows (CreditNote, Refund). The Invoice row always carries the
+  // original payment outcome and never gets strikethrough — the reversal lives in its own row.
+  const isReversal =
+    invoice.rowKind === BackOfficeInvoiceRowKind.CreditNote || invoice.rowKind === BackOfficeInvoiceRowKind.Refund;
+  const reverseClass = isReversal ? "text-muted-foreground line-through" : "";
 
   return (
     <TableRow
@@ -57,7 +56,7 @@ export function InvoicesTableRow({
         {formatCurrency(invoice.amountExcludingTax, invoice.currency)}
       </TableCell>
       <TableCell
-        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums xl:table-cell ${reverseAmounts ? "line-through" : ""}`}
+        className={`hidden text-right whitespace-nowrap text-muted-foreground tabular-nums xl:table-cell ${isReversal ? "line-through" : ""}`}
       >
         {formatCurrency(invoice.taxAmount, invoice.currency)}
       </TableCell>
@@ -80,6 +79,14 @@ function RowKindBadge({
     return (
       <Badge variant="secondary" className="text-muted-foreground">
         <Trans>Credit note</Trans>
+      </Badge>
+    );
+  }
+
+  if (rowKind === BackOfficeInvoiceRowKind.Refund) {
+    return (
+      <Badge variant="secondary" className="text-muted-foreground">
+        <Trans>Refunded</Trans>
       </Badge>
     );
   }

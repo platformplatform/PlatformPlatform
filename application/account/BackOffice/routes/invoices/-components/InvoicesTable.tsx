@@ -103,7 +103,11 @@ export function InvoicesTable({
           <InvoicesTableColumnHeaders orderBy={orderBy} sortOrder={sortOrder} onSort={handleSort} />
           <TableBody>
             {invoices.map((invoice) => (
-              <InvoicesTableRow key={invoice.id} invoice={invoice} onRowClick={handleRowClick} />
+              <InvoicesTableRow
+                key={`${invoice.id}-${invoice.rowKind}`}
+                invoice={invoice}
+                onRowClick={handleRowClick}
+              />
             ))}
           </TableBody>
         </Table>

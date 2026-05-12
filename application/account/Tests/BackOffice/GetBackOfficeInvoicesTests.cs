@@ -56,13 +56,16 @@ public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
         // Act — "Invoices" view maps to Paid+Pending+Failed; only RowKind=Invoice rows match.
         var response = await client.GetAsync("/api/back-office/invoices?Statuses=Paid&Statuses=Pending&Statuses=Failed&PageSize=10");
 
-        // Assert — paid and paid-with-credit-note invoice rows match; refunded invoice doesn't; credit-note rows excluded.
+        // Assert — all three invoice rows match (paid, paid-with-credit-note, AND the refunded transaction's
+        // invoice row whose status is now Succeeded since the original payment outcome was successful).
+        // Credit-note rows excluded.
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
         payload.Should().NotBeNull();
-        payload.TotalCount.Should().Be(2);
+        payload.TotalCount.Should().Be(3);
         payload.Invoices.Should().AllSatisfy(i => i.RowKind.Should().Be(BackOfficeInvoiceRowKind.Invoice));
-        payload.Invoices.Should().Contain(i => i.CreditNoteUrl != null && i.Status == PaymentTransactionStatus.Succeeded);
+        payload.Invoices.Should().AllSatisfy(i => i.Status.Should().Be(PaymentTransactionStatus.Succeeded));
+        payload.Invoices.Should().Contain(i => i.CreditNoteUrl != null);
     }
 
     [Fact]
@@ -81,13 +84,81 @@ public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
         // Act — "Refunds and credit notes" maps to Refunded OR HasCreditNote.
         var response = await client.GetAsync("/api/back-office/invoices?Statuses=Refunded&Statuses=HasCreditNote&PageSize=10");
 
-        // Assert — both credit-note rows match; refunded invoice row is suppressed because its credit-note sibling
-        // carries the refund signal.
+        // Assert — both transactions have a credit note, so both project to a CreditNote row.
+        // No standalone Refund rows because the credit note encompasses the refund in that case.
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
         payload.Should().NotBeNull();
         payload.TotalCount.Should().Be(2);
         payload.Invoices.Should().AllSatisfy(i => i.RowKind.Should().Be(BackOfficeInvoiceRowKind.CreditNote));
+    }
+
+    [Fact]
+    public async Task GetBackOfficeInvoices_InvoiceRow_ShouldShowOriginalPaymentOutcomeNotRefundedStatus()
+    {
+        // Arrange — a refunded transaction. The Invoice row must show Status=Succeeded (Paid) since
+        // the original payment succeeded; only the reversal row carries the Refunded signal.
+        SeedTransactions(Refunded("inv_refunded", "2025-03-01T00:00:00Z"));
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/invoices?PageSize=10");
+
+        // Assert — 2 rows: Invoice (Succeeded — not Refunded) + CreditNote.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(2);
+        var invoiceRow = payload.Invoices.Single(i => i.RowKind == BackOfficeInvoiceRowKind.Invoice);
+        invoiceRow.Status.Should().Be(PaymentTransactionStatus.Succeeded);
+        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.CreditNote);
+    }
+
+    [Fact]
+    public async Task GetBackOfficeInvoices_WhenRefundWithoutCreditNote_ShouldEmitRefundRow()
+    {
+        // Arrange — Stripe pro-rated refund edge case: a refund without an accompanying credit note.
+        SeedTransactions(RefundedWithoutCreditNote("inv_refund_only", "2025-04-01T00:00:00Z", "2025-04-05T00:00:00Z"));
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/invoices?PageSize=10");
+
+        // Assert — Invoice (Succeeded) + Refund (no CreditNote row since CreditNoteUrl is null).
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(2);
+        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.Invoice && i.Status == PaymentTransactionStatus.Succeeded);
+        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.Refund);
+        payload.Invoices.Should().NotContain(i => i.RowKind == BackOfficeInvoiceRowKind.CreditNote);
+    }
+
+    [Fact]
+    public async Task GetBackOfficeInvoices_WithRefundedFilter_ShouldReturnRefundRowsOnly()
+    {
+        // Arrange — one credit-noted (renders as CreditNote row) and one refund-only (renders as Refund row).
+        SeedTransactions(
+            PaidWithCreditNote("inv_paid_cn", "2025-02-01T00:00:00Z", "2025-02-05T00:00:00Z"),
+            RefundedWithoutCreditNote("inv_refund_only", "2025-04-01T00:00:00Z", "2025-04-05T00:00:00Z")
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act — Refunded filter alone matches only RowKind=Refund.
+        var response = await client.GetAsync("/api/back-office/invoices?Statuses=Refunded&PageSize=10");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
+        payload.Should().NotBeNull();
+        payload.TotalCount.Should().Be(1);
+        payload.Invoices[0].RowKind.Should().Be(BackOfficeInvoiceRowKind.Refund);
     }
 
     [Fact]
@@ -105,12 +176,12 @@ public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
         // Act
         var response = await client.GetAsync("/api/back-office/invoices?PageSize=10");
 
-        // Assert — two rows: Invoice (Refunded) and CreditNote, both dated by the original payment date.
+        // Assert — two rows: Invoice (Succeeded — original payment outcome) and CreditNote, both dated by the original payment date.
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeInvoicesResponse>();
         payload.Should().NotBeNull();
         payload.TotalCount.Should().Be(2);
-        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.Invoice && i.Status == PaymentTransactionStatus.Refunded);
+        payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.Invoice && i.Status == PaymentTransactionStatus.Succeeded);
         payload.Invoices.Should().Contain(i => i.RowKind == BackOfficeInvoiceRowKind.CreditNote);
         payload.Invoices.Should().AllSatisfy(i => i.Date.Should().Be(DateTimeOffset.Parse(paymentDate)));
     }
@@ -213,6 +284,18 @@ public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
             PaymentTransactionStatus.Refunded, DateTimeOffset.Parse(isoDate),
             null, $"https://stripe.test/{invoiceMarker}", $"https://stripe.test/{invoiceMarker}-cn",
             SubscriptionPlan.Standard
+        );
+    }
+
+    private static PaymentTransaction RefundedWithoutCreditNote(string invoiceMarker, string isoDate, string refundIsoDate)
+    {
+        // Stripe pro-rated refund edge case: a refund happens without an accompanying credit note.
+        // Used to verify the projection emits a standalone Refund row.
+        return new PaymentTransaction(
+            PaymentTransactionId.NewId(), 29.00m, 29.00m, 0m, "USD",
+            PaymentTransactionStatus.Refunded, DateTimeOffset.Parse(isoDate),
+            null, $"https://stripe.test/{invoiceMarker}", null,
+            SubscriptionPlan.Standard, DateTimeOffset.Parse(refundIsoDate)
         );
     }
 }
