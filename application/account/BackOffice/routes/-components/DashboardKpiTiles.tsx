@@ -63,6 +63,7 @@ export function DashboardKpiTiles({ period }: Readonly<DashboardKpiTilesProps>) 
           value={data && data.currency ? formatCurrency(data.totalRevenue, data.currency) : undefined}
           loading={isLoading}
           subtitle={<Trans>All-time, excluding VAT</Trans>}
+          to="/invoices"
         />
       )}
 
@@ -111,7 +112,7 @@ interface KpiTileProps {
   value: React.ReactNode;
   loading: boolean;
   subtitle?: React.ReactNode;
-  to?: "/accounts" | "/users" | "/billing-events";
+  to?: "/accounts" | "/users" | "/billing-events" | "/invoices";
   search?: { statuses?: TenantStatusFilter[] };
 }
 
