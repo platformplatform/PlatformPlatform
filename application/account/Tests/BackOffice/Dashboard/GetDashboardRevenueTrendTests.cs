@@ -55,11 +55,11 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefunded_ShouldExcludeFromCumulative()
+    public async Task GetDashboardRevenueTrend_WhenTransactionIsRefunded_ShouldAddOnPaidDayAndSubtractOnRefundedDay()
     {
-        // Arrange — a refunded transaction contributes 0 to revenue. Net revenue rule: a transaction that was
-        // later reversed (Refunded status OR Succeeded with RefundedAt set OR Succeeded with CreditNoteUrl) is
-        // excluded entirely — no add on payment day, no subtract on reversal day. The cumulative line stays at 0.
+        // Arrange — a refunded transaction adds on the payment day and subtracts on the refund day, so the
+        // cumulative line rises to 149 on paidOn and dips back to 0 on refundedOn. Net contribution is zero
+        // by the end of the window, matching the Total Revenue tile.
         var today = DateTimeOffset.UtcNow.Date;
         var paidOn = new DateTimeOffset(today.AddDays(-5), TimeSpan.Zero).AddHours(9);
         var refundedOn = new DateTimeOffset(today.AddDays(-1), TimeSpan.Zero).AddHours(15);
@@ -80,8 +80,16 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
         payload.Should().NotBeNull();
         payload.Points.Should().HaveCount(7);
-        // Every point stays at 0 — the refunded transaction contributes nothing to revenue.
-        payload.Points.Should().AllSatisfy(p => p.Revenue.Should().Be(0m));
+        // Day 0 (today - 6): pre-payment day at zero.
+        payload.Points[0].Revenue.Should().Be(0m);
+        // Day 1..4 (paidOn through the day before refundedOn): cumulative is 149.
+        payload.Points[1].Revenue.Should().Be(149m);
+        payload.Points[2].Revenue.Should().Be(149m);
+        payload.Points[3].Revenue.Should().Be(149m);
+        payload.Points[4].Revenue.Should().Be(149m);
+        // Day 5..6 (refundedOn onward): cumulative dips back to 0.
+        payload.Points[5].Revenue.Should().Be(0m);
+        payload.Points[6].Revenue.Should().Be(0m);
     }
 
     [Fact]
@@ -109,6 +117,48 @@ public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         payload.Points.Should().HaveCount(7);
         payload.Points.Should().AllSatisfy(p => p.Revenue.Should().Be(0m));
+    }
+
+    [Fact]
+    public async Task GetDashboardRevenueTrend_WhenCreditNotedTransactionHasOnlyRefundedAt_ShouldSubtractOnRefundedAtDay()
+    {
+        // Arrange — regression for a producer that issued a credit note (CreditNoteUrl set) but only captured
+        // RefundedAt, leaving CreditNotedAt null. The subtraction day must fall back to RefundedAt, not the
+        // original payment day. We seed a second independent payment on the paid-on day so that an incorrect
+        // same-day subtraction would visibly cancel that payment from the curve.
+        var today = DateTimeOffset.UtcNow.Date;
+        var paidOn = new DateTimeOffset(today.AddDays(-5), TimeSpan.Zero).AddHours(9);
+        var refundedOn = new DateTimeOffset(today.AddDays(-1), TimeSpan.Zero).AddHours(15);
+        var tenant = SeedTenant("Refund Only Credit Note Co");
+        var subscriptionId = SubscriptionId.NewId();
+        SeedSubscriptionWithTransactions(tenant, subscriptionId,
+            (149m, paidOn, PaymentTransactionStatus.Succeeded, refundedOn, "https://stripe.com/credit_note/test"),
+            (149m, paidOn, PaymentTransactionStatus.Succeeded, null, null)
+        );
+
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/dashboard/revenue-trend?Period=Last7Days");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<BackOfficeDashboardRevenueTrendResponse>();
+        payload.Should().NotBeNull();
+        payload.Points.Should().HaveCount(7);
+        // Day 0 (today - 6): pre-payment day at zero.
+        payload.Points[0].Revenue.Should().Be(0m);
+        // Day 1..4 (paidOn = today - 5 through the day before refundedOn): two +149 charges land on paidOn —
+        // cumulative is 298, NOT 149 (which is what the bug produced when the credit-note subtraction wrongly
+        // fell back to the payment day and same-day cancelled the credit-noted charge).
+        payload.Points[1].Revenue.Should().Be(298m);
+        payload.Points[2].Revenue.Should().Be(298m);
+        payload.Points[3].Revenue.Should().Be(298m);
+        payload.Points[4].Revenue.Should().Be(298m);
+        // Day 5 (today - 1, refundedOn): -149 lands here — cumulative dips to 149.
+        payload.Points[5].Revenue.Should().Be(149m);
+        payload.Points[6].Revenue.Should().Be(149m);
     }
 
     [Fact]

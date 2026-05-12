@@ -31,17 +31,20 @@ public sealed class GetDashboardRevenueTrendQueryValidator : AbstractValidator<G
 
 /// <summary>
 ///     Cumulative ex-VAT revenue across every subscription's payment transactions, within the selected
-///     trend period. A successful payment that was NOT later credit-noted or refunded adds
-///     <see cref="PaymentTransaction.AmountExcludingTax" /> to its <see cref="PaymentTransaction.Date" /> bucket.
-///     Credit-noted or refunded payments are excluded entirely — money returned to the customer is not revenue,
-///     so the curve only reflects net-kept money. Each point in the curve is the running total of all daily
-///     deltas from the earliest payment through that day — the same all-time cumulative the dashboard Total
-///     Revenue tile reports, sampled across the period's days. So day one of the current window already reflects
-///     every historical payment up to that day, not zero. The prior-period series is the same all-time
-///     cumulative sampled across the equivalent window immediately before — when the current line stays above
-///     the prior line, the platform is accumulating revenue faster than it did in the prior window. Soft-delete
-///     semantic: historical revenue from soft-deleted tenants stays in the curve because payment transactions
-///     are immutable historical money facts that outlive the tenant lifecycle.
+///     trend period. Each successful charge adds <see cref="PaymentTransaction.AmountExcludingTax" /> to its
+///     <see cref="PaymentTransaction.Date" /> bucket; a later credit note subtracts the same amount from its
+///     <see cref="PaymentTransaction.CreditNotedAt" /> bucket, falling back to
+///     <see cref="PaymentTransaction.RefundedAt" /> when the credit-note timestamp is missing; a
+///     refund-without-credit-note subtracts from its <see cref="PaymentTransaction.RefundedAt" /> bucket. The chart shows
+///     the running balance over
+///     time — historic days reflect what was true at that point, and reversals dip the line on the day they
+///     happened. Net contribution of any reversed transaction is zero, so the end-of-window cumulative
+///     matches the Total Revenue tile (which sums only un-reversed transactions). The prior-period series is
+///     the same all-time cumulative sampled across the equivalent window immediately before — when the
+///     current line stays above the prior line, the platform is accumulating revenue faster than it did in
+///     the prior window. Soft-delete semantic: historical revenue from soft-deleted tenants stays in the
+///     curve because payment transactions are immutable historical money facts that outlive the tenant
+///     lifecycle.
 /// </summary>
 public sealed class GetDashboardRevenueTrendHandler(ISubscriptionRepository subscriptionRepository, IPlatformCurrencyProvider platformCurrencyProvider, TimeProvider timeProvider)
     : IRequestHandler<GetDashboardRevenueTrendQuery, Result<BackOfficeDashboardRevenueTrendResponse>>
@@ -80,16 +83,29 @@ public sealed class GetDashboardRevenueTrendHandler(ISubscriptionRepository subs
         var deltasByDay = new Dictionary<DateOnly, decimal>();
         foreach (var transaction in transactions)
         {
-            // Net revenue rule: only count successful payments that were NOT later reversed via credit note
-            // or refund. A reversed transaction contributes 0 to revenue (no add on payment day, no subtract
-            // on reversal day) — the line still climbs smoothly because we skip the row entirely. Matches the
-            // Total Revenue KPI tile sum so the dashboard tile and the chart's last point always agree.
-            if (transaction.Status is not PaymentTransactionStatus.Succeeded) continue;
-            if (transaction.CreditNoteUrl is not null) continue;
-            if (transaction.RefundedAt is not null) continue;
+            // Add on the payment day for every charge that succeeded — even ones that were later reversed.
+            // The chart is a running balance; reversals show up as a separate dip on the day they happened.
+            if (transaction.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded)
+            {
+                var paidOn = DateOnly.FromDateTime(transaction.Date.UtcDateTime);
+                deltasByDay[paidOn] = deltasByDay.GetValueOrDefault(paidOn) + transaction.AmountExcludingTax;
+            }
 
-            var paidOn = DateOnly.FromDateTime(transaction.Date.UtcDateTime);
-            deltasByDay[paidOn] = deltasByDay.GetValueOrDefault(paidOn) + transaction.AmountExcludingTax;
+            // Subtract on the reversal day. A credit note encompasses any associated refund, so we subtract
+            // once when both are present. Prefer the credit-note timestamp, then the refund timestamp, then
+            // the payment date as a last-resort fallback for legacy rows where neither reversal timestamp
+            // was captured; the same-day add+subtract still nets to zero so the end total matches the Total
+            // Revenue tile.
+            if (transaction.CreditNoteUrl is not null)
+            {
+                var creditNotedOn = DateOnly.FromDateTime((transaction.CreditNotedAt ?? transaction.RefundedAt ?? transaction.Date).UtcDateTime);
+                deltasByDay[creditNotedOn] = deltasByDay.GetValueOrDefault(creditNotedOn) - transaction.AmountExcludingTax;
+            }
+            else if (transaction.RefundedAt is { } refundedAt)
+            {
+                var refundedOn = DateOnly.FromDateTime(refundedAt.UtcDateTime);
+                deltasByDay[refundedOn] = deltasByDay.GetValueOrDefault(refundedOn) - transaction.AmountExcludingTax;
+            }
         }
 
         return deltasByDay;
