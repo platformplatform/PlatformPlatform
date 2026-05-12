@@ -518,18 +518,21 @@ public sealed class ProcessPendingStripeEvents(
         foreach (var billingEvent in replayedEvents)
         {
             if (existingStripeEventIds.Contains(billingEvent.StripeEventId)) continue;
-            if (syncMode == SyncMode.Apply)
-            {
-                await billingEventRepository.AddAsync(billingEvent, cancellationToken);
+            // Detect mode never persists billing_events, so it must not count would-be-appended rows toward
+            // the billingEventCount passed to the drift detector. Otherwise the MissingEvent check sees a
+            // phantom count > 0 and fails to flag cancelled customers whose payment_transactions array is
+            // populated while the billing_events log is empty (the worker tripwire's load-bearing signal).
+            if (syncMode == SyncMode.Detect) continue;
 
-                // SubscribedSince is a denormalized cache of MIN(occurred_at) across SubscriptionCreated rows for
-                // the tenant. AdvanceSubscribedSinceBackwardFromBillingEvent is monotonic-backward: a late-arriving
-                // recovered event can rewind it earlier, but a new subscription started after a cancel (later
-                // OccurredAt) cannot move it forward.
-                if (billingEvent.EventType == BillingEventType.SubscriptionCreated)
-                {
-                    subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(billingEvent.OccurredAt);
-                }
+            await billingEventRepository.AddAsync(billingEvent, cancellationToken);
+
+            // SubscribedSince is a denormalized cache of MIN(occurred_at) across SubscriptionCreated rows for
+            // the tenant. AdvanceSubscribedSinceBackwardFromBillingEvent is monotonic-backward: a late-arriving
+            // recovered event can rewind it earlier, but a new subscription started after a cancel (later
+            // OccurredAt) cannot move it forward.
+            if (billingEvent.EventType == BillingEventType.SubscriptionCreated)
+            {
+                subscription.AdvanceSubscribedSinceBackwardFromBillingEvent(billingEvent.OccurredAt);
             }
 
             appendedCount++;

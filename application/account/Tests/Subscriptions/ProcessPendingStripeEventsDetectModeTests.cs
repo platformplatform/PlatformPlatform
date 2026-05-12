@@ -252,6 +252,57 @@ public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest
         decimal.Parse(currentPriceAmount, CultureInfo.InvariantCulture).Should().Be(99.99m, "the targeted column-only UPDATE must not rewrite CurrentPriceAmount");
     }
 
+    [Fact]
+    public async Task ExecuteAsync_WhenCancelledCustomerHasPaymentTransactionsButNoBillingEvents_ShouldFlagMissingEventDrift()
+    {
+        // A tenant whose Stripe customer was cancelled / deleted still has paid invoices on the local
+        // PaymentTransactions array, but the billing_events log for that subscription is empty — the
+        // event-emission pipeline missed at least one invoice.payment_succeeded. Detect mode must surface
+        // this as a Warning-severity MissingEvent discrepancy on the next worker pass so the back-office
+        // drift banner appears.
+        // Arrange
+        StripeState.SimulateCustomerDeleted = true;
+        var firstPaymentTransactionId = PaymentTransactionId.NewId();
+        var secondPaymentTransactionId = PaymentTransactionId.NewId();
+        var paymentTransactionsJson = $$"""[{"Id":"{{firstPaymentTransactionId}}","Amount":186.25,"AmountExcludingTax":149.00,"TaxAmount":37.25,"Currency":"{{MockStripeClient.MockStandardCurrency}}","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test_one","CreditNoteUrl":null,"Plan":"Standard","RefundedAt":null},{"Id":"{{secondPaymentTransactionId}}","Amount":186.25,"AmountExcludingTax":149.00,"TaxAmount":37.25,"Currency":"{{MockStripeClient.MockStandardCurrency}}","Status":"Succeeded","Date":"2026-02-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test_two","CreditNoteUrl":null,"Plan":"Standard","RefundedAt":null}]""";
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", null),
+                ("current_price_amount", null),
+                ("current_price_currency", null),
+                ("payment_transactions", paymentTransactionsJson)
+            ]
+        );
+
+        var billingEventCountBefore = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM billing_events WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        billingEventCountBefore.Should().Be(0, "the test simulates the production bug where the event-emission pipeline missed every invoice.payment_succeeded for this subscription");
+
+        using var scope = WebApplicationServices.CreateScope();
+        SetUseMockStripeCookieOnAmbientHttpContext(scope.ServiceProvider);
+        var processor = scope.ServiceProvider.GetRequiredService<ProcessPendingStripeEvents>();
+        var stripeCustomerId = StripeCustomerId.NewId(MockStripeClient.MockCustomerId);
+
+        // Act
+        await processor.ExecuteAsync(stripeCustomerId, true, SyncMode.Detect, CancellationToken.None);
+
+        // Assert
+        var hasDriftDetected = Connection.ExecuteScalar<long>(
+            "SELECT has_drift_detected FROM subscriptions WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        hasDriftDetected.Should().Be(1, "a cancelled customer with payment transactions but zero billing_events must be flagged so the back-office drift banner appears");
+
+        var driftDiscrepanciesJson = Connection.ExecuteScalar<string>(
+            "SELECT drift_discrepancies FROM subscriptions WHERE tenant_id = @tenantId",
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]
+        );
+        driftDiscrepanciesJson.Should().Contain(nameof(DriftDiscrepancyKind.MissingEvent), $"the detector must report MissingEvent for a subscription with payment transactions but no billing_events. Persisted drift_discrepancies = {driftDiscrepanciesJson}");
+    }
+
     // ProcessPendingStripeEvents runs through StripeClientFactory.GetClient(), which gates the mock provider
     // behind an HTTP cookie. The detect-mode worker has no HTTP context in production, but the tests need to
     // exercise the mock client without standing up a webhook request — so an in-memory HttpContext carrying
