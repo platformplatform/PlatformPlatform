@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Subscriptions.Queries;
+using Account.Integrations.Stripe;
 using FluentAssertions;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
@@ -20,7 +21,7 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("stripe_customer_id", "cus_test_123"),
                 ("stripe_subscription_id", "sub_test_123"),
                 ("current_price_amount", 29.99),
-                ("current_price_currency", "USD"),
+                ("current_price_currency", MockStripeClient.MockStandardCurrency),
                 ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
@@ -35,6 +36,6 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
         result.HasStripeSubscription.Should().BeTrue();
         result.CancelAtPeriodEnd.Should().BeFalse();
         result.CurrentPriceAmount.Should().Be(29.99m);
-        result.CurrentPriceCurrency.Should().Be("USD");
+        result.CurrentPriceCurrency.Should().Be(MockStripeClient.MockStandardCurrency);
     }
 }

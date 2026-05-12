@@ -13,15 +13,21 @@ import {
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { Building2Icon, FlagIcon, HomeIcon, LifeBuoyIcon, ListIcon, UsersIcon } from "lucide-react";
+import { Building2Icon, HomeIcon, ReceiptIcon, UsersIcon, ZapIcon } from "lucide-react";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
 const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 export function BackOfficeSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
+  const isAccountsActive = currentPath === "/accounts" || currentPath.startsWith("/accounts/");
+  const isUsersActive = currentPath === "/users" || currentPath.startsWith("/users/");
+  const isBillingEventsActive = currentPath === "/billing-events" || currentPath.startsWith("/billing-events/");
+  const isInvoicesActive = currentPath === "/invoices" || currentPath.startsWith("/invoices/");
 
   return (
     <Sidebar collapsible="icon">
@@ -46,58 +52,60 @@ export function BackOfficeSideMenu() {
                     </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              <Trans>Coming soon</Trans>
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Accounts (coming soon)`}>
-                    <Building2Icon />
-                    <span>
-                      <Trans>Accounts</Trans>
-                    </span>
+                  <SidebarMenuButton asChild={true} isActive={isAccountsActive} tooltip={t`Accounts`}>
+                    <RouterLink to="/accounts">
+                      <Building2Icon />
+                      <span>
+                        <Trans>Accounts</Trans>
+                      </span>
+                    </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Users (coming soon)`}>
-                    <UsersIcon />
-                    <span>
-                      <Trans>Users</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Feature flags (coming soon)`}>
-                    <FlagIcon />
-                    <span>
-                      <Trans>Feature flags</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Support (coming soon)`}>
-                    <LifeBuoyIcon />
-                    <span>
-                      <Trans>Support</Trans>
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton disabled={true} tooltip={t`Wait list (coming soon)`}>
-                    <ListIcon />
-                    <span>
-                      <Trans>Wait list</Trans>
-                    </span>
+                  <SidebarMenuButton asChild={true} isActive={isUsersActive} tooltip={t`Users`}>
+                    <RouterLink to="/users">
+                      <UsersIcon />
+                      <span>
+                        <Trans>Users</Trans>
+                      </span>
+                    </RouterLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+          {isSubscriptionEnabled && (
+            <SidebarGroup>
+              <SidebarGroupLabel>
+                <Trans>Billing</Trans>
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isInvoicesActive} tooltip={t`Invoices`}>
+                      <RouterLink to="/invoices">
+                        <ReceiptIcon />
+                        <span>
+                          <Trans>Invoices</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isBillingEventsActive} tooltip={t`Billing events`}>
+                      <RouterLink to="/billing-events">
+                        <ZapIcon />
+                        <span>
+                          <Trans>Billing events</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
         </SidebarContent>
       </nav>
       <SidebarRail />

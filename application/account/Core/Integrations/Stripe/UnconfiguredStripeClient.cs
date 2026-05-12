@@ -64,6 +64,17 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<PriceCatalogItem[]>([]);
     }
 
+    public Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get plan-by-priceId lookup");
+        return Task.FromResult<IReadOnlyDictionary<string, SubscriptionPlan>>(new Dictionary<string, SubscriptionPlan>());
+    }
+
+    public Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult<string?>(null);
+    }
+
     public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
     {
         logger.LogWarning("Stripe is not configured. Cannot verify webhook signature");
@@ -146,5 +157,18 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
     {
         logger.LogWarning("Stripe is not configured. Cannot sync payment transactions for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<PaymentTransaction[]?>(null);
+    }
+
+    public Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot list events for customer '{CustomerId}'", stripeCustomerId);
+        // No Stripe configured is not a partial-failure; report the empty list as a clean success so the
+        // anchor in the (also-unused) subscription row does not stay pinned forever.
+        return Task.FromResult(new StripeEventsListResult([], true));
+    }
+
+    public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)
+    {
+        return null;
     }
 }

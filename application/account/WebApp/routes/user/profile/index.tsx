@@ -10,6 +10,7 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { HashIcon } from "lucide-react";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -121,6 +122,17 @@ function ProfilePage() {
             isPending={saveMutation.isPending}
             onAvatarFileSelect={handleAvatarFileSelect}
             onAvatarRemove={handleAvatarRemove}
+            infoFields={
+              <div className="flex flex-col gap-1 text-sm">
+                <span className="text-muted-foreground">
+                  <Trans>User ID</Trans>
+                </span>
+                <span className="inline-flex items-center gap-1.5 font-mono">
+                  <HashIcon className="size-3.5" aria-hidden={true} />
+                  {user.id}
+                </span>
+              </div>
+            }
           />
 
           <div className="mt-4 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">

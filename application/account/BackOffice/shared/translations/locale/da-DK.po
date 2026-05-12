@@ -13,26 +13,206 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{0, plural, one {# time siden} other {# timer siden}}"
+
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
+
+#. placeholder {0}: formatCurrency(blended, currency)
+msgid "{0} blended"
+msgstr "{0} samlet"
+
+#. placeholder {0}: formatCurrency(currentGain, currency)
+msgid "{0} this period, excluding VAT"
+msgstr "{0} i denne periode, eksklusiv moms"
+
+msgid "{activeUsers} active"
+msgstr "{activeUsers} aktive"
+
+msgid "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
+msgstr "{count, plural, one {# konto har faktureringsafvigelser.} other {# konti har faktureringsafvigelser.}}"
+
+msgid "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
+msgstr "{count, plural, one {# konto er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.} other {# konti er endnu ikke synkroniseret — MRR-tendensen er ufuldstændig.}}"
+
+msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
+msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
+
+msgid "{inactiveUsers} inactive"
+msgstr "{inactiveUsers} inaktive"
+
+msgid "{pendingUsers} pending"
+msgstr "{pendingUsers} afventer"
+
+msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
+msgstr "{tenantCount, plural, one {# medlemskab} other {# medlemskaber}}"
+
+msgid "{total} accounts"
+msgstr "{total} konti"
+
+msgid "{total} new signups · {priorTotal} prior period"
+msgstr "{total} nye tilmeldinger · {priorTotal} forrige periode"
+
+msgid "{total} total · avg {average}/day"
+msgstr "{total} i alt · gns. {average}/dag"
+
+msgid "/ month"
+msgstr "/ måned"
+
+#. placeholder {0}: data.newTenantsInPeriod
+msgid "+{0} new in last {periodDays} days"
+msgstr "+{0} nye sidste {periodDays} dage"
+
+msgid "<0>{totalUsers}</0> total"
+msgstr "<0>{totalUsers}</0> i alt"
+
+msgid "24h"
+msgstr "24t"
+
+msgid "30 days"
+msgstr "30 dage"
+
+msgid "30d"
+msgstr "30d"
+
+msgid "7 days"
+msgstr "7 dage"
+
+msgid "7d"
+msgstr "7d"
+
+msgid "90d"
+msgstr "90d"
+
+msgid "Account"
+msgstr "Konto"
+
+msgid "Account actions"
+msgstr "Kontohandlinger"
+
+msgid "Account growth"
+msgstr "Kontovækst"
+
+#. placeholder {0}: result.driftDiscrepancyCount
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
+msgstr "Kontoen har {0} afvigelser. Sidst afstemt {1}. Hvis standard-afstemning ikke kan rydde afvigelserne, er katastrofegendannelse fra arkiverede Stripe-events tilgængelig som sidste udvej."
+
+msgid "Account preview"
+msgstr "Kontoforhåndsvisning"
+
+msgid "Account users"
+msgstr "Kontobrugere"
+
+msgid "accounts"
+msgstr "konti"
+
 msgid "Accounts"
 msgstr "Konti"
 
-msgid "Accounts (coming soon)"
-msgstr "Konti (kommer snart)"
+msgid "Accounts will appear here as they are created."
+msgstr "Konti vises her, når de oprettes."
+
+msgid "Actions"
+msgstr "Handlinger"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active sessions"
+msgstr "Aktive sessioner"
+
+msgid "Activity"
+msgstr "Aktivitet"
 
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All"
+msgstr "Alle"
+
+msgid "All accounts this user is a member of, with their plan and role."
+msgstr "Alle konti, brugeren er medlem af, med deres plan og rolle."
+
+msgid "All users across every account, most recently seen first. Search and filter to narrow down."
+msgstr "Alle brugere på tværs af konti, senest sete først. Søg og filtrér for at indsnævre."
+
+msgid "All-time"
+msgstr "Samlet"
+
+msgid "All-time, excluding VAT"
+msgstr "Hele perioden, eksklusiv moms"
+
+msgid "Amount"
+msgstr "Beløb"
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
+
+#. placeholder {0}: result.billingEventsAppended
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Appended {0} new billing events. Last reconciled at {1}."
+msgstr "Tilføjede {0} nye faktureringshændelser. Sidst afstemt {1}."
+
+msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
+msgstr "Autoritativ log over abonnements-, betalings- og faktureringsændringer på tværs af alle konti."
 
 msgid "Back Office"
 msgstr "Back Office"
 
-msgid "BackOffice - Localhost"
-msgstr "BackOffice - Localhost"
+msgid "Back Office - Localhost"
+msgstr "Back Office - Localhost"
+
+msgid "Back Office overview · {today}"
+msgstr "Back Office oversigt · {today}"
 
 msgid "Basis"
 msgstr "Basis"
+
+msgid "Billing"
+msgstr "Fakturering"
+
+msgid "Billing address"
+msgstr "Faktureringsadresse"
+
+msgid "Billing events"
+msgstr "Faktureringshændelser"
+
+msgid "Billing info added"
+msgstr "Faktureringsinfo tilføjet"
+
+msgid "Billing info updated"
+msgstr "Faktureringsinfo opdateret"
+
+msgid "blended"
+msgstr "blandet"
+
+msgid "Blended MRR"
+msgstr "Samlet MRR"
+
+msgid "Browser"
+msgstr "Browser"
+
+msgid "Cancel"
+msgstr "Annuller"
+
+msgid "Canceled"
+msgstr "Opsagt"
+
+msgid "Canceling"
+msgstr "Opsiges"
+
+msgid "Cancellation"
+msgstr "Opsigelse"
+
+msgid "Cancelled"
+msgstr "Annulleret"
+
+msgid "Cancelled immediately"
+msgstr "Annulleret med det samme"
 
 msgid "Change language"
 msgstr "Skift sprog"
@@ -43,11 +223,43 @@ msgstr "Skift tema"
 msgid "Change zoom level"
 msgstr "Skift zoomniveau"
 
-msgid "Coming soon"
-msgstr "Kommer snart"
+msgid "Clear filter"
+msgstr "Ryd filter"
+
+msgid "Clear filters"
+msgstr "Ryd filtre"
+
+msgid "Clear search"
+msgstr "Ryd søgning"
+
+msgid "Close"
+msgstr "Luk"
+
+msgid "Close account preview"
+msgstr "Luk kontoforhåndsvisning"
 
 msgid "Contact your administrator."
 msgstr "Kontakt din administrator."
+
+msgid "Country"
+msgstr "Land"
+
+msgid "Created"
+msgstr "Oprettet"
+
+#. placeholder {0}: formatDate(user.createdAt, false, false, true)
+#. placeholder {1}: formatDate(user.createdAt)
+msgid "Created <0>{0}</0><1>{1}</1>"
+msgstr "Oprettet <0>{0}</0><1>{1}</1>"
+
+msgid "Credit note"
+msgstr "Kreditnota"
+
+msgid "Current period"
+msgstr "Aktuel periode"
+
+msgid "Current plan"
+msgstr "Aktuelt abonnement"
 
 msgid "Dark"
 msgstr "Mørk"
@@ -55,20 +267,115 @@ msgstr "Mørk"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, currency)
+#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)
+msgid "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
+msgstr "MRR-uoverensstemmelse på dashboard: KPI viser {0}, seneste tendens viser {1}."
+
+msgid "Date"
+msgstr "Dato"
+
 msgid "Default"
 msgstr "Standard"
 
-msgid "Feature flags"
-msgstr "Feature flags"
+msgid "Desktop"
+msgstr "Computer"
 
-msgid "Feature flags (coming soon)"
-msgstr "Feature flags (kommer snart)"
+msgid "Device"
+msgstr "Enhed"
+
+msgid "Disaster recovery complete"
+msgstr "Katastrofegendannelse fuldført"
+
+msgid "Disaster recovery from archived Stripe events?"
+msgstr "Katastrofegendannelse fra arkiverede Stripe-events?"
+
+msgid "Downgrade cancelled"
+msgstr "Nedgradering annulleret"
+
+msgid "Downgrade scheduled"
+msgstr "Nedgradering planlagt"
+
+msgid "Downgraded"
+msgstr "Nedgraderet"
+
+msgid "Downgrading"
+msgstr "Nedgraderer"
+
+msgid "Drift detected"
+msgstr "Afvigelser fundet"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Email confirmed"
+msgstr "E-mail bekræftet"
+
+msgid "Email pending"
+msgstr "E-mail afventer"
+
+msgid "Enter kiosk mode"
+msgstr "Aktivér kiosktilstand"
+
+msgid "Event"
+msgstr "Hændelse"
+
+msgid "Event view"
+msgstr "Hændelsesvisning"
+
+msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
+msgstr "Alle fakturaer, refusioner og kreditnotaer — pengene ind og ud for dette abonnement."
+
+msgid "Every invoice, refund, and credit note across all accounts."
+msgstr "Alle fakturaer, refusioner og kreditnotaer på tværs af alle konti."
+
+msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
+msgstr "Alle log-ind-forsøg de seneste 30 dage, lykkedes eller mislykkedes, på tværs af e-mail og eksterne udbydere."
+
+msgid "Exit kiosk mode"
+msgstr "Afslut kiosktilstand"
+
+msgid "Expired"
+msgstr "Udløbet"
+
+msgid "Expires"
+msgstr "Udløber"
+
+msgid "Failed"
+msgstr "Mislykket"
+
+msgid "Free"
+msgstr "Gratis"
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Hide details"
 msgstr "Skjul detaljer"
+
+msgid "Inactive"
+msgstr "Inaktive"
+
+msgid "Invoice"
+msgstr "Faktura"
+
+msgid "Invoice view"
+msgstr "Fakturavisning"
+
+msgid "Invoices"
+msgstr "Fakturaer"
+
+msgid "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Fakturaer vises her, når konti tilmelder sig, og Stripe-webhooks behandles."
+
+msgid "IP address"
+msgstr "IP-adresse"
+
+msgid "Just now"
+msgstr "Lige nu"
 
 msgid "Language"
 msgstr "Sprog"
@@ -78,6 +385,24 @@ msgstr "Stor"
 
 msgid "Larger"
 msgstr "Større"
+
+msgid "Last {periodDays} days"
+msgstr "Sidste {periodDays} dage"
+
+msgid "Last 24 hours"
+msgstr "Sidste 24 timer"
+
+msgid "Last invoice"
+msgstr "Sidste faktura"
+
+msgid "Last log-in"
+msgstr "Seneste login"
+
+msgid "Last seen"
+msgstr "Sidst set"
+
+msgid "Lifetime value"
+msgstr "Livstidsværdi"
 
 msgid "Light"
 msgstr "Lys"
@@ -100,29 +425,245 @@ msgstr "Log ud"
 msgid "Logging in..."
 msgstr "Logger ind..."
 
+msgid "Login history"
+msgstr "Login-historik"
+
+msgid "Logins"
+msgstr "Logins"
+
 msgid "Logo"
 msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Hovednavigation"
 
-msgid "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
-msgstr "Administrer konti, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
-
 msgid "Member"
 msgstr "Medlem"
+
+msgid "Method"
+msgstr "Metode"
+
+msgid "Mobile"
+msgstr "Mobil"
+
+msgid "Most recent activity"
+msgstr "Seneste aktivitet"
+
+msgid "MRR"
+msgstr "MRR"
+
+msgid "MRR after"
+msgstr "MRR efter"
+
+msgid "MRR impact"
+msgstr "MRR-effekt"
+
+msgid "MRR trend"
+msgstr "MRR-tendens"
+
+msgid "Name"
+msgstr "Navn"
 
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Never logged in"
+msgstr "Aldrig logget ind"
+
+msgid "New accounts will appear here as they sign up."
+msgstr "Nye konti vises her, når de tilmelder sig."
+
+msgid "Next"
+msgstr "Næste"
+
+msgid "No account memberships"
+msgstr "Ingen kontomedlemskaber"
+
+msgid "No accounts match your filters"
+msgstr "Ingen konti matcher dine filtre"
+
+msgid "No accounts yet"
+msgstr "Ingen konti endnu"
+
 msgid "No back-office access"
 msgstr "Ingen adgang til Back Office"
+
+msgid "No billing address on file."
+msgstr "Ingen faktureringsadresse registreret."
+
+msgid "No billing events"
+msgstr "Ingen faktureringshændelser"
+
+msgid "No billing events match your filters"
+msgstr "Ingen faktureringshændelser matcher dine filtre"
+
+msgid "No billing events yet"
+msgstr "Ingen faktureringshændelser endnu"
+
+msgid "No change"
+msgstr "Ingen ændring"
+
+msgid "No invoices yet"
+msgstr "Ingen fakturaer endnu"
+
+msgid "No invoices, refunds, or credit notes yet."
+msgstr "Ingen fakturaer, refusioner eller kreditnotaer endnu."
+
+msgid "No login history"
+msgstr "Ingen login-historik"
+
+msgid "No matching users"
+msgstr "Ingen matchende brugere"
+
+msgid "No new billing events were appended. Account state matches Stripe."
+msgstr "Ingen nye faktureringshændelser blev tilføjet. Kontotilstand matcher Stripe."
+
+msgid "No owners"
+msgstr "Ingen ejere"
+
+msgid "No owners on this account."
+msgstr "Ingen ejere på denne konto."
+
+msgid "No paid plan yet."
+msgstr "Intet betalt abonnement endnu."
+
+msgid "No plan"
+msgstr "Intet abonnement"
+
+msgid "No recent billing events"
+msgstr "Ingen nylige faktureringshændelser"
+
+msgid "No recent logins"
+msgstr "Ingen nylige logins"
+
+msgid "No recent payments"
+msgstr "Ingen nylige betalinger"
+
+msgid "No recent signups"
+msgstr "Ingen nylige tilmeldinger"
+
+msgid "No records yet"
+msgstr "Ingen poster endnu"
+
+msgid "No refunds or credit notes yet"
+msgstr "Ingen refunderinger eller kreditnotaer endnu"
+
+msgid "No result available."
+msgstr "Intet resultat tilgængeligt."
+
+msgid "No results match your search"
+msgstr "Ingen resultater matcher din søgning"
+
+msgid "No sessions"
+msgstr "Ingen sessioner"
+
+msgid "No sign-in attempts in the last 30 days."
+msgstr "Ingen login-forsøg de seneste 30 dage."
+
+msgid "No transactions"
+msgstr "Ingen transaktioner"
+
+msgid "No users"
+msgstr "Ingen brugere"
+
+msgid "No users match your filters."
+msgstr "Ingen brugere matcher dine filtre."
+
+msgid "No users match your search"
+msgstr "Ingen brugere matcher din søgning"
+
+msgid "No users yet"
+msgstr "Ingen brugere endnu"
+
+msgid "Not synced yet"
+msgstr "Ikke synkroniseret endnu"
+
+msgid "Occurred"
+msgstr "Tidspunkt"
+
+msgid "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
+msgstr "En række pr. enhed eller browser, brugeren er logget ind fra. Tilbagekaldte sessioner kan ikke logge ind igen."
+
+msgid "One-time password"
+msgstr "Engangskode"
+
+msgid "Open account"
+msgstr "Åbn konto"
+
+msgid "Open credit note"
+msgstr "Åbn kreditnota"
+
+msgid "Open in Stripe"
+msgstr "Åbn i Stripe"
+
+msgid "Open invoice"
+msgstr "Åbn faktura"
+
+msgid "Other"
+msgstr "Andet"
+
+msgid "Outcome"
+msgstr "Resultat"
+
+msgid "over period"
+msgstr "over perioden"
+
+msgid "Overview"
+msgstr "Overblik"
 
 msgid "Owner"
 msgstr "Ejer"
 
+msgid "Owners"
+msgstr "Ejere"
+
 msgid "Page not found"
 msgstr "Siden blev ikke fundet"
+
+msgid "Paid"
+msgstr "Betalt"
+
+msgid "Past due"
+msgstr "Forfalden"
+
+msgid "Payment failed"
+msgstr "Betaling mislykkedes"
+
+msgid "Payment method"
+msgstr "Betalingsmetode"
+
+msgid "Payment method updated"
+msgstr "Betalingsmetode opdateret"
+
+msgid "Payment recovered"
+msgstr "Betaling gendannet"
+
+msgid "Payment refunded"
+msgstr "Betaling refunderet"
+
+msgid "Pending"
+msgstr "Afventer"
+
+msgid "per month, billed monthly"
+msgstr "pr. måned, faktureres månedligt"
+
+msgid "Period"
+msgstr "Periode"
+
+msgid "Plan"
+msgstr "Plan"
+
+msgid "Plan & revenue"
+msgstr "Abonnement og omsætning"
+
+msgid "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
+msgstr "Planændringer, fornyelser, opsigelser og betalingsresultater — abonnementets livscyklus og dets MRR-effekt over tid."
+
+msgid "Plan distribution"
+msgstr "Plan-fordeling"
+
+msgid "Plan transition"
+msgstr "Abonnementsændring"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -136,11 +677,141 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 msgid "Premium"
 msgstr "Premium"
 
+msgid "Previous"
+msgstr "Forrige"
+
+msgid "Prior period"
+msgstr "Forrige periode"
+
+msgid "Reactivated"
+msgstr "Genaktiveret"
+
+msgid "Recent billing events"
+msgstr "Nylige faktureringshændelser"
+
+msgid "Recent logins"
+msgstr "Nylige logins"
+
+msgid "Recent payments"
+msgstr "Nylige betalinger"
+
+msgid "Recent signups"
+msgstr "Nylige tilmeldinger"
+
+msgid "Reconcile"
+msgstr "Afstem"
+
+msgid "Reconcile complete"
+msgstr "Afstemning fuldført"
+
+msgid "Reconcile complete with drift detected"
+msgstr "Afstemning fuldført med afvigelser fundet"
+
+#. placeholder {0}: archivedAwaiting.count
+#. placeholder {1}: formatDate(archivedAwaiting.oldestOccurredAt)
+#. placeholder {2}: formatDate(archivedAwaiting.newestOccurredAt)
+msgid "Reconcile found {0} archived events older than Stripe's 30-day window, from {1} to {2}. This is a best-effort recovery from locally stored payloads and may produce incorrect rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+msgstr "Afstemning fandt {0} arkiverede events ældre end Stripes 30-dages vindue, fra {1} til {2}. Dette er en bedst muligt-gendannelse fra lokalt gemte payloads og kan producere forkerte rækker. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."
+
+msgid "Reconcile rebuilds this tenant's subscription and billing events from Stripe directly using the events.list API (the last 30 days). If the drift is not cleared afterwards, disaster recovery from the locally archived Stripe payloads is available as a last resort."
+msgstr "Afstemning genopbygger denne kontos abonnement og faktureringshændelser direkte fra Stripe via events.list-API'et (de seneste 30 dage). Hvis afvigelserne ikke er ryddet bagefter, er katastrofegendannelse fra de lokalt arkiverede Stripe-payloads tilgængelig som sidste udvej."
+
+msgid "Reconcile with Stripe"
+msgstr "Afstem med Stripe"
+
+msgid "Reconcile with Stripe?"
+msgstr "Afstem med Stripe?"
+
+msgid "Reconciling..."
+msgstr "Afstemmer..."
+
+msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Posteringer vises her, når konti abonnerer, og Stripe-webhooks behandles."
+
+msgid "Refunded"
+msgstr "Refunderet"
+
+msgid "Refunds and credit notes"
+msgstr "Refunderinger og kreditnotaer"
+
+msgid "Refunds and credit notes across all accounts."
+msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
+
+msgid "Renewal"
+msgstr "Fornyelse"
+
+msgid "Renewal date"
+msgstr "Fornyelsesdato"
+
+msgid "Renewed"
+msgstr "Fornyet"
+
+#. placeholder {0}: formatDate(membership.renewalDate)
+#. placeholder {0}: formatDate(tenant.renewalDate)
+msgid "Renews {0}"
+msgstr "Fornyes {0}"
+
+#. placeholder {0}: result.billingEventsAppended
+#. placeholder {1}: formatDate(result.replayedAt)
+msgid "Replayed {0} archived events into the billing event ledger at {1}."
+msgstr "Afspillede {0} arkiverede hændelser til faktureringshændelseslogen {1}."
+
+msgid "Revenue"
+msgstr "Omsætning"
+
+msgid "Revoked"
+msgstr "Tilbagekaldt"
+
+msgid "Role"
+msgstr "Rolle"
+
+msgid "Run disaster recovery"
+msgstr "Kør katastrofegendannelse"
+
+msgid "Scheduled plan change"
+msgstr "Planlagt planændring"
+
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet i desktop- og mobilversioner"
 
+msgid "Search"
+msgstr "Søg"
+
+msgid "Search by account name"
+msgstr "Søg efter kontonavn"
+
+msgid "Search by email, name, or account"
+msgstr "Søg på e-mail, navn eller konto"
+
+msgid "Search by name"
+msgstr "Søg efter navn"
+
+msgid "Search by name or email"
+msgstr "Søg efter navn eller e-mail"
+
+msgid "Search users"
+msgstr "Søg brugere"
+
+msgid "Search, filter, and review accounts."
+msgstr "Søg, filtrér og gennemse konti."
+
+msgid "Sessions"
+msgstr "Sessioner"
+
 msgid "Show details"
 msgstr "Vis detaljer"
+
+msgid "Signed up"
+msgstr "Tilmeldt"
+
+#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
+#. placeholder {1}: formatDate(tenant.createdAt)
+msgid "Signed up <0>{0}</0><1>{1}</1>"
+msgstr "Tilmeldt <0>{0}</0><1>{1}</1>"
+
+#. placeholder {0}: formatDate(tenant.subscribedSince)
+msgid "Since {0}"
+msgstr "Siden {0}"
 
 msgid "Small"
 msgstr "Lille"
@@ -151,14 +822,47 @@ msgstr "Noget gik galt"
 msgid "Standard"
 msgstr "Standard"
 
-msgid "Support"
-msgstr "Support"
+msgid "Status"
+msgstr "Status"
 
-msgid "Support (coming soon)"
-msgstr "Support (kommer snart)"
+msgid "Subscribed"
+msgstr "Tilmeldt"
+
+msgid "Subscribed since"
+msgstr "Abonneret siden"
+
+msgid "Subscription state"
+msgstr "Abonnementstilstand"
+
+msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
+msgstr "Abonnements-, betalings- og faktureringsændringer vises her, når Stripe-webhooks behandles."
+
+msgid "Subscription, payment, and billing transitions will appear here."
+msgstr "Abonnements-, betalings- og faktureringsændringer vises her."
+
+msgid "Subscriptions, upgrades, and cancellations will appear here."
+msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
+msgid "Succeeded"
+msgstr "Gennemført"
+
+msgid "Successful logins will appear here as users sign in."
+msgstr "Vellykkede logins vises her, når brugere logger ind."
+
+msgid "Successful, pending, and failed invoices across all accounts."
+msgstr "Gennemførte, afventende og mislykkede fakturaer på tværs af alle konti."
+
+msgid "Suspended"
+msgstr "Suspenderet"
 
 msgid "System"
 msgstr "System"
+
+msgid "Tablet"
+msgstr "Tablet"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
@@ -166,11 +870,59 @@ msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 msgid "Theme"
 msgstr "Tema"
 
+msgid "This account has no users."
+msgstr "Denne konto har ingen brugere."
+
+msgid "this period"
+msgstr "denne periode"
+
+msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+msgstr "Dette genopbygger faktureringshændelsesloggen fra denne kontos arkiverede Stripe-payloads. Det er en bedst muligt-gendannelse, der kan producere forkerte abonnementstilstande eller faktureringshændelser. Kør kun denne handling, når standard Afstem med Stripe er forsøgt og ikke ryddede afvigelserne."
+
+msgid "This user has no recorded sessions."
+msgstr "Denne bruger har ingen registrerede sessioner."
+
+msgid "This user is not a member of any account."
+msgstr "Denne bruger er ikke medlem af nogen konto."
+
+msgid "Total"
+msgstr "I alt"
+
+msgid "Total accounts"
+msgstr "Konti i alt"
+
+msgid "Total revenue"
+msgstr "Omsætning i alt"
+
+msgid "Try a different search term or clear the role and activity filters."
+msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
+
 msgid "Try again"
 msgstr "Prøv igen"
 
+msgid "Try clearing the search or filters to see more results."
+msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
+
+msgid "Try clearing the search to see more results."
+msgstr "Prøv at rydde søgningen for at se flere resultater."
+
+msgid "Unclassified"
+msgstr "Uklassificeret"
+
+msgid "Unknown"
+msgstr "Ukendt"
+
+msgid "Upgraded"
+msgstr "Opgraderet"
+
 msgid "User"
 msgstr "Bruger"
+
+msgid "User detail"
+msgstr "Brugerdetalje"
+
+msgid "User logins / day"
+msgstr "Brugerlogins / dag"
 
 msgid "User menu"
 msgstr "Brugermenu"
@@ -178,17 +930,41 @@ msgstr "Brugermenu"
 msgid "Users"
 msgstr "Brugere"
 
-msgid "Users (coming soon)"
-msgstr "Brugere (kommer snart)"
+msgid "Users active"
+msgstr "Aktive brugere"
 
-msgid "Wait list"
-msgstr "Venteliste"
+msgid "Users will appear here as accounts are created."
+msgstr "Brugere vises her, efterhånden som konti oprettes."
 
-msgid "Wait list (coming soon)"
-msgstr "Venteliste (kommer snart)"
+msgid "VAT"
+msgstr "Moms"
 
-msgid "Welcome to the Back Office"
-msgstr "Velkommen til Back Office"
+msgid "VAT number"
+msgstr "Momsnummer"
+
+msgid "View accounts"
+msgstr "Vis konti"
+
+msgid "View all"
+msgstr "Vis alle"
+
+msgid "View all {totalEvents} events"
+msgstr "Vis alle {totalEvents} hændelser"
+
+msgid "View all {totalTransactions} invoices"
+msgstr "Vis alle {totalTransactions} fakturaer"
+
+msgid "View billing events"
+msgstr "Vis faktureringshændelser"
+
+msgid "vs prior period"
+msgstr "mod forrige periode"
+
+msgid "When"
+msgstr "Hvornår"
+
+msgid "Yesterday"
+msgstr "I går"
 
 msgid "Your account is not in the required group."
 msgstr "Din konto er ikke i den krævede gruppe."

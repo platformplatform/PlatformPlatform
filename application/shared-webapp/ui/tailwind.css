@@ -313,6 +313,18 @@ body {
     }
 }
 
+/* Kiosk mode: when the document enters browser fullscreen (via Fullscreen API), hide the
+   sidebar and any banners so only the page content fills the screen. Triggered by the
+   back-office Dashboard maximize button. */
+:fullscreen #root {
+    padding-top: 0;
+}
+
+:fullscreen [data-slot="sidebar"],
+:fullscreen #banner-root {
+    display: none !important;
+}
+
 /* Toast styling - solid colors, larger padding for visibility */
 /* Diverges from stock ShadCN: scaled sizing using rem for responsive font sizes */
 [data-sonner-toast] {

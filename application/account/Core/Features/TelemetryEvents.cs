@@ -16,6 +16,9 @@ namespace Account.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
+public sealed class BillingDriftSkippedDueToStripeUnavailable(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class BillingInfoAdded(SubscriptionId subscriptionId, string? country, string? postalCode, string? city)
     : TelemetryEvent(("subscription_id", subscriptionId), ("country", country as object ?? "unknown"), ("postal_code", postalCode as object ?? "unknown"), ("city", city as object ?? "unknown"));
 
@@ -70,6 +73,9 @@ public sealed class Logout
 public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, string currency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("currency", currency));
 
+public sealed class PaymentTransactionAmountExcludingTaxClamped(string paymentReference, decimal displayAmount, decimal taxAmount, string currency)
+    : TelemetryEvent(("payment_reference", paymentReference), ("display_amount", displayAmount), ("tax_amount", taxAmount), ("currency", currency));
+
 public sealed class PaymentMethodSetupStarted(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
@@ -99,6 +105,15 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 
 public sealed class SignupStarted
     : TelemetryEvent;
+
+public sealed class StripeEventPayloadMismatch(string eventId, string eventType, string existingHash, string newHash)
+    : TelemetryEvent(("event_id", eventId), ("event_type", eventType), ("existing_hash", existingHash), ("new_hash", newHash));
+
+public sealed class StripeSubscriptionCurrencyMismatchRejected(string stripeSubscriptionId, string observedCurrency, string platformCurrency)
+    : TelemetryEvent(("stripe_subscription_id", stripeSubscriptionId), ("observed_currency", observedCurrency), ("platform_currency", platformCurrency));
+
+public sealed class StripePriceCatalogLookupMissed(SubscriptionId subscriptionId, SubscriptionPlan scheduledPlan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("scheduled_plan", scheduledPlan));
 
 public sealed class SubscriptionCancelled(
     SubscriptionId subscriptionId,
@@ -199,6 +214,9 @@ public sealed class SubscriptionUpgraded(
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
+public sealed class TenantBillingDriftAcknowledged(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
@@ -210,6 +228,12 @@ public sealed class TenantLogoRemoved
 
 public sealed class TenantLogoUpdated(string contentType, long size)
     : TelemetryEvent(("content_type", contentType), ("size", size));
+
+public sealed class TenantReconciledWithStripe(SubscriptionId subscriptionId, int billingEventsAppended)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("billing_events_appended", billingEventsAppended));
+
+public sealed class TenantStripeArchiveReplayed(int count)
+    : TelemetryEvent(("count", count));
 
 public sealed class TenantSwitched(TenantId fromTenantId, TenantId toTenantId, UserId userId)
     : TelemetryEvent(("from_tenant_id", fromTenantId), ("to_tenant_id", toTenantId), ("user_id", userId));
@@ -261,3 +285,6 @@ public sealed class UserZoomLevelChanged(string fromZoomLevel, string toZoomLeve
 
 public sealed class UsersBulkDeleted(int count)
     : TelemetryEvent(("count", count));
+
+public sealed class WebhookDeliveryRecovered(string eventId, string eventType, string recoverySource)
+    : TelemetryEvent(("event_id", eventId), ("event_type", eventType), ("recovery_source", recoverySource));

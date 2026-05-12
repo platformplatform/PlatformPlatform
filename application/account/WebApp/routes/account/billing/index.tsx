@@ -127,7 +127,7 @@ function BillingPage() {
           />
           <div className="mt-8 flex flex-col gap-4">
             <h3>
-              <Trans>Billing history</Trans>
+              <Trans>Invoices</Trans>
             </h3>
             <Separator />
             <BillingHistoryTable />

@@ -5,8 +5,10 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
 
+import { DashboardSections } from "./-components/DashboardSections";
+
 export const Route = createFileRoute("/")({
-  staticData: { trackingTitle: "Back office dashboard" },
+  staticData: { trackingTitle: "Back Office dashboard" },
   component: DashboardPage
 });
 
@@ -15,12 +17,8 @@ function DashboardPage() {
     <SidebarProvider>
       <BackOfficeSideMenu />
       <SidebarInset>
-        <AppLayout
-          browserTitle={t`Dashboard`}
-          title={t`Welcome to the Back Office`}
-          subtitle={t`Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams.`}
-        >
-          {null}
+        <AppLayout variant="center" maxWidth="80rem" browserTitle={t`Dashboard`}>
+          <DashboardSections />
         </AppLayout>
       </SidebarInset>
     </SidebarProvider>

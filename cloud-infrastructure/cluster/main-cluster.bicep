@@ -283,9 +283,6 @@ var accountEnvironmentVariables = [
     name: 'Stripe__AllowMockProvider'
     value: 'false'
   }
-]
-
-var accountApiEnvironmentVariables = concat(accountEnvironmentVariables, [
   {
     name: 'Hostnames__App'
     value: domainName
@@ -298,7 +295,15 @@ var accountApiEnvironmentVariables = concat(accountEnvironmentVariables, [
     name: 'BackOffice__AdminsGroupId'
     value: backOfficeAdminsGroupId
   }
-])
+  {
+    name: 'PUBLIC_GOOGLE_OAUTH_ENABLED'
+    value: !empty(googleOAuthClientId) && !empty(googleOAuthClientSecret) ? 'true' : 'false'
+  }
+  {
+    name: 'PUBLIC_SUBSCRIPTION_ENABLED'
+    value: !empty(stripeApiKey) && !empty(stripeWebhookSecret) && !empty(stripePublishableKey) ? 'true' : 'false'
+  }
+]
 
 module accountWorkers '../modules/container-app.bicep' = {
   name: '${clusterResourceGroupName}-account-workers-container-app'
@@ -347,7 +352,7 @@ module accountApi '../modules/container-app.bicep' = {
     hasProbesEndpoint: true
     external: false
     revisionSuffix: revisionSuffix
-    environmentVariables: accountApiEnvironmentVariables
+    environmentVariables: accountEnvironmentVariables
   }
   dependsOn: [accountWorkers]
 }
@@ -378,7 +383,7 @@ module backOffice '../modules/container-app.bicep' = {
     external: true
     revisionSuffix: revisionSuffix
     // The back-office container runs the same image as account-api; this flag tells Program.cs to register the BackOffice SPA fallback instead of the user-facing one.
-    environmentVariables: concat(accountApiEnvironmentVariables, [
+    environmentVariables: concat(accountEnvironmentVariables, [
       {
         name: 'BackOffice__IsBackOfficeContainer'
         value: 'true'

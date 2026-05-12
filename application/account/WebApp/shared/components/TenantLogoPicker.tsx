@@ -14,13 +14,12 @@ import { CameraIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
-const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const ACCEPTED_FILES: Accept = {
   "image/jpeg": [".jpg", ".jpeg"],
   "image/png": [".png"],
   "image/gif": [".gif"],
-  "image/webp": [".webp"],
-  "image/svg+xml": [".svg"]
+  "image/webp": [".webp"]
 };
 
 interface TenantLogoPickerProps {
@@ -58,7 +57,7 @@ export function TenantLogoPicker({
     if (code === "file-too-large") {
       alert(t`Image must be smaller than 1 MB.`);
     } else if (code === "file-invalid-type") {
-      alert(t`Please select a JPEG, PNG, GIF, WebP, or SVG image.`);
+      alert(t`Please select a JPEG, PNG, GIF, or WebP image.`);
     }
   };
 
@@ -67,7 +66,7 @@ export function TenantLogoPicker({
       const file = files[0];
 
       if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        alert(t`Please select a JPEG, PNG, GIF, WebP, or SVG image.`);
+        alert(t`Please select a JPEG, PNG, GIF, or WebP image.`);
         return;
       }
 

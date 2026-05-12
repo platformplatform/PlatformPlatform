@@ -13,26 +13,206 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
+
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
+
+#. placeholder {0}: formatCurrency(blended, currency)
+msgid "{0} blended"
+msgstr "{0} blended"
+
+#. placeholder {0}: formatCurrency(currentGain, currency)
+msgid "{0} this period, excluding VAT"
+msgstr "{0} this period, excluding VAT"
+
+msgid "{activeUsers} active"
+msgstr "{activeUsers} active"
+
+msgid "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
+msgstr "{count, plural, one {# account has billing drift detected.} other {# accounts have billing drift detected.}}"
+
+msgid "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
+msgstr "{count, plural, one {# account has not been synced yet — MRR trend is incomplete.} other {# accounts have not been synced yet — MRR trend is incomplete.}}"
+
+msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
+msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
+
+msgid "{inactiveUsers} inactive"
+msgstr "{inactiveUsers} inactive"
+
+msgid "{pendingUsers} pending"
+msgstr "{pendingUsers} pending"
+
+msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
+msgstr "{tenantCount, plural, one {# membership} other {# memberships}}"
+
+msgid "{total} accounts"
+msgstr "{total} accounts"
+
+msgid "{total} new signups · {priorTotal} prior period"
+msgstr "{total} new signups · {priorTotal} prior period"
+
+msgid "{total} total · avg {average}/day"
+msgstr "{total} total · avg {average}/day"
+
+msgid "/ month"
+msgstr "/ month"
+
+#. placeholder {0}: data.newTenantsInPeriod
+msgid "+{0} new in last {periodDays} days"
+msgstr "+{0} new in last {periodDays} days"
+
+msgid "<0>{totalUsers}</0> total"
+msgstr "<0>{totalUsers}</0> total"
+
+msgid "24h"
+msgstr "24h"
+
+msgid "30 days"
+msgstr "30 days"
+
+msgid "30d"
+msgstr "30d"
+
+msgid "7 days"
+msgstr "7 days"
+
+msgid "7d"
+msgstr "7d"
+
+msgid "90d"
+msgstr "90d"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Account actions"
+msgstr "Account actions"
+
+msgid "Account growth"
+msgstr "Account growth"
+
+#. placeholder {0}: result.driftDiscrepancyCount
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
+msgstr "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
+
+msgid "Account preview"
+msgstr "Account preview"
+
+msgid "Account users"
+msgstr "Account users"
+
+msgid "accounts"
+msgstr "accounts"
+
 msgid "Accounts"
 msgstr "Accounts"
 
-msgid "Accounts (coming soon)"
-msgstr "Accounts (coming soon)"
+msgid "Accounts will appear here as they are created."
+msgstr "Accounts will appear here as they are created."
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Active sessions"
+msgstr "Active sessions"
+
+msgid "Activity"
+msgstr "Activity"
 
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All"
+msgstr "All"
+
+msgid "All accounts this user is a member of, with their plan and role."
+msgstr "All accounts this user is a member of, with their plan and role."
+
+msgid "All users across every account, most recently seen first. Search and filter to narrow down."
+msgstr "All users across every account, most recently seen first. Search and filter to narrow down."
+
+msgid "All-time"
+msgstr "All-time"
+
+msgid "All-time, excluding VAT"
+msgstr "All-time, excluding VAT"
+
+msgid "Amount"
+msgstr "Amount"
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
+
+#. placeholder {0}: result.billingEventsAppended
+#. placeholder {1}: formatDate(result.reconciledAt)
+msgid "Appended {0} new billing events. Last reconciled at {1}."
+msgstr "Appended {0} new billing events. Last reconciled at {1}."
+
+msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
+msgstr "Authoritative log of subscription, payment, and billing transitions across all accounts."
 
 msgid "Back Office"
 msgstr "Back Office"
 
-msgid "BackOffice - Localhost"
-msgstr "BackOffice - Localhost"
+msgid "Back Office - Localhost"
+msgstr "Back Office - Localhost"
+
+msgid "Back Office overview · {today}"
+msgstr "Back Office overview · {today}"
 
 msgid "Basis"
 msgstr "Basis"
+
+msgid "Billing"
+msgstr "Billing"
+
+msgid "Billing address"
+msgstr "Billing address"
+
+msgid "Billing events"
+msgstr "Billing events"
+
+msgid "Billing info added"
+msgstr "Billing info added"
+
+msgid "Billing info updated"
+msgstr "Billing info updated"
+
+msgid "blended"
+msgstr "blended"
+
+msgid "Blended MRR"
+msgstr "Blended MRR"
+
+msgid "Browser"
+msgstr "Browser"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Canceled"
+msgstr "Canceled"
+
+msgid "Canceling"
+msgstr "Canceling"
+
+msgid "Cancellation"
+msgstr "Cancellation"
+
+msgid "Cancelled"
+msgstr "Cancelled"
+
+msgid "Cancelled immediately"
+msgstr "Cancelled immediately"
 
 msgid "Change language"
 msgstr "Change language"
@@ -43,11 +223,43 @@ msgstr "Change theme"
 msgid "Change zoom level"
 msgstr "Change zoom level"
 
-msgid "Coming soon"
-msgstr "Coming soon"
+msgid "Clear filter"
+msgstr "Clear filter"
+
+msgid "Clear filters"
+msgstr "Clear filters"
+
+msgid "Clear search"
+msgstr "Clear search"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Close account preview"
+msgstr "Close account preview"
 
 msgid "Contact your administrator."
 msgstr "Contact your administrator."
+
+msgid "Country"
+msgstr "Country"
+
+msgid "Created"
+msgstr "Created"
+
+#. placeholder {0}: formatDate(user.createdAt, false, false, true)
+#. placeholder {1}: formatDate(user.createdAt)
+msgid "Created <0>{0}</0><1>{1}</1>"
+msgstr "Created <0>{0}</0><1>{1}</1>"
+
+msgid "Credit note"
+msgstr "Credit note"
+
+msgid "Current period"
+msgstr "Current period"
+
+msgid "Current plan"
+msgstr "Current plan"
 
 msgid "Dark"
 msgstr "Dark"
@@ -55,20 +267,115 @@ msgstr "Dark"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+#. placeholder {0}: formatCurrency(data.kpiMonthlyRecurringRevenue, currency)
+#. placeholder {1}: formatCurrency(data.trendLatestMonthlyRecurringRevenue, currency)
+msgid "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
+msgstr "Dashboard MRR mismatch: KPI shows {0}, trend latest shows {1}."
+
+msgid "Date"
+msgstr "Date"
+
 msgid "Default"
 msgstr "Default"
 
-msgid "Feature flags"
-msgstr "Feature flags"
+msgid "Desktop"
+msgstr "Desktop"
 
-msgid "Feature flags (coming soon)"
-msgstr "Feature flags (coming soon)"
+msgid "Device"
+msgstr "Device"
+
+msgid "Disaster recovery complete"
+msgstr "Disaster recovery complete"
+
+msgid "Disaster recovery from archived Stripe events?"
+msgstr "Disaster recovery from archived Stripe events?"
+
+msgid "Downgrade cancelled"
+msgstr "Downgrade cancelled"
+
+msgid "Downgrade scheduled"
+msgstr "Downgrade scheduled"
+
+msgid "Downgraded"
+msgstr "Downgraded"
+
+msgid "Downgrading"
+msgstr "Downgrading"
+
+msgid "Drift detected"
+msgstr "Drift detected"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Email confirmed"
+msgstr "Email confirmed"
+
+msgid "Email pending"
+msgstr "Email pending"
+
+msgid "Enter kiosk mode"
+msgstr "Enter kiosk mode"
+
+msgid "Event"
+msgstr "Event"
+
+msgid "Event view"
+msgstr "Event view"
+
+msgid "Every invoice, refund, and credit note — the money in and out for this subscription."
+msgstr "Every invoice, refund, and credit note — the money in and out for this subscription."
+
+msgid "Every invoice, refund, and credit note across all accounts."
+msgstr "Every invoice, refund, and credit note across all accounts."
+
+msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
+msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
+
+msgid "Exit kiosk mode"
+msgstr "Exit kiosk mode"
+
+msgid "Expired"
+msgstr "Expired"
+
+msgid "Expires"
+msgstr "Expires"
+
+msgid "Failed"
+msgstr "Failed"
+
+msgid "Free"
+msgstr "Free"
 
 msgid "Go to home"
 msgstr "Go to home"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Hide details"
 msgstr "Hide details"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Invoice"
+msgstr "Invoice"
+
+msgid "Invoice view"
+msgstr "Invoice view"
+
+msgid "Invoices"
+msgstr "Invoices"
+
+msgid "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Invoices will appear here as accounts subscribe and Stripe webhooks are processed."
+
+msgid "IP address"
+msgstr "IP address"
+
+msgid "Just now"
+msgstr "Just now"
 
 msgid "Language"
 msgstr "Language"
@@ -78,6 +385,24 @@ msgstr "Large"
 
 msgid "Larger"
 msgstr "Larger"
+
+msgid "Last {periodDays} days"
+msgstr "Last {periodDays} days"
+
+msgid "Last 24 hours"
+msgstr "Last 24 hours"
+
+msgid "Last invoice"
+msgstr "Last invoice"
+
+msgid "Last log-in"
+msgstr "Last log-in"
+
+msgid "Last seen"
+msgstr "Last seen"
+
+msgid "Lifetime value"
+msgstr "Lifetime value"
 
 msgid "Light"
 msgstr "Light"
@@ -100,29 +425,245 @@ msgstr "Log out"
 msgid "Logging in..."
 msgstr "Logging in..."
 
+msgid "Login history"
+msgstr "Login history"
+
+msgid "Logins"
+msgstr "Logins"
+
 msgid "Logo"
 msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Main navigation"
 
-msgid "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
-msgstr "Manage accounts, view system data, see exceptions, and perform various tasks for operational and support teams."
-
 msgid "Member"
 msgstr "Member"
+
+msgid "Method"
+msgstr "Method"
+
+msgid "Mobile"
+msgstr "Mobile"
+
+msgid "Most recent activity"
+msgstr "Most recent activity"
+
+msgid "MRR"
+msgstr "MRR"
+
+msgid "MRR after"
+msgstr "MRR after"
+
+msgid "MRR impact"
+msgstr "MRR impact"
+
+msgid "MRR trend"
+msgstr "MRR trend"
+
+msgid "Name"
+msgstr "Name"
 
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Never logged in"
+msgstr "Never logged in"
+
+msgid "New accounts will appear here as they sign up."
+msgstr "New accounts will appear here as they sign up."
+
+msgid "Next"
+msgstr "Next"
+
+msgid "No account memberships"
+msgstr "No account memberships"
+
+msgid "No accounts match your filters"
+msgstr "No accounts match your filters"
+
+msgid "No accounts yet"
+msgstr "No accounts yet"
+
 msgid "No back-office access"
 msgstr "No back-office access"
+
+msgid "No billing address on file."
+msgstr "No billing address on file."
+
+msgid "No billing events"
+msgstr "No billing events"
+
+msgid "No billing events match your filters"
+msgstr "No billing events match your filters"
+
+msgid "No billing events yet"
+msgstr "No billing events yet"
+
+msgid "No change"
+msgstr "No change"
+
+msgid "No invoices yet"
+msgstr "No invoices yet"
+
+msgid "No invoices, refunds, or credit notes yet."
+msgstr "No invoices, refunds, or credit notes yet."
+
+msgid "No login history"
+msgstr "No login history"
+
+msgid "No matching users"
+msgstr "No matching users"
+
+msgid "No new billing events were appended. Account state matches Stripe."
+msgstr "No new billing events were appended. Account state matches Stripe."
+
+msgid "No owners"
+msgstr "No owners"
+
+msgid "No owners on this account."
+msgstr "No owners on this account."
+
+msgid "No paid plan yet."
+msgstr "No paid plan yet."
+
+msgid "No plan"
+msgstr "No plan"
+
+msgid "No recent billing events"
+msgstr "No recent billing events"
+
+msgid "No recent logins"
+msgstr "No recent logins"
+
+msgid "No recent payments"
+msgstr "No recent payments"
+
+msgid "No recent signups"
+msgstr "No recent signups"
+
+msgid "No records yet"
+msgstr "No records yet"
+
+msgid "No refunds or credit notes yet"
+msgstr "No refunds or credit notes yet"
+
+msgid "No result available."
+msgstr "No result available."
+
+msgid "No results match your search"
+msgstr "No results match your search"
+
+msgid "No sessions"
+msgstr "No sessions"
+
+msgid "No sign-in attempts in the last 30 days."
+msgstr "No sign-in attempts in the last 30 days."
+
+msgid "No transactions"
+msgstr "No transactions"
+
+msgid "No users"
+msgstr "No users"
+
+msgid "No users match your filters."
+msgstr "No users match your filters."
+
+msgid "No users match your search"
+msgstr "No users match your search"
+
+msgid "No users yet"
+msgstr "No users yet"
+
+msgid "Not synced yet"
+msgstr "Not synced yet"
+
+msgid "Occurred"
+msgstr "Occurred"
+
+msgid "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
+msgstr "One row per device or browser the user is signed in from. Revoked sessions cannot sign in again."
+
+msgid "One-time password"
+msgstr "One-time password"
+
+msgid "Open account"
+msgstr "Open account"
+
+msgid "Open credit note"
+msgstr "Open credit note"
+
+msgid "Open in Stripe"
+msgstr "Open in Stripe"
+
+msgid "Open invoice"
+msgstr "Open invoice"
+
+msgid "Other"
+msgstr "Other"
+
+msgid "Outcome"
+msgstr "Outcome"
+
+msgid "over period"
+msgstr "over period"
+
+msgid "Overview"
+msgstr "Overview"
 
 msgid "Owner"
 msgstr "Owner"
 
+msgid "Owners"
+msgstr "Owners"
+
 msgid "Page not found"
 msgstr "Page not found"
+
+msgid "Paid"
+msgstr "Paid"
+
+msgid "Past due"
+msgstr "Past due"
+
+msgid "Payment failed"
+msgstr "Payment failed"
+
+msgid "Payment method"
+msgstr "Payment method"
+
+msgid "Payment method updated"
+msgstr "Payment method updated"
+
+msgid "Payment recovered"
+msgstr "Payment recovered"
+
+msgid "Payment refunded"
+msgstr "Payment refunded"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "per month, billed monthly"
+msgstr "per month, billed monthly"
+
+msgid "Period"
+msgstr "Period"
+
+msgid "Plan"
+msgstr "Plan"
+
+msgid "Plan & revenue"
+msgstr "Plan & revenue"
+
+msgid "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
+msgstr "Plan changes, renewals, cancellations, and payment outcomes — the subscription lifecycle and its MRR impact over time."
+
+msgid "Plan distribution"
+msgstr "Plan distribution"
+
+msgid "Plan transition"
+msgstr "Plan transition"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -136,11 +677,141 @@ msgstr "Please try again or return to the home page."
 msgid "Premium"
 msgstr "Premium"
 
+msgid "Previous"
+msgstr "Previous"
+
+msgid "Prior period"
+msgstr "Prior period"
+
+msgid "Reactivated"
+msgstr "Reactivated"
+
+msgid "Recent billing events"
+msgstr "Recent billing events"
+
+msgid "Recent logins"
+msgstr "Recent logins"
+
+msgid "Recent payments"
+msgstr "Recent payments"
+
+msgid "Recent signups"
+msgstr "Recent signups"
+
+msgid "Reconcile"
+msgstr "Reconcile"
+
+msgid "Reconcile complete"
+msgstr "Reconcile complete"
+
+msgid "Reconcile complete with drift detected"
+msgstr "Reconcile complete with drift detected"
+
+#. placeholder {0}: archivedAwaiting.count
+#. placeholder {1}: formatDate(archivedAwaiting.oldestOccurredAt)
+#. placeholder {2}: formatDate(archivedAwaiting.newestOccurredAt)
+msgid "Reconcile found {0} archived events older than Stripe's 30-day window, from {1} to {2}. This is a best-effort recovery from locally stored payloads and may produce incorrect rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+msgstr "Reconcile found {0} archived events older than Stripe's 30-day window, from {1} to {2}. This is a best-effort recovery from locally stored payloads and may produce incorrect rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+
+msgid "Reconcile rebuilds this tenant's subscription and billing events from Stripe directly using the events.list API (the last 30 days). If the drift is not cleared afterwards, disaster recovery from the locally archived Stripe payloads is available as a last resort."
+msgstr "Reconcile rebuilds this tenant's subscription and billing events from Stripe directly using the events.list API (the last 30 days). If the drift is not cleared afterwards, disaster recovery from the locally archived Stripe payloads is available as a last resort."
+
+msgid "Reconcile with Stripe"
+msgstr "Reconcile with Stripe"
+
+msgid "Reconcile with Stripe?"
+msgstr "Reconcile with Stripe?"
+
+msgid "Reconciling..."
+msgstr "Reconciling..."
+
+msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
+msgstr "Records will appear here as accounts subscribe and Stripe webhooks are processed."
+
+msgid "Refunded"
+msgstr "Refunded"
+
+msgid "Refunds and credit notes"
+msgstr "Refunds and credit notes"
+
+msgid "Refunds and credit notes across all accounts."
+msgstr "Refunds and credit notes across all accounts."
+
+msgid "Renewal"
+msgstr "Renewal"
+
+msgid "Renewal date"
+msgstr "Renewal date"
+
+msgid "Renewed"
+msgstr "Renewed"
+
+#. placeholder {0}: formatDate(membership.renewalDate)
+#. placeholder {0}: formatDate(tenant.renewalDate)
+msgid "Renews {0}"
+msgstr "Renews {0}"
+
+#. placeholder {0}: result.billingEventsAppended
+#. placeholder {1}: formatDate(result.replayedAt)
+msgid "Replayed {0} archived events into the billing event ledger at {1}."
+msgstr "Replayed {0} archived events into the billing event ledger at {1}."
+
+msgid "Revenue"
+msgstr "Revenue"
+
+msgid "Revoked"
+msgstr "Revoked"
+
+msgid "Role"
+msgstr "Role"
+
+msgid "Run disaster recovery"
+msgstr "Run disaster recovery"
+
+msgid "Scheduled plan change"
+msgstr "Scheduled plan change"
+
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
+msgid "Search"
+msgstr "Search"
+
+msgid "Search by account name"
+msgstr "Search by account name"
+
+msgid "Search by email, name, or account"
+msgstr "Search by email, name, or account"
+
+msgid "Search by name"
+msgstr "Search by name"
+
+msgid "Search by name or email"
+msgstr "Search by name or email"
+
+msgid "Search users"
+msgstr "Search users"
+
+msgid "Search, filter, and review accounts."
+msgstr "Search, filter, and review accounts."
+
+msgid "Sessions"
+msgstr "Sessions"
+
 msgid "Show details"
 msgstr "Show details"
+
+msgid "Signed up"
+msgstr "Signed up"
+
+#. placeholder {0}: formatDate(tenant.createdAt, false, false, true)
+#. placeholder {1}: formatDate(tenant.createdAt)
+msgid "Signed up <0>{0}</0><1>{1}</1>"
+msgstr "Signed up <0>{0}</0><1>{1}</1>"
+
+#. placeholder {0}: formatDate(tenant.subscribedSince)
+msgid "Since {0}"
+msgstr "Since {0}"
 
 msgid "Small"
 msgstr "Small"
@@ -151,14 +822,47 @@ msgstr "Something went wrong"
 msgid "Standard"
 msgstr "Standard"
 
-msgid "Support"
-msgstr "Support"
+msgid "Status"
+msgstr "Status"
 
-msgid "Support (coming soon)"
-msgstr "Support (coming soon)"
+msgid "Subscribed"
+msgstr "Subscribed"
+
+msgid "Subscribed since"
+msgstr "Subscribed since"
+
+msgid "Subscription state"
+msgstr "Subscription state"
+
+msgid "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
+msgstr "Subscription, payment, and billing transitions will appear here as Stripe webhooks are processed."
+
+msgid "Subscription, payment, and billing transitions will appear here."
+msgstr "Subscription, payment, and billing transitions will appear here."
+
+msgid "Subscriptions, upgrades, and cancellations will appear here."
+msgstr "Subscriptions, upgrades, and cancellations will appear here."
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
+msgid "Succeeded"
+msgstr "Succeeded"
+
+msgid "Successful logins will appear here as users sign in."
+msgstr "Successful logins will appear here as users sign in."
+
+msgid "Successful, pending, and failed invoices across all accounts."
+msgstr "Successful, pending, and failed invoices across all accounts."
+
+msgid "Suspended"
+msgstr "Suspended"
 
 msgid "System"
 msgstr "System"
+
+msgid "Tablet"
+msgstr "Tablet"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
@@ -166,11 +870,59 @@ msgstr "The page you are looking for does not exist or was moved."
 msgid "Theme"
 msgstr "Theme"
 
+msgid "This account has no users."
+msgstr "This account has no users."
+
+msgid "this period"
+msgstr "this period"
+
+msgid "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+msgstr "This rebuilds the billing event ledger from this tenant's archived Stripe payloads. It is a best-effort recovery that may produce incorrect subscription state or billing event rows. Only run it when standard Reconcile with Stripe has been tried and did not clear the drift."
+
+msgid "This user has no recorded sessions."
+msgstr "This user has no recorded sessions."
+
+msgid "This user is not a member of any account."
+msgstr "This user is not a member of any account."
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Total accounts"
+msgstr "Total accounts"
+
+msgid "Total revenue"
+msgstr "Total revenue"
+
+msgid "Try a different search term or clear the role and activity filters."
+msgstr "Try a different search term or clear the role and activity filters."
+
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Try clearing the search or filters to see more results."
+msgstr "Try clearing the search or filters to see more results."
+
+msgid "Try clearing the search to see more results."
+msgstr "Try clearing the search to see more results."
+
+msgid "Unclassified"
+msgstr "Unclassified"
+
+msgid "Unknown"
+msgstr "Unknown"
+
+msgid "Upgraded"
+msgstr "Upgraded"
+
 msgid "User"
 msgstr "User"
+
+msgid "User detail"
+msgstr "User detail"
+
+msgid "User logins / day"
+msgstr "User logins / day"
 
 msgid "User menu"
 msgstr "User menu"
@@ -178,17 +930,41 @@ msgstr "User menu"
 msgid "Users"
 msgstr "Users"
 
-msgid "Users (coming soon)"
-msgstr "Users (coming soon)"
+msgid "Users active"
+msgstr "Users active"
 
-msgid "Wait list"
-msgstr "Wait list"
+msgid "Users will appear here as accounts are created."
+msgstr "Users will appear here as accounts are created."
 
-msgid "Wait list (coming soon)"
-msgstr "Wait list (coming soon)"
+msgid "VAT"
+msgstr "VAT"
 
-msgid "Welcome to the Back Office"
-msgstr "Welcome to the Back Office"
+msgid "VAT number"
+msgstr "VAT number"
+
+msgid "View accounts"
+msgstr "View accounts"
+
+msgid "View all"
+msgstr "View all"
+
+msgid "View all {totalEvents} events"
+msgstr "View all {totalEvents} events"
+
+msgid "View all {totalTransactions} invoices"
+msgstr "View all {totalTransactions} invoices"
+
+msgid "View billing events"
+msgstr "View billing events"
+
+msgid "vs prior period"
+msgstr "vs prior period"
+
+msgid "When"
+msgstr "When"
+
+msgid "Yesterday"
+msgstr "Yesterday"
 
 msgid "Your account is not in the required group."
 msgstr "Your account is not in the required group."

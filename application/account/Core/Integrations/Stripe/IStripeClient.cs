@@ -24,6 +24,17 @@ public interface IStripeClient
 
     Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken);
 
+    Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the single currency observed across active Stripe prices. The application's
+    ///     architectural promise is that every active Stripe price uses the same currency; an
+    ///     implementation must throw when it observes more than one distinct currency. Returns
+    ///     <c>null</c> from <see cref="UnconfiguredStripeClient" /> so callers can detect the
+    ///     unconfigured environment without exception handling.
+    /// </summary>
+    Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken);
+
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 
     Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
@@ -51,12 +62,45 @@ public interface IStripeClient
     Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken);
 
     Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns Stripe events related to a customer (last 30 days — see
+    ///     https://docs.stripe.com/api/events) via the events.list API. This is the authoritative
+    ///     source for the hot path: every webhook-driven sync calls this with
+    ///     <paramref name="sinceCreated" /> set to the subscription's last-synced anchor so the
+    ///     BillingEvent ledger is rebuilt from Stripe's view of the world, never from
+    ///     <c>stripe_events.payload</c>. The local archive is a cold backup read only by the
+    ///     admin reconcile command for events older than the 30-day window.
+    ///     The returned <see cref="StripeEventsListResult.Succeeded" /> flag distinguishes a
+    ///     fully-paged success (anchor may advance) from a partial / failed enumeration (anchor
+    ///     must remain unchanged so the next sync re-pulls the unseen events).
+    /// </summary>
+    Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Builds the Stripe Dashboard URL for a customer. Returns null when no Stripe API key is
+    ///     configured. The URL points at the test-mode dashboard for `sk_test_*` keys and the live
+    ///     dashboard otherwise — matching how the Stripe Dashboard itself disambiguates modes.
+    /// </summary>
+    string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId);
 }
+
+public sealed record StripeReplayEvent(string EventId, string EventType, DateTimeOffset CreatedAt, string Payload, string ApiVersion);
+
+/// <summary>
+///     Result of <see cref="IStripeClient.GetEventsForCustomerAsync" />. <see cref="Succeeded" /> is
+///     <c>true</c> only when the events.list enumeration completed without an exception mid-pagination;
+///     callers must keep the events.list anchor unchanged when it is <c>false</c> so the next sync re-pulls
+///     the events that were never observed.
+/// </summary>
+public sealed record StripeEventsListResult(StripeReplayEvent[] Events, bool Succeeded);
 
 public sealed record StripeWebhookEventResult(
     string EventId,
     string EventType,
-    StripeCustomerId? CustomerId
+    StripeCustomerId? CustomerId,
+    string ApiVersion,
+    DateTimeOffset Created
 );
 
 public sealed record CheckoutSessionResult(string SessionId, string ClientSecret);
@@ -92,6 +136,17 @@ public sealed record UpgradePreviewLineItem(string Description, decimal Amount, 
 
 public sealed record CheckoutPreviewResult(decimal TotalAmount, string Currency, decimal TaxAmount);
 
+/// <summary>
+///     One row in the Stripe price catalog, normalized to the platform's ex-VAT convention. The
+///     <see cref="UnitAmount" /> field is ALWAYS the ex-VAT recurring price — implementations must
+///     subtract VAT from Stripe's inc-VAT listed amount when the price has
+///     <c>tax_behavior=inclusive</c>. The catalog is the source of truth for MRR, BillingEvent amounts,
+///     and ScheduledPriceAmount; all of those are revenue-accounting numbers and VAT is collected on
+///     behalf of tax authorities, never our revenue. The only place inc-VAT amounts appear in the
+///     domain is <see cref="PaymentTransaction" />, which carries the inc-VAT customer-facing amount
+///     alongside <see cref="PaymentTransaction.AmountExcludingTax" /> and
+///     <see cref="PaymentTransaction.TaxAmount" /> for invoice display.
+/// </summary>
 public sealed record PriceCatalogItem(
     SubscriptionPlan Plan,
     decimal UnitAmount,

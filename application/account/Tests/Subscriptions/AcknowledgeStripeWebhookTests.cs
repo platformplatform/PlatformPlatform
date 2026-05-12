@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using Account.Database;
 using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Shared;
 using Account.Features.Tenants.Domain;
 using Account.Integrations.Stripe;
 using FluentAssertions;
@@ -22,8 +23,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("plan", plan),
                 ("stripe_customer_id", stripeCustomerId),
                 ("stripe_subscription_id", stripeSubscriptionId),
-                ("current_price_amount", hasStripeSubscription ? 29.99m : null),
-                ("current_price_currency", hasStripeSubscription ? "USD" : null),
+                ("current_price_amount", hasStripeSubscription ? MockStripeClient.StandardAmountExcludingTax : null),
+                ("current_price_currency", hasStripeSubscription ? MockStripeClient.MockStandardCurrency : null),
                 ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
                 ("first_payment_failed_at", firstPaymentFailedAt),
                 ("cancellation_reason", cancellationReason)
@@ -57,6 +58,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange
         SetupSubscription();
         var eventId = $"{MockStripeClient.MockWebhookEventId}_duplicate";
+        var duplicatePayload = $"customer:{MockStripeClient.MockCustomerId}";
         Connection.Insert("stripe_events", [
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
                 ("id", eventId),
@@ -67,8 +69,11 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("processed_at", TimeProvider.GetUtcNow()),
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
-                ("payload", null),
-                ("error", null)
+                ("payload", duplicatePayload),
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash(duplicatePayload)),
+                ("stripe_created_at", TimeProvider.GetUtcNow())
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
@@ -76,7 +81,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+            Content = new StringContent(duplicatePayload, Encoding.UTF8, "application/json")
         };
         request.Headers.Add("Stripe-Signature", $"event_type:checkout.session.completed,event_id:{eventId}");
         var response = await AnonymousHttpClient.SendAsync(request);
@@ -283,7 +288,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     [Fact]
     public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedAndTenantAlreadySuspended_ShouldNotOverrideSuspension()
     {
-        // Arrange - tenant already suspended with CustomerDeleted (e.g., customer.deleted processed in previous batch)
+        // tenant already suspended with CustomerDeleted (e.g., customer.deleted processed in previous batch)
+        // Arrange
         StripeState.SimulateSubscriptionDeleted = true;
         SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.Value, [("state", nameof(TenantState.Suspended)), ("suspension_reason", nameof(SuspensionReason.CustomerDeleted))]);
@@ -297,7 +303,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.deleted");
         var response = await AnonymousHttpClient.SendAsync(request);
 
-        // Assert - tenant should remain Suspended with CustomerDeleted, not overridden to Active or PaymentFailed
+        // tenant should remain Suspended with CustomerDeleted, not overridden to Active or PaymentFailed
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
@@ -310,7 +317,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     [Fact]
     public async Task AcknowledgeStripeWebhook_WhenCustomerDeletedAndSubscriptionDeletedInSameBatch_ShouldSuspendWithCustomerDeleted()
     {
-        // Arrange - pre-insert a pending customer.deleted event so both events process in the same batch
+        // pre-insert a pending customer.deleted event so both events process in the same batch
+        // Arrange
         StripeState.SimulateCustomerDeleted = true;
         SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         Connection.Insert("stripe_events", [
@@ -324,12 +332,16 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("stripe_customer_id", MockStripeClient.MockCustomerId),
                 ("stripe_subscription_id", null),
                 ("payload", null),
-                ("error", null)
+                ("error", null),
+                ("api_version", MockStripeClient.MockApiVersion),
+                ("payload_hash", StripeEventPayloadHasher.Hash("")),
+                ("stripe_created_at", TimeProvider.GetUtcNow())
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
 
-        // Act - send subscription.deleted webhook, which triggers processing of both pending events
+        // send subscription.deleted webhook, which triggers processing of both pending events
+        // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
         {
             Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
@@ -337,7 +349,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.deleted");
         var response = await AnonymousHttpClient.SendAsync(request);
 
-        // Assert - customer.deleted should take priority, tenant suspended with CustomerDeleted
+        // customer.deleted should take priority, tenant suspended with CustomerDeleted
+        // Assert
         response.EnsureSuccessStatusCode();
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);

@@ -19,14 +19,19 @@ public sealed class StripeWebhookEndpoints : IEndpoints
         group.MapPost("/", async Task<ApiResult> (HttpRequest request, IMediator mediator, ProcessPendingStripeEvents processPendingStripeEvents) =>
             {
                 var payload = await new StreamReader(request.Body).ReadToEndAsync();
-                var signatureHeader = request.Headers["Stripe-Signature"].ToString();
+                if (!request.Headers.TryGetValue("Stripe-Signature", out var signatureHeaderValues) || signatureHeaderValues.Count != 1)
+                {
+                    return Result.BadRequest("Stripe-Signature header missing or duplicated.");
+                }
+
+                var signatureHeader = signatureHeaderValues[0]!;
                 var acknowledgeResult = await mediator.Send(new AcknowledgeStripeWebhookCommand(payload, signatureHeader));
                 if (!acknowledgeResult.IsSuccess) return Result.From(acknowledgeResult);
 
-                var customerId = acknowledgeResult.Value;
-                if (customerId is not null)
+                var acknowledgedWebhook = acknowledgeResult.Value;
+                if (acknowledgedWebhook is not null)
                 {
-                    await processPendingStripeEvents.ExecuteAsync(customerId, request.HttpContext.RequestAborted);
+                    await processPendingStripeEvents.ExecuteAsync(acknowledgedWebhook.StripeCustomerId, acknowledgedWebhook.JustAcknowledgedEvent, request.HttpContext.RequestAborted);
                 }
 
                 return Result.Success();

@@ -299,7 +299,10 @@ function Sidebar({
     return (
       <>
         {!openMobile && (
-          <div className="fixed right-3 bottom-3 z-20 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))] sm:hidden">
+          <div
+            data-slot="sidebar"
+            className="fixed right-3 bottom-3 z-20 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))] sm:hidden"
+          >
             <Button
               variant="ghost"
               size="icon"
@@ -793,6 +796,7 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
+      aria-current={isActive ? "page" : undefined}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props}
     />
@@ -1080,6 +1084,7 @@ function SidebarMenuSubButton({
       data-sidebar="menu-sub-button"
       data-size={size}
       data-active={isActive}
+      aria-current={isActive ? "page" : undefined}
       className={cn(
         // Matches the top-level menu button height for consistency (38px desktop / 44px mobile per Apple HIG).
         // Dim by default (muted), brighten on hover/active — mirrors SidebarMenuButton styling.

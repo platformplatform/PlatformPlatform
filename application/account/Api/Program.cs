@@ -45,6 +45,15 @@ var backOfficePublicUrl =
     ?? (appPublicUrl is null ? null : ReplaceHost(appPublicUrl, appHostname, backOfficeHostname));
 var backOfficeCdnUrl = Environment.GetEnvironmentVariable("BACK_OFFICE_CDN_URL") ?? backOfficePublicUrl;
 
+// Runtime feature flags injected into the SPA HTML so the React shell can branch on capability without
+// a separate config endpoint. Both flags must be wired into BOTH host-scoped SPAs because each one renders
+// its own HTML from its own StaticRuntimeEnvironment; omitting them on a host renders the gate as "disabled".
+var runtimeEnvironment = new Dictionary<string, string>
+{
+    ["PUBLIC_GOOGLE_OAUTH_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_GOOGLE_OAUTH_ENABLED") ?? "false",
+    ["PUBLIC_SUBSCRIPTION_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_SUBSCRIPTION_ENABLED") ?? "false"
+};
+
 // The /login picker is the dev-only MockEasyAuth identity selector. In Azure-deployed instances the
 // path must not be reachable: it is removed from the auth-gate exemption list (so the back-office
 // authorize policy applies) and short-circuited to 401 below to reject even authenticated requests.
@@ -61,6 +70,10 @@ if (SharedInfrastructureConfiguration.IsRunningInAzure)
 app.UseBackOfficeDevStaticProxy(backOfficeHostname);
 
 app.UseApiServices(); // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
+
+// Back-office Kestrel listens on its own port and bypasses AppGateway, so the avatar/logo routes
+// that AppGateway proxies on the user-facing host must be served here directly from blob storage.
+app.MapBackOfficeBlobProxy(backOfficeHostname);
 
 app.UseEmailStaticFiles("WebApp");
 
@@ -81,7 +94,8 @@ if (SharedInfrastructureConfiguration.IsRunningInAzure)
                 backOfficePublicUrl,
                 backOfficeCdnUrl,
                 BackOfficeIdentityDefaults.PolicyName,
-                unauthenticatedPaths: backOfficeUnauthenticatedPaths
+                runtimeEnvironment,
+                backOfficeUnauthenticatedPaths
             )
         );
     }
@@ -93,7 +107,8 @@ if (SharedInfrastructureConfiguration.IsRunningInAzure)
                 "WebApp",
                 context => context.RequestServices.GetRequiredService<IExecutionContext>().UserInfo,
                 appPublicUrl,
-                appCdnUrl
+                appCdnUrl,
+                environmentVariables: runtimeEnvironment
             )
         );
     }
@@ -108,7 +123,8 @@ else
             "WebApp",
             context => context.RequestServices.GetRequiredService<IExecutionContext>().UserInfo,
             appPublicUrl,
-            appCdnUrl
+            appCdnUrl,
+            environmentVariables: runtimeEnvironment
         ),
         new HostScopedSinglePageApp(
             backOfficeHostname,
@@ -117,7 +133,8 @@ else
             backOfficePublicUrl,
             backOfficeCdnUrl,
             BackOfficeIdentityDefaults.PolicyName,
-            unauthenticatedPaths: backOfficeUnauthenticatedPaths
+            runtimeEnvironment,
+            backOfficeUnauthenticatedPaths
         )
     );
 }

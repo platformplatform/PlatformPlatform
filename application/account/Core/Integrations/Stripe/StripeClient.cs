@@ -1,23 +1,50 @@
 using System.Text.Json;
+using Account.Features;
 using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using SharedKernel.Telemetry;
 using Stripe;
 using Stripe.Checkout;
 using PaymentMethod = Account.Features.Subscriptions.Domain.PaymentMethod;
 using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
 using SessionService = Stripe.Checkout.SessionService;
+using StripePaymentMethod = Stripe.PaymentMethod;
 using StripePrice = Stripe.Price;
 using StripeSubscription = Stripe.Subscription;
 
 namespace Account.Integrations.Stripe;
 
-public sealed class StripeClient(IConfiguration configuration, IMemoryCache memoryCache, ILogger<StripeClient> logger) : IStripeClient
+public sealed class StripeClient(
+    IConfiguration configuration,
+    IMemoryCache memoryCache,
+    IPlatformCurrencyProvider platformCurrencyProvider,
+    ITelemetryEventsCollector telemetryEventsCollector,
+    ILogger<StripeClient> logger
+) : IStripeClient
 {
     private const string PriceCacheKey = "stripe_resolved_prices";
     private const string ProductPlanCacheKey = "stripe_product_plan_map";
     private static readonly TimeSpan PriceCacheDuration = TimeSpan.FromMinutes(1);
     private static readonly string[] LookupKeys = ["standard_monthly", "premium_monthly"];
+
+    private static readonly string[] ReplayEventTypes =
+    [
+        "customer.created",
+        "customer.updated",
+        "customer.deleted",
+        "customer.subscription.created",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+        "subscription_schedule.created",
+        "subscription_schedule.updated",
+        "subscription_schedule.released",
+        "subscription_schedule.canceled",
+        "invoice.payment_succeeded",
+        "invoice.payment_failed",
+        "charge.refunded",
+        "payment_method.attached"
+    ];
 
     private readonly string? _apiKey = configuration["Stripe:ApiKey"];
     private readonly string? _webhookSecret = configuration["Stripe:WebhookSecret"];
@@ -122,8 +149,20 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var subscriptionItem = stripeSubscription.Items.Data.SingleOrDefault();
             var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
             var scheduledPlan = GetScheduledPlan(stripeSubscription);
-            var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
+            // CurrentPriceAmount is ALWAYS persisted ex-VAT (revenue accounting; VAT is collected on
+            // behalf of tax authorities and never our revenue). Normalize at the boundary when Stripe's
+            // tax_behavior is "inclusive" — see NormalizePriceAmountToExcludingTax for the rate lookup
+            // path. Inc-VAT customer-facing amounts only appear in PaymentTransaction for invoice display.
+            var currentPriceAmount = NormalizePriceAmountToExcludingTax(subscriptionItem?.Price);
             var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
+            var platformCurrency = platformCurrencyProvider.Currency;
+            if (currentPriceCurrency is not null && platformCurrency is not null && currentPriceCurrency != platformCurrency)
+            {
+                logger.LogError("Stripe subscription '{SubscriptionId}' for customer '{CustomerId}' uses currency '{ObservedCurrency}' which does not match the platform currency '{PlatformCurrency}'; rejecting sync", stripeSubscription.Id, stripeCustomerId, currentPriceCurrency, platformCurrency);
+                telemetryEventsCollector.CollectEvent(new StripeSubscriptionCurrencyMismatchRejected(stripeSubscription.Id, currentPriceCurrency, platformCurrency));
+                return null;
+            }
+
             var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
             var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
             var cancellationReason = stripeSubscription.CancelAtPeriodEnd
@@ -131,20 +170,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 : null;
             var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
 
-            PaymentMethod? paymentMethod = null;
             var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
-            if (defaultPaymentMethod is not null)
-            {
-                if (defaultPaymentMethod.Card is not null)
-                {
-                    paymentMethod = new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
-                }
-                else if (defaultPaymentMethod.Link is not null)
-                {
-                    var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } email ? email[^4..] : "****";
-                    paymentMethod = new PaymentMethod("link", last4, 0, 0);
-                }
-            }
+            var paymentMethod = MapDefaultPaymentMethod(defaultPaymentMethod);
 
             return new SubscriptionSyncResult(
                 plan,
@@ -406,6 +433,24 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         }
     }
 
+    public async Task<string?> GetPlatformCurrencyAsync(CancellationToken cancellationToken)
+    {
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (!memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) || cached is null || cached.Count == 0)
+        {
+            return null;
+        }
+
+        var currencies = cached.Values.Select(p => p.Currency.ToUpperInvariant()).Distinct().ToArray();
+        if (currencies.Length > 1)
+        {
+            throw new InvalidOperationException($"Active Stripe prices use multiple currencies ({string.Join(", ", currencies)}); the platform requires a single currency across all active prices.");
+        }
+
+        return currencies[0];
+    }
+
     public async Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
     {
         await EnsurePriceCachePopulatedAsync(cancellationToken);
@@ -420,7 +465,11 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         foreach (var (lookupKey, price) in cached)
         {
             var plan = ParseLookupKey(lookupKey);
-            var unitAmount = price.UnitAmount.GetValueOrDefault() / 100m;
+            // PriceCatalogItem.UnitAmount is contractually ex-VAT (MRR is revenue accounting; VAT is
+            // collected on behalf of tax authorities and never our revenue). NormalizePriceAmountToExcludingTax
+            // subtracts the VAT component when Stripe's tax_behavior is "inclusive", matching the
+            // architectural rule that all internal recurring-revenue numbers are net-of-tax.
+            var unitAmount = NormalizePriceAmountToExcludingTax(price) ?? 0m;
             var currency = price.Currency.ToUpperInvariant();
             var interval = price.Recurring?.Interval ?? "month";
             var intervalCount = (int)(price.Recurring?.IntervalCount ?? 1);
@@ -436,16 +485,16 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            if (_webhookSecret is null)
+            if (string.IsNullOrWhiteSpace(_webhookSecret))
             {
-                logger.LogError("Webhook secret is not configured");
+                logger.LogCritical("Stripe webhook secret is missing or whitespace; all webhooks will be rejected");
                 return null;
             }
 
             var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
             var customerId = ExtractCustomerId(payload);
 
-            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId);
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, stripeEvent.ApiVersion, stripeEvent.Created);
         }
         catch (StripeException ex)
         {
@@ -490,17 +539,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var taxIds = await taxIdService.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             var taxId = taxIds.Data.FirstOrDefault()?.Value;
 
-            PaymentMethod? paymentMethod = null;
-            var defaultPaymentMethod = customer.InvoiceSettings?.DefaultPaymentMethod;
-            if (defaultPaymentMethod?.Card is not null)
-            {
-                paymentMethod = new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
-            }
-            else if (defaultPaymentMethod?.Link is not null)
-            {
-                var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } linkEmail ? linkEmail[^4..] : "****";
-                paymentMethod = new PaymentMethod("link", last4, 0, 0);
-            }
+            var paymentMethod = MapDefaultPaymentMethod(customer.InvoiceSettings?.DefaultPaymentMethod);
 
             return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false, paymentMethod);
         }
@@ -972,41 +1011,79 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         {
             var invoiceService = new InvoiceService();
             var invoices = await invoiceService.ListAsync(
-                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
+                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment", "data.lines.data.pricing"] },
                 GetRequestOptions(), cancellationToken
             );
 
             var chargeService = new ChargeService();
             var charges = await chargeService.ListAsync(
-                new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.refunds"] },
                 GetRequestOptions(), cancellationToken
             );
             var refundedAmountByPaymentIntentId = charges.Data
                 .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
                 .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
 
+            // Track the latest refund's timestamp per payment intent so the billing-history UI can render
+            // the refund as a separate row at the moment it actually happened, not at the original invoice
+            // date. Stripe returns the most recent refunds inline on the charge by default.
+            var latestRefundedAtByPaymentIntentId = charges.Data
+                .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null && c.Refunds is { Data.Count: > 0 })
+                .ToDictionary(c => c.PaymentIntentId!, c => c.Refunds.Data.Max(r => r.Created));
+
             var creditNoteService = new CreditNoteService();
             var creditNotes = await creditNoteService.ListAsync(
                 new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
                 GetRequestOptions(), cancellationToken
             );
-            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+            // Capture both the PDF URL (for the operator-facing "Credit note" download button) and the
+            // credit note's Created timestamp (so the back-office invoices UI can show when the credit
+            // note was actually issued, not just the original invoice date). If multiple credit notes
+            // exist for one invoice, take the most recent.
+            var creditNotesByInvoiceId = creditNotes.Data
+                .GroupBy(cn => cn.InvoiceId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(cn => cn.Created).First());
+
+            // Build a priceId → SubscriptionPlan lookup once (per Stripe customer sync) so the per-invoice loop is allocation-free.
+            var planByPriceId = await BuildPlanByPriceIdAsync(cancellationToken);
 
             return invoices.Data.Select(invoice =>
                 {
                     var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
                     var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
-                    var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
+                    var refundedAt = paymentIntentId is not null && latestRefundedAtByPaymentIntentId.TryGetValue(paymentIntentId, out var refundedTimestamp) ? (DateTimeOffset?)refundedTimestamp : null;
+                    var (displayAmount, amountExcludingTax, taxAmount, invoiceTotal, amountFromCredit, clamped) = ComputeInvoiceAmountBreakdown(invoice);
+                    if (clamped)
+                    {
+                        // tax > display is anomalous (Stripe should never produce this) — keep the clamp so the DB
+                        // CHECK does not 500 the webhook, but surface the row through a warning log + telemetry
+                        // event so the back-office drift banner can show the anomaly for operator review.
+                        logger.LogWarning(
+                            "AmountExcludingTax clamped to 0 for Stripe payment {PaymentIntentId} (invoice {InvoiceId}, customer {CustomerId}): display={DisplayAmount}, tax={TaxAmount}",
+                            paymentIntentId ?? "(none)", invoice.Id, stripeCustomerId, displayAmount, taxAmount
+                        );
+                        telemetryEventsCollector.CollectEvent(new PaymentTransactionAmountExcludingTaxClamped(paymentIntentId ?? invoice.Id, displayAmount, taxAmount, invoice.Currency.ToUpperInvariant()));
+                    }
+
+                    var plan = ResolvePlanForInvoice(invoice, planByPriceId);
+                    var creditNote = creditNotesByInvoiceId.GetValueOrDefault(invoice.Id);
 
                     return new PaymentTransaction(
                         PaymentTransactionId.NewId(),
                         displayAmount,
+                        amountExcludingTax,
+                        taxAmount,
                         invoice.Currency.ToUpperInvariant(),
-                        MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
+                        MapInvoiceStatus(invoice.Status, invoice.AmountPaid, chargeAmountRefunded),
                         invoice.Created,
                         invoice.Status == "uncollectible" ? "Payment failed." : null,
                         invoice.InvoicePdf,
-                        creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+                        creditNote?.Pdf,
+                        plan,
+                        refundedAt,
+                        invoiceTotal,
+                        amountFromCredit,
+                        creditNote?.Created
                     );
                 }
             ).ToArray();
@@ -1021,6 +1098,189 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             logger.LogError(ex, "Timeout syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
+    }
+
+    /// <summary>
+    ///     Reverse of <see cref="GetPriceIdAsync" />: resolves a Stripe priceId (the only field reliably present on
+    ///     historical invoice line items) back to its <see cref="SubscriptionPlan" /> via the cached price catalog.
+    ///     Unknown / archived priceIds resolve to <c>null</c> rather than throwing — historical data should not crash
+    ///     the sync just because a price was retired.
+    /// </summary>
+    public async Task<IReadOnlyDictionary<string, SubscriptionPlan>> GetPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        return await BuildPlanByPriceIdAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Lists Stripe events for a customer via Stripe's events.list API. Authoritative source for the
+    ///     hot path: every webhook-driven sync passes the subscription's last-synced anchor as
+    ///     <paramref name="sinceCreated" /> so Stripe returns the full set of events produced since the
+    ///     last successful sync, in chronological-ascending order. Stripe retains events for only 30 days
+    ///     (see https://docs.stripe.com/api/events); the background sweeper guarantees the anchor never
+    ///     falls outside that window.
+    /// </summary>
+    public async Task<StripeEventsListResult> GetEventsForCustomerAsync(StripeCustomerId stripeCustomerId, DateTimeOffset? sinceCreated, CancellationToken cancellationToken)
+    {
+        var collected = new List<StripeReplayEvent>();
+        try
+        {
+            var service = new EventService();
+            var options = new EventListOptions
+            {
+                Limit = 100,
+                Types = [.. ReplayEventTypes]
+            };
+            if (sinceCreated is { } anchor)
+            {
+                options.Created = new DateRangeOptions { GreaterThanOrEqual = anchor.UtcDateTime };
+            }
+
+            await foreach (var stripeEvent in service.ListAutoPagingAsync(options, GetRequestOptions(), cancellationToken))
+            {
+                if (TryExtractCustomerId(stripeEvent) != stripeCustomerId.Value) continue;
+                collected.Add(new StripeReplayEvent(stripeEvent.Id, stripeEvent.Type, stripeEvent.Created, stripeEvent.ToJson(), stripeEvent.ApiVersion));
+            }
+
+            // Stripe returns events newest-first; reorder ascending so callers can advance the anchor
+            // and emit BillingEvents in the order Stripe observed them.
+            return new StripeEventsListResult([.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)], true);
+        }
+        catch (StripeException ex)
+        {
+            // events.list pagination failed partway through; callers MUST keep the existing anchor so the
+            // next sync re-pulls the events that were never observed. Returning whatever pages we did
+            // collect is safe because BillingEvent emission is idempotent on stripe_event_id.
+            logger.LogError(ex, "Failed to list Stripe events for customer '{StripeCustomerId}'", stripeCustomerId);
+            return new StripeEventsListResult([.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)], false);
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout listing Stripe events for customer '{StripeCustomerId}'", stripeCustomerId);
+            return new StripeEventsListResult([.. collected.OrderBy(e => e.CreatedAt).ThenBy(e => e.EventId)], false);
+        }
+    }
+
+    public string? BuildCustomerDashboardUrl(StripeCustomerId stripeCustomerId)
+    {
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            return null;
+        }
+
+        var modeSegment = _apiKey.StartsWith("sk_test_") ? "/test" : string.Empty;
+        return $"https://dashboard.stripe.com{modeSegment}/customers/{stripeCustomerId.Value}";
+    }
+
+    /// <summary>
+    ///     Maps a Stripe default payment method to the domain <see cref="PaymentMethod" />. Returns <c>null</c> when
+    ///     the input is null or when the payment-method kind is one we do not surface. Card-funded methods carry
+    ///     brand and last4 / expiry directly. Stripe Link is funded by an underlying card, but the pinned Stripe.NET
+    ///     SDK does not expose the backing card on <c>PaymentMethodLink</c>, so we emit a sentinel
+    ///     <c>("link", "****", 0, 0)</c> and let the UI render only the Link wordmark — never fake last4 or 00/0 expiry.
+    /// </summary>
+    public static PaymentMethod? MapDefaultPaymentMethod(StripePaymentMethod? defaultPaymentMethod)
+    {
+        if (defaultPaymentMethod is null) return null;
+        if (defaultPaymentMethod.Card is not null)
+        {
+            return new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
+        }
+
+        if (defaultPaymentMethod.Link is not null)
+        {
+            return new PaymentMethod("link", "****", 0, 0);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Resolves a Stripe invoice's representative plan via the supplied price-to-plan lookup. Picks the line item
+    ///     with the largest positive amount, which on proration upgrade/downgrade invoices is the line for the new
+    ///     active plan (the negative line credits unused time on the old plan and would otherwise mis-resolve to it).
+    ///     Falls back to the first line item when no positive lines exist. Returns <c>null</c> when the resolved
+    ///     line has no priceId (manual line items, archived prices not in the catalog) — historical data should
+    ///     not crash the sync just because a price was retired. Public to support unit testing of the priceId
+    ///     extraction path against a constructed <see cref="Invoice" />.
+    /// </summary>
+    public static SubscriptionPlan? ResolvePlanForInvoice(Invoice invoice, IReadOnlyDictionary<string, SubscriptionPlan> planByPriceId)
+    {
+        var lines = invoice.Lines?.Data;
+        var representativeLine = lines?.Where(l => l.Amount > 0).OrderByDescending(l => l.Amount).FirstOrDefault()
+                                 ?? lines?.FirstOrDefault();
+        var priceId = representativeLine?.Pricing?.PriceDetails?.Price;
+        return priceId is not null && planByPriceId.TryGetValue(priceId, out var plan) ? plan : null;
+    }
+
+    /// <summary>
+    ///     Computes the display, excluding-tax, and tax components for a Stripe invoice. The excluding-tax value is
+    ///     clamped at zero because Stripe's auto-tax can return a positive <c>total_taxes</c> alongside zero
+    ///     <c>amount_paid</c> / <c>total</c> (e.g., a proration credit fully offsets a new charge), which would
+    ///     otherwise produce a negative excluding-tax that silently subtracts from LTV. Public to support unit testing
+    ///     of the clamp against a constructed <see cref="Invoice" />. <c>Clamped</c> is <c>true</c> when the raw
+    ///     <c>displayAmount - taxAmount</c> was negative — callers emit a structured warning + telemetry +
+    ///     drift discrepancy so the anomaly is surfaced instead of silently masked.
+    /// </summary>
+    public static (decimal DisplayAmount, decimal AmountExcludingTax, decimal TaxAmount, decimal InvoiceTotal, decimal AmountFromCredit, bool Clamped) ComputeInvoiceAmountBreakdown(Invoice invoice)
+    {
+        // InvoiceTotal is what Stripe billed (gross of VAT). DisplayAmount is what the customer actually
+        // paid from their card on this invoice. The difference (InvoiceTotal - DisplayAmount) is the
+        // portion absorbed by their Stripe credit balance — e.g. from a prior credit note. We persist
+        // all three so LTV counts gross billed and the back-office can show "X DKK paid from card, Y DKK
+        // from credit". The pre-VAT split (AmountExcludingTax) is derived from the InvoiceTotal so it
+        // never goes negative even when AmountPaid is zero on a credit-absorbed invoice.
+        var invoiceTotal = invoice.Total / 100m;
+        var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
+        var taxAmount = (invoice.TotalTaxes ?? []).Sum(t => t.Amount) / 100m;
+        var amountExcludingTax = invoiceTotal - taxAmount;
+        var amountFromCredit = Math.Max(0m, invoiceTotal - displayAmount);
+        var clamped = amountExcludingTax < 0m;
+        return (displayAmount, Math.Max(0m, amountExcludingTax), taxAmount, invoiceTotal, amountFromCredit, clamped);
+    }
+
+    /// <summary>
+    ///     Normalizes a Stripe price's <c>unit_amount</c> to the platform's ex-VAT contract. Stripe encodes
+    ///     amounts in minor units (cents/øre); the value is divided by 100 to produce the major-unit decimal.
+    ///     For <c>tax_behavior == "exclusive"</c> the listed amount is already ex-VAT and is returned as-is.
+    ///     For <c>tax_behavior == "inclusive"</c> we must subtract the VAT component before persisting because
+    ///     MRR is revenue accounting and VAT is collected on behalf of tax authorities, never our revenue.
+    ///     Returns null when the input price or its <c>unit_amount</c> is null. See
+    ///     https://docs.stripe.com/api/prices/object#price_object-tax_behavior.
+    ///     TODO: the Stripe Price object does not carry the active <c>TaxRate</c> for this customer's location,
+    ///     so the inclusive-mode path currently cannot compute the exact VAT to subtract. Configure
+    ///     <c>tax_behavior=exclusive</c> on every active Stripe price (the recommended setting with Automatic
+    ///     Tax) so the listed amount is already ex-VAT and this normalizer is a pass-through. When inclusive
+    ///     prices are required, look up the active TaxRate via the customer's billing address (Stripe Tax) and
+    ///     extend this helper.
+    /// </summary>
+    public static decimal? NormalizePriceAmountToExcludingTax(StripePrice? price)
+    {
+        if (price?.UnitAmount is null) return null;
+        var listedAmount = price.UnitAmount.Value / 100m;
+        // TODO: When TaxBehavior == "inclusive" we should subtract the VAT component before persisting,
+        // but the Stripe Price object does not carry the customer's active TaxRate; extending this
+        // requires a second Stripe call. The recommended deployment configures every active price with
+        // tax_behavior=exclusive (paired with Stripe Automatic Tax), so the listed amount is already
+        // ex-VAT and this path is a pass-through. If you flip a price to inclusive, revisit this.
+        return listedAmount;
+    }
+
+    private async Task<Dictionary<string, SubscriptionPlan>> BuildPlanByPriceIdAsync(CancellationToken cancellationToken)
+    {
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (!memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) || cached is null)
+        {
+            return new Dictionary<string, SubscriptionPlan>();
+        }
+
+        var lookup = new Dictionary<string, SubscriptionPlan>(cached.Count);
+        foreach (var (lookupKey, price) in cached)
+        {
+            lookup[price.Id] = ParseLookupKey(lookupKey);
+        }
+
+        return lookup;
     }
 
     private async Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
@@ -1201,9 +1461,16 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         };
     }
 
-    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long postPaymentCreditNotesAmount, long chargeAmountRefunded)
+    // Only an actual refund of the underlying charge counts as Refunded — that is the only case
+    // where money leaves our Stripe balance and Stripe emits charge.refunded. A post-payment
+    // credit note that credits the customer's Stripe balance does NOT refund the charge
+    // (charge.amount_refunded stays 0, no charge.refunded event), so we keep the transaction as
+    // Succeeded; the credited balance is reconciled against future invoices.
+    // A "void" invoice was never paid (Stripe re-issued it with a credit note) — no money ever
+    // changed hands, so it maps to Cancelled, not Refunded.
+    public static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long chargeAmountRefunded)
     {
-        if (status == "paid" && amountPaid > 0 && (postPaymentCreditNotesAmount >= amountPaid || chargeAmountRefunded >= amountPaid))
+        if (status == "paid" && amountPaid > 0 && chargeAmountRefunded >= amountPaid)
         {
             return PaymentTransactionStatus.Refunded;
         }
@@ -1213,8 +1480,23 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             "paid" => PaymentTransactionStatus.Succeeded,
             "open" => PaymentTransactionStatus.Pending,
             "uncollectible" => PaymentTransactionStatus.Failed,
-            "void" => PaymentTransactionStatus.Refunded,
+            "void" => PaymentTransactionStatus.Cancelled,
             _ => PaymentTransactionStatus.Pending
+        };
+    }
+
+    private static string? TryExtractCustomerId(Event stripeEvent)
+    {
+        var data = stripeEvent.Data?.Object;
+        return data switch
+        {
+            Customer customer => customer.Id,
+            StripeSubscription subscription => subscription.CustomerId,
+            SubscriptionSchedule schedule => schedule.CustomerId,
+            Invoice invoice => invoice.CustomerId,
+            Charge charge => charge.CustomerId,
+            StripePaymentMethod paymentMethod => paymentMethod.CustomerId,
+            _ => null
         };
     }
 }

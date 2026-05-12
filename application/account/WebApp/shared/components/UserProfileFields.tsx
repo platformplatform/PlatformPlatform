@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { TextField } from "@repo/ui/components/TextField";
 import { MailIcon } from "lucide-react";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import type { Schemas } from "@/shared/lib/api/client";
 
@@ -15,6 +15,7 @@ export interface UserProfileFieldsProps {
   onAvatarRemove?: () => void;
   autoFocus?: boolean;
   layout?: "stacked" | "horizontal";
+  infoFields?: ReactNode;
 }
 
 export function UserProfileFields({
@@ -23,7 +24,8 @@ export function UserProfileFields({
   onAvatarFileSelect,
   onAvatarRemove,
   autoFocus,
-  layout = "stacked"
+  layout = "stacked",
+  infoFields
 }: UserProfileFieldsProps) {
   // Snapshot user once so TextField defaultValue stays stable. A later refetch (e.g. after
   // saving the profile) would otherwise change defaultValue between renders and trigger
@@ -92,7 +94,10 @@ export function UserProfileFields({
           </span>
           {avatarSection}
         </div>
-        <div className="flex flex-col gap-4">{fieldsSection}</div>
+        <div className="flex flex-col gap-4">
+          {fieldsSection}
+          {infoFields}
+        </div>
       </div>
     );
   }

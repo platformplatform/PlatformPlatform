@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { Link } from "@tanstack/react-router";
+import { HashIcon } from "lucide-react";
 
 import { api, type Schemas, SuspensionReason, TenantState } from "@/shared/lib/api/client";
 import { getPlanLabelWithFree } from "@/shared/lib/api/subscriptionPlan";
@@ -41,7 +42,10 @@ export function AccountInfoFields({ tenant }: Readonly<AccountInfoFieldsProps>) 
         <span className="text-muted-foreground">
           <Trans>Account ID</Trans>
         </span>
-        <span className="font-mono">{tenant?.id}</span>
+        <span className="inline-flex items-center gap-1.5 font-mono">
+          <HashIcon className="size-3.5" aria-hidden={true} />
+          {tenant?.id}
+        </span>
       </div>
       <div className="flex justify-between sm:flex-col sm:gap-1 md:flex-row md:justify-between md:gap-0 lg:flex-col lg:gap-1">
         <span className="text-muted-foreground">

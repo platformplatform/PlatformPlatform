@@ -1,32 +1,29 @@
-using Account.Features.BackOffice.Queries;
+using Account.Features.BackOffice.BillingEvents.Queries;
 using Microsoft.Extensions.Options;
 using SharedKernel.ApiResults;
 using SharedKernel.Authentication.BackOfficeIdentity;
 using SharedKernel.Endpoints;
 using SharedKernel.OpenApi;
 
-namespace Account.Api.Endpoints;
+namespace Account.Api.BackOffice;
 
-public sealed class BackOfficeEndpoints : IEndpoints
+public sealed class BillingEventsEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/back-office";
+    private const string RoutesPrefix = "/api/back-office/billing-events";
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
-        // BackOffice:Host is required (validated at startup via ValidateOnStart in
-        // ApiDependencyConfiguration.AddBackOfficeHostOptions). PP-1149 must keep that validation in place
-        // so a missing/blank value fails loudly rather than silently 404-ing back-office endpoints.
         var backOfficeHost = routes.ServiceProvider.GetRequiredService<IOptions<BackOfficeHostOptions>>().Value.Host;
 
         var group = routes.MapGroup(RoutesPrefix)
-            .WithTags("BackOffice")
+            .WithTags("BackOfficeBillingEvents")
             .WithGroupName(OpenApiDocumentNames.BackOffice)
             .RequireHost(backOfficeHost)
             .RequireAuthorization(BackOfficeIdentityDefaults.PolicyName)
             .ProducesValidationProblem();
 
-        group.MapGet("/me", async Task<ApiResult<MeResponse>> ([AsParameters] GetMeQuery query, IMediator mediator)
+        group.MapGet("/", async Task<ApiResult<BillingEventsResponse>> ([AsParameters] GetBackOfficeBillingEventsQuery query, IMediator mediator)
             => await mediator.Send(query)
-        ).Produces<MeResponse>();
+        ).Produces<BillingEventsResponse>();
     }
 }

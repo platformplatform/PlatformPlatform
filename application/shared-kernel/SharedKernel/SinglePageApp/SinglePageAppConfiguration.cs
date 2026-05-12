@@ -21,6 +21,14 @@ public class SinglePageAppConfiguration
     // construct one SinglePageAppConfiguration per SPA via the WebAppProjectName parameter.
     public static readonly string BuildRootPath = GetWebAppDistRoot(DefaultWebAppProjectName, "dist");
 
+    // Source directory for SPA static assets that rsbuild copies into BuildRootPath at build time.
+    // Used by UseSinglePageAppFallback to layer public/ assets over the bundle in local dev where
+    // rsbuild's dev server holds them. Null in Azure: published images only contain ./dist/, so the
+    // upward walk for the public/ marker would terminate at the filesystem root and throw.
+    public static readonly string? PublicRootPath = SharedInfrastructureConfiguration.IsRunningInAzure
+        ? null
+        : GetWebAppDistRoot(DefaultWebAppProjectName, "public");
+
     public static readonly JsonSerializerOptions JsonHtmlEncodingOptions =
         new(SharedDependencyConfiguration.DefaultJsonSerializerOptions)
         {
@@ -40,6 +48,17 @@ public class SinglePageAppConfiguration
         string webAppProjectName = DefaultWebAppProjectName,
         string? publicUrlOverride = null,
         string? cdnUrlOverride = null
+    ) : this(isDevelopment, environmentVariables, webAppProjectName, publicUrlOverride, cdnUrlOverride, null)
+    {
+    }
+
+    internal SinglePageAppConfiguration(
+        bool isDevelopment,
+        Dictionary<string, string>? environmentVariables,
+        string webAppProjectName,
+        string? publicUrlOverride,
+        string? cdnUrlOverride,
+        bool? isRunningInAzure
     )
     {
         // Per-host overrides win over the process-wide env vars so a single process can host multiple SPAs
@@ -77,6 +96,10 @@ public class SinglePageAppConfiguration
 
         _isDevelopment = isDevelopment;
         BundleDirectory = webAppProjectName == DefaultWebAppProjectName ? BuildRootPath : GetWebAppDistRoot(webAppProjectName, "dist");
+        // Null in Azure: published images only ship ./dist/, so the upward walk would throw.
+        PublicDirectory = isRunningInAzure ?? SharedInfrastructureConfiguration.IsRunningInAzure
+            ? null
+            : GetWebAppDistRoot(webAppProjectName, "public");
         _htmlTemplatePath = Path.Combine(BundleDirectory, "index.html");
         _remoteEntryJsPath = Path.Combine(BundleDirectory, "remoteEntry.js");
         PermissionPolicies = GetPermissionsPolicies();
@@ -84,6 +107,13 @@ public class SinglePageAppConfiguration
     }
 
     public string BundleDirectory { get; }
+
+    // Source directory for SPA static assets that rsbuild copies into BundleDirectory at build time
+    // (manifest.json, favicon.ico, apple-touch-icon.png, etc.). In Azure these assets live alongside
+    // the bundle, but in local dev rsbuild's dev server holds them and they never reach BundleDirectory.
+    // Layering this directory under the bundle file provider closes that gap without per-asset rules.
+    // Null in Azure (see constructor).
+    public string? PublicDirectory { get; }
 
     private string CdnUrl { get; }
 
@@ -165,7 +195,7 @@ public class SinglePageAppConfiguration
             { "camera", [] },
             { "picture-in-picture", [] },
             { "display-capture", [] },
-            { "fullscreen", [] },
+            { "fullscreen", ["self"] },
             { "web-share", [] },
             { "identity-credentials-get", [] }
         };

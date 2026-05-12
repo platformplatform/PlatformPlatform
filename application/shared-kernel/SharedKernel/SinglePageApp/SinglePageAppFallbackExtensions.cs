@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using SharedKernel.Authentication;
+using SharedKernel.Configuration;
 using SharedKernel.ExecutionContext;
 
 namespace SharedKernel.SinglePageApp;
@@ -102,6 +103,24 @@ public static class SinglePageAppFallbackExtensions
 
         Directory.CreateDirectory(configuration.BundleDirectory);
         return configuration;
+    }
+
+    // In Azure, rsbuild has already copied the SPA's public/ assets into BundleDirectory at build time,
+    // so the bundle provider serves them directly. In local dev, rsbuild's dev server holds public/
+    // assets and never materializes them into BundleDirectory, leading to 404s on /manifest.json,
+    // /favicon.ico, etc. Layering the public/ directory underneath the bundle provider closes that
+    // gap without per-asset rules in BackOfficeDevStaticProxy.
+    private static IFileProvider BuildSpaFileProvider(SinglePageAppConfiguration configuration)
+    {
+        var bundleProvider = new PhysicalFileProvider(configuration.BundleDirectory);
+        if (SharedInfrastructureConfiguration.IsRunningInAzure
+            || configuration.PublicDirectory is null
+            || !Directory.Exists(configuration.PublicDirectory))
+        {
+            return bundleProvider;
+        }
+
+        return new CompositeFileProvider(bundleProvider, new PhysicalFileProvider(configuration.PublicDirectory));
     }
 
     private static void RegisterSpaEndpoints(
@@ -249,8 +268,15 @@ public static class SinglePageAppFallbackExtensions
 
             Directory.CreateDirectory(SinglePageAppConfiguration.BuildRootPath);
 
+            var bundleProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath);
+            var fileProvider = !SharedInfrastructureConfiguration.IsRunningInAzure
+                               && SinglePageAppConfiguration.PublicRootPath is not null
+                               && Directory.Exists(SinglePageAppConfiguration.PublicRootPath)
+                ? (IFileProvider)new CompositeFileProvider(bundleProvider, new PhysicalFileProvider(SinglePageAppConfiguration.PublicRootPath))
+                : bundleProvider;
+
             return app
-                .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath) })
+                .UseStaticFiles(new StaticFileOptions { FileProvider = fileProvider })
                 .UseRequestLocalization(SinglePageAppConfiguration.SupportedLocalizations);
         }
 
@@ -273,7 +299,7 @@ public static class SinglePageAppFallbackExtensions
             foreach (var singlePageApp in singlePageApps)
             {
                 var configuration = BuildConfiguration(singlePageApp, environment);
-                var fileProvider = new PhysicalFileProvider(configuration.BundleDirectory);
+                var fileProvider = BuildSpaFileProvider(configuration);
 
                 RegisterSpaEndpoints(app, singlePageApp, configuration, true);
 
@@ -301,7 +327,7 @@ public static class SinglePageAppFallbackExtensions
         {
             var environment = app.Services.GetRequiredService<IWebHostEnvironment>();
             var configuration = BuildConfiguration(singlePageApp, environment);
-            var fileProvider = new PhysicalFileProvider(configuration.BundleDirectory);
+            var fileProvider = BuildSpaFileProvider(configuration);
 
             RegisterSpaEndpoints(app, singlePageApp, configuration, false);
 

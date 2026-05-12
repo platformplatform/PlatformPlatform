@@ -117,7 +117,7 @@ test.describe("@smoke", () => {
             scheduledPlan: null,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
+            currentPriceAmount: 149.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,
@@ -150,7 +150,7 @@ test.describe("@smoke", () => {
             transactions: [
               {
                 id: "txn_mock_1",
-                amount: 29.0,
+                amount: 149.0,
                 currency: "USD",
                 status: "Succeeded",
                 date: "2026-02-24T00:00:00Z",
@@ -178,7 +178,7 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByRole("columnheader", { name: "Date" })).toBeVisible();
       await expect(ownerPage.getByRole("columnheader", { name: "Amount" })).toBeVisible();
       await expect(ownerPage.getByRole("columnheader", { name: "Status" })).toBeVisible();
-      await expect(ownerPage.getByText("Succeeded")).toBeVisible();
+      await expect(ownerPage.getByText("Paid")).toBeVisible();
       await expect(ownerPage.getByRole("link", { name: "Invoice" })).toBeVisible();
 
       await ownerPage.unroute("**/api/account/subscriptions/current");
@@ -198,7 +198,7 @@ test.describe("@smoke", () => {
             scheduledPlan: null,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
+            currentPriceAmount: 149.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,
@@ -263,7 +263,7 @@ test.describe("@smoke", () => {
             scheduledPlan,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 99.0,
+            currentPriceAmount: 299.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,
@@ -315,7 +315,7 @@ test.describe("@smoke", () => {
               scheduledPlan: null,
               hasStripeCustomer: true,
               hasStripeSubscription: true,
-              currentPriceAmount: 29.0,
+              currentPriceAmount: 149.0,
               currentPriceCurrency: "USD",
               currentPeriodEnd: "2026-03-24T00:00:00Z",
               cancelAtPeriodEnd,
@@ -366,7 +366,7 @@ test.describe("@smoke", () => {
             scheduledPlan: null,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
+            currentPriceAmount: 149.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd,
@@ -418,7 +418,7 @@ test.describe("@smoke", () => {
             scheduledPlan: null,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
+            currentPriceAmount: 149.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,
@@ -580,7 +580,7 @@ test.describe("@comprehensive", () => {
               scheduledPlan: null,
               hasStripeCustomer: true,
               hasStripeSubscription: true,
-              currentPriceAmount: 29.0,
+              currentPriceAmount: 149.0,
               currentPriceCurrency: "USD",
               currentPeriodEnd: "2026-03-24T00:00:00Z",
               cancelAtPeriodEnd: false,
@@ -648,8 +648,8 @@ test.describe("@comprehensive", () => {
     })();
 
     // === EMPTY PAYMENT HISTORY ===
-    await step("Scroll to billing history & verify empty state message")(async () => {
-      await expect(ownerPage.getByRole("heading", { name: "Billing history" })).toBeVisible();
+    await step("Scroll to invoices section & verify empty state message")(async () => {
+      await expect(ownerPage.getByRole("heading", { name: "Invoices" })).toBeVisible();
       await expect(ownerPage.getByText("No payment history available.")).toBeVisible();
 
       await ownerPage.unroute("**/api/account/billing/payment-history**");
@@ -668,7 +668,7 @@ test.describe("@comprehensive", () => {
             scheduledPlan: null,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
+            currentPriceAmount: 149.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,
@@ -689,7 +689,7 @@ test.describe("@comprehensive", () => {
             transactions: [
               {
                 id: "txn_mock_1",
-                amount: 29.0,
+                amount: 149.0,
                 currency: "USD",
                 status: "Succeeded",
                 date: "2026-02-24T00:00:00Z",
@@ -698,7 +698,7 @@ test.describe("@comprehensive", () => {
               },
               {
                 id: "txn_mock_2",
-                amount: 29.0,
+                amount: 149.0,
                 currency: "USD",
                 status: "Refunded",
                 date: "2026-01-24T00:00:00Z",
@@ -712,7 +712,7 @@ test.describe("@comprehensive", () => {
 
       await ownerPage.goto("/account/billing");
 
-      await expect(ownerPage.getByText("Succeeded")).toBeVisible();
+      await expect(ownerPage.getByText("Paid")).toBeVisible();
       await expect(ownerPage.getByText("Refunded")).toBeVisible();
 
       const invoiceLinks = ownerPage.getByRole("link", { name: "Invoice" });
@@ -736,7 +736,7 @@ test.describe("@comprehensive", () => {
             scheduledPlan,
             hasStripeCustomer: true,
             hasStripeSubscription: true,
-            currentPriceAmount: 99.0,
+            currentPriceAmount: 299.0,
             currentPriceCurrency: "USD",
             currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,

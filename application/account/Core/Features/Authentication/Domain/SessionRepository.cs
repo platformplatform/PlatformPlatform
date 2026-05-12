@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 using SharedKernel.Persistence;
 
 namespace Account.Features.Authentication.Domain;
@@ -37,6 +38,27 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     ///     This method should only be used during token refresh where tenant context comes from the token claims.
     /// </summary>
     Task<bool> TryRevokeForReplayUnfilteredAsync(SessionId sessionId, DateTimeOffset now, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the paged session history for a single user without applying tenant query filters. Used by the
+    ///     back-office User detail page where tenant context is not established. Includes both active and revoked
+    ///     sessions, ordered most-recent first.
+    /// </summary>
+    Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUserUnfilteredAsync(UserId userId, int pageOffset, int pageSize, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the paged session history for any of the supplied user ids without applying tenant query filters.
+    ///     Used by the back-office User detail page to surface sessions across every user record sharing the same email
+    ///     across tenants. Includes active and revoked sessions, ordered most-recent first.
+    /// </summary>
+    Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUsersUnfilteredAsync(UserId[] userIds, int pageOffset, int pageSize, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Counts active (not revoked) sessions created at or after <paramref name="since" /> across all tenants
+    ///     without applying tenant query filters. Used by the back-office dashboard KPI snapshot for active sessions
+    ///     in the last 24 hours.
+    /// </summary>
+    Task<long> CountActiveSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountDbContext accountDbContext, IServiceProvider serviceProvider)
@@ -115,6 +137,67 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
             .Where(s => userIds.AsEnumerable().Contains(s.UserId) && s.RevokedAt == null)
             .ToArrayAsync(cancellationToken);
         return sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+    }
+
+    /// <summary>
+    ///     Returns the paged session history for a single user without applying tenant query filters. Used by the
+    ///     back-office User detail page where tenant context is not established. Includes both active and revoked
+    ///     sessions, ordered most-recent first. SQLite cannot translate DateTimeOffset comparisons in ORDER BY, so
+    ///     sessions are materialized and ordered in memory; a single user has very few sessions so scale is not a
+    ///     concern.
+    /// </summary>
+    public async Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUserUnfilteredAsync(UserId userId, int pageOffset, int pageSize, CancellationToken cancellationToken)
+    {
+        var sessions = await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(s => s.UserId == userId)
+            .ToArrayAsync(cancellationToken);
+
+        var ordered = sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+
+        var totalItems = ordered.Length;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
+        var page = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
+        return (page, totalItems, totalPages);
+    }
+
+    /// <summary>
+    ///     Returns the paged session history for any of the supplied user ids without applying tenant query filters.
+    ///     Used by the back-office User detail page to surface sessions across every user record sharing the same email
+    ///     across tenants. SQLite cannot translate DateTimeOffset comparisons in ORDER BY, so sessions are materialized
+    ///     and ordered in memory; the cross-tenant set for one person is small enough that scale is not a concern.
+    /// </summary>
+    public async Task<(Session[] Sessions, int TotalItems, int TotalPages)> GetSessionsForUsersUnfilteredAsync(UserId[] userIds, int pageOffset, int pageSize, CancellationToken cancellationToken)
+    {
+        if (userIds.Length == 0) return ([], 0, 0);
+
+        var sessions = await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(s => userIds.AsEnumerable().Contains(s.UserId))
+            .ToArrayAsync(cancellationToken);
+
+        var ordered = sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+
+        var totalItems = ordered.Length;
+        var totalPages = totalItems == 0 ? 0 : (totalItems - 1) / pageSize + 1;
+        var page = ordered.Skip(pageOffset * pageSize).Take(pageSize).ToArray();
+        return (page, totalItems, totalPages);
+    }
+
+    /// <summary>
+    ///     Counts active (not revoked) sessions created at or after <paramref name="since" /> across all tenants
+    ///     without applying tenant query filters. Used by the back-office dashboard KPI snapshot for active sessions
+    ///     in the last 24 hours. SQLite cannot translate DateTimeOffset comparisons in WHERE, so sessions are
+    ///     materialized and filtered in memory; the bounded 24-hour window keeps the set small.
+    /// </summary>
+    public async Task<long> CountActiveSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken)
+    {
+        var sessions = await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(s => s.RevokedAt == null)
+            .Select(s => new { s.CreatedAt })
+            .ToArrayAsync(cancellationToken);
+        return sessions.LongCount(s => s.CreatedAt >= since);
     }
 
     private async Task<DbConnection> OpenFallbackConnectionAsync(CancellationToken cancellationToken)
