@@ -392,6 +392,7 @@ FodyWeavers.xsd
 **/package.g.props
 **/*.generated.d.ts
 **/*.generated.ts
+**/*.generated.json
 **/Api/swagger.json
 **/lib/api/*.Api.json
 **/lib/api/*.Api_*.json

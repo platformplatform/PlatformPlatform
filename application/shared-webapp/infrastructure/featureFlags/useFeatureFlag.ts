@@ -1,5 +1,6 @@
+import { getFlag } from "@repo/ui/featureFlags/registry.generated";
+
 import { useUserInfo } from "../auth/hooks";
-import { getFlag } from "./registry";
 
 type FeatureFlagResult = { enabled: boolean; isLoading: boolean };
 

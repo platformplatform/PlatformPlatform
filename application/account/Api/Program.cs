@@ -10,6 +10,13 @@ using SharedKernel.ExecutionContext;
 using SharedKernel.OpenApi;
 using SharedKernel.SinglePageApp;
 
+// Build-time manifest emitter dispatcher. See FeatureFlagsManifestEmitter.cs.
+if (args is ["--emit-feature-flags-manifest", var manifestPath])
+{
+    FeatureFlagsManifestEmitter.Emit(manifestPath);
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure storage infrastructure like Database, BlobStorage, Logging, Telemetry, Entity Framework DB Context, etc.

@@ -9,7 +9,8 @@ public static class FeatureFlags
         FeatureFlagAdminLevel.SystemAdmin,
         "Google OAuth",
         "Sign in with Google using OpenID Connect",
-        SystemConfigKey: "OAuth:Google:ClientId"
+        SystemConfigKey: "OAuth:Google:ClientId",
+        FrontendEnvVar: "PUBLIC_GOOGLE_OAUTH_ENABLED"
     );
 
     public static readonly FeatureFlagDefinition Subscriptions = new(
@@ -19,7 +20,8 @@ public static class FeatureFlags
         "Subscriptions",
         "Stripe-powered subscription billing and plan management",
         SystemConfigKey: "Stripe:SubscriptionEnabled",
-        SystemConfigExpectedValue: "true"
+        SystemConfigExpectedValue: "true",
+        FrontendEnvVar: "PUBLIC_SUBSCRIPTION_ENABLED"
     );
 
     public static readonly FeatureFlagDefinition BetaFeatures = new(

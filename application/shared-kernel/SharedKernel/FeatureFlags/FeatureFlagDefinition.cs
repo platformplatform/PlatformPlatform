@@ -18,6 +18,7 @@ public sealed record FeatureFlagDefinition(
     PlanTier? RequiredPlan = null,
     string? SystemConfigKey = null,
     string? SystemConfigExpectedValue = null,
+    string? FrontendEnvVar = null,
     bool IsKillSwitchEnabled = false
 )
 {
