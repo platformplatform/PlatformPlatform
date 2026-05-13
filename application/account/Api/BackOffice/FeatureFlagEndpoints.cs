@@ -32,13 +32,15 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(query with { FlagKey = flagKey })
         ).Produces<GetFeatureFlagTenantsResponse>();
 
+        // Kill-switch mutations: reserved for the configured admin group. Back-office is not admin-only;
+        // tightening these two endpoints prevents non-admin staff from flipping a flag fleet-wide.
         group.MapPut("/{flagKey}/activate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new ActivateFeatureFlagCommand(flagKey))
-        ).DisableAntiforgery();
+        ).DisableAntiforgery().RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapPut("/{flagKey}/deactivate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new DeactivateFeatureFlagCommand(flagKey))
-        ).DisableAntiforgery();
+        ).DisableAntiforgery().RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapPut("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, SetTenantFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
