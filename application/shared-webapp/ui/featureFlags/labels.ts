@@ -5,6 +5,9 @@ interface FeatureFlagLabel {
   description: string;
 }
 
+// The English copy here mirrors `FeatureFlags.cs` (Label and Description fields). Backend is the
+// source of truth for which flags exist and what they're called; this file exists because Lingui
+// needs the strings present at extraction time so translators can localize them.
 function getKnownFeatureFlagLabels(): Record<string, FeatureFlagLabel> {
   return {
     "google-oauth": {
@@ -43,12 +46,19 @@ function formatFeatureFlagKey(flagKey: string): string {
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
+export function getFeatureFlagLabel(flagKey: string): FeatureFlagLabel {
+  const known = getKnownFeatureFlagLabels()[flagKey];
+  if (known) return known;
+  const name = formatFeatureFlagKey(flagKey);
+  return { name, description: name };
+}
+
 export function getFeatureFlagName(flagKey: string): string {
-  return getKnownFeatureFlagLabels()[flagKey]?.name ?? formatFeatureFlagKey(flagKey);
+  return getFeatureFlagLabel(flagKey).name;
 }
 
 export function getFeatureFlagDescription(flagKey: string): string {
-  return getKnownFeatureFlagLabels()[flagKey]?.description ?? "";
+  return getFeatureFlagLabel(flagKey).description;
 }
 
 export function getFeatureFlagSourceLabel(source: string): string {

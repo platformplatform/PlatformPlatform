@@ -7,7 +7,8 @@ public static class FeatureFlags
         "google-oauth",
         FeatureFlagScope.System,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Google OAuth authentication",
+        "Google OAuth",
+        "Sign in with Google using OpenID Connect",
         SystemConfigKey: "OAuth:Google:ClientId"
     );
 
@@ -15,7 +16,8 @@ public static class FeatureFlags
         "subscriptions",
         FeatureFlagScope.System,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Subscription billing via Stripe",
+        "Subscriptions",
+        "Stripe-powered subscription billing and plan management",
         SystemConfigKey: "Stripe:SubscriptionEnabled",
         SystemConfigExpectedValue: "true"
     );
@@ -24,7 +26,8 @@ public static class FeatureFlags
         "beta-features",
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Enables beta features for tenants",
+        "Beta features",
+        "Early access to experimental features before general availability",
         IsAbTestEligible: true,
         TrackInTelemetry: true,
         IsKillSwitchEnabled: true
@@ -34,7 +37,8 @@ public static class FeatureFlags
         "sso",
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Enables single sign-on for tenants",
+        "Single sign-on",
+        "Allow users to authenticate using enterprise identity providers",
         RequiredPlan: PlanTier.Premium,
         IsKillSwitchEnabled: false
     );
@@ -43,7 +47,8 @@ public static class FeatureFlags
         "custom-branding",
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.TenantOwner,
-        "Enables custom branding options for tenants",
+        "Custom branding",
+        "Customize the login page with your organization's logo and colors",
         ConfigurableByTenant: true,
         IsKillSwitchEnabled: false
     );
@@ -52,7 +57,8 @@ public static class FeatureFlags
         "compact-view",
         FeatureFlagScope.User,
         FeatureFlagAdminLevel.User,
-        "Enables compact view in the user interface",
+        "Compact view",
+        "Reduce spacing between UI elements for a denser layout",
         ConfigurableByUser: true,
         IsKillSwitchEnabled: false
     );
@@ -61,7 +67,8 @@ public static class FeatureFlags
         "experimental-ui",
         FeatureFlagScope.User,
         FeatureFlagAdminLevel.User,
-        "Enables experimental UI components for users",
+        "Experimental UI",
+        "Try out experimental user interface components",
         IsAbTestEligible: true,
         TrackInTelemetry: true,
         IsKillSwitchEnabled: true

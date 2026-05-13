@@ -4,6 +4,7 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Switch } from "@repo/ui/components/Switch";
 import { TextField } from "@repo/ui/components/TextField";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { getFeatureFlagName } from "@repo/ui/featureFlags/labels";
 import { InfoIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -12,7 +13,6 @@ import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo } from "./types";
 
-import { getFeatureFlagName } from "./flagLabels";
 import { formatRolloutBucketRange } from "./rolloutBucket";
 
 interface FeatureFlagInfoSectionProps {

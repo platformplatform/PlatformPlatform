@@ -4,6 +4,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { getFeatureFlagName, getFeatureFlagSourceLabel } from "@repo/ui/featureFlags/labels";
 import { Link } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -13,7 +14,6 @@ import type { components } from "@/shared/lib/api/client";
 
 import { api, queryClient } from "@/shared/lib/api/client";
 
-import { getFeatureFlagName, getFeatureFlagSourceLabel } from "../../feature-flags/-components/flagLabels";
 import { ScopeIcon } from "../../feature-flags/-components/ScopeIcon";
 
 type UserFeatureFlagInfo = components["schemas"]["UserFeatureFlagInfo"];

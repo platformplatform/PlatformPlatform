@@ -7,6 +7,7 @@ public sealed record FeatureFlagDefinition(
     string Key,
     FeatureFlagScope Scope,
     FeatureFlagAdminLevel AdminLevel,
+    string Label,
     string Description,
     string? ParentDependency = null,
     bool IsAbTestEligible = false,

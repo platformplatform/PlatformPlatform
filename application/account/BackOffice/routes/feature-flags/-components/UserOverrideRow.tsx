@@ -6,6 +6,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { getFeatureFlagSourceLabel } from "@repo/ui/featureFlags/labels";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { Link } from "@tanstack/react-router";
 import { MailIcon, XIcon } from "lucide-react";
@@ -18,7 +19,6 @@ import { getUserRoleLabel } from "@/shared/lib/api/labels";
 import type { FeatureFlagUserInfo } from "./types";
 
 import { getUserDisplayName, getUserInitials } from "../../users/-components/userDisplay";
-import { getFeatureFlagSourceLabel } from "./flagLabels";
 
 export function UserOverrideRow({
   flagKey,

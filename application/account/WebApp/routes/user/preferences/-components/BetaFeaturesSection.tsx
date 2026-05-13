@@ -2,11 +2,11 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Switch } from "@repo/ui/components/Switch";
+import { getFeatureFlagLabel } from "@repo/ui/featureFlags/labels";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { api } from "@/shared/lib/api/client";
-import { getFeatureFlagLabel } from "@/shared/lib/api/featureFlagLabels";
 
 interface UserFlag {
   flagKey: string;

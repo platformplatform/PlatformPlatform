@@ -103,9 +103,6 @@ msgstr "7d"
 msgid "90d"
 msgstr "90d"
 
-msgid "A/B rollout"
-msgstr "A/B rollout"
-
 msgid "Account"
 msgstr "Account"
 
@@ -183,9 +180,6 @@ msgstr "All-time"
 msgid "All-time, excluding VAT"
 msgstr "All-time, excluding VAT"
 
-msgid "Allow users to authenticate using enterprise identity providers"
-msgstr "Allow users to authenticate using enterprise identity providers"
-
 msgid "Amount"
 msgstr "Amount"
 
@@ -214,9 +208,6 @@ msgstr "Back to feature flags"
 
 msgid "Basis"
 msgstr "Basis"
-
-msgid "Beta features"
-msgstr "Beta features"
 
 msgid "Billing"
 msgstr "Billing"
@@ -287,9 +278,6 @@ msgstr "Close"
 msgid "Close account preview"
 msgstr "Close account preview"
 
-msgid "Compact view"
-msgstr "Compact view"
-
 msgid "Contact your administrator."
 msgstr "Contact your administrator."
 
@@ -312,12 +300,6 @@ msgstr "Current period"
 
 msgid "Current plan"
 msgstr "Current plan"
-
-msgid "Custom branding"
-msgstr "Custom branding"
-
-msgid "Customize the login page with your organization's logo and colors"
-msgstr "Customize the login page with your organization's logo and colors"
 
 msgid "Dark"
 msgstr "Dark"
@@ -375,9 +357,6 @@ msgstr "Drift detected"
 msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 msgstr "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 
-msgid "Early access to experimental features before general availability"
-msgstr "Early access to experimental features before general availability"
-
 msgid "Email"
 msgstr "Email"
 
@@ -420,9 +399,6 @@ msgstr "Every sign-in attempt over the last 30 days, successful or failed, acros
 msgid "Exit kiosk mode"
 msgstr "Exit kiosk mode"
 
-msgid "Experimental UI"
-msgstr "Experimental UI"
-
 msgid "Expired"
 msgstr "Expired"
 
@@ -461,9 +437,6 @@ msgstr "Go to home"
 
 msgid "Google"
 msgstr "Google"
-
-msgid "Google OAuth"
-msgstr "Google OAuth"
 
 msgid "Has override"
 msgstr "Has override"
@@ -551,9 +524,6 @@ msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Main navigation"
-
-msgid "Manual override"
-msgstr "Manual override"
 
 msgid "Member"
 msgstr "Member"
@@ -920,9 +890,6 @@ msgstr "Reconciling..."
 msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 msgstr "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 
-msgid "Reduce spacing between UI elements for a denser layout"
-msgstr "Reduce spacing between UI elements for a denser layout"
-
 msgid "Refunded"
 msgstr "Refunded"
 
@@ -1043,9 +1010,6 @@ msgstr "Sessions"
 msgid "Show details"
 msgstr "Show details"
 
-msgid "Sign in with Google using OpenID Connect"
-msgstr "Sign in with Google using OpenID Connect"
-
 msgid "Signed up"
 msgstr "Signed up"
 
@@ -1057,9 +1021,6 @@ msgstr "Signed up <0>{0}</0><1>{1}</1>"
 #. placeholder {0}: formatDate(tenant.subscribedSince)
 msgid "Since {0}"
 msgstr "Since {0}"
-
-msgid "Single sign-on"
-msgstr "Single sign-on"
 
 msgid "Small"
 msgstr "Small"
@@ -1079,9 +1040,6 @@ msgstr "State"
 msgid "Status"
 msgstr "Status"
 
-msgid "Stripe-powered subscription billing and plan management"
-msgstr "Stripe-powered subscription billing and plan management"
-
 msgid "Subscribed"
 msgstr "Subscribed"
 
@@ -1096,9 +1054,6 @@ msgstr "Subscription, payment, and billing transitions will appear here as Strip
 
 msgid "Subscription, payment, and billing transitions will appear here."
 msgstr "Subscription, payment, and billing transitions will appear here."
-
-msgid "Subscriptions"
-msgstr "Subscriptions"
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Subscriptions, upgrades, and cancellations will appear here."
@@ -1190,9 +1145,6 @@ msgstr "Try clearing the search or filters to see more results."
 
 msgid "Try clearing the search to see more results."
 msgstr "Try clearing the search to see more results."
-
-msgid "Try out experimental user interface components"
-msgstr "Try out experimental user interface components"
 
 msgid "Unclassified"
 msgstr "Unclassified"

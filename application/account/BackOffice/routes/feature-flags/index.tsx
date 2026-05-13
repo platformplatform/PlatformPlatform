@@ -5,6 +5,7 @@ import { Badge } from "@repo/ui/components/Badge";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { getFeatureFlagDescription, getFeatureFlagName } from "@repo/ui/featureFlags/labels";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 
@@ -13,7 +14,6 @@ import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo, FeatureFlagScope, GetFeatureFlagsResponse } from "./-components/types";
 
-import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
 import { ScopeIcon } from "./-components/ScopeIcon";
 
 export const Route = createFileRoute("/feature-flags/")({

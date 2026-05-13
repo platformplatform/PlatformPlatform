@@ -4,6 +4,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { getFeatureFlagDescription, getFeatureFlagName } from "@repo/ui/featureFlags/labels";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -16,7 +17,6 @@ import type { GetFeatureFlagsResponse } from "./-components/types";
 
 import { DeleteFeatureFlagDialog } from "./-components/DeleteFeatureFlagDialog";
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
-import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
 import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
 import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
 import { ScopeIcon } from "./-components/ScopeIcon";

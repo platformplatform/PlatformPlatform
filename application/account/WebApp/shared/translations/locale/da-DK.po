@@ -717,9 +717,6 @@ msgstr "Command"
 msgid "Command palette"
 msgstr "Kommandopalette"
 
-msgid "Compact view"
-msgstr "Kompakt visning"
-
 msgid "Complete your payment to activate your subscription."
 msgstr "Gennemfør din betaling for at aktivere dit abonnement."
 
@@ -815,9 +812,6 @@ msgstr "Nuværende side"
 
 msgid "Current plan"
 msgstr "Nuværende plan"
-
-msgid "Custom branding"
-msgstr "Brugerdefineret branding"
 
 msgid "Customer deleted"
 msgstr "Kunde slettet"
@@ -1084,9 +1078,6 @@ msgstr "Tom"
 msgid "Empty recycle bin"
 msgstr "Tøm papirkurv"
 
-msgid "Enable branded login page"
-msgstr "Aktivér branded loginside"
-
 msgid "Enabled"
 msgstr "Aktiveret"
 
@@ -1134,9 +1125,6 @@ msgstr "Fold Komponenter ud"
 
 msgid "Expand Examples"
 msgstr "Fold Eksempler ud"
-
-msgid "Experimental UI"
-msgstr "Eksperimentel brugerflade"
 
 msgid "expires"
 msgstr "udløber"
@@ -2762,9 +2750,6 @@ msgstr "Prøv at justere din søgning eller filtre"
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Try experimental UI components"
-msgstr "Prøv eksperimentelle brugerfladekomponenter"
-
 msgid "Two-factor authentication"
 msgstr "Tofaktor-godkendelse"
 
@@ -2849,9 +2834,6 @@ msgstr "Upload profilbillede"
 
 msgid "Use a horizontal separator to group related sections in a column layout."
 msgstr "Brug en vandret separator til at gruppere relaterede sektioner i en kolonnelayout."
-
-msgid "Use a more compact layout"
-msgstr "Brug et mere kompakt layout"
 
 msgid "Use Accordion to stack multiple related disclosable sections. Good for FAQs, settings groups, or any list where users scan items and expand a few."
 msgstr "Brug Accordion til at stable flere relaterede sektioner. God til FAQs, indstillingsgrupper eller lister hvor brugere scanner elementer og udvider et par stykker."

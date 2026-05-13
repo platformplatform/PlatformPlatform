@@ -1,0 +1,58 @@
+[
+  {
+    "Key": "google-oauth",
+    "Label": "Google OAuth",
+    "Description": "Sign in with Google using OpenID Connect",
+    "Scope": "System",
+    "AdminLevel": "SystemAdmin",
+    "RequiredPlan": null
+  },
+  {
+    "Key": "subscriptions",
+    "Label": "Subscriptions",
+    "Description": "Stripe-powered subscription billing and plan management",
+    "Scope": "System",
+    "AdminLevel": "SystemAdmin",
+    "RequiredPlan": null
+  },
+  {
+    "Key": "beta-features",
+    "Label": "Beta features",
+    "Description": "Early access to experimental features before general availability",
+    "Scope": "Tenant",
+    "AdminLevel": "SystemAdmin",
+    "RequiredPlan": null
+  },
+  {
+    "Key": "sso",
+    "Label": "Single sign-on",
+    "Description": "Allow users to authenticate using enterprise identity providers",
+    "Scope": "Tenant",
+    "AdminLevel": "SystemAdmin",
+    "RequiredPlan": "Premium"
+  },
+  {
+    "Key": "custom-branding",
+    "Label": "Custom branding",
+    "Description": "Customize the login page with your organization\u0027s logo and colors",
+    "Scope": "Tenant",
+    "AdminLevel": "TenantOwner",
+    "RequiredPlan": null
+  },
+  {
+    "Key": "compact-view",
+    "Label": "Compact view",
+    "Description": "Reduce spacing between UI elements for a denser layout",
+    "Scope": "User",
+    "AdminLevel": "User",
+    "RequiredPlan": null
+  },
+  {
+    "Key": "experimental-ui",
+    "Label": "Experimental UI",
+    "Description": "Try out experimental user interface components",
+    "Scope": "User",
+    "AdminLevel": "User",
+    "RequiredPlan": null
+  }
+]

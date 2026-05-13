@@ -103,9 +103,6 @@ msgstr "7d"
 msgid "90d"
 msgstr "90d"
 
-msgid "A/B rollout"
-msgstr "A/B-udrulning"
-
 msgid "Account"
 msgstr "Konto"
 
@@ -183,9 +180,6 @@ msgstr "Samlet"
 msgid "All-time, excluding VAT"
 msgstr "Hele perioden, eksklusiv moms"
 
-msgid "Allow users to authenticate using enterprise identity providers"
-msgstr "Tillad brugere at logge ind via virksomhedsidentitetsudbydere"
-
 msgid "Amount"
 msgstr "Beløb"
 
@@ -214,9 +208,6 @@ msgstr "Tilbage til feature flags"
 
 msgid "Basis"
 msgstr "Basis"
-
-msgid "Beta features"
-msgstr "Betafunktioner"
 
 msgid "Billing"
 msgstr "Fakturering"
@@ -287,9 +278,6 @@ msgstr "Luk"
 msgid "Close account preview"
 msgstr "Luk kontoforhåndsvisning"
 
-msgid "Compact view"
-msgstr "Kompakt visning"
-
 msgid "Contact your administrator."
 msgstr "Kontakt din administrator."
 
@@ -312,12 +300,6 @@ msgstr "Aktuel periode"
 
 msgid "Current plan"
 msgstr "Aktuelt abonnement"
-
-msgid "Custom branding"
-msgstr "Tilpasset branding"
-
-msgid "Customize the login page with your organization's logo and colors"
-msgstr "Tilpas login-siden med din organisations logo og farver"
 
 msgid "Dark"
 msgstr "Mørk"
@@ -375,9 +357,6 @@ msgstr "Afvigelser fundet"
 msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 msgstr "Hver konto eller bruger tildeles en fast bucket (0-99) baseret på deres sekvensnummer. Udrulningen rammer et specifikt interval af buckets, hvilket sikrer en konsistent og forudsigelig udrulning."
 
-msgid "Early access to experimental features before general availability"
-msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighed"
-
 msgid "Email"
 msgstr "E-mail"
 
@@ -420,9 +399,6 @@ msgstr "Alle login-forsøg de seneste 30 dage, succesfulde eller mislykkede, på
 msgid "Exit kiosk mode"
 msgstr "Forlad kiosktilstand"
 
-msgid "Experimental UI"
-msgstr "Eksperimentel UI"
-
 msgid "Expired"
 msgstr "Udløbet"
 
@@ -461,9 +437,6 @@ msgstr "Gå til forsiden"
 
 msgid "Google"
 msgstr "Google"
-
-msgid "Google OAuth"
-msgstr "Google OAuth"
 
 msgid "Has override"
 msgstr "Med tilsidesættelse"
@@ -551,9 +524,6 @@ msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Hovednavigation"
-
-msgid "Manual override"
-msgstr "Manuel tilsidesættelse"
 
 msgid "Member"
 msgstr "Medlem"
@@ -920,9 +890,6 @@ msgstr "Afstemmer..."
 msgid "Records will appear here as accounts subscribe and Stripe webhooks are processed."
 msgstr "Posteringer vises her, når konti abonnerer, og Stripe-webhooks behandles."
 
-msgid "Reduce spacing between UI elements for a denser layout"
-msgstr "Reducér afstanden mellem UI-elementer for et tættere layout"
-
 msgid "Refunded"
 msgstr "Refunderet"
 
@@ -1043,9 +1010,6 @@ msgstr "Sessioner"
 msgid "Show details"
 msgstr "Vis detaljer"
 
-msgid "Sign in with Google using OpenID Connect"
-msgstr "Log ind med Google via OpenID Connect"
-
 msgid "Signed up"
 msgstr "Tilmeldt"
 
@@ -1057,9 +1021,6 @@ msgstr "Tilmeldt <0>{0}</0><1>{1}</1>"
 #. placeholder {0}: formatDate(tenant.subscribedSince)
 msgid "Since {0}"
 msgstr "Siden {0}"
-
-msgid "Single sign-on"
-msgstr "Single sign-on"
 
 msgid "Small"
 msgstr "Lille"
@@ -1079,9 +1040,6 @@ msgstr "Tilstand"
 msgid "Status"
 msgstr "Status"
 
-msgid "Stripe-powered subscription billing and plan management"
-msgstr "Stripe-drevet abonnementsfakturering og abonnementsstyring"
-
 msgid "Subscribed"
 msgstr "Tilmeldt"
 
@@ -1096,9 +1054,6 @@ msgstr "Abonnements-, betalings- og faktureringsovergange vises her efterhånden
 
 msgid "Subscription, payment, and billing transitions will appear here."
 msgstr "Abonnements-, betalings- og faktureringsovergange vises her."
-
-msgid "Subscriptions"
-msgstr "Abonnementer"
 
 msgid "Subscriptions, upgrades, and cancellations will appear here."
 msgstr "Tilmeldinger, opgraderinger og opsigelser vises her."
@@ -1190,9 +1145,6 @@ msgstr "Prøv at rydde søgningen eller filtrene for at se flere resultater."
 
 msgid "Try clearing the search to see more results."
 msgstr "Prøv at rydde søgningen for at se flere resultater."
-
-msgid "Try out experimental user interface components"
-msgstr "Afprøv eksperimentelle brugergrænsefladekomponenter"
 
 msgid "Unclassified"
 msgstr "Uklassificeret"

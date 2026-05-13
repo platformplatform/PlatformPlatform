@@ -89,24 +89,28 @@ test.describe("@smoke", () => {
       expect(response.ok()).toBe(true);
     })();
 
-    await step(
-      "Switch to the All state filter and search by Test Organization & verify a matching row renders"
-    )(async () => {
-      // Switch to the All filter so the row set is independent of cross-worker rollout-percentage races
-      // on the shared beta-features global state. Without this, parallel test runs from other browser
-      // workers can flip rollout to 0 mid-test, emptying the default Enabled view.
-      await page.getByRole("group", { name: "State" }).getByRole("button", { name: "All" }).click();
-      await page.getByRole("searchbox", { name: "Search" }).fill("Test Organization");
+    await step("Switch to the All state filter and search by Test Organization & verify a matching row renders")(
+      async () => {
+        // Switch to the All filter so the row set is independent of cross-worker rollout-percentage races
+        // on the shared beta-features global state. Without this, parallel test runs from other browser
+        // workers can flip rollout to 0 mid-test, emptying the default Enabled view.
+        await page.getByRole("group", { name: "State" }).getByRole("button", { name: "All" }).click();
+        await page.getByRole("searchbox", { name: "Search" }).fill("Test Organization");
 
-      // Wait for the search-debounce query to settle AND for a matching row to render. Without the row
-      // assertion, downstream `.first()` targeting can bind to a row from a parallel test's tenant
-      // ("Mobile Nav Test" etc.) that happens to slip through the search match, or to a stale row
-      // from the pre-debounce result set that becomes detached when the new query resolves.
-      await expect(page).toHaveURL((url) => url.searchParams.get("tenantsSearch") === "Test Organization");
-      await expect(
-        page.getByRole("table", { name: "Accounts" }).getByRole("row").filter({ hasText: "Test Organization" }).first()
-      ).toBeVisible();
-    })();
+        // Wait for the search-debounce query to settle AND for a matching row to render. Without the row
+        // assertion, downstream `.first()` targeting can bind to a row from a parallel test's tenant
+        // ("Mobile Nav Test" etc.) that happens to slip through the search match, or to a stale row
+        // from the pre-debounce result set that becomes detached when the new query resolves.
+        await expect(page).toHaveURL((url) => url.searchParams.get("tenantsSearch") === "Test Organization");
+        await expect(
+          page
+            .getByRole("table", { name: "Accounts" })
+            .getByRole("row")
+            .filter({ hasText: "Test Organization" })
+            .first()
+        ).toBeVisible();
+      }
+    )();
 
     await step("Toggle the first Test Organization override & verify toast confirms state change")(async () => {
       const testOrgRow = page
@@ -387,9 +391,7 @@ test.describe("@comprehensive", () => {
         await searchBox.fill("Test Organization");
 
         await expect(page).toHaveURL((url) => url.searchParams.get("tenantsSearch") === "Test Organization");
-        await expect(
-          accountsTable.getByRole("row").filter({ hasText: "Test Organization" }).first()
-        ).toBeVisible();
+        await expect(accountsTable.getByRole("row").filter({ hasText: "Test Organization" }).first()).toBeVisible();
       }
     )();
 

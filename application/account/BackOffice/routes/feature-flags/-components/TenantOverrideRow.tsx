@@ -6,6 +6,7 @@ import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { getFeatureFlagSourceLabel } from "@repo/ui/featureFlags/labels";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { Link } from "@tanstack/react-router";
 import { XIcon } from "lucide-react";
@@ -21,7 +22,6 @@ import type { FeatureFlagTenantInfo } from "./types";
 import { MrrCell } from "../../accounts/-components/MrrCell";
 import { TenantStatusBadge } from "../../accounts/-components/TenantStatusBadge";
 import { getUserDisplayName } from "../../users/-components/userDisplay";
-import { getFeatureFlagSourceLabel } from "./flagLabels";
 
 export function TenantOverrideRow({
   flagKey,
