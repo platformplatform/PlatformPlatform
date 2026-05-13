@@ -24,7 +24,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
             var baseRow = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId is null && f.UserId is null);
             if (baseRow is null) continue;
 
-            if (!IsActive(baseRow)) continue;
+            if (!baseRow.IsActive) continue;
 
             if (definition.ParentDependency is not null && !enabledFeatureFlagSet.Contains(definition.ParentDependency)) continue;
 
@@ -49,7 +49,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var tenantOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId is null);
         if (tenantOverride is not null)
         {
-            return IsActive(tenantOverride);
+            return tenantOverride.IsActive;
         }
 
         if (definition.IsAbTestEligible && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
@@ -67,7 +67,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var userOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId == userId);
         if (userOverride is not null)
         {
-            return IsActive(userOverride);
+            return userOverride.IsActive;
         }
 
         if (definition.IsAbTestEligible && userRolloutBucket is not null && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
@@ -76,11 +76,6 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         }
 
         return false;
-    }
-
-    private static bool IsActive(FeatureFlag featureFlag)
-    {
-        return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
     private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] definitions)

@@ -16,7 +16,8 @@ public sealed record FeatureFlagDefinition(
     string? TelemetryName = null,
     PlanTier? RequiredPlan = null,
     string? SystemConfigKey = null,
-    string? SystemConfigExpectedValue = null
+    string? SystemConfigExpectedValue = null,
+    bool IsKillSwitchEnabled = false
 )
 {
     public bool IsSystemFeatureFlagEnabled(IConfiguration configuration)

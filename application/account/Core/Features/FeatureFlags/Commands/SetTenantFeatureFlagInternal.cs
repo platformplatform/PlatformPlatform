@@ -27,7 +27,8 @@ public sealed class SetTenantFeatureFlagInternalValidator : AbstractValidator<Se
         RuleFor(x => x.FlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
             .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.");
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.RequiredPlan is null).WithMessage("Plan-gated feature flags cannot be set manually; change the tenant's subscription plan instead.");
     }
 }
 

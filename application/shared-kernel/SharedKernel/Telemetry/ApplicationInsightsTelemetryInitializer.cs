@@ -69,6 +69,10 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
         AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
 
+        // Iteration is over current C# definitions only; orphaned flag keys (DB rows whose key was removed
+        // from FeatureFlags.cs) cannot reach telemetry because FeatureFlagDefinitionReconciler marks them
+        // OrphanedAt at startup and they are no longer in GetAll(). If a future change loads flags from the
+        // database instead of definitions, the orphan filter must be re-introduced here explicitly.
         foreach (var featureFlag in FeatureFlags.FeatureFlags.GetAll())
         {
             if (!featureFlag.TrackInTelemetry) continue;

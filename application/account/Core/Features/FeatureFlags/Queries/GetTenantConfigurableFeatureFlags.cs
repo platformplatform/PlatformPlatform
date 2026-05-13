@@ -33,16 +33,11 @@ public sealed class GetTenantConfigurableFeatureFlagsHandler(IFeatureFlagReposit
             .Select(definition =>
                 {
                     tenantOverrides.TryGetValue(definition.Key, out var tenantOverride);
-                    var enabled = tenantOverride is not null && IsActive(tenantOverride);
+                    var enabled = tenantOverride?.IsActive == true;
                     return new TenantConfigurableFeatureFlag(definition.Key, enabled);
                 }
             ).ToArray();
 
         return new TenantConfigurableFeatureFlagsResponse(flags);
-    }
-
-    private static bool IsActive(FeatureFlag row)
-    {
-        return row.EnabledAt is not null && (row.DisabledAt is null || row.EnabledAt > row.DisabledAt);
     }
 }

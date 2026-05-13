@@ -34,16 +34,11 @@ public sealed class GetUserConfigurableFeatureFlagsHandler(IFeatureFlagRepositor
             .Select(definition =>
                 {
                     userOverrides.TryGetValue(definition.Key, out var userOverride);
-                    var enabled = userOverride is not null && IsActive(userOverride);
+                    var enabled = userOverride?.IsActive == true;
                     return new UserConfigurableFeatureFlag(definition.Key, enabled);
                 }
             ).ToArray();
 
         return new UserConfigurableFeatureFlagsResponse(flags);
-    }
-
-    private static bool IsActive(FeatureFlag row)
-    {
-        return row.EnabledAt is not null && (row.DisabledAt is null || row.EnabledAt > row.DisabledAt);
     }
 }

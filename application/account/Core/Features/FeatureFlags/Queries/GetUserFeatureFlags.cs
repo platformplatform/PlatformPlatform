@@ -65,7 +65,7 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
     )
     {
         baseRowsByKey.TryGetValue(definition.Key, out var baseRow);
-        var isBaseRowActive = baseRow is not null && IsActive(baseRow);
+        var isBaseRowActive = baseRow?.IsActive == true;
         userOverridesByKey.TryGetValue(definition.Key, out var userOverride);
 
         bool isEnabled;
@@ -73,7 +73,7 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
 
         if (userOverride is not null)
         {
-            isEnabled = IsActive(userOverride);
+            isEnabled = userOverride.IsActive;
             source = "manual_override";
         }
         else if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
@@ -102,11 +102,6 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             userRolloutBucket,
             tenantId
         );
-    }
-
-    private static bool IsActive(FeatureFlag featureFlag)
-    {
-        return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
     private static int? ComputeRolloutPercentage(int? bucketStart, int? bucketEnd)

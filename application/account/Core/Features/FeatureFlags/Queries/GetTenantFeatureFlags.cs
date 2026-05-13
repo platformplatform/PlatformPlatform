@@ -64,7 +64,7 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
     )
     {
         baseRowsByKey.TryGetValue(definition.Key, out var baseRow);
-        var isBaseRowActive = baseRow is not null && IsActive(baseRow);
+        var isBaseRowActive = baseRow?.IsActive == true;
         tenantOverridesByKey.TryGetValue(definition.Key, out var tenantOverride);
 
         bool isEnabled;
@@ -72,7 +72,7 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
 
         if (tenantOverride is not null)
         {
-            isEnabled = IsActive(tenantOverride);
+            isEnabled = tenantOverride.IsActive;
             // The row's Source column is authoritative — a manually-toggled plan-gated flag must still surface as
             // "manual_override" so admins see they overrode the plan-driven default, rather than the plan granting it.
             source = tenantOverride.Source == FeatureFlagSource.Plan ? "plan" : "manual_override";
@@ -103,11 +103,6 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
             isBaseRowActive,
             tenantRolloutBucket
         );
-    }
-
-    private static bool IsActive(FeatureFlag featureFlag)
-    {
-        return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
     private static int? ComputeRolloutPercentage(int? bucketStart, int? bucketEnd)

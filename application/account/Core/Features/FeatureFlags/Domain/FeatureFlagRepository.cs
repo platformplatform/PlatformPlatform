@@ -22,6 +22,13 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
     Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
 
     Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(long tenantId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every feature_flag row across all tenants and users. Used by the reconciler to sweep for
+    ///     orphans (rows whose flag_key no longer exists in FeatureFlags.cs). MUST only be called from
+    ///     startup/admin paths — never from a tenant-scoped request.
+    /// </summary>
+    Task<FeatureFlag[]> GetAllRowsUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
@@ -80,5 +87,10 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
         return await DbSet
             .Where(f => f.TenantId == tenantId && f.UserId == null && f.Source == FeatureFlagSource.Plan)
             .ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<FeatureFlag[]> GetAllRowsUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.ToArrayAsync(cancellationToken);
     }
 }

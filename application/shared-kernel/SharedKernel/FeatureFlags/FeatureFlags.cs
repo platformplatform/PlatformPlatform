@@ -26,7 +26,8 @@ public static class FeatureFlags
         FeatureFlagAdminLevel.SystemAdmin,
         "Enables beta features for tenants",
         IsAbTestEligible: true,
-        TrackInTelemetry: true
+        TrackInTelemetry: true,
+        IsKillSwitchEnabled: true
     );
 
     public static readonly FeatureFlagDefinition Sso = new(
@@ -34,7 +35,8 @@ public static class FeatureFlags
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.SystemAdmin,
         "Enables single sign-on for tenants",
-        RequiredPlan: PlanTier.Premium
+        RequiredPlan: PlanTier.Premium,
+        IsKillSwitchEnabled: false
     );
 
     public static readonly FeatureFlagDefinition CustomBranding = new(
@@ -42,7 +44,8 @@ public static class FeatureFlags
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.TenantOwner,
         "Enables custom branding options for tenants",
-        ConfigurableByTenant: true
+        ConfigurableByTenant: true,
+        IsKillSwitchEnabled: false
     );
 
     public static readonly FeatureFlagDefinition CompactView = new(
@@ -50,7 +53,8 @@ public static class FeatureFlags
         FeatureFlagScope.User,
         FeatureFlagAdminLevel.User,
         "Enables compact view in the user interface",
-        ConfigurableByUser: true
+        ConfigurableByUser: true,
+        IsKillSwitchEnabled: false
     );
 
     public static readonly FeatureFlagDefinition ExperimentalUi = new(
@@ -59,7 +63,8 @@ public static class FeatureFlags
         FeatureFlagAdminLevel.User,
         "Enables experimental UI components for users",
         IsAbTestEligible: true,
-        TrackInTelemetry: true
+        TrackInTelemetry: true,
+        IsKillSwitchEnabled: true
     );
 
     private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
@@ -150,6 +155,11 @@ public static class FeatureFlags
                 if (featureFlag.IsAbTestEligible)
                 {
                     throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be IsAbTestEligible.");
+                }
+
+                if (featureFlag.IsKillSwitchEnabled)
+                {
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be IsKillSwitchEnabled - plan-gated flags must always be platform-managed.");
                 }
             }
 

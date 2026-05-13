@@ -147,7 +147,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenEnabled_ShouldCreateOverrideRow()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
@@ -177,7 +177,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenDisabledWithNoExistingOverride_ShouldCreateDisabledOverrideRow()
     {
         // Arrange - tenant has no override row (enabled via A/B rollout or default)
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
 
@@ -207,7 +207,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenCalledWithoutAuthContext_ShouldSucceed()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
@@ -228,7 +228,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task RemoveTenantFeatureFlagOverride_WhenOverrideExists_ShouldDeleteRow()
     {
         // Arrange - create an override row first
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var overrideId = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
@@ -269,7 +269,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task RemoveTenantFeatureFlagOverride_WhenNoOverrideExists_ShouldReturnNotFound()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
@@ -1514,7 +1514,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagInternal_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var originalVersion = Connection.ExecuteScalar<long>(
             "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]

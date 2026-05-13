@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using JetBrains.Annotations;
 using SharedKernel.Domain;
 using SharedKernel.StronglyTypedIds;
@@ -43,6 +44,11 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public FeatureFlagSource Source { get; private set; }
 
+    public DateTimeOffset? OrphanedAt { get; private set; }
+
+    [NotMapped]
+    public bool IsActive => EnabledAt is not null && (DisabledAt is null || EnabledAt > DisabledAt);
+
     public static FeatureFlag Create(string flagKey, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
         return new FeatureFlag(flagKey, null, null, source);
@@ -69,6 +75,18 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         if (EnabledAt is null) return;
 
         DisabledAt = now;
+    }
+
+    public void SetSource(FeatureFlagSource source)
+    {
+        Source = source;
+    }
+
+    public void MarkOrphaned(DateTimeOffset now)
+    {
+        if (OrphanedAt is not null) return;
+
+        OrphanedAt = now;
     }
 
     public void SetRolloutRange(int? rolloutBucketStart, int? rolloutBucketEnd)

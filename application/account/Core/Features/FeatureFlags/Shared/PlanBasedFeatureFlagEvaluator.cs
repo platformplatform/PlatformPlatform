@@ -34,7 +34,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                     changed = true;
                 }
-                else if (!IsActive(existingOverride))
+                else if (!existingOverride.IsActive)
                 {
                     existingOverride.Activate(now);
                     featureFlagRepository.Update(existingOverride);
@@ -43,7 +43,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
             }
             else
             {
-                if (existingOverride is not null && IsActive(existingOverride))
+                if (existingOverride?.IsActive == true)
                 {
                     existingOverride.Deactivate(now);
                     featureFlagRepository.Update(existingOverride);
@@ -61,11 +61,6 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                 tenantRepository.Update(tenant);
             }
         }
-    }
-
-    private static bool IsActive(FeatureFlag featureFlag)
-    {
-        return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
     private static PlanTier MapToPlanTier(SubscriptionPlan plan)
