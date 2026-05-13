@@ -16,6 +16,7 @@ public class AuthenticationCookieMiddleware(
 {
     private const string RefreshAuthenticationTokensEndpoint = "/internal-api/account/authentication/refresh-authentication-tokens";
     private const string UnauthorizedReasonItemKey = "UnauthorizedReason";
+    private const string CurrentAccessTokenItemKey = "CurrentAccessToken";
 
     private static readonly JsonWebTokenHandler TokenHandler = new();
 
@@ -70,6 +71,14 @@ public class AuthenticationCookieMiddleware(
             {
                 await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken.Single()!, accessToken.Single()!);
             }
+
+            // Emit x-user-feature-flags on every authenticated response so the SPA can converge on the
+            // current set of enabled flags without polling. Value reflects the access token in effect
+            // after any refresh that just happened.
+            if (context.Items.TryGetValue(CurrentAccessTokenItemKey, out var tokenItem) && tokenItem is string currentAccessToken)
+            {
+                context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey] = ExtractFeatureFlagsClaim(currentAccessToken);
+            }
         }
 
         // Register OnStarting BEFORE next(context). YARP streams responses back, so by the time control
@@ -118,6 +127,7 @@ public class AuthenticationCookieMiddleware(
             }
 
             context.Request.Headers.Authorization = $"Bearer {accessToken}";
+            context.Items[CurrentAccessTokenItemKey] = accessToken;
         }
         catch (SessionRevokedException ex)
         {
@@ -233,6 +243,15 @@ public class AuthenticationCookieMiddleware(
 
         context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
         context.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
+
+        context.Items[CurrentAccessTokenItemKey] = accessToken;
+    }
+
+    private static string ExtractFeatureFlagsClaim(string accessToken)
+    {
+        if (!TokenHandler.CanReadToken(accessToken)) return string.Empty;
+        var jwt = TokenHandler.ReadJsonWebToken(accessToken);
+        return jwt.TryGetClaim("feature_flags", out var claim) ? claim.Value : string.Empty;
     }
 
     private async Task<DateTimeOffset> ExtractExpirationFromTokenAsync(string token)

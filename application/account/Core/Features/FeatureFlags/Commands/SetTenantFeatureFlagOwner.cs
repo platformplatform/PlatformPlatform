@@ -1,5 +1,4 @@
 using Account.Features.FeatureFlags.Domain;
-using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
@@ -30,7 +29,7 @@ public sealed class SetTenantFeatureFlagOwnerValidator : AbstractValidator<SetTe
     }
 }
 
-public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, IExecutionContext executionContext, TimeProvider timeProvider, ITelemetryEventsCollector events)
+public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository featureFlagRepository, IExecutionContext executionContext, TimeProvider timeProvider, ITelemetryEventsCollector events)
     : IRequestHandler<SetTenantFeatureFlagOwnerCommand, Result>
 {
     public async Task<Result> Handle(SetTenantFeatureFlagOwnerCommand command, CancellationToken cancellationToken)
@@ -78,10 +77,6 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
                 events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, tenantId.ToString()));
             }
         }
-
-        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
-        tenant!.IncrementFeatureFlagVersion();
-        tenantRepository.Update(tenant);
 
         return Result.Success();
     }

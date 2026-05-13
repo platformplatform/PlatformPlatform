@@ -1,12 +1,11 @@
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
-using Account.Features.Tenants.Domain;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 
 namespace Account.Features.FeatureFlags.Shared;
 
-public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, TimeProvider timeProvider)
+public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository, TimeProvider timeProvider)
 {
     public async Task EvaluatePlanFlagsForTenantAsync(TenantId tenantId, SubscriptionPlan subscriptionPlan, CancellationToken cancellationToken)
     {
@@ -18,7 +17,6 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
         var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId.Value, cancellationToken);
         var overridesByKey = existingOverrides.ToDictionary(f => f.FlagKey);
         var now = timeProvider.GetUtcNow();
-        var changed = false;
 
         foreach (var definition in planFeatureFlagDefinitions)
         {
@@ -32,13 +30,11 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                     var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId.Value, FeatureFlagSource.Plan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
-                    changed = true;
                 }
                 else if (!existingOverride.IsActive)
                 {
                     existingOverride.Activate(now);
                     featureFlagRepository.Update(existingOverride);
-                    changed = true;
                 }
             }
             else
@@ -47,18 +43,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                 {
                     existingOverride.Deactivate(now);
                     featureFlagRepository.Update(existingOverride);
-                    changed = true;
                 }
-            }
-        }
-
-        if (changed)
-        {
-            var tenant = await tenantRepository.GetByIdUnfilteredAsync(tenantId, cancellationToken);
-            if (tenant is not null)
-            {
-                tenant.IncrementFeatureFlagVersion();
-                tenantRepository.Update(tenant);
             }
         }
     }

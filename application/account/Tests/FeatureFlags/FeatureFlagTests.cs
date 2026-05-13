@@ -4,9 +4,9 @@ using Account.Database;
 using Account.Features.FeatureFlags.Commands;
 using Account.Features.FeatureFlags.Queries;
 using FluentAssertions;
+using SharedKernel.Authentication;
 using SharedKernel.FeatureFlags;
 using SharedKernel.Tests;
-using SharedKernel.Tests.Persistence;
 using Xunit;
 
 namespace Account.Tests.FeatureFlags;
@@ -153,53 +153,37 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         result.Flags.Should().Contain(f => f.FlagKey == "compact-view" && f.Enabled == false);
     }
 
-    // JWT-invalidation tests for owner/user-facing routes (cross-tenant kill-switch invalidation tests
-    // live in FeatureFlagBackOfficeTests.cs since the trigger is back-office).
+    // Self-service flag mutations chain AddRefreshAuthenticationTokens() so the actor's own JWT is
+    // refreshed by the gateway in the same request cycle. Back-office mutations do not.
 
     [Fact]
-    public async Task SetTenantFeatureFlagOwner_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
+    public async Task SetTenantFeatureFlagOwner_WhenCalled_ShouldAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
         var flagKey = "custom-branding";
-        var tenantId = DatabaseSeeder.Tenant1.Id;
-        var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-
-        var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
-        updatedVersion.Should().Be(originalVersion + 1);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Headers.Should().ContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
     }
 
     [Fact]
-    public async Task SetUserFeatureFlag_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
+    public async Task SetUserFeatureFlag_WhenCalled_ShouldAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
         var flagKey = "compact-view";
-        var tenantId = DatabaseSeeder.Tenant1.Id;
-        var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
         var command = new SetUserFeatureFlagCommand { Enabled = true };
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/user-override", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-
-        var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
-        updatedVersion.Should().Be(originalVersion + 1);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Headers.Should().ContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
     }
 
     // A/B rollout bucket math (pure unit tests, no HTTP)

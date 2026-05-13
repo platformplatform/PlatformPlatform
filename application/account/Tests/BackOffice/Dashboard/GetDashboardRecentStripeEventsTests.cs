@@ -111,8 +111,7 @@ public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBase
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("rollout_bucket", 50),
-                ("feature_flag_version", 0)
+                ("rollout_bucket", 50)
             ]
         );
         return tenantId;

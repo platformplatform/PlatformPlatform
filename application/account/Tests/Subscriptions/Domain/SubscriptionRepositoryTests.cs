@@ -55,8 +55,7 @@ public sealed class SubscriptionRepositoryTests : EndpointBaseTest<AccountDbCont
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Premium)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("rollout_bucket", 0),
-                ("feature_flag_version", 0)
+                ("rollout_bucket", 0)
             ]
         );
         return tenantId;

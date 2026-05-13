@@ -6,6 +6,7 @@ using Account.Features.FeatureFlags.Queries;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Users.Domain;
 using FluentAssertions;
+using SharedKernel.Authentication;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Domain;
 using SharedKernel.Tests;
@@ -1126,17 +1127,15 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Flags.Single(f => f.Key == "compact-view").ConfigurableByUser.Should().BeTrue();
     }
 
-    // JWT-invalidation: kill-switch and per-tenant override both bump feature_flag_version.
+    // Back-office mutations do NOT chain AddRefreshAuthenticationTokens() because the back-office
+    // actor's own claim set is unchanged when they mutate flags for other tenants/users. Target
+    // sessions pick up the change via the x-user-feature-flags header on their next request.
 
     [Fact]
-    public async Task ActivateFeatureFlag_WhenCalledByAdmin_ShouldIncrementAllTenantsFeatureFlagVersion()
+    public async Task ActivateFeatureFlag_WhenCalledByAdmin_ShouldNotAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
         var flagKey = "sso";
-        var tenantId = DatabaseSeeder.Tenant1.Id;
-        var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
         using var client = CreateAdminBackOfficeClient();
 
         // Act
@@ -1144,21 +1143,14 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
-        updatedVersion.Should().Be(originalVersion + 1);
+        response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
     }
 
     [Fact]
-    public async Task DeactivateFeatureFlag_WhenCalledByAdmin_ShouldIncrementAllTenantsFeatureFlagVersion()
+    public async Task DeactivateFeatureFlag_WhenCalledByAdmin_ShouldNotAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
         var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id;
-        var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
         using var client = CreateAdminBackOfficeClient();
 
         // Act
@@ -1166,21 +1158,15 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
-        updatedVersion.Should().Be(originalVersion + 1);
+        response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
     }
 
     [Fact]
-    public async Task SetTenantOverride_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
+    public async Task SetTenantOverride_WhenCalled_ShouldNotAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
         using var client = CreateRegularBackOfficeClient();
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
@@ -1189,21 +1175,14 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
-        updatedVersion.Should().Be(originalVersion + 1);
+        response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
     }
 
     [Fact]
-    public async Task SetRolloutPercentage_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
+    public async Task SetRolloutPercentage_WhenCalled_ShouldNotAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
         var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id;
-        var originalVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
         using var client = CreateRegularBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
@@ -1212,10 +1191,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        var updatedVersion = Connection.ExecuteScalar<long>(
-            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId = tenantId.Value }]
-        );
-        updatedVersion.Should().Be(originalVersion + 1);
+        response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
     }
 
     // Delete feature flag (AdminPolicyName, orphan-only)

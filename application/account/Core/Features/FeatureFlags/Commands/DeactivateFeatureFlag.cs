@@ -1,5 +1,4 @@
 using Account.Features.FeatureFlags.Domain;
-using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -20,7 +19,7 @@ public sealed class DeactivateFeatureFlagValidator : AbstractValidator<Deactivat
     }
 }
 
-public sealed class DeactivateFeatureFlagHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
+public sealed class DeactivateFeatureFlagHandler(IFeatureFlagRepository featureFlagRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
     : IRequestHandler<DeactivateFeatureFlagCommand, Result>
 {
     public async Task<Result> Handle(DeactivateFeatureFlagCommand command, CancellationToken cancellationToken)
@@ -30,8 +29,6 @@ public sealed class DeactivateFeatureFlagHandler(IFeatureFlagRepository featureF
 
         featureFlag.Deactivate(timeProvider.GetUtcNow());
         featureFlagRepository.Update(featureFlag);
-
-        await tenantRepository.IncrementAllFeatureFlagVersionsAsync(cancellationToken);
 
         events.CollectEvent(new FeatureFlagDeactivated(command.FlagKey));
 

@@ -1,5 +1,4 @@
 using Account.Features.FeatureFlags.Domain;
-using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -31,7 +30,7 @@ public sealed class RemoveUserFeatureFlagOverrideValidator : AbstractValidator<R
     }
 }
 
-public sealed class RemoveUserFeatureFlagOverrideHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, ITelemetryEventsCollector events)
+public sealed class RemoveUserFeatureFlagOverrideHandler(IFeatureFlagRepository featureFlagRepository, ITelemetryEventsCollector events)
     : IRequestHandler<RemoveUserFeatureFlagOverrideCommand, Result>
 {
     public async Task<Result> Handle(RemoveUserFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
@@ -40,13 +39,6 @@ public sealed class RemoveUserFeatureFlagOverrideHandler(IFeatureFlagRepository 
         if (userOverride is null) return Result.NotFound($"No user override found for flag '{command.FlagKey}' and user '{command.UserId}'.");
 
         featureFlagRepository.Remove(userOverride);
-
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
-        if (tenant is not null)
-        {
-            tenant.IncrementFeatureFlagVersion();
-            tenantRepository.Update(tenant);
-        }
 
         events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId.Value));
 

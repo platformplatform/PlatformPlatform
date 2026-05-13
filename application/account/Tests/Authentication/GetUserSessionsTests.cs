@@ -137,8 +137,7 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
                 ("state", "Active"),
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("rollout_bucket", 42),
-                ("feature_flag_version", 0)
+                ("rollout_bucket", 42)
             ]
         );
 

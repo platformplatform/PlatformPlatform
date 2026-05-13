@@ -21,11 +21,11 @@ public sealed class FeatureFlagEndpoints : IEndpoints
         ).Produces<UserConfigurableFeatureFlagsResponse>();
 
         group.MapPut("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, SetTenantFeatureFlagOwnerCommand command, IMediator mediator)
-            => await mediator.Send(command with { FlagKey = flagKey })
+            => (await mediator.Send(command with { FlagKey = flagKey })).AddRefreshAuthenticationTokens()
         );
 
         group.MapPut("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, SetUserFeatureFlagCommand command, IMediator mediator)
-            => await mediator.Send(command with { FlagKey = flagKey })
+            => (await mediator.Send(command with { FlagKey = flagKey })).AddRefreshAuthenticationTokens()
         );
     }
 }

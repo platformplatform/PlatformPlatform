@@ -1,5 +1,4 @@
 using Account.Features.FeatureFlags.Domain;
-using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -32,7 +31,7 @@ public sealed class SetTenantFeatureFlagInternalValidator : AbstractValidator<Se
     }
 }
 
-public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
+public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository featureFlagRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
     : IRequestHandler<SetTenantFeatureFlagInternalCommand, Result>
 {
     public async Task<Result> Handle(SetTenantFeatureFlagInternalCommand command, CancellationToken cancellationToken)
@@ -71,13 +70,6 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
             }
 
             events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
-        }
-
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
-        if (tenant is not null)
-        {
-            tenant.IncrementFeatureFlagVersion();
-            tenantRepository.Update(tenant);
         }
 
         return Result.Success();

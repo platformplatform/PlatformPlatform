@@ -61,10 +61,6 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     This method is used to compute rollout buckets for new tenants.
     /// </summary>
     Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
-
-    Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken);
-
-    Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken);
 }
 
 public sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -175,15 +171,5 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().CountAsync(cancellationToken);
-    }
-
-    public async Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken)
-    {
-        return await DbSet.Where(t => t.Id == tenantId).Select(t => t.FeatureFlagVersion).SingleOrDefaultAsync(cancellationToken);
-    }
-
-    public async Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken)
-    {
-        await accountDbContext.Database.ExecuteSqlRawAsync("UPDATE tenants SET feature_flag_version = feature_flag_version + 1", cancellationToken);
     }
 }

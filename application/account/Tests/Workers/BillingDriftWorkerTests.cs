@@ -240,8 +240,7 @@ public sealed class BillingDriftWorkerTests : EndpointBaseTest<AccountDbContext>
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("rollout_bucket", 0),
-                ("feature_flag_version", 0)
+                ("rollout_bucket", 0)
             ]
         );
 

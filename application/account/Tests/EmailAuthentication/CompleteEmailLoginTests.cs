@@ -220,8 +220,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("state", nameof(TenantState.Active)),
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("rollout_bucket", 42),
-                ("feature_flag_version", 0)
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -325,8 +324,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("state", nameof(TenantState.Active)),
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("rollout_bucket", 42),
-                ("feature_flag_version", 0)
+                ("rollout_bucket", 42)
             ]
         );
 
