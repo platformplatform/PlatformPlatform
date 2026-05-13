@@ -1,4 +1,5 @@
 using Account.Features.FeatureFlags.Domain;
+using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -29,11 +30,17 @@ public sealed class RemoveTenantFeatureFlagOverrideValidator : AbstractValidator
     }
 }
 
-public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepository featureFlagRepository, ITelemetryEventsCollector events)
+public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<RemoveTenantFeatureFlagOverrideCommand, Result>
 {
     public async Task<Result> Handle(RemoveTenantFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
+        if (tenant is null)
+        {
+            return Result.NotFound($"Tenant '{command.TenantId}' not found.");
+        }
+
         var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
         if (tenantOverride is null) return Result.NotFound($"No tenant override found for flag '{command.FlagKey}' and tenant '{command.TenantId}'.");
 

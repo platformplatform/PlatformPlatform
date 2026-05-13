@@ -338,6 +338,128 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    // User/tenant verification guards — the back-office can target any tenant, so handlers verify the
+    // (TenantId, UserId) pair exists before any repository write. A mismatched or non-existent target
+    // must short-circuit with NotFound, leaving no override row and no telemetry behind.
+
+    [Fact]
+    public async Task SetUserFeatureFlagInternal_WhenUserDoesNotBelongToTenant_ShouldReturnNotFound()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var otherTenantId = new TenantId(999999);
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = otherTenantId, Enabled = true };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/user-override", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User '{userId}' not found in tenant '{otherTenantId}'.");
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = userId.Value }]
+        );
+        rowCount.Should().Be(0, "the guard must run before any repository write");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RemoveUserFeatureFlagOverride_WhenUserDoesNotBelongToTenant_ShouldReturnNotFound()
+    {
+        // Arrange - seed an override on the real tenant; the back-office request targets a different
+        // tenant so the guard must reject it without touching the existing override row.
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var realTenantId = DatabaseSeeder.Tenant1.Id;
+        var otherTenantId = new TenantId(999999);
+        InsertUserOverride(flagKey, realTenantId, userId.Value, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={otherTenantId}");
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User '{userId}' not found in tenant '{otherTenantId}'.");
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = userId.Value }]
+        );
+        rowCount.Should().Be(1, "the guard must run before any repository write");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SetUserFeatureFlagInternal_WhenUserDoesNotExist_ShouldReturnNotFound()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var missingUserId = UserId.NewId();
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetUserFeatureFlagInternalCommand { UserId = missingUserId, TenantId = tenantId, Enabled = true };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/user-override", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"User '{missingUserId}' not found in tenant '{tenantId}'.");
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = missingUserId.Value }]
+        );
+        rowCount.Should().Be(0, "the guard must run before any repository write");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SetTenantFeatureFlagInternal_WhenTenantDoesNotExist_ShouldReturnNotFound()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var missingTenantId = new TenantId(999999);
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetTenantFeatureFlagInternalCommand { TenantId = missingTenantId, Enabled = true };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"Tenant '{missingTenantId}' not found.");
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId = missingTenantId.Value }]
+        );
+        rowCount.Should().Be(0, "the guard must run before any repository write");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RemoveTenantFeatureFlagOverride_WhenTenantDoesNotExist_ShouldReturnNotFound()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var missingTenantId = new TenantId(999999);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={missingTenantId}");
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"Tenant '{missingTenantId}' not found.");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
     // Rollout percentage (regular PolicyName per PP-1251 — not admin-tier)
 
     [Fact]

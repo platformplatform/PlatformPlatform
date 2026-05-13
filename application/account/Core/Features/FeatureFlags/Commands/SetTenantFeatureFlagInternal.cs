@@ -1,4 +1,5 @@
 using Account.Features.FeatureFlags.Domain;
+using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -31,11 +32,17 @@ public sealed class SetTenantFeatureFlagInternalValidator : AbstractValidator<Se
     }
 }
 
-public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository featureFlagRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
+public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, TimeProvider timeProvider, ITelemetryEventsCollector events)
     : IRequestHandler<SetTenantFeatureFlagInternalCommand, Result>
 {
     public async Task<Result> Handle(SetTenantFeatureFlagInternalCommand command, CancellationToken cancellationToken)
     {
+        var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
+        if (tenant is null)
+        {
+            return Result.NotFound($"Tenant '{command.TenantId}' not found.");
+        }
+
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)
