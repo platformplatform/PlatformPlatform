@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Headers;
-using AppGateway.Transformations;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SharedKernel.Authentication;
@@ -8,7 +7,7 @@ using SharedKernel.Authentication.TokenSigning;
 
 namespace AppGateway.Middleware;
 
-public class AuthenticationCookieMiddleware(
+public sealed class AuthenticationCookieMiddleware(
     ITokenSigningClient tokenSigningClient,
     IHttpClientFactory httpClientFactory,
     TimeProvider timeProvider,
@@ -22,14 +21,18 @@ public class AuthenticationCookieMiddleware(
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        var tokenState = new TokenState();
+
         if (context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenCookieName, out var refreshTokenFromCookie))
         {
-            context.Items[UserFeatureFlagsResponseTransform.InboundRefreshTokenItemKey] = refreshTokenFromCookie;
+            tokenState.InboundRefreshToken = refreshTokenFromCookie;
             context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenCookieName, out var accessTokenCookieValue);
-            await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenFromCookie, accessTokenCookieValue);
+            tokenState.CurrentAccessToken = await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenFromCookie, accessTokenCookieValue);
         }
 
-        // If session was revoked during refresh, handle based on request type
+        // If session was revoked during the inbound cookie validation, short-circuit before reaching
+        // downstream. The OnStarting callback registered below will still emit x-user-feature-flags if
+        // a current token exists; in this revoked path we return early without a token, so no header.
         if (context.Items.TryGetValue(UnauthorizedReasonItemKey, out var reason) && reason is string unauthorizedReason)
         {
             if (context.Request.Path.StartsWithSegments("/api"))
@@ -47,10 +50,81 @@ public class AuthenticationCookieMiddleware(
             context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName, hostCookieOptions);
         }
 
+        // Single OnStarting hook for everything driven by the downstream response: header-mode
+        // cookie swap (login / signup / switch-tenant), endpoint-triggered refresh
+        // (x-refresh-authentication-tokens-required), session-revoked 401 override, and
+        // x-user-feature-flags emission from the current (possibly just-refreshed) access token.
+        // Sequential execution in one hook eliminates the race the split YARP-transform design had.
+        context.Response.OnStarting(async state =>
+            {
+                var (httpContext, currentState) = ((HttpContext, TokenState))state;
+                await HandleOutgoingResponseAsync(httpContext, currentState);
+            }, (context, tokenState)
+        );
+
         await next(context);
     }
 
-    private async Task ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string refreshToken, string? accessToken)
+    private async Task HandleOutgoingResponseAsync(HttpContext context, TokenState tokenState)
+    {
+        if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+        {
+            // Endpoint-triggered refresh: the downstream signaled the actor's claims have changed
+            // (e.g. PUT /me, PUT /me/change-locale, PUT /api/account/feature-flags/{key}/tenant-override).
+            // Refresh the JWT now so the same response carries fresh cookies AND a fresh x-user-feature-flags.
+            if (tokenState.InboundRefreshToken is { } refreshToken)
+            {
+                try
+                {
+                    logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
+                    var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(refreshToken);
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
+                    tokenState.CurrentAccessToken = newAccessToken;
+                }
+                catch (SessionRevokedException ex)
+                {
+                    OverwriteWithUnauthorized(context, ex.RevokedReason);
+                    logger.LogWarning(ex, "Session revoked during endpoint-triggered refresh. Reason: {Reason}", ex.RevokedReason);
+                    return;
+                }
+                catch (SecurityTokenException ex)
+                {
+                    OverwriteWithUnauthorized(context, nameof(UnauthorizedReason.SessionNotFound));
+                    logger.LogWarning(ex, "Endpoint-triggered token refresh failed validation. Path: {Path}", context.Request.Path);
+                    return;
+                }
+                catch (HttpRequestException ex)
+                {
+                    // Backend temporarily unreachable: the upstream mutation already succeeded, so
+                    // let the response through. The SPA picks up new claims on the next refresh.
+                    logger.LogWarning(ex, "Backend unavailable during endpoint-triggered refresh. Path: {Path}", context.Request.Path);
+                }
+                catch (TaskCanceledException ex) when (!context.RequestAborted.IsCancellationRequested)
+                {
+                    logger.LogWarning(ex, "Backend timed out during endpoint-triggered refresh. Path: {Path}", context.Request.Path);
+                }
+            }
+
+            context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+        }
+        else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var refreshTokenHeader) &&
+                 context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var accessTokenHeader))
+        {
+            // Login / signup / switch-tenant flows return the new tokens in response headers
+            // for AppGateway to convert into cookies before egress.
+            var newRefreshToken = refreshTokenHeader.Single()!;
+            var newAccessToken = accessTokenHeader.Single()!;
+            await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
+            tokenState.CurrentAccessToken = newAccessToken;
+        }
+
+        if (tokenState.CurrentAccessToken is { } currentAccessToken)
+        {
+            context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey] = ExtractFeatureFlagsClaim(currentAccessToken);
+        }
+    }
+
+    private async Task<string?> ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string refreshToken, string? accessToken)
     {
         if (context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey) ||
             context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey))
@@ -69,7 +143,7 @@ public class AuthenticationCookieMiddleware(
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName, expiredCookieOptions);
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName, expiredCookieOptions);
                     logger.LogDebug("The refresh-token has expired; authentication token cookies are removed");
-                    return;
+                    return null;
                 }
 
                 logger.LogDebug("The access-token has expired, attempting to refresh");
@@ -81,7 +155,7 @@ public class AuthenticationCookieMiddleware(
             }
 
             context.Request.Headers.Authorization = $"Bearer {accessToken}";
-            context.Items[UserFeatureFlagsResponseTransform.CurrentAccessTokenItemKey] = accessToken;
+            return accessToken;
         }
         catch (SessionRevokedException ex)
         {
@@ -113,6 +187,8 @@ public class AuthenticationCookieMiddleware(
             context.Items[UnauthorizedReasonItemKey] = nameof(UnauthorizedReason.SessionNotFound);
             logger.LogError(ex, "Unexpected exception during authentication token validation. Path: {Path}", context.Request.Path);
         }
+
+        return null;
     }
 
     private async Task<(string newRefreshToken, string newAccessToken)> RefreshAuthenticationTokensAsync(string refreshToken)
@@ -197,8 +273,6 @@ public class AuthenticationCookieMiddleware(
 
         context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
         context.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
-
-        context.Items[UserFeatureFlagsResponseTransform.CurrentAccessTokenItemKey] = accessToken;
     }
 
     private async Task<DateTimeOffset> ExtractExpirationFromTokenAsync(string token)
@@ -224,6 +298,37 @@ public class AuthenticationCookieMiddleware(
         var expires = validationResult.Claims[JwtRegisteredClaimNames.Exp]?.ToString()!;
 
         return DateTimeOffset.FromUnixTimeSeconds(long.Parse(expires));
+    }
+
+    private static string ExtractFeatureFlagsClaim(string accessToken)
+    {
+        if (!TokenHandler.CanReadToken(accessToken)) return string.Empty;
+        var jwt = TokenHandler.ReadJsonWebToken(accessToken);
+        return jwt.TryGetClaim("feature_flags", out var claim) ? claim.Value : string.Empty;
+    }
+
+    /// <summary>
+    ///     Convert the upstream success response into a 401 with <c>x-unauthorized-reason</c> so the
+    ///     SPA's authentication middleware can react (redirect to login, surface revocation reason).
+    /// </summary>
+    private static void OverwriteWithUnauthorized(HttpContext context, string unauthorizedReason)
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.Headers[AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey] = unauthorizedReason;
+        context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+        context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey);
+        context.Response.Headers.Remove(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey);
+
+        var hostCookieOptions = new CookieOptions { Secure = true, Path = "/" };
+        context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName, hostCookieOptions);
+        context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName, hostCookieOptions);
+    }
+
+    private sealed class TokenState
+    {
+        public string? CurrentAccessToken { get; set; }
+
+        public string? InboundRefreshToken { get; set; }
     }
 }
 

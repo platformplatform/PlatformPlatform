@@ -38,8 +38,7 @@ var reverseProxyBuilder = builder.Services
     .AddConfigFilter<ClusterDestinationConfigFilter>()
     .AddConfigFilter<ApiExplorerRouteFilter>()
     .AddConfigFilter<HostMatchConfigFilter>()
-    .AddTransforms(context => context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>()))
-    .AddTransforms(context => context.ResponseTransforms.Add(context.Services.GetRequiredService<UserFeatureFlagsResponseTransform>()));
+    .AddTransforms(context => context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>()));
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
@@ -87,7 +86,6 @@ builder.Services
 builder.Services
     .AddSingleton(SharedDependencyConfiguration.GetTokenSigningService())
     .AddSingleton<BlockInternalApiTransform>()
-    .AddSingleton<UserFeatureFlagsResponseTransform>()
     .AddSingleton<LocalhostRedirectMiddleware>()
     .AddSingleton<AuthenticationCookieMiddleware>()
     .AddScoped<ApiAggregationService>();
