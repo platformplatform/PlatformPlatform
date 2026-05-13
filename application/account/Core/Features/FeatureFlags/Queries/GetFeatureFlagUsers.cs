@@ -51,7 +51,7 @@ public sealed record FeatureFlagUserInfo(
     SubscriptionPlan TenantPlan,
     int RolloutBucket,
     bool IsEnabled,
-    string Source
+    FeatureFlagSource Source
 );
 
 public sealed class GetFeatureFlagUsersValidator : AbstractValidator<GetFeatureFlagUsersQuery>
@@ -93,6 +93,7 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FlagKey, cancellationToken);
         var overridesByUserId = userOverrides.ToDictionary(f => f.UserId!);
 
+
         var baseRow = await featureFlagRepository.GetByKeyAndScopeAsync(query.FlagKey, null, null, cancellationToken);
 
         var tenantIds = users.Select(u => u.TenantId).Distinct().ToArray();
@@ -125,7 +126,7 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
 
         if (query.HasOverride == true)
         {
-            filtered = filtered.Where(u => u.Source == "manual_override").ToArray();
+            filtered = filtered.Where(u => u.Source == FeatureFlagSource.Manual).ToArray();
         }
 
         var totalCount = filtered.Length;
@@ -140,25 +141,25 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         return new GetFeatureFlagUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
     }
 
-    private static (bool IsEnabled, string Source) EvaluateOverride(
+    private static (bool IsEnabled, FeatureFlagSource Source) EvaluateOverride(
         FeatureFlagDefinition definition,
         FeatureFlag? baseRow,
-        Dictionary<string, FeatureFlag> overridesByUserId,
+        Dictionary<UserId, FeatureFlag> overridesByUserId,
         User user
     )
     {
-        if (overridesByUserId.TryGetValue(user.Id.Value, out var userOverride))
+        if (overridesByUserId.TryGetValue(user.Id, out var userOverride))
         {
             var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
-            return (isEnabled, "manual_override");
+            return (isEnabled, FeatureFlagSource.Manual);
         }
 
         if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
             var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-            return (isInRange, "ab_rollout");
+            return (isInRange, FeatureFlagSource.AbRollout);
         }
 
-        return (false, "default");
+        return (false, FeatureFlagSource.Default);
     }
 }

@@ -40,10 +40,10 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
 
         if (command.Enabled)
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, null, cancellationToken);
+            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
             if (tenantOverride is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId.Value);
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
                 tenantOverride.Activate(now);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
             }
@@ -57,19 +57,13 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
         }
         else
         {
-            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, null, cancellationToken);
-            if (tenantOverride is null)
-            {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId.Value);
-                await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
-            }
-            else
+            var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
+            if (tenantOverride is not null)
             {
                 tenantOverride.Deactivate(now);
                 featureFlagRepository.Update(tenantOverride);
+                events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
             }
-
-            events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
         }
 
         return Result.Success();

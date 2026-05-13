@@ -67,7 +67,7 @@ public sealed class GetUserFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         var compactView = payload.Flags.Single(f => f.FlagKey == "compact-view");
         compactView.IsEnabled.Should().BeTrue();
-        compactView.Source.Should().Be("manual_override");
+        compactView.Source.Should().Be(FeatureFlagSource.Manual);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public sealed class GetUserFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         var experimentalUi = payload.Flags.Single(f => f.FlagKey == "experimental-ui");
         experimentalUi.IsEnabled.Should().BeTrue();
-        experimentalUi.Source.Should().Be("ab_rollout");
+        experimentalUi.Source.Should().Be(FeatureFlagSource.AbRollout);
     }
 
     [Fact]

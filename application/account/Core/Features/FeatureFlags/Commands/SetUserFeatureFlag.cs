@@ -41,8 +41,8 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
             return Result.Forbidden($"Feature flag '{command.FlagKey}' is not configurable by users.");
         }
 
-        var tenantId = executionContext.TenantId!.Value;
-        var userId = executionContext.UserInfo.Id!.ToString();
+        var tenantId = executionContext.TenantId!;
+        var userId = executionContext.UserInfo.Id!;
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)
@@ -60,7 +60,7 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
                 featureFlagRepository.Update(userOverride);
             }
 
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, userId));
+            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, userId.Value));
         }
         else
         {
@@ -69,7 +69,7 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
             {
                 userOverride.Deactivate(now);
                 featureFlagRepository.Update(userOverride);
-                events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, userId));
+                events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, userId.Value));
             }
         }
 

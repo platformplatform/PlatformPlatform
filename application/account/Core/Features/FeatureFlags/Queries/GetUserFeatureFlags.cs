@@ -27,7 +27,7 @@ public sealed record UserFeatureFlagInfo(
     int? BucketEnd,
     int? RolloutPercentage,
     bool IsEnabled,
-    string Source,
+    FeatureFlagSource Source,
     bool IsBaseRowActive,
     int RolloutBucket,
     TenantId TenantId
@@ -45,9 +45,9 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             .Where(f => f.Scope == FeatureFlagScope.User)
             .ToArray();
 
-        var allRows = await featureFlagRepository.GetUserScopedRowsAsync(user.TenantId.Value, user.Id.Value, cancellationToken);
+        var allRows = await featureFlagRepository.GetUserScopedRowsAsync(user.TenantId, user.Id, cancellationToken);
         var baseRowsByKey = allRows.Where(r => r.TenantId is null && r.UserId is null).ToDictionary(r => r.FlagKey);
-        var userOverridesByKey = allRows.Where(r => r.UserId == user.Id.Value).ToDictionary(r => r.FlagKey);
+        var userOverridesByKey = allRows.Where(r => r.UserId == user.Id).ToDictionary(r => r.FlagKey);
 
         var flags = userScopedDefinitions
             .Select(definition => Evaluate(definition, baseRowsByKey, userOverridesByKey, user.RolloutBucket, user.TenantId))
@@ -69,23 +69,23 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
         userOverridesByKey.TryGetValue(definition.Key, out var userOverride);
 
         bool isEnabled;
-        string source;
+        FeatureFlagSource source;
 
         if (userOverride is not null)
         {
             isEnabled = userOverride.IsActive;
-            source = "manual_override";
+            source = FeatureFlagSource.Manual;
         }
         else if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
             isEnabled = isBaseRowActive
                         && RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-            source = "ab_rollout";
+            source = FeatureFlagSource.AbRollout;
         }
         else
         {
             isEnabled = false;
-            source = "default";
+            source = FeatureFlagSource.Default;
         }
 
         return new UserFeatureFlagInfo(

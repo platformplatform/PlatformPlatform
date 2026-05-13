@@ -27,7 +27,7 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
 
         await planBasedFeatureFlagEvaluator.EvaluatePlanFlagsForTenantAsync(tenant.Id, subscription!.Plan, cancellationToken);
 
-        var enabledFlags = await featureFlagEvaluator.EvaluateAsync(tenant.Id.Value, user.Id.Value, tenant.RolloutBucket, user.RolloutBucket, cancellationToken);
+        var enabledFlags = await featureFlagEvaluator.EvaluateAsync(tenant.Id, user.Id, tenant.RolloutBucket, user.RolloutBucket, cancellationToken);
 
         return new UserInfo
         {

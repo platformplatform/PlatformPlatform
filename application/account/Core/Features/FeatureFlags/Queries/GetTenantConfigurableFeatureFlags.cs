@@ -20,13 +20,13 @@ public sealed class GetTenantConfigurableFeatureFlagsHandler(IFeatureFlagReposit
 {
     public async Task<Result<TenantConfigurableFeatureFlagsResponse>> Handle(GetTenantConfigurableFeatureFlagsQuery query, CancellationToken cancellationToken)
     {
-        var tenantId = executionContext.TenantId!.Value;
+        var tenantId = executionContext.TenantId!;
 
         var configurableDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll()
             .Where(f => f is { Scope: FeatureFlagScope.Tenant, ConfigurableByTenant: true })
             .ToArray();
 
-        var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, string.Empty, cancellationToken);
+        var allRows = await featureFlagRepository.GetTenantScopedRowsAsync(tenantId, cancellationToken);
         var tenantOverrides = allRows.Where(r => r.TenantId == tenantId && r.UserId is null).ToDictionary(r => r.FlagKey);
 
         var flags = configurableDefinitions

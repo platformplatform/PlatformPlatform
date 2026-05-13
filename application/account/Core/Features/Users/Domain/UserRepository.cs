@@ -564,7 +564,7 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
     /// </summary>
     public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().CountAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(cancellationToken);
     }
 
     /// <summary>

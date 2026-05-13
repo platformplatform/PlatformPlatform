@@ -34,7 +34,7 @@ public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepositor
 {
     public async Task<Result> Handle(RemoveTenantFeatureFlagOverrideCommand command, CancellationToken cancellationToken)
     {
-        var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, null, cancellationToken);
+        var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
         if (tenantOverride is null) return Result.NotFound($"No tenant override found for flag '{command.FlagKey}' and tenant '{command.TenantId}'.");
 
         featureFlagRepository.Remove(tenantOverride);

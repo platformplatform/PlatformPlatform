@@ -20,14 +20,14 @@ public sealed class GetUserConfigurableFeatureFlagsHandler(IFeatureFlagRepositor
 {
     public async Task<Result<UserConfigurableFeatureFlagsResponse>> Handle(GetUserConfigurableFeatureFlagsQuery query, CancellationToken cancellationToken)
     {
-        var tenantId = executionContext.TenantId!.Value;
+        var tenantId = executionContext.TenantId!;
         var userId = executionContext.UserInfo.Id!;
 
         var configurableDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll()
             .Where(f => f is { Scope: FeatureFlagScope.User, ConfigurableByUser: true })
             .ToArray();
 
-        var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
+        var allRows = await featureFlagRepository.GetUserScopedRowsAsync(tenantId, userId, cancellationToken);
         var userOverrides = allRows.Where(r => r.TenantId == tenantId && r.UserId == userId).ToDictionary(r => r.FlagKey);
 
         var flags = configurableDefinitions

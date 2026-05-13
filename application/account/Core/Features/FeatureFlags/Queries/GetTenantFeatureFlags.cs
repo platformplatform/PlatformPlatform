@@ -28,7 +28,7 @@ public sealed record TenantFeatureFlagInfo(
     int? BucketEnd,
     int? RolloutPercentage,
     bool IsEnabled,
-    string Source,
+    FeatureFlagSource Source,
     bool IsBaseRowActive,
     int RolloutBucket
 );
@@ -45,9 +45,9 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
             .Where(f => f.Scope == FeatureFlagScope.Tenant)
             .ToArray();
 
-        var allRows = await featureFlagRepository.GetTenantScopedRowsAsync(tenant.Id.Value, cancellationToken);
+        var allRows = await featureFlagRepository.GetTenantScopedRowsAsync(tenant.Id, cancellationToken);
         var baseRowsByKey = allRows.Where(r => r.TenantId is null).ToDictionary(r => r.FlagKey);
-        var tenantOverridesByKey = allRows.Where(r => r.TenantId == tenant.Id.Value).ToDictionary(r => r.FlagKey);
+        var tenantOverridesByKey = allRows.Where(r => r.TenantId == tenant.Id).ToDictionary(r => r.FlagKey);
 
         var flags = tenantScopedDefinitions
             .Select(definition => Evaluate(definition, baseRowsByKey, tenantOverridesByKey, tenant.RolloutBucket))
@@ -68,25 +68,25 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
         tenantOverridesByKey.TryGetValue(definition.Key, out var tenantOverride);
 
         bool isEnabled;
-        string source;
+        FeatureFlagSource source;
 
         if (tenantOverride is not null)
         {
             isEnabled = tenantOverride.IsActive;
             // The row's Source column is authoritative — a manually-toggled plan-gated flag must still surface as
-            // "manual_override" so admins see they overrode the plan-driven default, rather than the plan granting it.
-            source = tenantOverride.Source == FeatureFlagSource.Plan ? "plan" : "manual_override";
+            // Manual so admins see they overrode the plan-driven default, rather than the plan granting it.
+            source = tenantOverride.Source == FeatureFlagSource.Plan ? FeatureFlagSource.Plan : FeatureFlagSource.Manual;
         }
         else if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
             isEnabled = isBaseRowActive
                         && RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-            source = "ab_rollout";
+            source = FeatureFlagSource.AbRollout;
         }
         else
         {
             isEnabled = false;
-            source = "default";
+            source = FeatureFlagSource.Default;
         }
 
         return new TenantFeatureFlagInfo(

@@ -14,7 +14,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
 
         if (planFeatureFlagDefinitions.Length == 0) return;
 
-        var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId.Value, cancellationToken);
+        var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId, cancellationToken);
         var overridesByKey = existingOverrides.ToDictionary(f => f.FlagKey);
         var now = timeProvider.GetUtcNow();
 
@@ -27,7 +27,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
             {
                 if (existingOverride is null)
                 {
-                    var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId.Value, FeatureFlagSource.Plan);
+                    var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId, FeatureFlagSource.Plan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                 }

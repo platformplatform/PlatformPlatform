@@ -52,7 +52,7 @@ public sealed record FeatureFlagTenantInfo(
     TenantOwnerSummary? Owner,
     int RolloutBucket,
     bool IsEnabled,
-    string Source
+    FeatureFlagSource Source
 );
 
 public sealed class GetFeatureFlagTenantsValidator : AbstractValidator<GetFeatureFlagTenantsQuery>
@@ -112,7 +112,7 @@ public sealed class GetFeatureFlagTenantsHandler(
         }
 
         var tenantOverrides = await featureFlagRepository.GetTenantOverridesForFlagAsync(query.FlagKey, cancellationToken);
-        var overridesByTenantId = tenantOverrides.ToDictionary(f => f.TenantId!.Value);
+        var overridesByTenantId = tenantOverrides.ToDictionary(f => f.TenantId!);
 
         var baseRow = await featureFlagRepository.GetByKeyAndScopeAsync(query.FlagKey, null, null, cancellationToken);
 
@@ -142,7 +142,7 @@ public sealed class GetFeatureFlagTenantsHandler(
 
         if (query.HasOverride == true)
         {
-            filtered = filtered.Where(t => t.Source == "manual_override").ToArray();
+            filtered = filtered.Where(t => t.Source == FeatureFlagSource.Manual).ToArray();
         }
 
         var ordered = filtered.OrderBy(t => t.Name).ToArray();
@@ -159,27 +159,27 @@ public sealed class GetFeatureFlagTenantsHandler(
         return new GetFeatureFlagTenantsResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
     }
 
-    private static (bool IsEnabled, string Source) EvaluateOverride(
+    private static (bool IsEnabled, FeatureFlagSource Source) EvaluateOverride(
         FeatureFlagDefinition definition,
         FeatureFlag? baseRow,
-        Dictionary<long, FeatureFlag> overridesByTenantId,
+        Dictionary<TenantId, FeatureFlag> overridesByTenantId,
         Tenant tenant
     )
     {
-        if (overridesByTenantId.TryGetValue(tenant.Id.Value, out var tenantOverride))
+        if (overridesByTenantId.TryGetValue(tenant.Id, out var tenantOverride))
         {
             var isEnabled = tenantOverride.EnabledAt is not null && (tenantOverride.DisabledAt is null || tenantOverride.EnabledAt > tenantOverride.DisabledAt);
             // The override row's Source column distinguishes a manual admin toggle from a plan-driven row.
-            var source = tenantOverride.Source == FeatureFlagSource.Plan ? "plan" : "manual_override";
+            var source = tenantOverride.Source == FeatureFlagSource.Plan ? FeatureFlagSource.Plan : FeatureFlagSource.Manual;
             return (isEnabled, source);
         }
 
         if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
             var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-            return (isInRange, "ab_rollout");
+            return (isInRange, FeatureFlagSource.AbRollout);
         }
 
-        return (false, "default");
+        return (false, FeatureFlagSource.Default);
     }
 }

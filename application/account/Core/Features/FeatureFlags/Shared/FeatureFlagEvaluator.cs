@@ -1,11 +1,12 @@
 using Account.Features.FeatureFlags.Domain;
+using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 
 namespace Account.Features.FeatureFlags.Shared;
 
 public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository)
 {
-    public async Task<IReadOnlyList<string>> EvaluateAsync(long tenantId, string userId, int tenantRolloutBucket, int? userRolloutBucket, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<string>> EvaluateAsync(TenantId tenantId, UserId userId, int tenantRolloutBucket, int? userRolloutBucket, CancellationToken cancellationToken)
     {
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
         var enabledFeatureFlags = new List<string>();
@@ -44,7 +45,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         return enabledFeatureFlags;
     }
 
-    private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, int tenantRolloutBucket)
+    private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, int tenantRolloutBucket)
     {
         var tenantOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId is null);
         if (tenantOverride is not null)
@@ -60,10 +61,8 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         return false;
     }
 
-    private static bool EvaluateUserScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, string userId, int? userRolloutBucket)
+    private static bool EvaluateUserScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, UserId userId, int? userRolloutBucket)
     {
-        if (string.IsNullOrEmpty(userId)) return false;
-
         var userOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId == userId);
         if (userOverride is not null)
         {

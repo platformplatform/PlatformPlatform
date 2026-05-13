@@ -25,7 +25,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     public async Task Evaluate_WhenNoBaseRow_ShouldReturnEmpty()
     {
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().BeEmpty();
@@ -40,7 +40,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("sso", DatabaseSeeder.Tenant1.Id.Value, null, now, null, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().Contain("sso");
@@ -53,7 +53,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("sso", null, null, null, null, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().NotContain("sso");
@@ -68,7 +68,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("sso", DatabaseSeeder.Tenant1.Id.Value, null, now, null, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().Contain("sso");
@@ -82,7 +82,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("sso", null, null, now.AddMinutes(-10), now, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().NotContain("sso");
@@ -96,7 +96,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("beta-features", null, null, now, null, 40, 60);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, null, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, null, CancellationToken.None);
 
         // Assert
         result.Should().Contain("beta-features");
@@ -110,7 +110,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("beta-features", null, null, now, null, 40, 60);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 70, null, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 70, null, CancellationToken.None);
 
         // Assert
         result.Should().NotContain("beta-features");
@@ -124,9 +124,9 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("beta-features", null, null, now, null, 90, 10);
 
         // Act
-        var resultInUpperRange = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 95, null, CancellationToken.None);
-        var resultInLowerRange = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 5, null, CancellationToken.None);
-        var resultOutOfRange = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, null, CancellationToken.None);
+        var resultInUpperRange = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 95, null, CancellationToken.None);
+        var resultInLowerRange = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 5, null, CancellationToken.None);
+        var resultOutOfRange = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, null, CancellationToken.None);
 
         // Assert
         resultInUpperRange.Should().Contain("beta-features");
@@ -142,7 +142,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("beta-features", null, null, now, null, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, null, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, null, CancellationToken.None);
 
         // Assert
         result.Should().NotContain("beta-features");
@@ -157,24 +157,10 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("compact-view", DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, now, null, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().Contain("compact-view");
-    }
-
-    [Fact]
-    public async Task Evaluate_WhenUserIdEmpty_ShouldSkipUserScopedFlags()
-    {
-        // Arrange
-        var now = TimeProvider.System.GetUtcNow();
-        InsertFeatureFlag("compact-view", null, null, now, null, null, null);
-
-        // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, "", 50, 50, CancellationToken.None);
-
-        // Assert
-        result.Should().NotContain("compact-view");
     }
 
     [Fact]
@@ -186,7 +172,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("sso", DatabaseSeeder.Tenant1.Id.Value, null, now.AddMinutes(-10), now, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().NotContain("sso");
@@ -202,7 +188,7 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         InsertFeatureFlag("sso", otherTenantId, null, now, null, null, null);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id.Value, DatabaseSeeder.Tenant1Owner.Id.Value, 50, 50, CancellationToken.None);
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, CancellationToken.None);
 
         // Assert
         result.Should().NotContain("sso");

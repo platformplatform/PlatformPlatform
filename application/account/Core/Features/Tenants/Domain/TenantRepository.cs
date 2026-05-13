@@ -83,7 +83,9 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     /// </summary>
     public async Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+        if (ids.Length == 0) return [];
+
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -170,6 +172,6 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     /// </summary>
     public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().CountAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(cancellationToken);
     }
 }

@@ -41,10 +41,10 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
 
         if (command.Enabled)
         {
-            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, command.UserId.Value, cancellationToken);
+            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
             if (userOverride is null)
             {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId.Value, command.UserId.Value);
+                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId);
                 userOverride.Activate(now);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);
             }
@@ -58,19 +58,13 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
         }
         else
         {
-            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId.Value, command.UserId.Value, cancellationToken);
-            if (userOverride is null)
-            {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId.Value, command.UserId.Value);
-                await featureFlagRepository.AddAsync(userOverride, cancellationToken);
-            }
-            else
+            var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
+            if (userOverride is not null)
             {
                 userOverride.Deactivate(now);
                 featureFlagRepository.Update(userOverride);
+                events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId.Value));
             }
-
-            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId.Value));
         }
 
         return Result.Success();

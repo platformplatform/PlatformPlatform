@@ -207,9 +207,10 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task SetTenantOverride_WhenDisabledWithNoExistingOverride_ShouldCreateDisabledOverrideRow()
+    public async Task SetTenantOverride_WhenDisabledWithNoExistingOverride_ShouldNotInsertRowOrEmitTelemetry()
     {
-        // Arrange - tenant has no override row (enabled via A/B rollout or default).
+        // Arrange - tenant has no override row. Disabling a non-existent override is a no-op:
+        // no dead-row insert, no telemetry. Mirrors the Owner-variant handler's early-return.
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         using var client = CreateRegularBackOfficeClient();
@@ -225,14 +226,9 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
             "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
             [new { flagKey, tenantId = tenantId.Value }]
         );
-        rowCount.Should().Be(1);
-        var disabledAt = Connection.ExecuteScalar<string>(
-            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId = tenantId.Value }]
-        );
-        disabledAt.Should().BeNull("a newly created disabled override should not have disabled_at set when never activated");
+        rowCount.Should().Be(0);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideRemoved");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]
@@ -495,7 +491,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Tenants.Should().NotBeEmpty();
         result.Tenants.Should().AllSatisfy(t =>
             {
-                t.Source.Should().Be("default");
+                t.Source.Should().Be(FeatureFlagSource.Default);
                 t.IsEnabled.Should().BeFalse();
             }
         );
@@ -519,7 +515,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Should().NotBeNull();
         var tenantResult = result.Tenants.Single(t => t.Id.Value == tenantId);
         tenantResult.IsEnabled.Should().BeTrue();
-        tenantResult.Source.Should().Be("manual_override");
+        tenantResult.Source.Should().Be(FeatureFlagSource.Manual);
     }
 
     [Fact]
@@ -546,7 +542,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Should().NotBeNull();
         result.Tenants.Should().AllSatisfy(t =>
             {
-                t.Source.Should().Be("ab_rollout");
+                t.Source.Should().Be(FeatureFlagSource.AbRollout);
                 t.IsEnabled.Should().BeTrue();
             }
         );
@@ -578,7 +574,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Should().NotBeNull();
         var tenantResult = result.Tenants.Single(t => t.Id.Value == tenantId);
         tenantResult.IsEnabled.Should().BeFalse();
-        tenantResult.Source.Should().Be("manual_override");
+        tenantResult.Source.Should().Be(FeatureFlagSource.Manual);
     }
 
     [Fact]
@@ -769,7 +765,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
-        result.Tenants.Should().Contain(t => t.Source == "manual_override");
+        result.Tenants.Should().Contain(t => t.Source == FeatureFlagSource.Manual);
     }
 
     [Fact]
@@ -788,7 +784,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
-        result.Tenants.Should().OnlyContain(t => t.Source == "manual_override");
+        result.Tenants.Should().OnlyContain(t => t.Source == FeatureFlagSource.Manual);
         result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
     }
 
@@ -808,7 +804,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
-        result.Tenants.Should().OnlyContain(t => t.Source == "manual_override" && !t.IsEnabled);
+        result.Tenants.Should().OnlyContain(t => t.Source == FeatureFlagSource.Manual && !t.IsEnabled);
         result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
     }
 
@@ -855,7 +851,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
-        result.Tenants.Should().OnlyContain(t => t.Source == "manual_override");
+        result.Tenants.Should().OnlyContain(t => t.Source == FeatureFlagSource.Manual);
         result.Tenants.Should().Contain(t => t.Id.Value == tenantId);
     }
 
@@ -897,7 +893,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Should().NotBeEmpty();
-        result.Users.Should().OnlyContain(u => u.Source == "default");
+        result.Users.Should().OnlyContain(u => u.Source == FeatureFlagSource.Default);
     }
 
     [Fact]
@@ -919,7 +915,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Users.Should().NotBeEmpty();
         var userResult = result.Users.Single(u => u.Id.Value == userId);
         userResult.IsEnabled.Should().BeTrue();
-        userResult.Source.Should().Be("manual_override");
+        userResult.Source.Should().Be(FeatureFlagSource.Manual);
         userResult.Email.Should().NotBe("Unknown");
         userResult.TenantName.Should().NotBe("Unknown");
     }
@@ -1052,8 +1048,8 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
-        result.Users.Should().Contain(u => u.Source == "manual_override");
-        result.Users.Should().Contain(u => u.Source == "default");
+        result.Users.Should().Contain(u => u.Source == FeatureFlagSource.Manual);
+        result.Users.Should().Contain(u => u.Source == FeatureFlagSource.Default);
     }
 
     [Fact]
@@ -1072,7 +1068,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
-        result.Users.Should().OnlyContain(u => u.Source == "manual_override");
+        result.Users.Should().OnlyContain(u => u.Source == FeatureFlagSource.Manual);
         result.Users.Should().Contain(u => u.Id.Value == userId);
     }
 
@@ -1094,7 +1090,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         noMatchResponse.ShouldBeSuccessfulGetRequest();
         var matchResult = await matchResponse.DeserializeResponse<GetFeatureFlagUsersResponse>();
         var noMatchResult = await noMatchResponse.DeserializeResponse<GetFeatureFlagUsersResponse>();
-        matchResult!.Users.Should().OnlyContain(u => u.Source == "manual_override" && u.Role == UserRole.Owner);
+        matchResult!.Users.Should().OnlyContain(u => u.Source == FeatureFlagSource.Manual && u.Role == UserRole.Owner);
         matchResult.Users.Should().Contain(u => u.Id.Value == ownerId);
         noMatchResult!.Users.Should().BeEmpty();
     }

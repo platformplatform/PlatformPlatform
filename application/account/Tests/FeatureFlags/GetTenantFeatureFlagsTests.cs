@@ -53,7 +53,7 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         var sso = payload.Flags.Single(f => f.FlagKey == "sso");
         sso.IsEnabled.Should().BeTrue();
-        sso.Source.Should().Be("manual_override");
+        sso.Source.Should().Be(FeatureFlagSource.Manual);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         var sso = payload.Flags.Single(f => f.FlagKey == "sso");
         sso.IsEnabled.Should().BeTrue();
-        sso.Source.Should().Be("plan");
+        sso.Source.Should().Be(FeatureFlagSource.Plan);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Should().NotBeNull();
         var betaFeatures = payload.Flags.Single(f => f.FlagKey == "beta-features");
         betaFeatures.IsEnabled.Should().BeTrue();
-        betaFeatures.Source.Should().Be("ab_rollout");
+        betaFeatures.Source.Should().Be(FeatureFlagSource.AbRollout);
     }
 
     [Fact]

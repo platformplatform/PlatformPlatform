@@ -47,7 +47,7 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
             return Result.Forbidden($"Feature flag '{command.FlagKey}' is not configurable by tenant owners.");
         }
 
-        var tenantId = executionContext.TenantId!.Value;
+        var tenantId = executionContext.TenantId!;
         var now = timeProvider.GetUtcNow();
 
         if (command.Enabled)

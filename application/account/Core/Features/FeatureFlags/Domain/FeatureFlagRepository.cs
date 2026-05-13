@@ -7,21 +7,21 @@ namespace Account.Features.FeatureFlags.Domain;
 
 public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFlagId>
 {
-    Task<FeatureFlag[]> GetAllRelevantRowsAsync(long tenantId, string userId, CancellationToken cancellationToken);
+    Task<FeatureFlag[]> GetAllRelevantRowsAsync(TenantId tenantId, UserId userId, CancellationToken cancellationToken);
 
-    Task<FeatureFlag[]> GetTenantScopedRowsAsync(long tenantId, CancellationToken cancellationToken);
+    Task<FeatureFlag[]> GetTenantScopedRowsAsync(TenantId tenantId, CancellationToken cancellationToken);
 
-    Task<FeatureFlag[]> GetUserScopedRowsAsync(long tenantId, string userId, CancellationToken cancellationToken);
+    Task<FeatureFlag[]> GetUserScopedRowsAsync(TenantId tenantId, UserId userId, CancellationToken cancellationToken);
 
     Task<FeatureFlag[]> GetAllBaseRowsAsync(CancellationToken cancellationToken);
 
     Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
 
-    Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, long? tenantId, string? userId, CancellationToken cancellationToken);
+    Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, TenantId? tenantId, UserId? userId, CancellationToken cancellationToken);
 
     Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
 
-    Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(long tenantId, CancellationToken cancellationToken);
+    Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(TenantId tenantId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Returns every feature_flag row across all tenants and users. Used by the reconciler to sweep for
@@ -41,21 +41,21 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
 internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
     : RepositoryBase<FeatureFlag, FeatureFlagId>(accountDbContext), IFeatureFlagRepository
 {
-    public async Task<FeatureFlag[]> GetAllRelevantRowsAsync(long tenantId, string userId, CancellationToken cancellationToken)
+    public async Task<FeatureFlag[]> GetAllRelevantRowsAsync(TenantId tenantId, UserId userId, CancellationToken cancellationToken)
     {
         return await DbSet
             .Where(f => (f.TenantId == null || f.TenantId == tenantId) && (f.UserId == null || f.UserId == userId))
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<FeatureFlag[]> GetTenantScopedRowsAsync(long tenantId, CancellationToken cancellationToken)
+    public async Task<FeatureFlag[]> GetTenantScopedRowsAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return await DbSet
             .Where(f => (f.TenantId == null || f.TenantId == tenantId) && f.UserId == null)
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<FeatureFlag[]> GetUserScopedRowsAsync(long tenantId, string userId, CancellationToken cancellationToken)
+    public async Task<FeatureFlag[]> GetUserScopedRowsAsync(TenantId tenantId, UserId userId, CancellationToken cancellationToken)
     {
         return await DbSet
             .Where(f => (f.TenantId == null && f.UserId == null) || (f.TenantId == tenantId && f.UserId == userId))
@@ -76,7 +76,7 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, long? tenantId, string? userId, CancellationToken cancellationToken)
+    public async Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, TenantId? tenantId, UserId? userId, CancellationToken cancellationToken)
     {
         return await DbSet
             .FirstOrDefaultAsync(f => f.FlagKey == flagKey && f.TenantId == tenantId && f.UserId == userId, cancellationToken);
@@ -89,7 +89,7 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
             .ToArrayAsync(cancellationToken);
     }
 
-    public async Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(long tenantId, CancellationToken cancellationToken)
+    public async Task<FeatureFlag[]> GetPlanBasedOverridesForTenantAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
         return await DbSet
             .Where(f => f.TenantId == tenantId && f.UserId == null && f.Source == FeatureFlagSource.Plan)
