@@ -57,10 +57,13 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves the total count of tenants without applying query filters.
-    ///     This method is used to compute rollout buckets for new tenants.
+    ///     Returns the next monotonic rollout index for a new tenant, used by the low-discrepancy bucket
+    ///     function in <see cref="Tenant" /> to assign a well-spread rollout bucket. The Postgres sequence
+    ///     guarantees uniqueness under concurrent CreateTenantCommand calls; SQLite (test database) falls
+    ///     back to COUNT(*) which preserves the previous behavior.
+    ///     Tenant query filter is ignored because tenant creation predates tenant context.
     /// </summary>
-    Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
+    Task<int> GetNextRolloutIndexUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 public sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -167,11 +170,25 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Retrieves the total count of tenants without applying query filters.
-    ///     This method is used to compute rollout buckets for new tenants.
+    ///     Returns the next monotonic rollout index for a new tenant, used by the low-discrepancy bucket
+    ///     function in <see cref="Tenant" /> to assign a well-spread rollout bucket. The Postgres sequence
+    ///     guarantees uniqueness under concurrent CreateTenantCommand calls; SQLite (test database) falls
+    ///     back to COUNT(*) which preserves the previous behavior.
+    ///     Tenant query filter is ignored because tenant creation predates tenant context.
     /// </summary>
-    public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
+    public async Task<int> GetNextRolloutIndexUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(cancellationToken);
+        if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(cancellationToken);
+        }
+
+        var nextSequenceValue = await accountDbContext.Database
+            .SqlQueryRaw<long>("SELECT nextval('tenant_rollout_index_sequence') AS \"Value\"")
+            .SingleAsync(cancellationToken);
+
+        // Sequence is seeded at COUNT(*)+1, so the first nextval after migration equals the previous COUNT+1.
+        // Subtracting 1 preserves the original count-based contract used by Tenant.Create.
+        return (int)(nextSequenceValue - 1);
     }
 }

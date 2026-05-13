@@ -5,6 +5,13 @@ using SharedKernel.Persistence;
 
 namespace Account.Features.FeatureFlags.Domain;
 
+/// <summary>
+///     The <see cref="FeatureFlag" /> aggregate intentionally does not implement <c>ITenantScopedEntity</c>:
+///     a single physical table stores base rows (<c>tenant_id IS NULL</c>), tenant overrides, and user
+///     overrides, so the global tenant query filter cannot be applied. Every method on this repository
+///     reads or writes rows across multiple tenant scopes by design - never compare to other repositories
+///     where <c>UnfilteredAsync</c> suffixes flag rare exceptions.
+/// </summary>
 public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFlagId>
 {
     Task<FeatureFlag[]> GetAllRelevantRowsAsync(TenantId tenantId, UserId userId, CancellationToken cancellationToken);
