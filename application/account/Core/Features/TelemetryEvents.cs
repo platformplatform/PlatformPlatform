@@ -70,6 +70,9 @@ public sealed class FeatureFlagActivated(string flagKey)
 public sealed class FeatureFlagDeactivated(string flagKey)
     : TelemetryEvent(("flag_key", flagKey));
 
+public sealed class FeatureFlagDeleted(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
 public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int rolloutPercentage)
     : TelemetryEvent(("flag_key", flagKey), ("rollout_percentage", rolloutPercentage));
 

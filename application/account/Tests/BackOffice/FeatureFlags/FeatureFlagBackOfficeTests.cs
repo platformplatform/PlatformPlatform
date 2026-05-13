@@ -1218,6 +1218,110 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         updatedVersion.Should().Be(originalVersion + 1);
     }
 
+    // Delete feature flag (AdminPolicyName, orphan-only)
+
+    [Fact]
+    public async Task DeleteFeatureFlag_WhenOrphanedAndAdmin_ShouldRemoveAllRowsAndEmitTelemetry()
+    {
+        // Arrange - simulate a flag that was removed from the C# definitions and marked orphaned by the
+        // reconciler. The base row plus a tenant override and a user override must all be cascade-removed.
+        var flagKey = "removed-feature";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        InsertOrphanedBaseRow(flagKey);
+        InsertTenantOverride(flagKey, tenantId, true);
+        InsertUserOverride(flagKey, tenantId, userId, true);
+        using var client = CreateAdminBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}");
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        var remaining = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey", [new { flagKey }]
+        );
+        remaining.Should().Be(0, "the orphan hard-delete must cascade across base, tenant override, and user override rows");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagDeleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.flag_key"].Should().Be(flagKey);
+    }
+
+    [Fact]
+    public async Task DeleteFeatureFlag_WhenNotOrphaned_ShouldReturnBadRequest()
+    {
+        // Arrange - sso is a live flag with OrphanedAt = NULL; hard-delete must be rejected.
+        var flagKey = "sso";
+        using var client = CreateAdminBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var baseRowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        baseRowCount.Should().Be(1, "a non-orphaned flag must not be deleted");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DeleteFeatureFlag_WhenFlagDoesNotExist_ShouldReturnNotFound()
+    {
+        // Arrange
+        using var client = CreateAdminBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync("/api/back-office/feature-flags/does-not-exist");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteFeatureFlag_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
+    {
+        // Arrange
+        var flagKey = "removed-feature";
+        InsertOrphanedBaseRow(flagKey);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}");
+
+        // Assert - the delete route is gated by AdminPolicyName, so a regular back-office identity without
+        // the admin group claim must be rejected.
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var baseRowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey", [new { flagKey }]
+        );
+        baseRowCount.Should().Be(1, "the orphaned row must remain when a non-admin caller is rejected");
+    }
+
+    private void InsertOrphanedBaseRow(string flagKey)
+    {
+        var rowId = FeatureFlagId.NewId().ToString();
+        var now = TimeProvider.System.GetUtcNow();
+        Connection.Insert("feature_flags", [
+                ("id", rowId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", null),
+                ("user_id", null),
+                ("enabled_at", now),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false),
+                ("source", "Manual"),
+                ("orphaned_at", now)
+            ]
+        );
+    }
+
     private void InsertTenantOverride(string flagKey, TenantId tenantId, bool enabled)
     {
         var overrideId = FeatureFlagId.NewId().ToString();

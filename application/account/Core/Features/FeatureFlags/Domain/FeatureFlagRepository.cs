@@ -29,6 +29,13 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
     ///     startup/admin paths — never from a tenant-scoped request.
     /// </summary>
     Task<FeatureFlag[]> GetAllRowsUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every row (base + tenant + user overrides) for a single flag_key across all tenants and
+    ///     users. Used by the back-office hard-delete to cascade-remove an orphaned flag. MUST only be called
+    ///     from admin paths — never from a tenant-scoped request.
+    /// </summary>
+    Task<FeatureFlag[]> GetRowsByFlagKeyUnfilteredAsync(string flagKey, CancellationToken cancellationToken);
 }
 
 internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
@@ -92,5 +99,10 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
     public async Task<FeatureFlag[]> GetAllRowsUnfilteredAsync(CancellationToken cancellationToken)
     {
         return await DbSet.ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<FeatureFlag[]> GetRowsByFlagKeyUnfilteredAsync(string flagKey, CancellationToken cancellationToken)
+    {
+        return await DbSet.Where(f => f.FlagKey == flagKey).ToArrayAsync(cancellationToken);
     }
 }

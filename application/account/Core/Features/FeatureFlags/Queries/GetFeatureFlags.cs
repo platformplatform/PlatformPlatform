@@ -28,7 +28,9 @@ public sealed record FeatureFlagInfo(
     int? RolloutBucketStart,
     int? RolloutBucketEnd,
     int? RolloutPercentage,
-    bool IsActive
+    bool IsActive,
+    bool IsKillSwitchEnabled,
+    DateTimeOffset? OrphanedAt
 );
 
 public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRepository, IConfiguration configuration)
@@ -48,7 +50,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     return new FeatureFlagInfo(
                         definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                         definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                        null, null, null, null, null, null, isSystemFeatureFlagActive
+                        null, null, null, null, null, null, isSystemFeatureFlagActive, definition.IsKillSwitchEnabled, null
                     );
                 }
 
@@ -65,7 +67,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                 return new FeatureFlagInfo(
                     definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                     definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive
+                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive, definition.IsKillSwitchEnabled, baseRow?.OrphanedAt
                 );
             }
         ).ToArray();
