@@ -281,7 +281,13 @@ test.describe("@comprehensive", () => {
    * - Tenants tab: pagination renders when totalPages > 1 and Next advances tenantsPageOffset
    * - Users tab (compact-view flag): role chip filters down to usersRoles=["Owner"]
    */
-  test("should filter and paginate tenants and users on the feature flag detail page", async ({ browser }) => {
+  test("should filter and paginate tenants and users on the feature flag detail page", async ({
+    ownerPage,
+    browser
+  }) => {
+    // ownerPage fixture provisions a tenant for this worker so the Accounts table is non-empty in
+    // Enabled state even when this test runs before signup-driven tests on a fresh database.
+    createTestContext(ownerPage);
     const backOfficeContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
     const page = await backOfficeContext.newPage();
     createTestContext(page);
@@ -332,7 +338,9 @@ test.describe("@comprehensive", () => {
         await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features?tenantsState=Disabled`);
         await expect(disabledChip).toHaveAttribute("aria-pressed", "true");
         await expect(enabledChip).toHaveAttribute("aria-pressed", "false");
-        await expect(accountsTable).toBeVisible();
+        // Note: with rollout=100 and no explicit Disabled overrides, the Disabled filter yields zero
+        // tenants and the UI shows the Empty state instead of the Accounts table. The chip behavior
+        // is fully verified above; the table rendering is exercised by the Enabled step.
       }
     )();
 
@@ -450,17 +458,22 @@ test.describe("@comprehensive", () => {
 
     // === USERS: ROLE FILTER ===
 
-    await step("Navigate to compact-view user-scoped flag & verify default Enabled chip and Users table render")(
-      async () => {
-        await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/compact-view`);
+    await step(
+      "Navigate to compact-view user-scoped flag & verify default Enabled chip is pressed, then click All to render Users table"
+    )(async () => {
+      await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/compact-view`);
 
-        await expect(page.getByRole("heading", { name: "User status" })).toBeVisible();
-        await expect(page.getByRole("table", { name: "Users" })).toBeVisible();
-        await expect(
-          page.getByRole("group", { name: "State" }).getByRole("button", { name: "Enabled" })
-        ).toHaveAttribute("aria-pressed", "true");
-      }
-    )();
+      await expect(page.getByRole("heading", { name: "User status" })).toBeVisible();
+      await expect(page.getByRole("group", { name: "State" }).getByRole("button", { name: "Enabled" })).toHaveAttribute(
+        "aria-pressed",
+        "true"
+      );
+
+      // compact-view is ConfigurableByUser (not A/B-eligible), so no user is Enabled by default.
+      // Click All to ensure the Users table renders the worker tenant's users for the role chip test below.
+      await page.getByRole("group", { name: "State" }).getByRole("button", { name: "All" }).click();
+      await expect(page.getByRole("table", { name: "Users" })).toBeVisible();
+    })();
 
     const ownerChip = page.getByRole("group", { name: "Role" }).getByRole("button", { name: "Owner" });
 
@@ -471,7 +484,7 @@ test.describe("@comprehensive", () => {
       await expect(ownerChip).toHaveAttribute("aria-pressed", "true");
     })();
 
-    // === CLEANUP: reset beta-features rollout so the rest of the suite sees the pre-test state ===
+    // === CLEANUP: reset rollouts so the rest of the suite sees the pre-test state ===
 
     await step("Reset beta-features rollout to 0 via back-office API & verify success")(async () => {
       const response = await page.request.put(

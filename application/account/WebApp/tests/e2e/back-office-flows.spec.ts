@@ -15,7 +15,10 @@ test.describe("@smoke", () => {
    * the accounts route, and the tenant detail route in one journey so any regression to the back-office
    * shell trips this test on every deployment.
    */
-  test("should log in to back-office, render dashboard, and load tenant detail", async ({ browser }) => {
+  test("should log in to back-office, render dashboard, and load tenant detail", async ({ ownerPage, browser }) => {
+    // ownerPage fixture provisions a tenant for this worker so the back-office Accounts list is non-empty
+    // even when this test runs before signup-driven tests on a fresh database.
+    createTestContext(ownerPage);
     const backOfficeContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
     const page = await backOfficeContext.newPage();
     createTestContext(page);
