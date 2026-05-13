@@ -15,7 +15,17 @@ import type { FeatureFlagInfo } from "./types";
 import { getFeatureFlagName } from "./flagLabels";
 import { formatRolloutBucketRange } from "./rolloutBucket";
 
-export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
+interface FeatureFlagInfoSectionProps {
+  featureFlag: FeatureFlagInfo;
+  isKillSwitchEnabled: boolean;
+  orphanedAt: string | null;
+}
+
+export function FeatureFlagInfoSection({
+  featureFlag,
+  isKillSwitchEnabled,
+  orphanedAt
+}: Readonly<FeatureFlagInfoSectionProps>) {
   const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/activate");
   const deactivateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/deactivate");
   const isPending = activateMutation.isPending || deactivateMutation.isPending;
@@ -32,11 +42,13 @@ export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: 
     );
   };
 
+  const showToggle = isKillSwitchEnabled && orphanedAt === null;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <FeatureFlagMetadata featureFlag={featureFlag} />
-        {featureFlag.isAbTestEligible ? (
+        {showToggle && featureFlag.isAbTestEligible ? (
           <div className="flex shrink-0 flex-col gap-1">
             <span className="text-sm font-medium text-foreground">
               <Trans>Rollout %</Trans>
@@ -54,7 +66,7 @@ export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: 
               />
             </div>
           </div>
-        ) : (
+        ) : showToggle ? (
           <div className="flex shrink-0 items-center gap-4">
             <Badge variant={featureFlag.isActive ? "default" : "outline"}>
               {featureFlag.isActive ? t`Active` : t`Inactive`}
@@ -66,8 +78,20 @@ export function FeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: 
               aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
             />
           </div>
+        ) : (
+          <Badge variant={featureFlag.isActive ? "default" : "outline"} className="shrink-0">
+            {featureFlag.isActive ? t`Active` : t`Inactive`}
+          </Badge>
         )}
       </div>
+      {!isKillSwitchEnabled && orphanedAt === null && (
+        <p className="text-sm text-muted-foreground">
+          <Trans>
+            This flag is platform-managed. Plan-based flags update with the account's subscription. Stable features are
+            not togglable.
+          </Trans>
+        </p>
+      )}
     </div>
   );
 }

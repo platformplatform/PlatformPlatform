@@ -49,6 +49,13 @@ const featureFlagRegistry: Record<string, FeatureFlagDefinition> = {
     parentDependency: null,
     description: "Enables compact view in the user interface"
   },
+  "experimental-ui": {
+    key: "experimental-ui",
+    scope: "user",
+    adminLevel: "user",
+    parentDependency: null,
+    description: "Enables experimental UI components for users"
+  },
   "google-oauth": {
     key: "google-oauth",
     scope: "system",

@@ -18,6 +18,8 @@ export interface FeatureFlagInfo {
   isActive: boolean;
   createdAt: string | null;
   requiredPlan: string | null;
+  orphanedAt: string | null;
+  isKillSwitchEnabled: boolean;
 }
 
 export interface GetFeatureFlagsResponse {

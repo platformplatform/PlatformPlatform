@@ -112,6 +112,9 @@ msgstr "Konto"
 msgid "Account actions"
 msgstr "Kontohandlinger"
 
+msgid "Account and user state is preserved but no longer evaluated. Delete the flag to remove the global row and all account and user overrides permanently."
+msgstr "Konto- og brugertilstand er bevaret, men evalueres ikke længere. Slet flaget for at fjerne den globale række og alle konto- og brugertilsidesættelser permanent."
+
 msgid "Account flags"
 msgstr "Kontoflag"
 
@@ -149,9 +152,6 @@ msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug til
 
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
-
-msgid "Accounts will appear here as they become available."
-msgstr "Konti vises her, når de bliver tilgængelige."
 
 msgid "Actions"
 msgstr "Handlinger"
@@ -336,6 +336,12 @@ msgstr "Dato"
 msgid "Default"
 msgstr "Standard"
 
+msgid "Delete feature flag"
+msgstr "Slet feature flag"
+
+msgid "Delete flag and all overrides"
+msgstr "Slet flag og alle tilsidesættelser"
+
 msgid "Desktop"
 msgstr "Computer"
 
@@ -431,6 +437,9 @@ msgstr "Feature flag aktiveret"
 
 msgid "Feature flag deactivated"
 msgstr "Feature flag deaktiveret"
+
+msgid "Feature flag deleted: {flagName}"
+msgstr "Feature flag slettet: {flagName}"
 
 msgid "Feature flags"
 msgstr "Feature flags"
@@ -591,11 +600,14 @@ msgstr "Næste"
 msgid "No account memberships"
 msgstr "Ingen kontomedlemskaber"
 
-msgid "No accounts match these filters"
-msgstr "Ingen konti matcher disse filtre"
+msgid "No accounts found matching your search"
+msgstr "Ingen konti fundet, der matcher din søgning"
 
 msgid "No accounts match your filters"
 msgstr "Ingen konti matcher dine filtre"
+
+msgid "No accounts qualify for this feature yet"
+msgstr "Ingen konti kvalificerer til denne funktion endnu"
 
 msgid "No accounts yet"
 msgstr "Ingen konti endnu"
@@ -617,18 +629,6 @@ msgstr "Ingen faktureringshændelser endnu"
 
 msgid "No change"
 msgstr "Ingen ændring"
-
-msgid "No disabled accounts"
-msgstr "Ingen deaktiverede konti"
-
-msgid "No disabled users"
-msgstr "Ingen deaktiverede brugere"
-
-msgid "No enabled accounts"
-msgstr "Ingen aktiverede konti"
-
-msgid "No enabled users"
-msgstr "Ingen aktiverede brugere"
 
 msgid "No feature flags"
 msgstr "Ingen feature flags"
@@ -702,14 +702,17 @@ msgstr "Der er ingen brugeromfattede feature flags defineret."
 msgid "No users"
 msgstr "Ingen brugere"
 
-msgid "No users match these filters"
-msgstr "Ingen brugere matcher disse filtre"
+msgid "No users found matching your search"
+msgstr "Ingen brugere fundet, der matcher din søgning"
 
 msgid "No users match your filters."
 msgstr "Ingen brugere matcher dine filtre."
 
 msgid "No users match your search"
 msgstr "Ingen brugere matcher din søgning"
+
+msgid "No users qualify for this feature yet"
+msgstr "Ingen brugere kvalificerer til denne funktion endnu"
 
 msgid "No users yet"
 msgstr "Ingen brugere endnu"
@@ -827,6 +830,9 @@ msgstr "Brugerflag. Brugere kan slå konfigurerbare flag til og fra. Admins styr
 msgid "Period"
 msgstr "Periode"
 
+msgid "Permanently delete <0>{flagName}</0> ({flagKey}) and all account and user overrides. This cannot be undone."
+msgstr "Slet <0>{flagName}</0> ({flagKey}) og alle konto- og brugertilsidesættelser permanent. Dette kan ikke fortrydes."
+
 msgid "Plan"
 msgstr "Plan"
 
@@ -936,6 +942,9 @@ msgstr "Fjern tilsidesættelse for {0}"
 
 msgid "Remove override for {flagName}"
 msgstr "Fjern tilsidesættelse for {flagName}"
+
+msgid "Removed from definitions"
+msgstr "Fjernet fra definitioner"
 
 msgid "Renewal"
 msgstr "Fornyelse"
@@ -1130,6 +1139,15 @@ msgstr "Denne konto har ingen brugere."
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "Dette flag styres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
 
+msgid "This flag is platform-managed. Plan-based flags update with the account's subscription. Stable features are not togglable."
+msgstr "Dette flag administreres af platformen. Abonnementsbaserede flag opdateres sammen med kontoens abonnement. Stabile funktioner kan ikke slås til eller fra."
+
+msgid "This flag no longer exists in code"
+msgstr "Dette flag findes ikke længere i koden"
+
+msgid "This flag no longer exists in FeatureFlags.cs as of {formatted}. Account and user state is preserved but no longer evaluated by new code paths or telemetry. Use the delete action to remove the global row and all overrides."
+msgstr "Dette flag findes ikke længere i FeatureFlags.cs pr. {formatted}. Konto- og brugertilstand er bevaret, men evalueres ikke længere af nye kodestier eller telemetri. Brug sletteknappen for at fjerne den globale række og alle tilsidesættelser."
+
 msgid "this period"
 msgstr "denne periode"
 
@@ -1214,9 +1232,6 @@ msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug t
 
 msgid "Users will appear here as accounts are created."
 msgstr "Brugere vises her efterhånden som konti oprettes."
-
-msgid "Users will appear here as they become available."
-msgstr "Brugere vises her, når de bliver tilgængelige."
 
 msgid "VAT"
 msgstr "Moms"

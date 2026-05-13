@@ -1,9 +1,12 @@
 import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import { Button } from "@repo/ui/components/Button";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
 import { z } from "zod";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
@@ -11,8 +14,10 @@ import { api, FeatureFlagAudienceState, SubscriptionPlan, UserRole } from "@/sha
 
 import type { GetFeatureFlagsResponse } from "./-components/types";
 
+import { DeleteFeatureFlagDialog } from "./-components/DeleteFeatureFlagDialog";
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
 import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
+import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
 import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
 import { ScopeIcon } from "./-components/ScopeIcon";
 import { ALL_STATE_FILTER } from "./-components/stateFilter";
@@ -59,6 +64,8 @@ export default function FeatureFlagDetailPage() {
     usersPageOffset
   } = Route.useSearch();
 
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   const { data: featureFlagsData, isLoading: isLoadingFeatureFlags } = api.useQuery(
     "get",
     "/api/back-office/feature-flags"
@@ -68,6 +75,7 @@ export default function FeatureFlagDetailPage() {
   };
 
   const featureFlag = featureFlagsData?.flags?.find((f) => f.key === flagKey);
+  const isOrphaned = featureFlag?.orphanedAt != null;
 
   const isPlanFeatureFlag = featureFlag?.requiredPlan != null;
   const isLoading = isLoadingFeatureFlags;
@@ -83,12 +91,13 @@ export default function FeatureFlagDetailPage() {
           maxWidth="64rem"
           browserTitle={featureFlagName}
           title={
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Link to="/feature-flags" className="text-muted-foreground hover:text-foreground">
                 <ArrowLeftIcon className="size-5" aria-label={t`Back to feature flags`} />
               </Link>
               {featureFlag && <ScopeIcon scope={featureFlag.scope} className="size-6 stroke-[2.5] text-foreground" />}
               <span>{featureFlagName}</span>
+              {featureFlag?.orphanedAt && <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />}
             </div>
           }
           subtitle={featureFlag ? description : undefined}
@@ -100,7 +109,28 @@ export default function FeatureFlagDetailPage() {
               {isPlanFeatureFlag ? (
                 <PlanFeatureFlagInfoSection featureFlag={featureFlag} />
               ) : (
-                <FeatureFlagInfoSection featureFlag={featureFlag} />
+                <FeatureFlagInfoSection
+                  featureFlag={featureFlag}
+                  isKillSwitchEnabled={featureFlag.isKillSwitchEnabled}
+                  orphanedAt={featureFlag.orphanedAt}
+                />
+              )}
+              {isOrphaned && (
+                <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                  <h3 className="text-destructive">
+                    <Trans>This flag no longer exists in code</Trans>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    <Trans>
+                      Account and user state is preserved but no longer evaluated. Delete the flag to remove the global
+                      row and all account and user overrides permanently.
+                    </Trans>
+                  </p>
+                  <Button variant="destructive" className="self-start" onClick={() => setIsDeleteDialogOpen(true)}>
+                    <Trash2Icon className="size-4" aria-hidden={true} />
+                    <Trans>Delete flag and all overrides</Trans>
+                  </Button>
+                </div>
               )}
               {featureFlag.scope === "Tenant" && !isPlanFeatureFlag && (
                 <TenantOverridesSection
@@ -135,6 +165,14 @@ export default function FeatureFlagDetailPage() {
           ) : null}
         </AppLayout>
       </SidebarInset>
+      {featureFlag && isOrphaned && (
+        <DeleteFeatureFlagDialog
+          flagKey={featureFlag.key}
+          flagName={featureFlagName}
+          isOpen={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        />
+      )}
     </SidebarProvider>
   );
 }

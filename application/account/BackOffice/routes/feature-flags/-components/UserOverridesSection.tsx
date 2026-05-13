@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -10,12 +10,12 @@ import { useCallback } from "react";
 
 import type { UserRole } from "@/shared/lib/api/client";
 
-import { api, FeatureFlagAudienceState } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
 import type { StateFilter } from "./stateFilter";
 
 import { FeatureFlagUsersToolbar } from "./FeatureFlagUsersToolbar";
-import { DEFAULT_STATE_FILTER, ALL_STATE_FILTER, toApiState } from "./stateFilter";
+import { DEFAULT_STATE_FILTER, toApiState } from "./stateFilter";
 import { UserOverridesTable } from "./UserOverridesTable";
 
 interface UserOverridesSectionProps {
@@ -108,7 +108,7 @@ export function UserOverridesSection({
       {isLoading && users.length === 0 ? (
         <UserOverridesSkeleton />
       ) : users.length === 0 ? (
-        <UserOverridesEmpty hasFilters={hasFilters} state={effectiveState} />
+        <UserOverridesEmpty hasFilters={hasFilters} />
       ) : (
         <>
           <UserOverridesTable
@@ -146,18 +146,8 @@ function UserOverridesSkeleton() {
   );
 }
 
-function UserOverridesEmpty({ hasFilters, state }: Readonly<{ hasFilters: boolean; state: StateFilter }>) {
-  const title =
-    state === FeatureFlagAudienceState.Enabled
-      ? t`No enabled users`
-      : state === FeatureFlagAudienceState.Disabled
-        ? t`No disabled users`
-        : state === ALL_STATE_FILTER
-          ? t`No users yet`
-          : t`No users match these filters`;
-  const description = hasFilters
-    ? t`Try clearing the search or filters to see more results.`
-    : t`Users will appear here as they become available.`;
+function UserOverridesEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
+  const title = hasFilters ? t`No users found matching your search` : t`No users qualify for this feature yet`;
   return (
     <Empty>
       <EmptyHeader>
@@ -165,7 +155,6 @@ function UserOverridesEmpty({ hasFilters, state }: Readonly<{ hasFilters: boolea
           <UsersIcon />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
-        <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

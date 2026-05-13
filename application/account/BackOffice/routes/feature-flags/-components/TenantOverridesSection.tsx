@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -10,12 +10,12 @@ import { useCallback } from "react";
 
 import type { SubscriptionPlan } from "@/shared/lib/api/client";
 
-import { api, FeatureFlagAudienceState } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
 import type { StateFilter } from "./stateFilter";
 
 import { FeatureFlagTenantsToolbar } from "./FeatureFlagTenantsToolbar";
-import { DEFAULT_STATE_FILTER, ALL_STATE_FILTER, toApiState } from "./stateFilter";
+import { DEFAULT_STATE_FILTER, toApiState } from "./stateFilter";
 import { TenantOverrideTable } from "./TenantOverrideTable";
 
 interface TenantOverridesSectionProps {
@@ -108,7 +108,7 @@ export function TenantOverridesSection({
       {isLoading && tenants.length === 0 ? (
         <TenantOverridesSkeleton />
       ) : tenants.length === 0 ? (
-        <TenantOverridesEmpty hasFilters={hasFilters} state={effectiveState} />
+        <TenantOverridesEmpty hasFilters={hasFilters} />
       ) : (
         <>
           <TenantOverrideTable
@@ -146,18 +146,8 @@ function TenantOverridesSkeleton() {
   );
 }
 
-function TenantOverridesEmpty({ hasFilters, state }: Readonly<{ hasFilters: boolean; state: StateFilter }>) {
-  const title =
-    state === FeatureFlagAudienceState.Enabled
-      ? t`No enabled accounts`
-      : state === FeatureFlagAudienceState.Disabled
-        ? t`No disabled accounts`
-        : state === ALL_STATE_FILTER
-          ? t`No accounts yet`
-          : t`No accounts match these filters`;
-  const description = hasFilters
-    ? t`Try clearing the search or filters to see more results.`
-    : t`Accounts will appear here as they become available.`;
+function TenantOverridesEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
+  const title = hasFilters ? t`No accounts found matching your search` : t`No accounts qualify for this feature yet`;
   return (
     <Empty>
       <EmptyHeader>
@@ -165,7 +155,6 @@ function TenantOverridesEmpty({ hasFilters, state }: Readonly<{ hasFilters: bool
           <Building2Icon />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
-        <EmptyDescription>{description}</EmptyDescription>
       </EmptyHeader>
     </Empty>
   );
