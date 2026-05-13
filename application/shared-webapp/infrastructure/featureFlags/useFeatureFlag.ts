@@ -1,3 +1,4 @@
+import { useUserInfo } from "../auth/hooks";
 import { getFlag } from "./registry";
 
 type FeatureFlagResult = { enabled: boolean; isLoading: boolean };
@@ -6,6 +7,10 @@ const DISABLED: FeatureFlagResult = { enabled: false, isLoading: false };
 const ENABLED: FeatureFlagResult = { enabled: true, isLoading: false };
 
 export function useFeatureFlag(flagKey: string): FeatureFlagResult {
+  // Read on every render so re-renders triggered by AuthenticationProvider state updates pick up
+  // the new flag set without a page reload.
+  const userInfo = useUserInfo();
+
   const definition = getFlag(flagKey);
   if (!definition) return DISABLED;
 
@@ -14,8 +19,7 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
     return import.meta.runtime_env[envVar] === "true" ? ENABLED : DISABLED;
   }
 
-  const userInfo = import.meta.user_info_env;
-  if (!userInfo.isAuthenticated) return DISABLED;
+  if (!userInfo?.isAuthenticated) return DISABLED;
 
   const enabledFlags = userInfo.featureFlags ?? [];
   return enabledFlags.includes(flagKey) ? ENABLED : DISABLED;

@@ -9,6 +9,7 @@
  * Use this module when working with endpoints that don't have OpenAPI/strongly-typed definitions
  */
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
+import { dispatchUserFeatureFlagsFromResponse } from "../featureFlags/userFeatureFlagsHeader";
 import { normalizeError } from "./errorHandler";
 
 /**
@@ -58,6 +59,8 @@ export async function enhancedFetch(input: RequestInfo | URL, init?: RequestInit
 
   try {
     const response = await window.fetch(input, enhancedInit);
+
+    dispatchUserFeatureFlagsFromResponse(response);
 
     if (!response.ok) {
       throw await normalizeError(response);

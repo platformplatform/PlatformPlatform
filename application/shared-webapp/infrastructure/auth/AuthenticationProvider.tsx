@@ -1,7 +1,9 @@
 import type { NavigateOptions } from "@tanstack/react-router";
 import type React from "react";
 
-import { createContext, useCallback, useMemo, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
+
+import { subscribeToUserFeatureFlags } from "../featureFlags/userFeatureFlagsHeader";
 
 export type UserInfo = {
   initials: string;
@@ -35,6 +37,19 @@ export function AuthenticationProvider({ children }: Readonly<AuthenticationProv
     });
   }, []);
 
+  // Bridge the `x-user-feature-flags` response header into provider state. Only re-render when the
+  // set of enabled keys actually changes; otherwise every API response would trigger a needless
+  // re-render across every component using `useFeatureFlag`.
+  useEffect(() => {
+    return subscribeToUserFeatureFlags((nextFlagKeys) => {
+      setUserInfo((prevUserInfo) => {
+        if (prevUserInfo === null) return prevUserInfo;
+        if (sameFlagKeys(prevUserInfo.featureFlags ?? [], nextFlagKeys)) return prevUserInfo;
+        return createUserInfo({ ...prevUserInfo, featureFlags: nextFlagKeys });
+      });
+    });
+  }, []);
+
   const authenticationContext = useMemo(
     () => ({
       userInfo,
@@ -44,6 +59,15 @@ export function AuthenticationProvider({ children }: Readonly<AuthenticationProv
   );
 
   return <AuthenticationContext.Provider value={authenticationContext}>{children}</AuthenticationContext.Provider>;
+}
+
+function sameFlagKeys(previous: string[], next: string[]): boolean {
+  if (previous.length !== next.length) return false;
+  const previousSet = new Set(previous);
+  for (const key of next) {
+    if (!previousSet.has(key)) return false;
+  }
+  return true;
 }
 
 function createUserInfo(userInfoEnv: UserInfoEnv): UserInfo {
