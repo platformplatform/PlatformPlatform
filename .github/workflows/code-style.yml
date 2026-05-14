@@ -152,16 +152,6 @@ jobs:
         working-directory: developer-cli
         run: dotnet run -- lint --frontend
 
-      - name: Run Frontend Format Check
-        working-directory: developer-cli
-        run: |
-          dotnet run -- format --frontend
-
-          git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --frontend' locally and commit the formatted code."
-            exit 1
-          }
-
   code-formatting:
     name: Code Formatting
     needs: detect-scope
@@ -197,13 +187,27 @@ jobs:
         working-directory: developer-cli
         run: dotnet run -- build --backend ${{ needs.detect-scope.outputs.backend_scope }} --quiet
 
-      - name: Check for Code Formatting Issues
+      - name: Check for Backend Formatting Issues
         working-directory: developer-cli
         run: |
           dotnet run format --backend ${{ needs.detect-scope.outputs.backend_scope }} ${{ needs.detect-scope.outputs.format_all_files_flag }} --no-build
 
           git diff --exit-code || {
             echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --backend ${{ needs.detect-scope.outputs.backend_scope }} ${{ needs.detect-scope.outputs.format_all_files_flag }}' locally and commit the formatted code."
+            exit 1
+          }
+
+      - name: Build Frontend Artifacts
+        working-directory: application
+        run: npm run build
+
+      - name: Check for Frontend Formatting Issues
+        working-directory: developer-cli
+        run: |
+          dotnet run -- format --frontend
+
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --frontend' locally and commit the formatted code."
             exit 1
           }
 
