@@ -31,7 +31,7 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Flags.Should().NotBeEmpty();
         payload.Flags.Should().Contain(f => f.FlagKey == "beta-features");
         payload.Flags.Should().Contain(f => f.FlagKey == "sso");
-        payload.Flags.Should().Contain(f => f.FlagKey == "custom-branding");
+        payload.Flags.Should().Contain(f => f.FlagKey == "account-overview");
     }
 
     [Fact]

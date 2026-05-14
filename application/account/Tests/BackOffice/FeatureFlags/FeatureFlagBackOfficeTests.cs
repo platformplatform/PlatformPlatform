@@ -1289,7 +1289,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         betaFeatures.IsAbTestEligible.Should().BeTrue();
         betaFeatures.IsActive.Should().BeTrue();
         result.Flags.Single(f => f.Key == "sso").IsActive.Should().BeFalse();
-        result.Flags.Single(f => f.Key == "custom-branding").ConfigurableByTenant.Should().BeTrue();
+        result.Flags.Single(f => f.Key == "account-overview").ConfigurableByTenant.Should().BeTrue();
         result.Flags.Single(f => f.Key == "compact-view").ConfigurableByUser.Should().BeTrue();
     }
 

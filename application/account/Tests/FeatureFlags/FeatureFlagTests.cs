@@ -23,7 +23,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenOwnerForConfigurableFlag_ShouldSucceed()
     {
         // Arrange
-        var flagKey = "custom-branding";
+        var flagKey = "account-overview";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
@@ -75,7 +75,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenMember_ShouldReturnForbidden()
     {
         // Arrange
-        var flagKey = "custom-branding";
+        var flagKey = "account-overview";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act
@@ -137,7 +137,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<TenantConfigurableFeatureFlagsResponse>();
         result.Should().NotBeNull();
-        result.Flags.Should().Contain(f => f.FlagKey == "custom-branding" && f.Enabled == false);
+        result.Flags.Should().Contain(f => f.FlagKey == "account-overview" && f.Enabled == false);
     }
 
     [Fact]
@@ -160,7 +160,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     public async Task SetTenantFeatureFlagOwner_WhenCalled_ShouldAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
-        var flagKey = "custom-branding";
+        var flagKey = "account-overview";
         var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
 
         // Act

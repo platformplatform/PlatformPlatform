@@ -134,6 +134,6 @@ public sealed class GetUserFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Flags.Should().NotContain(f => f.FlagKey == "google-oauth");
         payload.Flags.Should().NotContain(f => f.FlagKey == "sso");
         payload.Flags.Should().NotContain(f => f.FlagKey == "beta-features");
-        payload.Flags.Should().NotContain(f => f.FlagKey == "custom-branding");
+        payload.Flags.Should().NotContain(f => f.FlagKey == "account-overview");
     }
 }

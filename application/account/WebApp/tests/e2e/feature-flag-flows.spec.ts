@@ -24,7 +24,7 @@ test.describe("@smoke", () => {
    * Tests the full feature flag management flow:
    * - Back-office flag list: view flags grouped by scope (Account, Plan, User, System)
    * - Back-office flag detail: navigate into account-scoped flag, search by name, toggle override pair, set A/B rollout percentage
-   * - Account settings: verify Features section, toggle account-scoped custom branding flag
+   * - Account settings: verify Features section, toggle account-scoped account overview flag
    * - User preferences: verify Beta features section, toggle user-scoped compact view flag
    * - x-user-feature-flags propagation: AppGateway emits the header on every authenticated response;
    *   owner and user self-toggles trigger AddRefreshAuthenticationTokens so the same response cycle
@@ -149,9 +149,9 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Feature flags" })).toBeVisible();
     })();
 
-    await step("Activate custom branding flag globally via back-office API for downstream checks")(async () => {
+    await step("Activate account overview flag globally via back-office API for downstream checks")(async () => {
       const response = await page.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/custom-branding/activate`,
+        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/account-overview/activate`,
         { headers: await getAntiforgeryHeaders(page) }
       );
 
@@ -178,39 +178,39 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByText("Custom branding")).toBeVisible();
     })();
 
-    await step("Toggle custom branding flag ON & verify response carries x-user-feature-flags with custom-branding")(
+    await step("Toggle account overview flag ON & verify response carries x-user-feature-flags with account-overview")(
       async () => {
         const toggle = ownerPage.getByRole("switch", { name: "Custom branding" });
 
         const [tenantOverrideResponse] = await Promise.all([
           ownerPage.waitForResponse(
             (response) =>
-              response.url().includes("/api/account/feature-flags/custom-branding/tenant-override") &&
+              response.url().includes("/api/account/feature-flags/account-overview/tenant-override") &&
               response.request().method() === "PUT"
           ),
           toggle.click()
         ]);
 
-        expect(tenantOverrideResponse.headers()["x-user-feature-flags"]).toContain("custom-branding");
+        expect(tenantOverrideResponse.headers()["x-user-feature-flags"]).toContain("account-overview");
 
         await expectToastMessage(ownerContext, "Feature updated");
       }
     )();
 
-    await step("Toggle custom branding flag OFF & verify response x-user-feature-flags no longer contains it")(
+    await step("Toggle account overview flag OFF & verify response x-user-feature-flags no longer contains it")(
       async () => {
         const toggle = ownerPage.getByRole("switch", { name: "Custom branding" });
 
         const [tenantOverrideResponse] = await Promise.all([
           ownerPage.waitForResponse(
             (response) =>
-              response.url().includes("/api/account/feature-flags/custom-branding/tenant-override") &&
+              response.url().includes("/api/account/feature-flags/account-overview/tenant-override") &&
               response.request().method() === "PUT"
           ),
           toggle.click()
         ]);
 
-        expect(tenantOverrideResponse.headers()["x-user-feature-flags"]).not.toContain("custom-branding");
+        expect(tenantOverrideResponse.headers()["x-user-feature-flags"]).not.toContain("account-overview");
 
         await expectToastMessage(ownerContext, "Feature updated");
       }

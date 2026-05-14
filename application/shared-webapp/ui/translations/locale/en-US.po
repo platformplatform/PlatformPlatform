@@ -56,12 +56,6 @@ msgstr "Compact view"
 msgid "Create <0>{search}</0>"
 msgstr "Create <0>{search}</0>"
 
-msgid "Custom branding"
-msgstr "Custom branding"
-
-msgid "Customize the login page with your organization's logo and colors"
-msgstr "Customize the login page with your organization's logo and colors"
-
 msgid "Decrease"
 msgstr "Decrease"
 

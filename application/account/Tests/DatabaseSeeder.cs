@@ -11,9 +11,9 @@ namespace Account.Tests;
 
 public sealed class DatabaseSeeder
 {
+    public readonly FeatureFlag AccountOverviewFlag;
     public readonly FeatureFlag BetaFeaturesFlag;
     public readonly FeatureFlag CompactViewFlag;
-    public readonly FeatureFlag CustomBrandingFlag;
     public readonly FeatureFlag ExperimentalUiFlag;
     public readonly FeatureFlag SsoFlag;
     public readonly Tenant Tenant1;
@@ -52,9 +52,9 @@ public sealed class DatabaseSeeder
         SsoFlag = FeatureFlag.Create("sso", FeatureFlagScope.Tenant);
         accountDbContext.Set<FeatureFlag>().Add(SsoFlag);
 
-        CustomBrandingFlag = FeatureFlag.Create("custom-branding", FeatureFlagScope.Tenant);
-        CustomBrandingFlag.Activate(now);
-        accountDbContext.Set<FeatureFlag>().Add(CustomBrandingFlag);
+        AccountOverviewFlag = FeatureFlag.Create("account-overview", FeatureFlagScope.Tenant);
+        AccountOverviewFlag.Activate(now);
+        accountDbContext.Set<FeatureFlag>().Add(AccountOverviewFlag);
 
         CompactViewFlag = FeatureFlag.Create("compact-view", FeatureFlagScope.User);
         CompactViewFlag.Activate(now);

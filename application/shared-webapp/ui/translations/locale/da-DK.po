@@ -56,12 +56,6 @@ msgstr "Kompakt visning"
 msgid "Create <0>{search}</0>"
 msgstr "Opret <0>{search}</0>"
 
-msgid "Custom branding"
-msgstr "Tilpasset branding"
-
-msgid "Customize the login page with your organization's logo and colors"
-msgstr "Tilpas login-siden med din organisations logo og farver"
-
 msgid "Decrease"
 msgstr "Formindsk"
 

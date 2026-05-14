@@ -82,7 +82,7 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         var middleware = scope.ServiceProvider.GetRequiredService<AuthenticationCookieMiddleware>();
         var signingClient = scope.ServiceProvider.GetRequiredService<ITokenSigningClient>();
         var refreshToken = CreateSignedToken(signingClient, 60, []);
-        var accessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "custom-branding,compact-view")]);
+        var accessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "account-overview,compact-view")]);
         var context = CreateHttpContext("/api/account/me");
         context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={refreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={accessToken}";
 
@@ -91,7 +91,7 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         await TriggerOnStartingAsync(context);
 
         // Assert
-        context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey].ToString().Should().Be("custom-branding,compact-view");
+        context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey].ToString().Should().Be("account-overview,compact-view");
     }
 
     [Fact]
@@ -103,10 +103,10 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         var signingClient = stubFactory.Services.GetRequiredService<ITokenSigningClient>();
         var inboundRefreshToken = CreateSignedToken(signingClient, 60, []);
         var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "stale-flag")]);
-        var postRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "custom-branding")]);
+        var postRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "account-overview")]);
         var postRefreshRefreshToken = CreateSignedToken(signingClient, 60, []);
         RefreshStubAppGatewayApplicationFactory.SetStubResponse(postRefreshRefreshToken, postRefreshAccessToken);
-        var context = CreateHttpContext("/api/account/feature-flags/custom-branding/tenant-override");
+        var context = CreateHttpContext("/api/account/feature-flags/account-overview/tenant-override");
         context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={inboundRefreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={preRefreshAccessToken}";
 
         // Act
@@ -119,7 +119,7 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         await TriggerOnStartingAsync(context);
 
         // Assert
-        context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey].ToString().Should().Be("custom-branding");
+        context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey].ToString().Should().Be("account-overview");
         context.Response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
         var setCookieHeaders = context.Response.Headers.SetCookie.ToArray();
         setCookieHeaders.Should().Contain(h => h!.Contains(AuthenticationTokenHttpKeys.RefreshTokenCookieName));
@@ -136,7 +136,7 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         var inboundRefreshToken = CreateSignedToken(signingClient, 60, []);
         var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "stale-flag")]);
         RefreshStubAppGatewayApplicationFactory.SetStubRevoked("ReplayAttackDetected");
-        var context = CreateHttpContext("/api/account/feature-flags/custom-branding/tenant-override");
+        var context = CreateHttpContext("/api/account/feature-flags/account-overview/tenant-override");
         context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={inboundRefreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={preRefreshAccessToken}";
 
         // Act

@@ -9,7 +9,7 @@ public sealed class FeatureFlagKeyValidationTests
     [Theory]
     [InlineData("sso")]
     [InlineData("google-oauth")]
-    [InlineData("custom-branding")]
+    [InlineData("account-overview")]
     [InlineData("subscriptions")]
     [InlineData("compact-view")]
     [InlineData("experimental-ui")]
