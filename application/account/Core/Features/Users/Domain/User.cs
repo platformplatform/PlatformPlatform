@@ -49,6 +49,8 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
 
     public int RolloutBucket { get; private set; }
 
+    public AbInclusionPin? AbInclusionPin { get; private set; }
+
     public TenantId TenantId { get; }
 
     public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int existingCount)
@@ -111,6 +113,11 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
     public ExternalIdentity? GetExternalIdentity(ExternalProviderType provider)
     {
         return ExternalIdentities.FirstOrDefault(e => e.Provider == provider);
+    }
+
+    public void SetAbInclusionPin(AbInclusionPin? abInclusionPin)
+    {
+        AbInclusionPin = abInclusionPin;
     }
 }
 

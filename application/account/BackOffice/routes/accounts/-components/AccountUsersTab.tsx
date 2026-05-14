@@ -176,7 +176,13 @@ function UserList({
   }
 
   return (
-    <Table rowSize="spacious" aria-label={t`Account users`} selectionMode="single" onActivate={handleActivate}>
+    <Table
+      rowSize="spacious"
+      aria-label={t`Account users`}
+      selectionMode="single"
+      onActivate={handleActivate}
+      className="w-full table-fixed"
+    >
       <TableHeader>
         <TableRow>
           <TableHead>
@@ -185,10 +191,10 @@ function UserList({
           <TableHead className="hidden md:table-cell">
             <Trans>Email</Trans>
           </TableHead>
-          <TableHead className="hidden lg:table-cell">
+          <TableHead className="hidden w-[8rem] lg:table-cell">
             <Trans>Role</Trans>
           </TableHead>
-          <TableHead className="hidden lg:table-cell">
+          <TableHead className="hidden w-[10rem] lg:table-cell">
             <Trans>Last seen</Trans>
           </TableHead>
         </TableRow>

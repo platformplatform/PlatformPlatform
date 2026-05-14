@@ -19,6 +19,8 @@ public sealed record GetFeatureFlagUsersQuery(
     UserRole[]? Roles = null,
     FeatureFlagAudienceState? State = null,
     bool? HasOverride = null,
+    SortableFeatureFlagUserProperties OrderBy = SortableFeatureFlagUserProperties.Name,
+    SortOrder SortOrder = SortOrder.Ascending,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<GetFeatureFlagUsersResponse>>
@@ -32,7 +34,29 @@ public sealed record GetFeatureFlagUsersQuery(
 }
 
 [PublicAPI]
-public sealed record GetFeatureFlagUsersResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, FeatureFlagUserInfo[] Users);
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum SortableFeatureFlagUserProperties
+{
+    Name,
+    TenantName,
+    Role,
+    LastSeenAt,
+    IsEnabled,
+    OverrideUpdatedAt,
+    InclusionThresholdPercentage
+}
+
+[PublicAPI]
+public sealed record GetFeatureFlagUsersResponse(
+    int TotalCount,
+    int PageSize,
+    int TotalPages,
+    int CurrentPageOffset,
+    int EnabledCount,
+    int DisabledCount,
+    int OverrideCount,
+    FeatureFlagUserInfo[] Users
+);
 
 // Field names mirror the User aggregate so Mapster's convention-based mapping covers the user subset. Tenant-derived
 // fields (TenantName, TenantPlan) and override fields (RolloutBucket, IsEnabled, Source) are applied via `with`.
@@ -53,7 +77,10 @@ public sealed record FeatureFlagUserInfo(
     bool IsEnabled,
     FeatureFlagSource Source,
     int? InclusionThresholdPercentage,
-    bool DefaultEnabled
+    bool DefaultEnabled,
+    DateTimeOffset? OverrideEnabledAt,
+    DateTimeOffset? OverrideDisabledAt,
+    AbInclusionPin? UserAbInclusionPin
 );
 
 public sealed class GetFeatureFlagUsersValidator : AbstractValidator<GetFeatureFlagUsersQuery>
@@ -106,6 +133,7 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
             {
                 tenantsById.TryGetValue(user.TenantId, out var tenant);
                 var (isEnabled, source) = EvaluateOverride(definition, baseRow, overridesByUserId, user);
+                overridesByUserId.TryGetValue(user.Id, out var userOverrideRow);
 
                 return user.Adapt<FeatureFlagUserInfo>() with
                 {
@@ -114,15 +142,21 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
                     TenantPlan = tenant?.Plan ?? SubscriptionPlan.Basis,
                     IsEnabled = isEnabled,
                     Source = source,
-                    InclusionThresholdPercentage = definition.IsAbTestEligible
-                        ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(user.RolloutBucket, query.FlagKey)
-                        : null,
-                    DefaultEnabled = ComputeDefaultEnabled(definition, baseRow, user.RolloutBucket)
+                    InclusionThresholdPercentage = ComputeInclusionThresholdPercentage(definition, user.RolloutBucket, user.AbInclusionPin, query.FlagKey),
+                    DefaultEnabled = ComputeDefaultEnabled(definition, baseRow, user.RolloutBucket, user.AbInclusionPin),
+                    OverrideEnabledAt = userOverrideRow?.EnabledAt,
+                    OverrideDisabledAt = userOverrideRow?.DisabledAt,
+                    UserAbInclusionPin = user.AbInclusionPin
                 };
             }
         ).ToArray();
 
-        // featureFlagUsers is already name-ascending from SearchAllUsersUnfilteredAsync; subsequent filters preserve order.
+        // Aggregate stats reflect the population AFTER search/roles filtering but BEFORE state/has-override
+        // filtering, so they describe "the addressable users for this flag" rather than the current view.
+        var enabledCount = featureFlagUsers.Count(u => u.IsEnabled);
+        var disabledCount = featureFlagUsers.Length - enabledCount;
+        var overrideCount = featureFlagUsers.Count(u => u.Source == FeatureFlagSource.Manual);
+
         var filtered = query.State switch
         {
             FeatureFlagAudienceState.Enabled => featureFlagUsers.Where(u => u.IsEnabled).ToArray(),
@@ -135,26 +169,70 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
             filtered = filtered.Where(u => u.Source == FeatureFlagSource.Manual).ToArray();
         }
 
-        var totalCount = filtered.Length;
+        var ordered = Sort(filtered, query.OrderBy, query.SortOrder).ToArray();
+
+        var totalCount = ordered.Length;
         var totalPages = totalCount == 0 ? 0 : (totalCount - 1) / query.PageSize + 1;
         if (query.PageOffset > 0 && query.PageOffset >= totalPages)
         {
             return Result<GetFeatureFlagUsersResponse>.BadRequest($"The page offset '{query.PageOffset}' is greater than the total number of pages.");
         }
 
-        var paged = filtered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
+        var paged = ordered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
 
-        return new GetFeatureFlagUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
+        return new GetFeatureFlagUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, enabledCount, disabledCount, overrideCount, paged);
     }
 
-    // The state a user would have if no manual override existed: in-range for A/B-eligible flags
-    // (and the base row is active), otherwise false (non-A/B flags require the user to opt in).
-    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket)
+    private static IEnumerable<FeatureFlagUserInfo> Sort(FeatureFlagUserInfo[] items, SortableFeatureFlagUserProperties orderBy, SortOrder sortOrder)
+    {
+        // Stable tie-break by Id keeps paginated results deterministic. Name is composed from FirstName + LastName + Email so callers see a single column.
+        return (orderBy, sortOrder) switch
+        {
+            (SortableFeatureFlagUserProperties.TenantName, SortOrder.Ascending) => items.OrderBy(u => u.TenantName).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.TenantName, _) => items.OrderByDescending(u => u.TenantName).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.Role, SortOrder.Ascending) => items.OrderBy(u => u.Role).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.Role, _) => items.OrderByDescending(u => u.Role).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.LastSeenAt, SortOrder.Ascending) => items.OrderBy(u => u.LastSeenAt ?? DateTimeOffset.MaxValue).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.LastSeenAt, _) => items.OrderByDescending(u => u.LastSeenAt ?? DateTimeOffset.MinValue).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.IsEnabled, SortOrder.Ascending) => items.OrderBy(u => u.IsEnabled).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.IsEnabled, _) => items.OrderByDescending(u => u.IsEnabled).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.OverrideUpdatedAt, SortOrder.Ascending) => items.OrderBy(u => u.OverrideDisabledAt ?? u.OverrideEnabledAt ?? DateTimeOffset.MaxValue).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.OverrideUpdatedAt, _) => items.OrderByDescending(u => u.OverrideDisabledAt ?? u.OverrideEnabledAt ?? DateTimeOffset.MinValue).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.InclusionThresholdPercentage, SortOrder.Ascending) => items.OrderBy(u => u.InclusionThresholdPercentage ?? int.MaxValue).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.InclusionThresholdPercentage, _) => items.OrderByDescending(u => u.InclusionThresholdPercentage ?? int.MinValue).ThenBy(u => u.Id.Value),
+            (SortableFeatureFlagUserProperties.Name, SortOrder.Descending) => items.OrderByDescending(NameSortKey).ThenBy(u => u.Id.Value),
+            _ => items.OrderBy(NameSortKey).ThenBy(u => u.Id.Value)
+        };
+    }
+
+    private static string NameSortKey(FeatureFlagUserInfo user)
+    {
+        // Mirror the front-office convention: "FirstName LastName", falling back to email when both are null.
+        return $"{user.FirstName} {user.LastName}".Trim() is { Length: > 0 } composed ? composed : user.Email;
+    }
+
+    // AlwaysOn maps to the rollout's first slot (included when rollout >= 1%); NeverOn maps to the last
+    // slot (included only when rollout = 100%). Mirrors FeatureFlagEvaluator.
+    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket, AbInclusionPin? abInclusionPin)
     {
         if (baseRow is null || !baseRow.IsActive) return false;
         if (!definition.IsAbTestEligible) return false;
         if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
-        return RolloutBucketHasher.IsInRolloutBucketRange(rolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        var effectiveBucket = abInclusionPin switch
+        {
+            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            _ => rolloutBucket
+        };
+        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+    }
+
+    private static int? ComputeInclusionThresholdPercentage(FeatureFlagDefinition definition, int rolloutBucket, AbInclusionPin? abInclusionPin, string flagKey)
+    {
+        if (!definition.IsAbTestEligible) return null;
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 1;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return 100;
+        return RolloutBucketHasher.ComputeInclusionThresholdPercentage(rolloutBucket, flagKey);
     }
 
     private static (bool IsEnabled, FeatureFlagSource Source) EvaluateOverride(
@@ -172,7 +250,13 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
 
         if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
-            var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            var effectiveBucket = user.AbInclusionPin switch
+            {
+                AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+                AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+                _ => user.RolloutBucket
+            };
+            var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
             return (isInRange, FeatureFlagSource.AbRollout);
         }
 

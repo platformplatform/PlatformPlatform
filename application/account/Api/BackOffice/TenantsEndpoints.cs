@@ -64,5 +64,9 @@ public sealed class TenantsEndpoints : IEndpoints
         group.MapPost("/{id}/drift/acknowledge", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new AcknowledgeBillingDriftCommand { TenantId = id })
         ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
+
+        group.MapPut("/{id}/ab-inclusion-pin", async Task<ApiResult> (TenantId id, SetTenantAbInclusionPinCommand command, IMediator mediator)
+            => await mediator.Send(command with { TenantId = id })
+        );
     }
 }

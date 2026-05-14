@@ -32,7 +32,8 @@ public sealed record UserFeatureFlagInfo(
     int RolloutBucket,
     TenantId TenantId,
     int? InclusionThresholdPercentage,
-    bool DefaultEnabled
+    bool DefaultEnabled,
+    AbInclusionPin? UserAbInclusionPin
 );
 
 public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFlagRepository, IUserRepository userRepository)
@@ -52,7 +53,7 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
         var userOverridesByKey = allRows.Where(r => r.UserId == user.Id).ToDictionary(r => r.FlagKey);
 
         var flags = userScopedDefinitions
-            .Select(definition => Evaluate(definition, baseRowsByKey, userOverridesByKey, user.RolloutBucket, user.TenantId))
+            .Select(definition => Evaluate(definition, baseRowsByKey, userOverridesByKey, user.RolloutBucket, user.TenantId, user.AbInclusionPin))
             .ToArray();
 
         return new GetUserFeatureFlagsResponse(flags);
@@ -63,7 +64,8 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
         Dictionary<string, FeatureFlag> baseRowsByKey,
         Dictionary<string, FeatureFlag> userOverridesByKey,
         int userRolloutBucket,
-        TenantId tenantId
+        TenantId tenantId,
+        AbInclusionPin? abInclusionPin
     )
     {
         baseRowsByKey.TryGetValue(definition.Key, out var baseRow);
@@ -80,8 +82,14 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
         }
         else if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
+            var effectiveBucket = abInclusionPin switch
+            {
+                AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+                AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+                _ => userRolloutBucket
+            };
             isEnabled = isBaseRowActive
-                        && RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+                        && RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
             source = FeatureFlagSource.AbRollout;
         }
         else
@@ -90,11 +98,8 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             source = FeatureFlagSource.Default;
         }
 
-        var defaultEnabled = isBaseRowActive
-                             && definition.IsAbTestEligible
-                             && baseRow?.BucketStart is not null
-                             && baseRow.BucketEnd is not null
-                             && RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        var defaultEnabled = ComputeDefaultEnabled(definition, baseRow, isBaseRowActive, userRolloutBucket, abInclusionPin);
+        var inclusionThresholdPercentage = ComputeInclusionThresholdPercentage(definition, userRolloutBucket, abInclusionPin);
 
         return new UserFeatureFlagInfo(
             definition.Key,
@@ -109,23 +114,36 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             isBaseRowActive,
             userRolloutBucket,
             tenantId,
-            definition.IsAbTestEligible
-                ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(userRolloutBucket, definition.Key)
-                : null,
-            defaultEnabled
+            inclusionThresholdPercentage,
+            defaultEnabled,
+            abInclusionPin
         );
+    }
+
+    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, bool isBaseRowActive, int rolloutBucket, AbInclusionPin? abInclusionPin)
+    {
+        if (!isBaseRowActive) return false;
+        if (!definition.IsAbTestEligible) return false;
+        if (baseRow?.BucketStart is null || baseRow.BucketEnd is null) return false;
+        var effectiveBucket = abInclusionPin switch
+        {
+            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            _ => rolloutBucket
+        };
+        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+    }
+
+    private static int? ComputeInclusionThresholdPercentage(FeatureFlagDefinition definition, int rolloutBucket, AbInclusionPin? abInclusionPin)
+    {
+        if (!definition.IsAbTestEligible) return null;
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 1;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return 100;
+        return RolloutBucketHasher.ComputeInclusionThresholdPercentage(rolloutBucket, definition.Key);
     }
 
     private static int? ComputeRolloutPercentage(int? bucketStart, int? bucketEnd)
     {
-        if (bucketStart is null || bucketEnd is null) return null;
-
-        // 100% rollout uses reserved range 0-100
-        if (bucketStart == 0 && bucketEnd == 100) return 100;
-
-        if (bucketStart <= bucketEnd) return bucketEnd.Value - bucketStart.Value + 1;
-
-        // Wrap-around case within 1-99 range
-        return 99 - bucketStart.Value + 1 + bucketEnd.Value;
+        return RolloutBucketHasher.ComputeRolloutPercentage(bucketStart, bucketEnd);
     }
 }

@@ -9,6 +9,7 @@ using Mapster;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
+using SharedKernel.Persistence;
 
 namespace Account.Features.FeatureFlags.Queries;
 
@@ -18,6 +19,8 @@ public sealed record GetFeatureFlagTenantsQuery(
     SubscriptionPlan[]? Plans = null,
     FeatureFlagAudienceState? State = null,
     bool? HasOverride = null,
+    SortableFeatureFlagTenantProperties OrderBy = SortableFeatureFlagTenantProperties.Name,
+    SortOrder SortOrder = SortOrder.Ascending,
     int PageOffset = 0,
     int PageSize = 25
 ) : IRequest<Result<GetFeatureFlagTenantsResponse>>
@@ -31,7 +34,29 @@ public sealed record GetFeatureFlagTenantsQuery(
 }
 
 [PublicAPI]
-public sealed record GetFeatureFlagTenantsResponse(int TotalCount, int PageSize, int TotalPages, int CurrentPageOffset, FeatureFlagTenantInfo[] Tenants);
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum SortableFeatureFlagTenantProperties
+{
+    Name,
+    Plan,
+    MonthlyRecurringRevenue,
+    RenewalDate,
+    IsEnabled,
+    OverrideUpdatedAt,
+    InclusionThresholdPercentage
+}
+
+[PublicAPI]
+public sealed record GetFeatureFlagTenantsResponse(
+    int TotalCount,
+    int PageSize,
+    int TotalPages,
+    int CurrentPageOffset,
+    int EnabledCount,
+    int DisabledCount,
+    int OverrideCount,
+    FeatureFlagTenantInfo[] Tenants
+);
 
 // Field names mirror TenantSummary so Mapster's convention-based mapping covers the shared subset. Override fields
 // (RolloutBucket, IsEnabled, Source) come from the feature-flag evaluation and are applied via `with` on top of Adapt.
@@ -54,7 +79,10 @@ public sealed record FeatureFlagTenantInfo(
     bool IsEnabled,
     FeatureFlagSource Source,
     int? InclusionThresholdPercentage,
-    bool DefaultEnabled
+    bool DefaultEnabled,
+    DateTimeOffset? OverrideEnabledAt,
+    DateTimeOffset? OverrideDisabledAt,
+    AbInclusionPin? TenantAbInclusionPin
 );
 
 public sealed class GetFeatureFlagTenantsValidator : AbstractValidator<GetFeatureFlagTenantsQuery>
@@ -130,20 +158,30 @@ public sealed class GetFeatureFlagTenantsHandler(
 
                 var (isEnabled, source) = EvaluateOverride(definition, baseRow, overridesByTenantId, tenant);
 
-                var defaultEnabled = ComputeDefaultEnabled(definition, baseRow, tenant.RolloutBucket);
+                var defaultEnabled = ComputeDefaultEnabled(definition, baseRow, tenant.RolloutBucket, tenant.AbInclusionPin);
+                var inclusionThresholdPercentage = ComputeInclusionThresholdPercentage(definition, tenant.RolloutBucket, tenant.AbInclusionPin, query.FlagKey);
+
+                overridesByTenantId.TryGetValue(tenant.Id, out var tenantOverrideRow);
 
                 return summary.Adapt<FeatureFlagTenantInfo>() with
                 {
                     RolloutBucket = tenant.RolloutBucket,
                     IsEnabled = isEnabled,
                     Source = source,
-                    InclusionThresholdPercentage = definition.IsAbTestEligible
-                        ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(tenant.RolloutBucket, query.FlagKey)
-                        : null,
-                    DefaultEnabled = defaultEnabled
+                    InclusionThresholdPercentage = inclusionThresholdPercentage,
+                    DefaultEnabled = defaultEnabled,
+                    OverrideEnabledAt = tenantOverrideRow?.EnabledAt,
+                    OverrideDisabledAt = tenantOverrideRow?.DisabledAt,
+                    TenantAbInclusionPin = tenant.AbInclusionPin
                 };
             }
         ).ToArray();
+
+        // Aggregate stats reflect the population AFTER search/plans filtering but BEFORE state/has-override
+        // filtering, so they describe "the addressable accounts for this flag" rather than the current view.
+        var enabledCount = featureFlagTenants.Count(t => t.IsEnabled);
+        var disabledCount = featureFlagTenants.Length - enabledCount;
+        var overrideCount = featureFlagTenants.Count(t => t.Source == FeatureFlagSource.Manual);
 
         var filtered = query.State switch
         {
@@ -157,7 +195,7 @@ public sealed class GetFeatureFlagTenantsHandler(
             filtered = filtered.Where(t => t.Source == FeatureFlagSource.Manual).ToArray();
         }
 
-        var ordered = filtered.OrderBy(t => t.Name).ToArray();
+        var ordered = Sort(filtered, query.OrderBy, query.SortOrder).ToArray();
 
         var totalCount = ordered.Length;
         var totalPages = totalCount == 0 ? 0 : (totalCount - 1) / query.PageSize + 1;
@@ -168,17 +206,56 @@ public sealed class GetFeatureFlagTenantsHandler(
 
         var paged = ordered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
 
-        return new GetFeatureFlagTenantsResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
+        return new GetFeatureFlagTenantsResponse(totalCount, query.PageSize, totalPages, query.PageOffset, enabledCount, disabledCount, overrideCount, paged);
     }
 
-    // The state a tenant would have if no manual override existed: in-range for A/B-eligible flags
-    // (and the base row is active), otherwise false (non-A/B flags require the tenant to opt in).
-    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket)
+    // Stable tie-break by Id keeps paginated results deterministic when the primary key has duplicates.
+    private static IEnumerable<FeatureFlagTenantInfo> Sort(FeatureFlagTenantInfo[] items, SortableFeatureFlagTenantProperties orderBy, SortOrder sortOrder)
+    {
+        return (orderBy, sortOrder) switch
+        {
+            (SortableFeatureFlagTenantProperties.Plan, SortOrder.Ascending) => items.OrderBy(t => t.Plan).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.Plan, _) => items.OrderByDescending(t => t.Plan).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.MonthlyRecurringRevenue, SortOrder.Ascending) => items.OrderBy(t => t.MonthlyRecurringRevenue ?? 0m).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.MonthlyRecurringRevenue, _) => items.OrderByDescending(t => t.MonthlyRecurringRevenue ?? 0m).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.RenewalDate, SortOrder.Ascending) => items.OrderBy(t => t.RenewalDate ?? DateTimeOffset.MaxValue).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.RenewalDate, _) => items.OrderByDescending(t => t.RenewalDate ?? DateTimeOffset.MinValue).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.IsEnabled, SortOrder.Ascending) => items.OrderBy(t => t.IsEnabled).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.IsEnabled, _) => items.OrderByDescending(t => t.IsEnabled).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.OverrideUpdatedAt, SortOrder.Ascending) => items.OrderBy(t => t.OverrideDisabledAt ?? t.OverrideEnabledAt ?? DateTimeOffset.MaxValue).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.OverrideUpdatedAt, _) => items.OrderByDescending(t => t.OverrideDisabledAt ?? t.OverrideEnabledAt ?? DateTimeOffset.MinValue).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.InclusionThresholdPercentage, SortOrder.Ascending) => items.OrderBy(t => t.InclusionThresholdPercentage ?? int.MaxValue).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.InclusionThresholdPercentage, _) => items.OrderByDescending(t => t.InclusionThresholdPercentage ?? int.MinValue).ThenBy(t => t.Id.Value),
+            (SortableFeatureFlagTenantProperties.Name, SortOrder.Descending) => items.OrderByDescending(t => t.Name).ThenBy(t => t.Id.Value),
+            _ => items.OrderBy(t => t.Name).ThenBy(t => t.Id.Value)
+        };
+    }
+
+    // The state a tenant would have if no manual override existed. AlwaysOn makes the entity behave as if
+    // its bucket were the first slot of the rollout (included when rollout >= 1%); NeverOn behaves as the
+    // last slot (included only when rollout = 100%). Mirrors FeatureFlagEvaluator.
+    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket, AbInclusionPin? abInclusionPin)
     {
         if (baseRow is null || !baseRow.IsActive) return false;
         if (!definition.IsAbTestEligible) return false;
         if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
-        return RolloutBucketHasher.IsInRolloutBucketRange(rolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        var effectiveBucket = abInclusionPin switch
+        {
+            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            _ => rolloutBucket
+        };
+        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+    }
+
+    // Pinned entities are rendered as "included at 1%" (AlwaysOn — first to be included in any rollout) or
+    // "included at 100%" (NeverOn — only included if the rollout reaches 100%, effectively never).
+    private static int? ComputeInclusionThresholdPercentage(FeatureFlagDefinition definition, int rolloutBucket, AbInclusionPin? abInclusionPin, string flagKey)
+    {
+        if (!definition.IsAbTestEligible) return null;
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 1;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return 100;
+        return RolloutBucketHasher.ComputeInclusionThresholdPercentage(rolloutBucket, flagKey);
     }
 
     private static (bool IsEnabled, FeatureFlagSource Source) EvaluateOverride(
@@ -198,7 +275,13 @@ public sealed class GetFeatureFlagTenantsHandler(
 
         if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
         {
-            var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(tenant.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            var effectiveBucket = tenant.AbInclusionPin switch
+            {
+                AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+                AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+                _ => tenant.RolloutBucket
+            };
+            var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
             return (isInRange, FeatureFlagSource.AbRollout);
         }
 

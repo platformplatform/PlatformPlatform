@@ -1517,6 +1517,87 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         baseRowCount.Should().Be(1, "the orphaned row must remain when a non-admin caller is rejected");
     }
 
+    // Server-side sort smoke tests
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenSortedByNameAscendingAndDescending_ShouldReturnOppositeOrder()
+    {
+        // Arrange
+        var flagKey = "sso";
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var ascResponse = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/tenants?OrderBy=Name&SortOrder=Ascending");
+        var descResponse = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/tenants?OrderBy=Name&SortOrder=Descending");
+
+        // Assert
+        ascResponse.ShouldBeSuccessfulGetRequest();
+        descResponse.ShouldBeSuccessfulGetRequest();
+        var ascResult = await ascResponse.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        var descResult = await descResponse.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        ascResult.Should().NotBeNull();
+        descResult.Should().NotBeNull();
+        ascResult.Tenants.Should().NotBeEmpty();
+        ascResult.Tenants.Select(t => t.Name).Should().BeInAscendingOrder();
+        descResult.Tenants.Select(t => t.Name).Should().BeInDescendingOrder();
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenSortedByPlan_ShouldReturnOrderedByPlan()
+    {
+        // Arrange
+        var flagKey = "sso";
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/tenants?OrderBy=Plan&SortOrder=Ascending");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Select(t => t.Plan).Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenSortedByNameAscendingAndDescending_ShouldReturnOppositeOrder()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var ascResponse = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/users?OrderBy=Name&SortOrder=Ascending");
+        var descResponse = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/users?OrderBy=Name&SortOrder=Descending");
+
+        // Assert
+        ascResponse.ShouldBeSuccessfulGetRequest();
+        descResponse.ShouldBeSuccessfulGetRequest();
+        var ascResult = await ascResponse.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        var descResult = await descResponse.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        ascResult.Should().NotBeNull();
+        descResult.Should().NotBeNull();
+        ascResult.Users.Should().NotBeEmpty();
+        ascResult.Users.Select(u => u.Email).Should().Equal(descResult.Users.Select(u => u.Email).Reverse());
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenSortedByRole_ShouldReturnOrderedByRole()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/users?OrderBy=Role&SortOrder=Ascending");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Select(u => u.Role).Should().BeInAscendingOrder();
+    }
+
     private void InsertOrphanedBaseRow(string flagKey, bool softDeleted = false)
     {
         InsertHistoricalBaseRow(flagKey, FeatureFlagScope.Tenant, softDeleted);

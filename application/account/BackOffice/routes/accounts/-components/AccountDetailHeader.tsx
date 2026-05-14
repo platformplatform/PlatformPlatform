@@ -13,6 +13,7 @@ import { PlannedSubscriptionChange, TenantState } from "@/shared/lib/api/client"
 import { getSubscriptionPlanLabel, getTenantStateLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
+import { AbInclusionPinBadge } from "../../-shared/AbInclusionPinBadge";
 import { AccountActionsMenu } from "./AccountActionsMenu";
 import { TenantStatusBadge } from "./TenantStatusBadge";
 
@@ -51,6 +52,7 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
                   plannedChange={derivePlannedChange(tenant)}
                   hasEverSubscribed={tenant.hasEverSubscribed}
                 />
+                <AbInclusionPinBadge pin={tenant.abInclusionPin} />
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
@@ -61,6 +63,7 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
                   plannedChange={derivePlannedChange(tenant)}
                   hasEverSubscribed={tenant.hasEverSubscribed}
                 />
+                <AbInclusionPinBadge pin={tenant.abInclusionPin} />
               </div>
               {tenant.billingAddress?.country && (
                 <span className="inline-flex items-center gap-1.5">
@@ -83,7 +86,12 @@ export function AccountDetailHeader({ tenant, tenantId, isLoading }: Readonly<Ac
           </>
         )}
       </div>
-      <AccountActionsMenu tenantId={tenantId} stripeCustomerUrl={tenant?.stripeCustomerUrl} />
+      <AccountActionsMenu
+        tenantId={tenantId}
+        tenantName={tenant?.name}
+        stripeCustomerUrl={tenant?.stripeCustomerUrl}
+        abInclusionPin={tenant?.abInclusionPin}
+      />
     </div>
   );
 }

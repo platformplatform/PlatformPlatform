@@ -1,7 +1,10 @@
 import { Trans } from "@lingui/react/macro";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { useNavigate } from "@tanstack/react-router";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-import type { StateFilter } from "./stateFilter";
+import { SortableFeatureFlagUserProperties, SortOrder } from "@/shared/lib/api/client";
+
 import type { FeatureFlagUserInfo } from "./types";
 
 import { UserOverrideRow } from "./UserOverrideRow";
@@ -13,8 +16,43 @@ export interface UserOverridesTableProps {
   featureFlagDescription: string;
   showRolloutBucket: boolean;
   isFeatureFlagActive: boolean;
-  stateFilter: StateFilter | undefined;
-  hasOverrideFilter: boolean;
+  orderBy: SortableFeatureFlagUserProperties | undefined;
+  sortOrder: SortOrder | undefined;
+  defaultOrderBy: SortableFeatureFlagUserProperties;
+}
+
+function SortableHead({
+  column,
+  effectiveOrderBy,
+  effectiveSortOrder,
+  onSort,
+  className,
+  children
+}: Readonly<{
+  column: SortableFeatureFlagUserProperties;
+  effectiveOrderBy: SortableFeatureFlagUserProperties;
+  effectiveSortOrder: SortOrder;
+  onSort: (column: SortableFeatureFlagUserProperties) => void;
+  className?: string;
+  children: React.ReactNode;
+}>) {
+  const isActive = effectiveOrderBy === column;
+  const isDescending = isActive && effectiveSortOrder === SortOrder.Descending;
+  const ariaSort = isActive ? (isDescending ? "descending" : "ascending") : "none";
+
+  return (
+    <TableHead className={className} aria-sort={ariaSort} onClick={() => onSort(column)}>
+      <span className="inline-flex cursor-pointer items-center gap-1 select-none">
+        {children}
+        {isActive &&
+          (isDescending ? (
+            <ChevronDownIcon className="size-3 shrink-0" aria-hidden={true} />
+          ) : (
+            <ChevronUpIcon className="size-3 shrink-0" aria-hidden={true} />
+          ))}
+      </span>
+    </TableHead>
+  );
 }
 
 export function UserOverridesTable({
@@ -24,33 +62,98 @@ export function UserOverridesTable({
   featureFlagDescription,
   showRolloutBucket,
   isFeatureFlagActive,
-  stateFilter,
-  hasOverrideFilter
+  orderBy,
+  sortOrder,
+  defaultOrderBy
 }: Readonly<UserOverridesTableProps>) {
+  const navigate = useNavigate();
+  const effectiveOrderBy = orderBy ?? defaultOrderBy;
+  const effectiveSortOrder = sortOrder ?? SortOrder.Ascending;
+
+  const handleSort = (column: SortableFeatureFlagUserProperties) => {
+    let nextOrderBy: SortableFeatureFlagUserProperties | undefined = column;
+    let nextSortOrder: SortOrder | undefined;
+    if (effectiveOrderBy === column) {
+      if (effectiveSortOrder === SortOrder.Ascending) {
+        nextSortOrder = SortOrder.Descending;
+      } else {
+        nextOrderBy = undefined;
+        nextSortOrder = undefined;
+      }
+    } else {
+      nextSortOrder = SortOrder.Ascending;
+    }
+    navigate({
+      to: "/feature-flags/$flagKey",
+      params: { flagKey },
+      search: (previous) => ({
+        ...previous,
+        usersOrderBy: nextOrderBy,
+        usersSortOrder: nextSortOrder,
+        usersPageOffset: undefined
+      })
+    });
+  };
+
   return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
+    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed" containerClassName="overflow-x-clip">
       <TableHeader>
         <TableRow>
-          <TableHead>
+          <SortableHead
+            column={SortableFeatureFlagUserProperties.Name}
+            effectiveOrderBy={effectiveOrderBy}
+            effectiveSortOrder={effectiveSortOrder}
+            onSort={handleSort}
+          >
             <Trans>User</Trans>
-          </TableHead>
-          <TableHead className="hidden md:table-cell">
+          </SortableHead>
+          <SortableHead
+            column={SortableFeatureFlagUserProperties.TenantName}
+            effectiveOrderBy={effectiveOrderBy}
+            effectiveSortOrder={effectiveSortOrder}
+            onSort={handleSort}
+            className="hidden md:table-cell"
+          >
             <Trans>Account</Trans>
-          </TableHead>
-          <TableHead className="hidden w-[6rem] lg:table-cell">
+          </SortableHead>
+          <SortableHead
+            column={SortableFeatureFlagUserProperties.Role}
+            effectiveOrderBy={effectiveOrderBy}
+            effectiveSortOrder={effectiveSortOrder}
+            onSort={handleSort}
+            className="hidden w-[6rem] lg:table-cell"
+          >
             <Trans>Role</Trans>
-          </TableHead>
-          <TableHead className="hidden w-[8.5rem] lg:table-cell">
-            <Trans>Last seen</Trans>
-          </TableHead>
+          </SortableHead>
+          <SortableHead
+            column={SortableFeatureFlagUserProperties.OverrideUpdatedAt}
+            effectiveOrderBy={effectiveOrderBy}
+            effectiveSortOrder={effectiveSortOrder}
+            onSort={handleSort}
+            className="hidden w-[8.5rem] lg:table-cell"
+          >
+            <Trans>Last changed</Trans>
+          </SortableHead>
           {showRolloutBucket && (
-            <TableHead className="hidden w-[7rem] text-center lg:table-cell">
+            <SortableHead
+              column={SortableFeatureFlagUserProperties.InclusionThresholdPercentage}
+              effectiveOrderBy={effectiveOrderBy}
+              effectiveSortOrder={effectiveSortOrder}
+              onSort={handleSort}
+              className="hidden w-[7rem] text-center lg:table-cell"
+            >
               <Trans>Included at</Trans>
-            </TableHead>
+            </SortableHead>
           )}
-          <TableHead className="w-[5rem] text-right">
+          <SortableHead
+            column={SortableFeatureFlagUserProperties.IsEnabled}
+            effectiveOrderBy={effectiveOrderBy}
+            effectiveSortOrder={effectiveSortOrder}
+            onSort={handleSort}
+            className="w-[5rem] text-right"
+          >
             <Trans>Override</Trans>
-          </TableHead>
+          </SortableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -62,8 +165,6 @@ export function UserOverridesTable({
             user={user}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
-            stateFilter={stateFilter}
-            hasOverrideFilter={hasOverrideFilter}
           />
         ))}
       </TableBody>

@@ -7,21 +7,19 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { api, FeatureFlagAudienceState, queryClient } from "@/shared/lib/api/client";
+import { api, queryClient } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import type { FeatureFlagTenantInfo } from "./types";
 
-import { MrrCell } from "../../accounts/-components/MrrCell";
 import { TenantStatusBadge } from "../../accounts/-components/TenantStatusBadge";
 import { getUserDisplayName } from "../../users/-components/userDisplay";
 import { OverrideSwitch } from "./OverrideSwitch";
-import { type StateFilter, toApiState } from "./stateFilter";
 
-// Mutations skip the global auto-invalidate so we can manually delay invalidation when the click
-// will cause the row to leave the active filter — without the 500ms grace the row vanishes the
-// instant the user clicks, hiding the cause/effect.
+// Mutations skip the global auto-invalidate so we can delay invalidation by 500ms — without it,
+// sort reordering, pagination totals, or filter drops fire instantly and hide the cause/effect of
+// the user's click.
 const TENANTS_QUERY_KEY = ["get", "/api/back-office/feature-flags/{flagKey}/tenants"] as const;
 const SKIP_AUTO_INVALIDATE = { meta: { skipQueryInvalidation: true } };
 
@@ -31,8 +29,6 @@ interface TenantOverrideRowProps {
   tenant: FeatureFlagTenantInfo;
   showRolloutBucket: boolean;
   isFeatureFlagActive: boolean;
-  stateFilter: StateFilter | undefined;
-  hasOverrideFilter: boolean;
 }
 
 export function TenantOverrideRow({
@@ -40,9 +36,7 @@ export function TenantOverrideRow({
   featureFlagDescription,
   tenant,
   showRolloutBucket,
-  isFeatureFlagActive,
-  stateFilter,
-  hasOverrideFilter
+  isFeatureFlagActive
 }: Readonly<TenantOverrideRowProps>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(tenant.isEnabled);
   const [optimisticIsOverride, setOptimisticIsOverride] = useState(tenant.source === "manual_override");
@@ -64,14 +58,11 @@ export function TenantOverrideRow({
     setOptimisticIsOverride(tenant.source === "manual_override");
   }, [tenant.isEnabled, tenant.source]);
 
-  const refreshAfter = (finalEnabled: boolean, willHaveOverride: boolean) => {
-    const apiState = toApiState(stateFilter);
-    const stateFilterWillDrop =
-      (apiState === FeatureFlagAudienceState.Enabled && !finalEnabled) ||
-      (apiState === FeatureFlagAudienceState.Disabled && finalEnabled);
-    const hasOverrideFilterWillDrop = hasOverrideFilter && !willHaveOverride;
-    const delayMs = stateFilterWillDrop || hasOverrideFilterWillDrop ? 500 : 0;
-    setTimeout(() => queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY }), delayMs);
+  // Always delay invalidation by 500ms so the user sees the optimistic switch flip before the table
+  // refetches — without it, sort reordering, pagination totals, or filter drops happen instantly and
+  // make the toggle feel unresponsive.
+  const refreshAfter = () => {
+    setTimeout(() => queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY }), 500);
   };
 
   const handleRemoveOverride = () => {
@@ -82,7 +73,7 @@ export function TenantOverrideRow({
       {
         onSuccess: () => {
           toast.success(t`Override removed for ${tenant.name}`);
-          refreshAfter(tenant.defaultEnabled, false);
+          refreshAfter();
         },
         onError: () => {
           setOptimisticEnabled(tenant.isEnabled);
@@ -104,7 +95,7 @@ export function TenantOverrideRow({
               ? t`${featureFlagDescription} enabled for ${tenant.name}`
               : t`${featureFlagDescription} disabled for ${tenant.name}`
           );
-          refreshAfter(checked, true);
+          refreshAfter();
         },
         onError: () => {
           setOptimisticEnabled(tenant.isEnabled);
@@ -151,23 +142,18 @@ export function TenantOverrideRow({
       <TableCell className="hidden md:table-cell">
         <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>{getSubscriptionPlanLabel(tenant.plan)}</Badge>
       </TableCell>
-      <TableCell className="hidden tabular-nums lg:table-cell">
-        <MrrCell
-          monthlyRecurringRevenue={tenant.monthlyRecurringRevenue}
-          scheduledPriceAmount={tenant.scheduledPriceAmount}
-          currency={tenant.currency}
-          plannedChange={tenant.plannedChange}
-        />
-      </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        {tenant.renewalDate ? formatDate(tenant.renewalDate) : <span className="text-muted-foreground">-</span>}
-      </TableCell>
       <TableCell className="hidden md:table-cell">
         <TenantStatusBadge
           plan={tenant.plan}
           plannedChange={tenant.plannedChange}
           hasEverSubscribed={tenant.hasEverSubscribed}
         />
+      </TableCell>
+      <TableCell className="hidden lg:table-cell">
+        {(() => {
+          const updatedAt = tenant.overrideDisabledAt ?? tenant.overrideEnabledAt;
+          return updatedAt ? formatDate(updatedAt) : <span className="text-muted-foreground">-</span>;
+        })()}
       </TableCell>
       {showRolloutBucket && (
         <TableCell className="hidden text-center text-muted-foreground lg:table-cell">

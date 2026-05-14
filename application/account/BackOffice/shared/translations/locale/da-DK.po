@@ -41,6 +41,12 @@ msgstr "{count, plural, one {# konto er endnu ikke synkroniseret — MRR-tendens
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# dag siden} other {# dage siden}}"
 
+msgid "{entityLabel} is now first in feature flag rollouts"
+msgstr "{entityLabel} er nu først i feature flag-udrulninger"
+
+msgid "{entityLabel} is now last in feature flag rollouts"
+msgstr "{entityLabel} er nu sidst i feature flag-udrulninger"
+
 #. placeholder {0}: tenant.name
 #. placeholder {0}: user.email
 msgid "{featureFlagDescription} disabled for {0}"
@@ -263,6 +269,9 @@ msgstr "Skift tema"
 msgid "Change zoom level"
 msgstr "Skift zoomniveau"
 
+msgid "Choose how {entityLabel} participates in feature flag rollouts. Per-flag manual overrides still take precedence over this setting."
+msgstr "Vælg hvordan {entityLabel} deltager i feature flag-udrulninger. Manuelle tilsidesættelser pr. flag har stadig forrang over denne indstilling."
+
 msgid "Clear filter"
 msgstr "Ryd filter"
 
@@ -424,11 +433,20 @@ msgstr "Feature flag deaktiveret"
 msgid "Feature flag deleted: {flagName}"
 msgstr "Feature flag slettet: {flagName}"
 
+msgid "Feature flag rollouts"
+msgstr "Feature flag-udrulninger"
+
+msgid "Feature flag rollouts reset to default for {entityLabel}"
+msgstr "Feature flag-udrulninger nulstillet til standard for {entityLabel}"
+
 msgid "Feature flags"
 msgstr "Feature flags"
 
 msgid "Feature flags are defined in code. This view controls their activation and rollout."
 msgstr "Feature flags er defineret i koden. Dette view styrer deres aktivering og udrulning."
+
+msgid "First in feature flag rollouts"
+msgstr "Først i feature flag-udrulninger"
 
 msgid "Free"
 msgstr "Gratis"
@@ -456,6 +474,15 @@ msgstr "Inaktive"
 
 msgid "Included at"
 msgstr "Inkluderet ved"
+
+msgid "Included at 1% — the first to receive any feature flag rollout."
+msgstr "Inkluderet ved 1 % — den første til at modtage enhver feature flag-udrulning."
+
+msgid "Included at 100% — the last to receive any feature flag rollout."
+msgstr "Inkluderet ved 100 % — den sidste til at modtage enhver feature flag-udrulning."
+
+msgid "Included in feature flag rollouts based on the assigned rollout bucket."
+msgstr "Inkluderet i feature flag-udrulninger baseret på den tildelte udrulningsbucket."
 
 msgid "Invoice"
 msgstr "Faktura"
@@ -489,6 +516,12 @@ msgstr "Sidste {periodDays} dage"
 
 msgid "Last 24 hours"
 msgstr "Sidste 24 timer"
+
+msgid "Last changed"
+msgstr "Senest ændret"
+
+msgid "Last in feature flag rollouts"
+msgstr "Sidst i feature flag-udrulninger"
 
 msgid "Last invoice"
 msgstr "Sidste faktura"
@@ -963,6 +996,12 @@ msgstr "Udrulningsprocent opdateret"
 msgid "Run disaster recovery"
 msgstr "Kør katastrofegendannelse"
 
+msgid "Save changes"
+msgstr "Gem ændringer"
+
+msgid "Saving..."
+msgstr "Gemmer..."
+
 msgid "Scheduled plan change"
 msgstr "Planlagt planændring"
 
@@ -1077,6 +1116,9 @@ msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 msgid "Theme"
 msgstr "Tema"
 
+msgid "This account"
+msgstr "Denne konto"
+
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
 
@@ -1155,6 +1197,9 @@ msgstr "Opgraderet"
 msgid "User"
 msgstr "Bruger"
 
+msgid "User actions"
+msgstr "Brugerhandlinger"
+
 msgid "User detail"
 msgstr "Brugerdetalje"
 
@@ -1211,6 +1256,9 @@ msgstr "mod forrige periode"
 
 msgid "When"
 msgstr "Hvornår"
+
+msgid "With override"
+msgstr "Med tilsidesættelse"
 
 msgid "Yesterday"
 msgstr "I går"

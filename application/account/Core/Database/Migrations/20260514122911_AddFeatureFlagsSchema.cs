@@ -68,6 +68,18 @@ public sealed class AddFeatureFlagsSchema : Migration
         migrationBuilder.AddColumn<short>("rollout_bucket", "tenants", "smallint", nullable: true);
         migrationBuilder.AddColumn<short>("rollout_bucket", "users", "smallint", nullable: true);
 
+        // Stored as text rather than an enum-by-int so the JSON wire value (AlwaysOn / NeverOn) round-trips
+        // through EF's enum-to-string conversion and remains readable in raw SQL inspections.
+        migrationBuilder.AddColumn<string>("ab_inclusion_pin", "tenants", "text", nullable: true);
+        migrationBuilder.AddColumn<string>("ab_inclusion_pin", "users", "text", nullable: true);
+
+        migrationBuilder.Sql(
+            "ALTER TABLE tenants ADD CONSTRAINT ck_tenants_ab_inclusion_pin CHECK (ab_inclusion_pin IS NULL OR ab_inclusion_pin IN ('AlwaysOn', 'NeverOn'));"
+        );
+        migrationBuilder.Sql(
+            "ALTER TABLE users ADD CONSTRAINT ck_users_ab_inclusion_pin CHECK (ab_inclusion_pin IS NULL OR ab_inclusion_pin IN ('AlwaysOn', 'NeverOn'));"
+        );
+
         migrationBuilder.Sql(
             """
             CREATE OR REPLACE FUNCTION van_der_corput_bucket(seq integer) RETURNS integer AS $$

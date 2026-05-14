@@ -8,14 +8,13 @@ import { MailIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { api, FeatureFlagAudienceState, queryClient } from "@/shared/lib/api/client";
+import { api, queryClient } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/labels";
 
 import type { FeatureFlagUserInfo } from "./types";
 
 import { getUserDisplayName, getUserInitials } from "../../users/-components/userDisplay";
 import { OverrideSwitch } from "./OverrideSwitch";
-import { type StateFilter, toApiState } from "./stateFilter";
 
 const USERS_QUERY_KEY = ["get", "/api/back-office/feature-flags/{flagKey}/users"] as const;
 const SKIP_AUTO_INVALIDATE = { meta: { skipQueryInvalidation: true } };
@@ -26,8 +25,6 @@ interface UserOverrideRowProps {
   user: FeatureFlagUserInfo;
   showRolloutBucket: boolean;
   isFeatureFlagActive: boolean;
-  stateFilter: StateFilter | undefined;
-  hasOverrideFilter: boolean;
 }
 
 export function UserOverrideRow({
@@ -35,9 +32,7 @@ export function UserOverrideRow({
   featureFlagDescription,
   user,
   showRolloutBucket,
-  isFeatureFlagActive,
-  stateFilter,
-  hasOverrideFilter
+  isFeatureFlagActive
 }: Readonly<UserOverrideRowProps>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(user.isEnabled);
   const [optimisticIsOverride, setOptimisticIsOverride] = useState(user.source === "manual_override");
@@ -59,14 +54,11 @@ export function UserOverrideRow({
     setOptimisticIsOverride(user.source === "manual_override");
   }, [user.isEnabled, user.source]);
 
-  const refreshAfter = (finalEnabled: boolean, willHaveOverride: boolean) => {
-    const apiState = toApiState(stateFilter);
-    const stateFilterWillDrop =
-      (apiState === FeatureFlagAudienceState.Enabled && !finalEnabled) ||
-      (apiState === FeatureFlagAudienceState.Disabled && finalEnabled);
-    const hasOverrideFilterWillDrop = hasOverrideFilter && !willHaveOverride;
-    const delayMs = stateFilterWillDrop || hasOverrideFilterWillDrop ? 500 : 0;
-    setTimeout(() => queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY }), delayMs);
+  // Always delay invalidation by 500ms so the user sees the optimistic switch flip before the table
+  // refetches — without it, sort reordering, pagination totals, or filter drops happen instantly and
+  // make the toggle feel unresponsive.
+  const refreshAfter = () => {
+    setTimeout(() => queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY }), 500);
   };
 
   const handleRemoveOverride = () => {
@@ -77,7 +69,7 @@ export function UserOverrideRow({
       {
         onSuccess: () => {
           toast.success(t`Override removed for ${user.email}`);
-          refreshAfter(user.defaultEnabled, false);
+          refreshAfter();
         },
         onError: () => {
           setOptimisticEnabled(user.isEnabled);
@@ -102,7 +94,7 @@ export function UserOverrideRow({
               ? t`${featureFlagDescription} enabled for ${user.email}`
               : t`${featureFlagDescription} disabled for ${user.email}`
           );
-          refreshAfter(checked, true);
+          refreshAfter();
         },
         onError: () => {
           setOptimisticEnabled(user.isEnabled);
@@ -152,7 +144,10 @@ export function UserOverrideRow({
         <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
       </TableCell>
       <TableCell className="hidden lg:table-cell">
-        {user.lastSeenAt ? formatDate(user.lastSeenAt, true, true) : <span className="text-muted-foreground">-</span>}
+        {(() => {
+          const updatedAt = user.overrideDisabledAt ?? user.overrideEnabledAt;
+          return updatedAt ? formatDate(updatedAt, true, true) : <span className="text-muted-foreground">-</span>;
+        })()}
       </TableCell>
       {showRolloutBucket && (
         <TableCell className="hidden text-center text-muted-foreground lg:table-cell">

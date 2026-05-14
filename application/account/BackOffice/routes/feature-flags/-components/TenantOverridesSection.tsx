@@ -8,9 +8,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { Building2Icon } from "lucide-react";
 import { useCallback } from "react";
 
-import type { SubscriptionPlan } from "@/shared/lib/api/client";
+import type { SortOrder, SubscriptionPlan } from "@/shared/lib/api/client";
 
-import { api } from "@/shared/lib/api/client";
+import { api, SortableFeatureFlagTenantProperties } from "@/shared/lib/api/client";
 
 import type { StateFilter } from "./stateFilter";
 
@@ -28,6 +28,8 @@ interface TenantOverridesSectionProps {
   state: StateFilter | undefined;
   hasOverride: boolean;
   pageOffset: number | undefined;
+  orderBy: SortableFeatureFlagTenantProperties | undefined;
+  sortOrder: SortOrder | undefined;
 }
 
 export function TenantOverridesSection({
@@ -39,9 +41,18 @@ export function TenantOverridesSection({
   plans,
   state,
   hasOverride,
-  pageOffset
+  pageOffset,
+  orderBy,
+  sortOrder
 }: Readonly<TenantOverridesSectionProps>) {
   const navigate = useNavigate();
+
+  // A/B-eligible flags default to "Included at" ascending so admins see who joins the rollout first;
+  // non-A/B flags fall back to alphabetical Name ascending.
+  const defaultOrderBy = showRolloutBucket
+    ? SortableFeatureFlagTenantProperties.InclusionThresholdPercentage
+    : SortableFeatureFlagTenantProperties.Name;
+  const effectiveOrderBy = orderBy ?? defaultOrderBy;
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -54,7 +65,9 @@ export function TenantOverridesSection({
           Plans: plans.length === 0 ? undefined : plans,
           State: toApiState(state),
           HasOverride: hasOverride ? true : undefined,
-          PageOffset: pageOffset
+          PageOffset: pageOffset,
+          OrderBy: effectiveOrderBy,
+          SortOrder: sortOrder
         }
       }
     },
@@ -122,8 +135,9 @@ export function TenantOverridesSection({
             featureFlagDescription={featureFlagDescription}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
-            stateFilter={state}
-            hasOverrideFilter={hasOverride}
+            orderBy={orderBy}
+            sortOrder={sortOrder}
+            defaultOrderBy={defaultOrderBy}
           />
           {totalPages > 1 && (
             <TablePagination

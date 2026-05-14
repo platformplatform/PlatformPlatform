@@ -45,6 +45,15 @@ public static class RolloutBucketHasher
         return (bucket - start + 100) % 100 + 1;
     }
 
+    // How many buckets are covered by a [start, end] rollout range, handling the wrap-around case
+    // (e.g., start=45, end=0 covers buckets 45..99 + 0 = 56). Both endpoints are inclusive. Returns
+    // null when either endpoint is null (no rollout configured, i.e., 0%).
+    public static int? ComputeRolloutPercentage(int? bucketStart, int? bucketEnd)
+    {
+        if (bucketStart is null || bucketEnd is null) return null;
+        return (bucketEnd.Value - bucketStart.Value + 100) % 100 + 1;
+    }
+
     private static double VanDerCorput(int n)
     {
         double result = 0;

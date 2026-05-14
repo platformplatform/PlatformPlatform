@@ -6,7 +6,15 @@ namespace Account.Features.FeatureFlags.Shared;
 
 public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository)
 {
-    public async Task<IReadOnlyList<string>> EvaluateAsync(TenantId tenantId, UserId userId, int tenantRolloutBucket, int? userRolloutBucket, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<string>> EvaluateAsync(
+        TenantId tenantId,
+        UserId userId,
+        int tenantRolloutBucket,
+        int? userRolloutBucket,
+        AbInclusionPin? tenantAbInclusionPin,
+        AbInclusionPin? userAbInclusionPin,
+        CancellationToken cancellationToken
+    )
     {
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
         var enabledFeatureFlags = new List<string>();
@@ -31,8 +39,8 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
 
             var isEnabled = definition.Scope switch
             {
-                FeatureFlagScope.Tenant => EvaluateTenantScope(definition, baseRow, allRows, tenantId, tenantRolloutBucket),
-                FeatureFlagScope.User => EvaluateUserScope(definition, baseRow, allRows, tenantId, userId, userRolloutBucket),
+                FeatureFlagScope.Tenant => EvaluateTenantScope(definition, baseRow, allRows, tenantId, tenantRolloutBucket, tenantAbInclusionPin),
+                FeatureFlagScope.User => EvaluateUserScope(definition, baseRow, allRows, tenantId, userId, userRolloutBucket, userAbInclusionPin),
                 _ => false
             };
 
@@ -45,7 +53,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         return enabledFeatureFlags;
     }
 
-    private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, int tenantRolloutBucket)
+    private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, int tenantRolloutBucket, AbInclusionPin? tenantAbInclusionPin)
     {
         var tenantOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId is null);
         if (tenantOverride is not null)
@@ -53,15 +61,24 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
             return tenantOverride.IsActive;
         }
 
-        if (definition.IsAbTestEligible && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
-        {
-            return RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-        }
+        if (!definition.IsAbTestEligible) return false;
 
-        return false;
+        if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
+
+        // Pin precedence: manual override (above) > pin-as-synthetic-bucket > regular bucket. Pins make
+        // the entity behave as if its bucket were the first (AlwaysOn -> threshold 1%) or last
+        // (NeverOn -> threshold 100%) in the rollout sequence, so 0% rollout still excludes everyone.
+        var effectiveBucket = tenantAbInclusionPin switch
+        {
+            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            _ => tenantRolloutBucket
+        };
+
+        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
-    private static bool EvaluateUserScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, UserId userId, int? userRolloutBucket)
+    private static bool EvaluateUserScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, UserId userId, int? userRolloutBucket, AbInclusionPin? userAbInclusionPin)
     {
         var userOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId == userId);
         if (userOverride is not null)
@@ -69,12 +86,19 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
             return userOverride.IsActive;
         }
 
-        if (definition.IsAbTestEligible && userRolloutBucket is not null && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
-        {
-            return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-        }
+        if (!definition.IsAbTestEligible) return false;
 
-        return false;
+        if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
+        if (userRolloutBucket is null) return false;
+
+        var effectiveBucket = userAbInclusionPin switch
+        {
+            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
+            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            _ => userRolloutBucket.Value
+        };
+
+        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
     private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] definitions)

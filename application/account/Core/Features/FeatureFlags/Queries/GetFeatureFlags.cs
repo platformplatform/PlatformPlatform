@@ -94,17 +94,6 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
 
     private static int? ComputeRolloutPercentage(int? rolloutBucketStart, int? rolloutBucketEnd)
     {
-        if (rolloutBucketStart is null || rolloutBucketEnd is null) return null;
-
-        // 100% rollout uses reserved range 0-100
-        if (rolloutBucketStart == 0 && rolloutBucketEnd == 100) return 100;
-
-        if (rolloutBucketStart <= rolloutBucketEnd)
-        {
-            return rolloutBucketEnd.Value - rolloutBucketStart.Value + 1;
-        }
-
-        // Wrap-around case within 1-99 range
-        return 99 - rolloutBucketStart.Value + 1 + rolloutBucketEnd.Value;
+        return RolloutBucketHasher.ComputeRolloutPercentage(rolloutBucketStart, rolloutBucketEnd);
     }
 }

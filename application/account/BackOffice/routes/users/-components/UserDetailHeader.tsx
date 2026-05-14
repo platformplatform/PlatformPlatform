@@ -7,6 +7,8 @@ import { CalendarIcon, CheckCircle2Icon, HashIcon, MailIcon, XCircleIcon } from 
 
 import type { components } from "@/shared/lib/api/client";
 
+import { AbInclusionPinBadge } from "../../-shared/AbInclusionPinBadge";
+import { UserActionsMenu } from "./UserActionsMenu";
 import { getUserDisplayName, getUserInitials } from "./userDisplay";
 
 type BackOfficeUserDetailResponse = components["schemas"]["BackOfficeUserDetailResponse"];
@@ -60,6 +62,7 @@ export function UserDetailHeader({ user, userId, isLoading }: Readonly<UserDetai
                   </span>
                 </Badge>
               )}
+              <AbInclusionPinBadge pin={user.abInclusionPin} />
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
@@ -79,6 +82,11 @@ export function UserDetailHeader({ user, userId, isLoading }: Readonly<UserDetai
               </span>
             </div>
           </div>
+          <UserActionsMenu
+            userId={userId}
+            userLabel={getUserDisplayName(user.firstName, user.lastName, user.email)}
+            abInclusionPin={user.abInclusionPin}
+          />
         </>
       )}
     </div>

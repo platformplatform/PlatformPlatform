@@ -10,7 +10,15 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
-import { api, FeatureFlagAudienceState, SubscriptionPlan, UserRole } from "@/shared/lib/api/client";
+import {
+  api,
+  FeatureFlagAudienceState,
+  SortableFeatureFlagTenantProperties,
+  SortableFeatureFlagUserProperties,
+  SortOrder,
+  SubscriptionPlan,
+  UserRole
+} from "@/shared/lib/api/client";
 
 import type { GetFeatureFlagsResponse } from "./-components/types";
 
@@ -35,11 +43,15 @@ const flagKeySearchSchema = z.object({
   tenantsState: stateFilterSchema.optional(),
   tenantsHasOverride: z.boolean().optional(),
   tenantsPageOffset: z.number().int().nonnegative().optional(),
+  tenantsOrderBy: z.nativeEnum(SortableFeatureFlagTenantProperties).optional(),
+  tenantsSortOrder: z.nativeEnum(SortOrder).optional(),
   usersSearch: z.string().optional(),
   usersRoles: z.array(z.nativeEnum(UserRole)).max(10).optional(),
   usersState: stateFilterSchema.optional(),
   usersHasOverride: z.boolean().optional(),
-  usersPageOffset: z.number().int().nonnegative().optional()
+  usersPageOffset: z.number().int().nonnegative().optional(),
+  usersOrderBy: z.nativeEnum(SortableFeatureFlagUserProperties).optional(),
+  usersSortOrder: z.nativeEnum(SortOrder).optional()
 });
 
 export const Route = createFileRoute("/feature-flags/$flagKey")({
@@ -56,11 +68,15 @@ export default function FeatureFlagDetailPage() {
     tenantsState,
     tenantsHasOverride,
     tenantsPageOffset,
+    tenantsOrderBy,
+    tenantsSortOrder,
     usersSearch,
     usersRoles,
     usersState,
     usersHasOverride,
-    usersPageOffset
+    usersPageOffset,
+    usersOrderBy,
+    usersSortOrder
   } = Route.useSearch();
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -150,6 +166,8 @@ export default function FeatureFlagDetailPage() {
                   state={tenantsState}
                   hasOverride={tenantsHasOverride ?? false}
                   pageOffset={tenantsPageOffset}
+                  orderBy={tenantsOrderBy}
+                  sortOrder={tenantsSortOrder}
                 />
               )}
               {!isDeleted && featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
@@ -172,6 +190,8 @@ export default function FeatureFlagDetailPage() {
                   state={usersState}
                   hasOverride={usersHasOverride ?? false}
                   pageOffset={usersPageOffset}
+                  orderBy={usersOrderBy}
+                  sortOrder={usersSortOrder}
                 />
               )}
             </div>

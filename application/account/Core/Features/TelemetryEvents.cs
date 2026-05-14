@@ -6,6 +6,7 @@ using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features;
@@ -238,6 +239,9 @@ public sealed class SubscriptionUpgraded(
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
+public sealed class TenantAbInclusionPinUpdated(TenantId tenantId, AbInclusionPin? abInclusionPin)
+    : TelemetryEvent(("tenant_id", tenantId), ("ab_inclusion_pin", abInclusionPin as object ?? "none"));
+
 public sealed class TenantBillingDriftAcknowledged(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
@@ -264,6 +268,9 @@ public sealed class TenantSwitched(TenantId fromTenantId, TenantId toTenantId, U
 
 public sealed class TenantUpdated
     : TelemetryEvent;
+
+public sealed class UserAbInclusionPinUpdated(UserId userId, AbInclusionPin? abInclusionPin)
+    : TelemetryEvent(("user_id", userId), ("ab_inclusion_pin", abInclusionPin as object ?? "none"));
 
 public sealed class UserAvatarRemoved
     : TelemetryEvent;

@@ -41,6 +41,12 @@ msgstr "{count, plural, one {# account has not been synced yet — MRR trend is 
 msgid "{diffDays, plural, one {# day ago} other {# days ago}}"
 msgstr "{diffDays, plural, one {# day ago} other {# days ago}}"
 
+msgid "{entityLabel} is now first in feature flag rollouts"
+msgstr "{entityLabel} is now first in feature flag rollouts"
+
+msgid "{entityLabel} is now last in feature flag rollouts"
+msgstr "{entityLabel} is now last in feature flag rollouts"
+
 #. placeholder {0}: tenant.name
 #. placeholder {0}: user.email
 msgid "{featureFlagDescription} disabled for {0}"
@@ -263,6 +269,9 @@ msgstr "Change theme"
 msgid "Change zoom level"
 msgstr "Change zoom level"
 
+msgid "Choose how {entityLabel} participates in feature flag rollouts. Per-flag manual overrides still take precedence over this setting."
+msgstr "Choose how {entityLabel} participates in feature flag rollouts. Per-flag manual overrides still take precedence over this setting."
+
 msgid "Clear filter"
 msgstr "Clear filter"
 
@@ -424,11 +433,20 @@ msgstr "Feature flag deactivated"
 msgid "Feature flag deleted: {flagName}"
 msgstr "Feature flag deleted: {flagName}"
 
+msgid "Feature flag rollouts"
+msgstr "Feature flag rollouts"
+
+msgid "Feature flag rollouts reset to default for {entityLabel}"
+msgstr "Feature flag rollouts reset to default for {entityLabel}"
+
 msgid "Feature flags"
 msgstr "Feature flags"
 
 msgid "Feature flags are defined in code. This view controls their activation and rollout."
 msgstr "Feature flags are defined in code. This view controls their activation and rollout."
+
+msgid "First in feature flag rollouts"
+msgstr "First in feature flag rollouts"
 
 msgid "Free"
 msgstr "Free"
@@ -456,6 +474,15 @@ msgstr "Inactive"
 
 msgid "Included at"
 msgstr "Included at"
+
+msgid "Included at 1% — the first to receive any feature flag rollout."
+msgstr "Included at 1% — the first to receive any feature flag rollout."
+
+msgid "Included at 100% — the last to receive any feature flag rollout."
+msgstr "Included at 100% — the last to receive any feature flag rollout."
+
+msgid "Included in feature flag rollouts based on the assigned rollout bucket."
+msgstr "Included in feature flag rollouts based on the assigned rollout bucket."
 
 msgid "Invoice"
 msgstr "Invoice"
@@ -489,6 +516,12 @@ msgstr "Last {periodDays} days"
 
 msgid "Last 24 hours"
 msgstr "Last 24 hours"
+
+msgid "Last changed"
+msgstr "Last changed"
+
+msgid "Last in feature flag rollouts"
+msgstr "Last in feature flag rollouts"
 
 msgid "Last invoice"
 msgstr "Last invoice"
@@ -963,6 +996,12 @@ msgstr "Rollout percentage updated"
 msgid "Run disaster recovery"
 msgstr "Run disaster recovery"
 
+msgid "Save changes"
+msgstr "Save changes"
+
+msgid "Saving..."
+msgstr "Saving..."
+
 msgid "Scheduled plan change"
 msgstr "Scheduled plan change"
 
@@ -1077,6 +1116,9 @@ msgstr "The page you are looking for does not exist or was moved."
 msgid "Theme"
 msgstr "Theme"
 
+msgid "This account"
+msgstr "This account"
+
 msgid "This account has no users."
 msgstr "This account has no users."
 
@@ -1155,6 +1197,9 @@ msgstr "Upgraded"
 msgid "User"
 msgstr "User"
 
+msgid "User actions"
+msgstr "User actions"
+
 msgid "User detail"
 msgstr "User detail"
 
@@ -1211,6 +1256,9 @@ msgstr "vs prior period"
 
 msgid "When"
 msgstr "When"
+
+msgid "With override"
+msgstr "With override"
 
 msgid "Yesterday"
 msgstr "Yesterday"

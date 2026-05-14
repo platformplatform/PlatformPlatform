@@ -20,7 +20,7 @@ export function PlanFeatureFlagTenantTable({
   tenants
 }: Readonly<{ ariaLabel: string; tenants: FeatureFlagTenantInfo[] }>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
+    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed" containerClassName="overflow-x-clip">
       <TableHeader>
         <TableRow>
           <TableHead>

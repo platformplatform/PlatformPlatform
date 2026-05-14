@@ -12,6 +12,7 @@ import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo } from "./types";
 
+import { FeatureFlagAudienceStats } from "./FeatureFlagAudienceStats";
 import { formatRolloutBucketRange } from "./rolloutBucket";
 
 interface FeatureFlagInfoSectionProps {
@@ -57,10 +58,11 @@ export function FeatureFlagInfoSection({
   };
 
   const showToggle = orphanedAt === null && !featureFlag.isStableModule;
+  const isFlagAudienceVisible = orphanedAt === null && featureFlag.scope !== "System";
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="flex items-start justify-between gap-4">
         <FeatureFlagMetadata featureFlag={featureFlag} />
         <div className="flex shrink-0 items-end gap-6">
           {showToggle && featureFlag.isAbTestEligible && (
@@ -91,6 +93,13 @@ export function FeatureFlagInfoSection({
           ) : null}
         </div>
       </div>
+      {isFlagAudienceVisible && (
+        <FeatureFlagAudienceStats
+          flagKey={featureFlag.key}
+          scope={featureFlag.scope}
+          showOverride={featureFlag.isAbTestEligible}
+        />
+      )}
       {featureFlag.isStableModule && orphanedAt === null && (
         <p className="text-sm text-muted-foreground">
           <Trans>This is a stable module. It is always on and cannot be deactivated.</Trans>

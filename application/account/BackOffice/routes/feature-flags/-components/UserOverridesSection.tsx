@@ -8,9 +8,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { UsersIcon } from "lucide-react";
 import { useCallback } from "react";
 
-import type { UserRole } from "@/shared/lib/api/client";
+import type { SortOrder, UserRole } from "@/shared/lib/api/client";
 
-import { api } from "@/shared/lib/api/client";
+import { api, SortableFeatureFlagUserProperties } from "@/shared/lib/api/client";
 
 import type { StateFilter } from "./stateFilter";
 
@@ -28,6 +28,8 @@ interface UserOverridesSectionProps {
   state: StateFilter | undefined;
   hasOverride: boolean;
   pageOffset: number | undefined;
+  orderBy: SortableFeatureFlagUserProperties | undefined;
+  sortOrder: SortOrder | undefined;
 }
 
 export function UserOverridesSection({
@@ -39,9 +41,16 @@ export function UserOverridesSection({
   roles,
   state,
   hasOverride,
-  pageOffset
+  pageOffset,
+  orderBy,
+  sortOrder
 }: Readonly<UserOverridesSectionProps>) {
   const navigate = useNavigate();
+
+  const defaultOrderBy = showRolloutBucket
+    ? SortableFeatureFlagUserProperties.InclusionThresholdPercentage
+    : SortableFeatureFlagUserProperties.Name;
+  const effectiveOrderBy = orderBy ?? defaultOrderBy;
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -54,7 +63,9 @@ export function UserOverridesSection({
           Roles: roles.length === 0 ? undefined : roles,
           State: toApiState(state),
           HasOverride: hasOverride ? true : undefined,
-          PageOffset: pageOffset
+          PageOffset: pageOffset,
+          OrderBy: effectiveOrderBy,
+          SortOrder: sortOrder
         }
       }
     },
@@ -122,8 +133,9 @@ export function UserOverridesSection({
             featureFlagDescription={featureFlagDescription}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
-            stateFilter={state}
-            hasOverrideFilter={hasOverride}
+            orderBy={orderBy}
+            sortOrder={sortOrder}
+            defaultOrderBy={defaultOrderBy}
           />
           {totalPages > 1 && (
             <TablePagination

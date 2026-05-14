@@ -28,6 +28,8 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 
     public int RolloutBucket { get; private set; }
 
+    public AbInclusionPin? AbInclusionPin { get; private set; }
+
     public static Tenant Create(string email, int existingCount)
     {
         var tenant = new Tenant(RolloutBucketHasher.ComputeRolloutBucket(existingCount));
@@ -67,6 +69,11 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     public void UpdatePlan(SubscriptionPlan plan)
     {
         Plan = plan;
+    }
+
+    public void SetAbInclusionPin(AbInclusionPin? abInclusionPin)
+    {
+        AbInclusionPin = abInclusionPin;
     }
 }
 

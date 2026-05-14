@@ -5,6 +5,7 @@ using Account.Features.Users.Domain;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Users.BackOffice.Queries;
 
@@ -27,7 +28,8 @@ public sealed record BackOfficeUserDetailResponse(
     DateTimeOffset? ModifiedAt,
     DateTimeOffset? LastSeenAt,
     string? AvatarUrl,
-    BackOfficeUserTenantMembership[] TenantMemberships
+    BackOfficeUserTenantMembership[] TenantMemberships,
+    AbInclusionPin? AbInclusionPin
 );
 
 // A "tenant membership" is another user record sharing the same email in a different tenant. Each row in the back-office
@@ -126,7 +128,8 @@ public sealed class GetBackOfficeUserDetailHandler(
             user.ModifiedAt,
             user.LastSeenAt,
             user.Avatar.Url,
-            memberships
+            memberships,
+            user.AbInclusionPin
         );
     }
 }
