@@ -45,6 +45,7 @@ export function AccountSideMenu() {
   const currentPath = normalizePath(router.state.location.pathname);
   const { navigateToMain } = useMainNavigation();
   const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
+  const { enabled: isAccountOverviewEnabled } = useFeatureFlag("account-overview");
 
   const isActive = (target: string, matchPrefix = false) => {
     const normalized = normalizePath(target);
@@ -110,16 +111,18 @@ export function AccountSideMenu() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild={true} isActive={isActive("/account")} tooltip={t`Overview`}>
-                    <RouterLink to="/account">
-                      <HomeIcon />
-                      <span>
-                        <Trans>Overview</Trans>
-                      </span>
-                    </RouterLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {isAccountOverviewEnabled && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isActive("/account")} tooltip={t`Overview`}>
+                      <RouterLink to="/account">
+                        <HomeIcon />
+                        <span>
+                          <Trans>Overview</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild={true} isActive={isActive("/account/settings")} tooltip={t`Settings`}>
                     <RouterLink to="/account/settings">

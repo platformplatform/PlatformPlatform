@@ -23,6 +23,9 @@ msgstr "{diffDays, plural, one {Om # dag} other {Om # dage}}"
 msgid "A/B rollout"
 msgstr "A/B-udrulning"
 
+msgid "Account overview page"
+msgstr "Kontooversigtsside"
+
 msgid "Allow users to authenticate using enterprise identity providers"
 msgstr "Tillad brugere at logge ind via virksomhedsidentitetsudbydere"
 
@@ -139,6 +142,9 @@ msgstr "Vælg tidszone"
 
 msgid "Show more"
 msgstr "Vis flere"
+
+msgid "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list."
+msgstr "Vis kontooversigten med brugerstatistik på /account. Når deaktiveret, sendes loggede brugere direkte til brugerlisten."
 
 msgid "Sign in with Google using OpenID Connect"
 msgstr "Log ind med Google via OpenID Connect"

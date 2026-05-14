@@ -43,6 +43,12 @@ public static class FeatureFlags
         "Customize the login page with your organization's logo and colors"
     );
 
+    public static readonly FeatureFlagDefinition AccountOverview = new TenantOwnerConfigurableFlag(
+        "account-overview",
+        "Account overview page",
+        "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list."
+    );
+
     public static readonly FeatureFlagDefinition CompactView = new UserConfigurableFlag(
         "compact-view",
         "Compact view",
@@ -57,7 +63,7 @@ public static class FeatureFlags
         isKillSwitchEnabled: true
     );
 
-    private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
+    private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, AccountOverview, CompactView, ExperimentalUi];
 
     private static readonly Regex FeatureFlagKeyPattern =
         new("^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);

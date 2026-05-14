@@ -4,7 +4,6 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
-import { Skeleton } from "@repo/ui/components/Skeleton";
 import { getFeatureFlagDescription, getFeatureFlagName } from "@repo/ui/featureFlags/labels";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
@@ -18,6 +17,7 @@ import type { GetFeatureFlagsResponse } from "./-components/types";
 
 import { DeletedFeatureFlagBadge } from "./-components/DeletedFeatureFlagBadge";
 import { DeleteFeatureFlagDialog } from "./-components/DeleteFeatureFlagDialog";
+import { FeatureFlagDetailSkeleton } from "./-components/FeatureFlagDetailSkeleton";
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
 import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
 import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
@@ -205,19 +205,5 @@ export default function FeatureFlagDetailPage() {
         />
       )}
     </SidebarProvider>
-  );
-}
-
-function FeatureFlagDetailSkeleton() {
-  return (
-    <div className="flex flex-col gap-8">
-      <Skeleton className="h-20 w-full rounded-lg" />
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-10 w-full rounded-md" />
-        <Skeleton className="h-14 w-full rounded-md" />
-        <Skeleton className="h-14 w-full rounded-md" />
-      </div>
-    </div>
   );
 }
