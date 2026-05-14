@@ -30,6 +30,7 @@ public sealed record FeatureFlagInfo(
     int? RolloutPercentage,
     bool IsActive,
     bool IsKillSwitchEnabled,
+    bool IsStableModule,
     DateTimeOffset? OrphanedAt,
     DateTimeOffset? DeletedAt
 );
@@ -51,7 +52,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     return new FeatureFlagInfo(
                         definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                         definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                        null, null, null, null, null, null, isSystemFeatureFlagActive, definition.IsKillSwitchEnabled, null, null
+                        null, null, null, null, null, null, isSystemFeatureFlagActive, definition.IsKillSwitchEnabled, definition.IsStableModule, null, null
                     );
                 }
 
@@ -68,7 +69,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                 return new FeatureFlagInfo(
                     definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                     definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive, definition.IsKillSwitchEnabled, baseRow?.OrphanedAt, baseRow?.DeletedAt
+                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive, definition.IsKillSwitchEnabled, definition.IsStableModule, baseRow?.OrphanedAt, baseRow?.DeletedAt
                 );
             }
         );
@@ -84,7 +85,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     row.FlagKey, row.Scope, FeatureFlagAdminLevel.SystemAdmin, string.Empty,
                     false, false, false, null,
                     row.CreatedAt, row.EnabledAt, row.DisabledAt, row.BucketStart, row.BucketEnd,
-                    ComputeRolloutPercentage(row.BucketStart, row.BucketEnd), row.IsActive, false, row.OrphanedAt, row.DeletedAt
+                    ComputeRolloutPercentage(row.BucketStart, row.BucketEnd), row.IsActive, false, false, row.OrphanedAt, row.DeletedAt
                 )
             );
 

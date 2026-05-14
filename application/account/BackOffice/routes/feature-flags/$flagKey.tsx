@@ -1,12 +1,11 @@
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { getFeatureFlagDescription, getFeatureFlagName } from "@repo/ui/featureFlags/labels";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -15,13 +14,11 @@ import { api, FeatureFlagAudienceState, SubscriptionPlan, UserRole } from "@/sha
 
 import type { GetFeatureFlagsResponse } from "./-components/types";
 
-import { DeletedFeatureFlagBadge } from "./-components/DeletedFeatureFlagBadge";
 import { DeleteFeatureFlagDialog } from "./-components/DeleteFeatureFlagDialog";
 import { FeatureFlagDetailSkeleton } from "./-components/FeatureFlagDetailSkeleton";
+import { FeatureFlagDetailTitle } from "./-components/FeatureFlagDetailTitle";
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
-import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
 import { PlanFeatureFlagInfoSection, PlanFeatureFlagTenantsSection } from "./-components/PlanFeatureFlagSections";
-import { ScopeIcon } from "./-components/ScopeIcon";
 import { ALL_STATE_FILTER } from "./-components/stateFilter";
 import { TenantOverridesSection } from "./-components/TenantOverridesSection";
 import { UserOverridesSection } from "./-components/UserOverridesSection";
@@ -100,19 +97,7 @@ export default function FeatureFlagDetailPage() {
           variant="center"
           maxWidth="64rem"
           browserTitle={featureFlagName}
-          title={
-            <div className="flex flex-wrap items-center gap-3">
-              <Link to="/feature-flags" className="text-muted-foreground hover:text-foreground">
-                <ArrowLeftIcon className="size-5" aria-label={t`Back to feature flags`} />
-              </Link>
-              {featureFlag && <ScopeIcon scope={featureFlag.scope} className="size-6 stroke-[2.5] text-foreground" />}
-              <span>{featureFlagName}</span>
-              {isOrphaned && featureFlag?.orphanedAt && (
-                <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />
-              )}
-              {isDeleted && featureFlag?.deletedAt && <DeletedFeatureFlagBadge deletedAt={featureFlag.deletedAt} />}
-            </div>
-          }
+          title={<FeatureFlagDetailTitle featureFlag={featureFlag} featureFlagName={featureFlagName} />}
           subtitle={featureFlag ? description : undefined}
         >
           {isLoading ? (

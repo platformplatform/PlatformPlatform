@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { GlobeIcon, UserIcon, UsersIcon } from "lucide-react";
+import { FlaskConicalIcon, GlobeIcon, UserIcon, UsersIcon } from "lucide-react";
 
 import type { FeatureFlagScope } from "./types";
 
@@ -10,10 +10,13 @@ const scopeConfig: Record<FeatureFlagScope, { icon: typeof UsersIcon; label: () 
   System: { icon: GlobeIcon, label: () => t`System` }
 };
 
-export function ScopeIcon({ scope, className }: Readonly<{ scope: FeatureFlagScope; className?: string }>) {
-  const config = scopeConfig[scope];
-  const Icon = config.icon;
-  const label = config.label();
+export function ScopeIcon({
+  scope,
+  isAbTestEligible,
+  className
+}: Readonly<{ scope: FeatureFlagScope; isAbTestEligible?: boolean; className?: string }>) {
+  const Icon = isAbTestEligible ? FlaskConicalIcon : scopeConfig[scope].icon;
+  const label = isAbTestEligible ? t`A/B test` : scopeConfig[scope].label();
   return (
     <Tooltip>
       <TooltipTrigger>

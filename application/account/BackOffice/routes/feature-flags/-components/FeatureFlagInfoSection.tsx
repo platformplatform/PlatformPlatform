@@ -46,7 +46,7 @@ export function FeatureFlagInfoSection({
     );
   };
 
-  const showToggle = orphanedAt === null;
+  const showToggle = orphanedAt === null && !featureFlag.isStableModule;
 
   return (
     <div className="flex flex-col gap-4">
@@ -84,10 +84,15 @@ export function FeatureFlagInfoSection({
           </div>
         ) : (
           <Badge variant={featureFlag.isActive ? "default" : "outline"} className="shrink-0">
-            {featureFlag.isActive ? t`Active` : t`Inactive`}
+            {featureFlag.isStableModule ? t`Always on` : featureFlag.isActive ? t`Active` : t`Inactive`}
           </Badge>
         )}
       </div>
+      {featureFlag.isStableModule && orphanedAt === null && (
+        <p className="text-sm text-muted-foreground">
+          <Trans>This is a stable module. It is always on and cannot be deactivated.</Trans>
+        </p>
+      )}
     </div>
   );
 }

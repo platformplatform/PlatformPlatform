@@ -103,6 +103,9 @@ msgstr "7d"
 msgid "90d"
 msgstr "90d"
 
+msgid "A/B test"
+msgstr "A/B-test"
+
 msgid "Account"
 msgstr "Konto"
 
@@ -179,6 +182,9 @@ msgstr "Samlet"
 
 msgid "All-time, excluding VAT"
 msgstr "Hele perioden, eksklusiv moms"
+
+msgid "Always on"
+msgstr "Altid aktiveret"
 
 msgid "Amount"
 msgstr "Beløb"
@@ -1114,6 +1120,9 @@ msgstr "Dette flag findes ikke længere i FeatureFlags.cs pr. {formatted}. Konto
 
 msgid "This flag was deleted on {formatted}. The row is retained for historical telemetry; account and user overrides have been removed. If the flag is re-added in code, the same row will be restored."
 msgstr "Dette flag blev slettet den {formatted}. Rækken bevares til historisk telemetri; konto- og brugertilsidesættelser er fjernet. Hvis flaget tilføjes igen i koden, gendannes den samme række."
+
+msgid "This is a stable module. It is always on and cannot be deactivated."
+msgstr "Dette er et stabilt modul. Det er altid aktiveret og kan ikke slås fra."
 
 msgid "this period"
 msgstr "denne periode"

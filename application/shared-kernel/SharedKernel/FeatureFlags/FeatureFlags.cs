@@ -40,7 +40,8 @@ public static class FeatureFlags
     public static readonly FeatureFlagDefinition CustomBranding = new TenantOwnerConfigurableFlag(
         "custom-branding",
         "Custom branding",
-        "Customize the login page with your organization's logo and colors"
+        "Customize the login page with your organization's logo and colors",
+        isStableModule: true
     );
 
     public static readonly FeatureFlagDefinition AccountOverview = new TenantOwnerConfigurableFlag(

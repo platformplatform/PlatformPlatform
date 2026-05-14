@@ -112,16 +112,16 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                     <Trans>Name</Trans>
                   </TableHead>
                   {isPlanGroup && (
-                    <TableHead className="hidden w-[8rem] sm:table-cell">
+                    <TableHead className="hidden w-[7rem] text-center sm:table-cell">
                       <Trans>Required plan</Trans>
                     </TableHead>
                   )}
                   {showRollout && (
-                    <TableHead className="hidden w-[5rem] sm:table-cell">
+                    <TableHead className="hidden w-[7rem] text-center sm:table-cell">
                       <Trans>Rollout</Trans>
                     </TableHead>
                   )}
-                  <TableHead className="hidden w-[6rem] text-right sm:table-cell">
+                  <TableHead className="hidden w-[7rem] text-center sm:table-cell">
                     <Trans>Status</Trans>
                   </TableHead>
                 </TableRow>
@@ -140,35 +140,35 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                     <TableCell>
                       <div className="flex min-w-0 flex-col">
                         <span className="flex items-center gap-2 font-medium">
-                          <ScopeIcon scope={featureFlag.scope} />
+                          <ScopeIcon scope={featureFlag.scope} isAbTestEligible={featureFlag.isAbTestEligible} />
                           {getFeatureFlagName(featureFlag.key)}
                           {featureFlag.orphanedAt && featureFlag.deletedAt == null && (
                             <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />
                           )}
                           {featureFlag.deletedAt && <DeletedFeatureFlagBadge deletedAt={featureFlag.deletedAt} />}
                         </span>
-                        <span className="hidden truncate text-sm text-muted-foreground sm:block">
+                        <span className="hidden max-w-[40rem] truncate text-sm text-muted-foreground sm:block">
                           {getFeatureFlagDescription(featureFlag.key) || featureFlag.description}
                         </span>
                       </div>
                     </TableCell>
                     {isPlanGroup && (
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="hidden text-center sm:table-cell">
                         <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
                       </TableCell>
                     )}
                     {showRollout && (
-                      <TableCell className="hidden sm:table-cell">
-                        {featureFlag.rolloutPercentage !== null ? (
-                          `${featureFlag.rolloutPercentage}%`
-                        ) : (
-                          <span className="text-muted-foreground">--</span>
+                      <TableCell className="hidden text-center sm:table-cell">
+                        {featureFlag.isAbTestEligible && (
+                          <span className={featureFlag.isActive ? undefined : "text-muted-foreground"}>
+                            {featureFlag.rolloutPercentage ?? 0}%
+                          </span>
                         )}
                       </TableCell>
                     )}
-                    <TableCell className="hidden text-right sm:table-cell">
+                    <TableCell className="hidden text-center sm:table-cell">
                       <Badge variant={featureFlag.isActive ? "default" : "outline"}>
-                        {featureFlag.isActive ? t`Active` : t`Inactive`}
+                        {featureFlag.isStableModule ? t`Always on` : featureFlag.isActive ? t`Active` : t`Inactive`}
                       </Badge>
                     </TableCell>
                   </TableRow>

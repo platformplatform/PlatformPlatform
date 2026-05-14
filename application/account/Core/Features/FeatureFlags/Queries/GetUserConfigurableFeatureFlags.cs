@@ -28,9 +28,13 @@ public sealed class GetUserConfigurableFeatureFlagsHandler(IFeatureFlagRepositor
             .ToArray();
 
         var allRows = await featureFlagRepository.GetUserScopedRowsAsync(tenantId, userId, cancellationToken);
+        var baseRows = allRows.Where(r => r.TenantId is null && r.UserId is null).ToDictionary(r => r.FlagKey);
         var userOverrides = allRows.Where(r => r.TenantId == tenantId && r.UserId == userId).ToDictionary(r => r.FlagKey);
 
+        // Hide flags an admin has globally deactivated via the BackOffice kill switch. The user-facing
+        // toggle would otherwise let a user flip a row whose evaluation is short-circuited at the base.
         var flags = configurableDefinitions
+            .Where(definition => baseRows.TryGetValue(definition.Key, out var baseRow) && baseRow.IsActive)
             .Select(definition =>
                 {
                     userOverrides.TryGetValue(definition.Key, out var userOverride);

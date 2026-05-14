@@ -80,6 +80,13 @@ public abstract class FeatureFlagDefinition(string key, string label, string des
     /// </summary>
     public virtual bool IsKillSwitchEnabled => false;
 
+    /// <summary>
+    ///     True = the flag represents a stable module that is always on; the BackOffice hides the
+    ///     Activate/Deactivate toggle so admins can't accidentally kill it. False = a regular feature
+    ///     flag that admins can globally deactivate.
+    /// </summary>
+    public virtual bool IsStableModule => false;
+
     public bool IsSystemFeatureFlagEnabled(IConfiguration configuration)
     {
         if (Scope != FeatureFlagScope.System || SystemConfigKey is null) return false;
@@ -168,7 +175,8 @@ public sealed class TenantOwnerConfigurableFlag(
     string key,
     string label,
     string description,
-    bool isKillSwitchEnabled = false
+    bool isKillSwitchEnabled = false,
+    bool isStableModule = false
 ) : FeatureFlagDefinition(key, label, description)
 {
     public override FeatureFlagScope Scope => FeatureFlagScope.Tenant;
@@ -178,6 +186,8 @@ public sealed class TenantOwnerConfigurableFlag(
     public override bool ConfigurableByTenant => true;
 
     public override bool IsKillSwitchEnabled => isKillSwitchEnabled;
+
+    public override bool IsStableModule => isStableModule;
 }
 
 // User scope, user-toggled. Individual users flip these on/off in their preferences.
@@ -186,7 +196,8 @@ public sealed class UserConfigurableFlag(
     string key,
     string label,
     string description,
-    bool isKillSwitchEnabled = false
+    bool isKillSwitchEnabled = false,
+    bool isStableModule = false
 ) : FeatureFlagDefinition(key, label, description)
 {
     public override FeatureFlagScope Scope => FeatureFlagScope.User;
@@ -196,6 +207,8 @@ public sealed class UserConfigurableFlag(
     public override bool ConfigurableByUser => true;
 
     public override bool IsKillSwitchEnabled => isKillSwitchEnabled;
+
+    public override bool IsStableModule => isStableModule;
 }
 
 // User scope, A/B-eligible. Used for per-user experimental UI rollouts.

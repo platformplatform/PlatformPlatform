@@ -21,6 +21,7 @@ export interface FeatureFlagInfo {
   orphanedAt: string | null;
   deletedAt: string | null;
   isKillSwitchEnabled: boolean;
+  isStableModule: boolean;
 }
 
 export interface GetFeatureFlagsResponse {
