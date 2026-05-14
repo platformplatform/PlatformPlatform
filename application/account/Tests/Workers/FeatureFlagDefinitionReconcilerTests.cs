@@ -179,6 +179,52 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
         ssoOrphanedAt.Should().BeNullOrEmpty("known flag rows must never be marked orphaned");
     }
 
+    [Fact]
+    public async Task Reconciler_WhenOrphanedBaseRowKeyIsBackInDefinitions_ShouldClearOrphanedAt()
+    {
+        // Arrange
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = 'sso' AND tenant_id IS NULL AND user_id IS NULL", []
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("orphaned_at", TimeProvider.GetUtcNow())]);
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        var orphanedAt = Connection.ExecuteScalar<string>(
+            "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
+        );
+        orphanedAt.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task Reconciler_WhenSoftDeletedBaseRowKeyIsBackInDefinitions_ShouldClearDeletedAt()
+    {
+        // Arrange
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = 'sso' AND tenant_id IS NULL AND user_id IS NULL", []
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [
+                ("orphaned_at", TimeProvider.GetUtcNow()),
+                ("deleted_at", TimeProvider.GetUtcNow())
+            ]
+        );
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        var orphanedAt = Connection.ExecuteScalar<string>(
+            "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
+        );
+        var deletedAt = Connection.ExecuteScalar<string>(
+            "SELECT deleted_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
+        );
+        orphanedAt.Should().BeNullOrEmpty();
+        deletedAt.Should().BeNullOrEmpty();
+    }
+
     private async Task RunReconcilerAsync()
     {
         using var scope = Provider.CreateScope();

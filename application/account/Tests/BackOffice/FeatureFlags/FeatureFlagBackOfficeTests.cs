@@ -1363,10 +1363,9 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     // Delete feature flag (AdminPolicyName, orphan-only)
 
     [Fact]
-    public async Task DeleteFeatureFlag_WhenOrphanedAndAdmin_ShouldRemoveAllRowsAndEmitTelemetry()
+    public async Task DeleteFeatureFlag_WhenOrphanedAndAdmin_ShouldSoftDeleteBaseAndHardDeleteOverridesAndEmitTelemetry()
     {
-        // Arrange - simulate a flag that was removed from the C# definitions and marked orphaned by the
-        // reconciler. The base row plus a tenant override and a user override must all be cascade-removed.
+        // Arrange
         var flagKey = "removed-feature";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
@@ -1380,13 +1379,34 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        var remaining = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey", [new { flagKey }]
+        var baseRowDeletedAt = Connection.ExecuteScalar<string>(
+            "SELECT deleted_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        remaining.Should().Be(0, "the orphan hard-delete must cascade across base, tenant override, and user override rows");
+        baseRowDeletedAt.Should().NotBeNullOrEmpty();
+
+        var overrideCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND (tenant_id IS NOT NULL OR user_id IS NOT NULL)", [new { flagKey }]
+        );
+        overrideCount.Should().Be(0);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagDeleted");
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.flag_key"].Should().Be(flagKey);
+    }
+
+    [Fact]
+    public async Task DeleteFeatureFlag_WhenAlreadySoftDeleted_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var flagKey = "removed-feature";
+        InsertOrphanedBaseRow(flagKey, true);
+        using var client = CreateAdminBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]
@@ -1441,7 +1461,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         baseRowCount.Should().Be(1, "the orphaned row must remain when a non-admin caller is rejected");
     }
 
-    private void InsertOrphanedBaseRow(string flagKey)
+    private void InsertOrphanedBaseRow(string flagKey, bool softDeleted = false)
     {
         var rowId = FeatureFlagId.NewId().ToString();
         var now = TimeProvider.System.GetUtcNow();
@@ -1459,7 +1479,8 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual"),
-                ("orphaned_at", now)
+                ("orphaned_at", now),
+                ("deleted_at", softDeleted ? now : null)
             ]
         );
     }

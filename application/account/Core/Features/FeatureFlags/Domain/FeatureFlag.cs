@@ -24,9 +24,9 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public string FlagKey { get; private set; }
 
-    public TenantId? TenantId { get; private set; }
+    public TenantId? TenantId { get; }
 
-    public UserId? UserId { get; private set; }
+    public UserId? UserId { get; }
 
     public DateTimeOffset? EnabledAt { get; private set; }
 
@@ -45,6 +45,8 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
     public FeatureFlagSource Source { get; private set; }
 
     public DateTimeOffset? OrphanedAt { get; private set; }
+
+    public DateTimeOffset? DeletedAt { get; private set; }
 
     [NotMapped]
     public bool IsActive => EnabledAt is not null && (DisabledAt is null || EnabledAt > DisabledAt);
@@ -87,6 +89,30 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         if (OrphanedAt is not null) return;
 
         OrphanedAt = now;
+    }
+
+    // Soft-delete is the only delete path: the base row is retained for historical telemetry so admin
+    // surfaces can still resolve the flag key after the definition is removed from code. Tenant and user
+    // override rows are hard-deleted by the command handler (they carry no historical value).
+    public void MarkDeleted(DateTimeOffset now)
+    {
+        if (TenantId is not null || UserId is not null)
+        {
+            throw new InvalidOperationException("Only base feature flag rows can be soft-deleted.");
+        }
+
+        if (DeletedAt is not null) return;
+
+        DeletedAt = now;
+    }
+
+    // Clears OrphanedAt and DeletedAt together. Called by the reconciler when a previously-removed flag
+    // is re-added to FeatureFlags.cs (rollback or intentional reintroduction). Reuse is by design — the
+    // existing base row keeps its history and telemetry continuity rather than starting a fresh row.
+    public void Restore()
+    {
+        OrphanedAt = null;
+        DeletedAt = null;
     }
 
     public void SetRolloutRange(int? rolloutBucketStart, int? rolloutBucketEnd)

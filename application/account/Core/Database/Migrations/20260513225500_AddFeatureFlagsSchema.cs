@@ -26,7 +26,8 @@ public sealed class AddFeatureFlagsSchema : Migration
                 configurable_by_tenant = table.Column<bool>("boolean", nullable: false, defaultValue: false),
                 configurable_by_user = table.Column<bool>("boolean", nullable: false, defaultValue: false),
                 source = table.Column<string>("text", nullable: false, defaultValue: "Manual"),
-                orphaned_at = table.Column<DateTimeOffset>("timestamptz", nullable: true)
+                orphaned_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
+                deleted_at = table.Column<DateTimeOffset>("timestamptz", nullable: true)
             },
             constraints: table =>
             {

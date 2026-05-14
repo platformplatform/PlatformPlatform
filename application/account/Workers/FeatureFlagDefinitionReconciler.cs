@@ -40,6 +40,7 @@ public sealed class FeatureFlagDefinitionReconciler(
 
         var baseRowsCreated = 0;
         var baseRowsActivated = 0;
+        var baseRowsRestored = 0;
         var sourceTransitions = 0;
         var staleRowsRemoved = 0;
 
@@ -59,6 +60,17 @@ public sealed class FeatureFlagDefinitionReconciler(
                     definition.Key, expectedSource, baseRow.IsActive
                 );
                 continue;
+            }
+
+            // A previously-removed flag is back in code (rollback or intentional reintroduction). Clear
+            // both timestamps so the row participates as a live flag again — historical telemetry remains
+            // continuous on the same row instead of starting a new one.
+            if (baseRow.OrphanedAt is not null || baseRow.DeletedAt is not null)
+            {
+                baseRow.Restore();
+                featureFlagRepository.Update(baseRow);
+                baseRowsRestored++;
+                logger.LogInformation("Reconciler restored '{FlagKey}' after re-add to the C# definitions", definition.Key);
             }
 
             if (baseRow.Source != expectedSource)
@@ -103,8 +115,8 @@ public sealed class FeatureFlagDefinitionReconciler(
         await accountDbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsActivated} kill-switch-locked rows activated, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",
-            definitions.Length, baseRowsCreated, baseRowsActivated, sourceTransitions, staleRowsRemoved, orphansMarked
+            "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsActivated} kill-switch-locked rows activated, {BaseRowsRestored} re-added rows restored, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",
+            definitions.Length, baseRowsCreated, baseRowsActivated, baseRowsRestored, sourceTransitions, staleRowsRemoved, orphansMarked
         );
     }
 }
