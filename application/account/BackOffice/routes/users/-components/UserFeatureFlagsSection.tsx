@@ -43,6 +43,7 @@ export function UserFeatureFlagsSection({ userId }: Readonly<UserFeatureFlagsSec
     );
   }
 
+  const hasAbTestFlag = flags.some((f) => f.isAbTestEligible);
   return (
     <section className="flex flex-col gap-3">
       <div>
@@ -50,29 +51,31 @@ export function UserFeatureFlagsSection({ userId }: Readonly<UserFeatureFlagsSec
           <Trans>Feature flags</Trans>
         </h3>
         <p className="text-sm text-muted-foreground">
-          <Trans>Per-user flags. Toggle the override switch to enable or disable for this user.</Trans>
+          <Trans>
+            Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5
+            minutes to take effect.
+          </Trans>
         </p>
       </div>
-      <Table rowSize="compact" aria-label={t`Feature flags`}>
+      <Table rowSize="compact" aria-label={t`Feature flags`} className="w-full table-fixed">
         <TableHeader>
           <TableRow>
             <TableHead>
               <Trans>Name</Trans>
             </TableHead>
-            <TableHead className="hidden text-muted-foreground sm:table-cell">
-              <Trans>Bucket</Trans>
-            </TableHead>
-            <TableHead className="hidden md:table-cell">
-              <Trans>Source</Trans>
-            </TableHead>
-            <TableHead className="text-right">
+            {hasAbTestFlag && (
+              <TableHead className="hidden w-[8rem] text-center text-muted-foreground sm:table-cell">
+                <Trans>Included at</Trans>
+              </TableHead>
+            )}
+            <TableHead className="w-[8rem] text-center">
               <Trans>Override</Trans>
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {flags.map((flag) => (
-            <UserFeatureFlagRow key={flag.flagKey} userId={userId} flag={flag} />
+            <UserFeatureFlagRow key={flag.flagKey} userId={userId} flag={flag} showBucketColumn={hasAbTestFlag} />
           ))}
         </TableBody>
       </Table>

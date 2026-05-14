@@ -2678,8 +2678,8 @@ msgstr "Toggle bold"
 msgid "Toggle buttons"
 msgstr "Toggle buttons"
 
-msgid "Toggle features available to your account."
-msgstr "Toggle features available to your account."
+msgid "Toggle features available to your account. Changes can take up to 5 minutes to reach all users."
+msgstr "Toggle features available to your account. Changes can take up to 5 minutes to reach all users."
 
 msgid "Toggle group"
 msgstr "Toggle group"

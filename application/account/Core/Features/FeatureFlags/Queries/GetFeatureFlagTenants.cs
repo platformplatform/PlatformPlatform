@@ -52,7 +52,9 @@ public sealed record FeatureFlagTenantInfo(
     TenantOwnerSummary? Owner,
     int RolloutBucket,
     bool IsEnabled,
-    FeatureFlagSource Source
+    FeatureFlagSource Source,
+    int? InclusionThresholdPercentage,
+    bool DefaultEnabled
 );
 
 public sealed class GetFeatureFlagTenantsValidator : AbstractValidator<GetFeatureFlagTenantsQuery>
@@ -128,9 +130,17 @@ public sealed class GetFeatureFlagTenantsHandler(
 
                 var (isEnabled, source) = EvaluateOverride(definition, baseRow, overridesByTenantId, tenant);
 
+                var defaultEnabled = ComputeDefaultEnabled(definition, baseRow, tenant.RolloutBucket);
+
                 return summary.Adapt<FeatureFlagTenantInfo>() with
                 {
-                    RolloutBucket = tenant.RolloutBucket, IsEnabled = isEnabled, Source = source
+                    RolloutBucket = tenant.RolloutBucket,
+                    IsEnabled = isEnabled,
+                    Source = source,
+                    InclusionThresholdPercentage = definition.IsAbTestEligible
+                        ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(tenant.RolloutBucket, query.FlagKey)
+                        : null,
+                    DefaultEnabled = defaultEnabled
                 };
             }
         ).ToArray();
@@ -159,6 +169,16 @@ public sealed class GetFeatureFlagTenantsHandler(
         var paged = ordered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
 
         return new GetFeatureFlagTenantsResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
+    }
+
+    // The state a tenant would have if no manual override existed: in-range for A/B-eligible flags
+    // (and the base row is active), otherwise false (non-A/B flags require the tenant to opt in).
+    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket)
+    {
+        if (baseRow is null || !baseRow.IsActive) return false;
+        if (!definition.IsAbTestEligible) return false;
+        if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
+        return RolloutBucketHasher.IsInRolloutBucketRange(rolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
     private static (bool IsEnabled, FeatureFlagSource Source) EvaluateOverride(

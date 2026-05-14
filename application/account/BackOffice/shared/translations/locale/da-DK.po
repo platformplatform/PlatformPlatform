@@ -141,8 +141,8 @@ msgstr "Konti"
 msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
 msgstr "Konti aktiveres eller deaktiveres automatisk baseret på deres abonnement. Manuelle tilsidesættelser er ikke tilgængelige for abonnementsstyrede flag."
 
-msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
-msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke konti."
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts. Changes can take up to 5 minutes to reach all users."
+msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke konti. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
@@ -235,9 +235,6 @@ msgstr "Samlet MRR"
 
 msgid "Browser"
 msgstr "Browser"
-
-msgid "Bucket"
-msgstr "Bucket"
 
 msgid "Cancel"
 msgstr "Annullér"
@@ -457,6 +454,9 @@ msgstr "Skjul detaljer"
 msgid "Inactive"
 msgstr "Inaktive"
 
+msgid "Included at"
+msgstr "Inkluderet ved"
+
 msgid "Invoice"
 msgstr "Faktura"
 
@@ -534,6 +534,9 @@ msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Hovednavigation"
+
+msgid "Manual override active. Click again to flip, three times to clear."
+msgstr "Manuel tilsidesættelse er aktiv. Klik igen for at skifte, tre gange for at fjerne."
 
 msgid "Member"
 msgstr "Medlem"
@@ -706,10 +709,6 @@ msgstr "Engangskode"
 msgid "Open account"
 msgstr "Åbn konto"
 
-#. placeholder {0}: tenant.name
-msgid "Open account {0}"
-msgstr "Åbn konto {0}"
-
 msgid "Open credit note"
 msgstr "Åbn kreditnota"
 
@@ -718,9 +717,6 @@ msgstr "Åbn i Stripe"
 
 msgid "Open invoice"
 msgstr "Åbn faktura"
-
-msgid "Open user {displayName}"
-msgstr "Åbn bruger {displayName}"
 
 msgid "Other"
 msgstr "Andet"
@@ -789,14 +785,14 @@ msgstr "Afventer"
 msgid "per month, billed monthly"
 msgstr "pr. måned, faktureres månedligt"
 
-msgid "Per-account flags. Toggle the override switch to enable or disable for this account."
-msgstr "Kontoflag. Slå tilsidesættelsesknappen til eller fra for at aktivere eller deaktivere for denne konto."
+msgid "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
+msgstr "Konto-specifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne konto. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Tenant-flag. Ejere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
-msgid "Per-user flags. Toggle the override switch to enable or disable for this user."
-msgstr "Brugerflag. Slå tilsidesættelsesknappen til eller fra for at aktivere eller deaktivere for denne bruger."
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to take effect."
+msgstr "Brugerspecifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne bruger. Ændringer kan tage op til 5 minutter at træde i kraft."
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Brugerflag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
@@ -906,17 +902,6 @@ msgstr "Refunderinger og kreditnotaer"
 msgid "Refunds and credit notes across all accounts."
 msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
 
-msgid "Remove override"
-msgstr "Fjern tilsidesættelse"
-
-#. placeholder {0}: tenant.name
-#. placeholder {0}: user.email
-msgid "Remove override for {0}"
-msgstr "Fjern tilsidesættelse for {0}"
-
-msgid "Remove override for {flagName}"
-msgstr "Fjern tilsidesættelse for {flagName}"
-
 msgid "Removed"
 msgstr "Fjernet"
 
@@ -990,9 +975,6 @@ msgstr "Søg"
 msgid "Search by account name"
 msgstr "Søg efter kontonavn"
 
-msgid "Search by account name or ID"
-msgstr "Søg efter kontonavn eller ID"
-
 msgid "Search by account name or owner email"
 msgstr "Søg efter kontonavn eller ejer-e-mail"
 
@@ -1004,9 +986,6 @@ msgstr "Søg efter navn"
 
 msgid "Search by name or email"
 msgstr "Søg efter navn eller e-mail"
-
-msgid "Search results"
-msgstr "Søgeresultater"
 
 msgid "Search users"
 msgstr "Søg brugere"
@@ -1040,9 +1019,6 @@ msgstr "Lille"
 
 msgid "Something went wrong"
 msgstr "Noget gik galt"
-
-msgid "Source"
-msgstr "Kilde"
 
 msgid "Standard"
 msgstr "Standard"
@@ -1137,11 +1113,11 @@ msgstr "Denne bruger er ikke medlem af nogen konto."
 msgid "Toggle activation"
 msgstr "Skift aktivering"
 
-msgid "Toggle the override switch to enable this feature for specific accounts."
-msgstr "Slå tilsidesættelsesknappen til for at aktivere denne funktion for specifikke konti."
+msgid "Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes to reach all users."
+msgstr "Skift tilsidesættelseskontakten for at aktivere denne funktion for specifikke konti. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
-msgid "Toggle the override switch to enable this feature for specific users."
-msgstr "Skift tilsidesættelse for at aktivere denne funktion for specifikke brugere."
+msgid "Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to reach all users."
+msgstr "Skift tilsidesættelseskontakten for at aktivere denne funktion for specifikke brugere. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
 msgstr "Skift om dette feature flag er aktivt. Når inaktivt, modtager konti og brugere den deaktiverede tilstand uanset tilsidesættelser."
@@ -1200,8 +1176,8 @@ msgstr "Brugere"
 msgid "Users active"
 msgstr "Aktive brugere"
 
-msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
-msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke brugere."
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users. Changes can take up to 5 minutes to reach all users."
+msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke brugere. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Users will appear here as accounts are created."
 msgstr "Brugere vises her efterhånden som konti oprettes."

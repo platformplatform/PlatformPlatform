@@ -3,9 +3,8 @@ import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
-import { getFeatureFlagSourceLabel } from "@repo/ui/featureFlags/labels";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
@@ -39,9 +38,6 @@ export function PlanFeatureFlagTenantTable({
           <TableHead className="hidden w-[6rem] md:table-cell">
             <Trans>Status</Trans>
           </TableHead>
-          <TableHead className="hidden w-[7rem] lg:table-cell">
-            <Trans>Source</Trans>
-          </TableHead>
           <TableHead className="w-[6rem] text-right">
             <Trans>Status</Trans>
           </TableHead>
@@ -58,25 +54,27 @@ export function PlanFeatureFlagTenantTable({
 
 function PlanFeatureFlagTenantRow({ tenant }: Readonly<{ tenant: FeatureFlagTenantInfo }>) {
   const formatDate = useFormatDate();
+  const navigate = useNavigate();
   const ownerLabel = tenant.owner
     ? getUserDisplayName(tenant.owner.firstName, tenant.owner.lastName, tenant.owner.email)
     : null;
 
   return (
-    <TableRow rowKey={tenant.id}>
+    <TableRow
+      rowKey={tenant.id}
+      className="cursor-pointer"
+      onClick={() =>
+        navigate({ to: "/accounts/$tenantId", params: { tenantId: tenant.id }, search: { tab: "feature-flags" } })
+      }
+    >
       <TableCell>
-        <Link
-          to="/accounts/$tenantId"
-          params={{ tenantId: tenant.id }}
-          className="flex min-w-0 items-center gap-3 outline-none hover:underline focus-visible:underline"
-          aria-label={t`Open account ${tenant.name}`}
-        >
+        <div className="flex min-w-0 items-center gap-3">
           <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.name} size="md" className="size-9 shrink-0" />
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="truncate font-medium text-foreground">{tenant.name}</span>
             {ownerLabel && <span className="truncate text-xs text-muted-foreground">{ownerLabel}</span>}
           </div>
-        </Link>
+        </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
         <Badge className={getSubscriptionPlanBadgeClass(tenant.plan)}>{getSubscriptionPlanLabel(tenant.plan)}</Badge>
@@ -98,9 +96,6 @@ function PlanFeatureFlagTenantRow({ tenant }: Readonly<{ tenant: FeatureFlagTena
           plannedChange={tenant.plannedChange}
           hasEverSubscribed={tenant.hasEverSubscribed}
         />
-      </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        <span className="text-sm text-muted-foreground">{getFeatureFlagSourceLabel(tenant.source)}</span>
       </TableCell>
       <TableCell className="text-right">
         <Badge variant={tenant.isEnabled ? "default" : "outline"}>{tenant.isEnabled ? t`Enabled` : t`Disabled`}</Badge>

@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 
+import type { StateFilter } from "./stateFilter";
 import type { FeatureFlagUserInfo } from "./types";
 
 import { UserOverrideRow } from "./UserOverrideRow";
@@ -12,6 +13,8 @@ export interface UserOverridesTableProps {
   featureFlagDescription: string;
   showRolloutBucket: boolean;
   isFeatureFlagActive: boolean;
+  stateFilter: StateFilter | undefined;
+  hasOverrideFilter: boolean;
 }
 
 export function UserOverridesTable({
@@ -20,7 +23,9 @@ export function UserOverridesTable({
   flagKey,
   featureFlagDescription,
   showRolloutBucket,
-  isFeatureFlagActive
+  isFeatureFlagActive,
+  stateFilter,
+  hasOverrideFilter
 }: Readonly<UserOverridesTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
@@ -38,12 +43,9 @@ export function UserOverridesTable({
           <TableHead className="hidden w-[8.5rem] lg:table-cell">
             <Trans>Last seen</Trans>
           </TableHead>
-          <TableHead className="hidden w-[7rem] lg:table-cell">
-            <Trans>Source</Trans>
-          </TableHead>
           {showRolloutBucket && (
-            <TableHead className="hidden w-[5rem] lg:table-cell">
-              <Trans>Bucket</Trans>
+            <TableHead className="hidden w-[7rem] text-center lg:table-cell">
+              <Trans>Included at</Trans>
             </TableHead>
           )}
           <TableHead className="w-[5rem] text-right">
@@ -60,6 +62,8 @@ export function UserOverridesTable({
             user={user}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
+            stateFilter={stateFilter}
+            hasOverrideFilter={hasOverrideFilter}
           />
         ))}
       </TableBody>

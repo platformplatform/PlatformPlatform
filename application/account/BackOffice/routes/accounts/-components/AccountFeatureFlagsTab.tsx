@@ -56,7 +56,7 @@ export function AccountFeatureFlagsTab({ tenantId }: Readonly<AccountFeatureFlag
           tenantId={tenantId}
           flags={accountFlags}
           title={t`Account flags`}
-          description={t`Per-account flags. Toggle the override switch to enable or disable for this account.`}
+          description={t`Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users.`}
           isPlanGroup={false}
         />
       )}
@@ -91,26 +91,23 @@ function FeatureFlagGroup({
     <div className="flex flex-col gap-2">
       <h3>{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
-      <Table rowSize="compact" aria-label={title}>
+      <Table rowSize="compact" aria-label={title} className="w-full table-fixed">
         <TableHeader>
           <TableRow>
             <TableHead>
               <Trans>Name</Trans>
             </TableHead>
             {isPlanGroup && (
-              <TableHead className="hidden sm:table-cell">
+              <TableHead className="hidden w-[8rem] text-center sm:table-cell">
                 <Trans>Required plan</Trans>
               </TableHead>
             )}
             {!isPlanGroup && hasAbTestFlag && (
-              <TableHead className="hidden sm:table-cell">
-                <Trans>Bucket</Trans>
+              <TableHead className="hidden w-[8rem] text-center sm:table-cell">
+                <Trans>Included at</Trans>
               </TableHead>
             )}
-            <TableHead className="hidden md:table-cell">
-              <Trans>Source</Trans>
-            </TableHead>
-            <TableHead className="text-right">
+            <TableHead className="w-[8rem] text-center">
               {isPlanGroup ? <Trans>Status</Trans> : <Trans>Override</Trans>}
             </TableHead>
           </TableRow>

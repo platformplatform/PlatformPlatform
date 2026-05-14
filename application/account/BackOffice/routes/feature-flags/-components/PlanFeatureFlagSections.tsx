@@ -1,23 +1,24 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Button } from "@repo/ui/components/Button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { TextField } from "@repo/ui/components/TextField";
-import { Building2Icon, ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { TablePagination } from "@repo/ui/components/TablePagination";
+import { keepPreviousData } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { Building2Icon } from "lucide-react";
+import { useCallback } from "react";
 
-import { api, SubscriptionPlan } from "@/shared/lib/api/client";
-import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import type { SubscriptionPlan } from "@/shared/lib/api/client";
 
-import type { FeatureFlagInfo, FeatureFlagTenantInfo } from "./types";
+import { api } from "@/shared/lib/api/client";
 
+import type { FeatureFlagInfo } from "./types";
+
+import { FeatureFlagTenantsToolbar } from "./FeatureFlagTenantsToolbar";
 import { PlanFeatureFlagTenantTable } from "./PlanFeatureFlagTenantTable";
-
-// Plan-managed flags display every tenant grouped by plan; the section is not paginated because the plan
-// inheritance view needs the full picture at a glance. Cap is high enough for current tenant counts.
-const PLAN_TENANT_LIST_CAP = 1000;
+import { DEFAULT_STATE_FILTER, type StateFilter, toApiState } from "./stateFilter";
 
 export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   return (
@@ -45,47 +46,59 @@ export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFl
   );
 }
 
-export function PlanFeatureFlagTenantsSection({ flagKey }: Readonly<{ flagKey: string }>) {
-  const [search, setSearch] = useState("");
+interface PlanFeatureFlagTenantsSectionProps {
+  flagKey: string;
+  search: string | undefined;
+  plans: SubscriptionPlan[];
+  state: StateFilter | undefined;
+  pageOffset: number | undefined;
+}
 
-  const { data, isLoading } = api.useQuery("get", "/api/back-office/feature-flags/{flagKey}/tenants", {
-    params: {
-      path: { flagKey },
-      query: {
-        PageSize: PLAN_TENANT_LIST_CAP
+export function PlanFeatureFlagTenantsSection({
+  flagKey,
+  search,
+  plans,
+  state,
+  pageOffset
+}: Readonly<PlanFeatureFlagTenantsSectionProps>) {
+  const navigate = useNavigate();
+
+  const { data, isLoading } = api.useQuery(
+    "get",
+    "/api/back-office/feature-flags/{flagKey}/tenants",
+    {
+      params: {
+        path: { flagKey },
+        query: {
+          Search: search,
+          Plans: plans.length === 0 ? undefined : plans,
+          State: toApiState(state),
+          PageOffset: pageOffset
+        }
       }
-    }
-  });
+    },
+    { placeholderData: keepPreviousData }
+  );
 
-  const filtered = useMemo(() => {
-    const tenants = data?.tenants ?? [];
-    const lowerSearch = search.toLowerCase();
-    return search
-      ? tenants.filter((tenant) => tenant.name.toLowerCase().includes(lowerSearch) || tenant.id.includes(lowerSearch))
-      : tenants;
-  }, [data?.tenants, search]);
+  const tenants = data?.tenants ?? [];
+  const totalPages = data?.totalPages ?? 0;
+  const currentPage = (data?.currentPageOffset ?? 0) + 1;
+  const effectiveState = state ?? DEFAULT_STATE_FILTER;
+  const hasFilters = Boolean(search) || plans.length > 0 || effectiveState !== DEFAULT_STATE_FILTER;
 
-  const planGroups = useMemo(() => {
-    const groupMap = new Map<SubscriptionPlan, FeatureFlagTenantInfo[]>();
-    for (const tenant of filtered) {
-      const existing = groupMap.get(tenant.plan);
-      if (existing) {
-        existing.push(tenant);
-      } else {
-        groupMap.set(tenant.plan, [tenant]);
-      }
-    }
-    const planOrder: Record<SubscriptionPlan, number> = {
-      [SubscriptionPlan.Premium]: 0,
-      [SubscriptionPlan.Standard]: 1,
-      [SubscriptionPlan.Basis]: 2
-    };
-    return [...groupMap.entries()]
-      .sort(([a], [b]) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99))
-      .map(([plan, members]) => ({ plan, tenants: members }));
-  }, [filtered]);
-
-  const isSearching = search.length > 0;
+  const handlePageChange = useCallback(
+    (page: number) => {
+      navigate({
+        to: "/feature-flags/$flagKey",
+        params: { flagKey },
+        search: (previous) => ({
+          ...previous,
+          tenantsPageOffset: page === 1 ? undefined : page - 1
+        })
+      });
+    },
+    [navigate, flagKey]
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -100,30 +113,50 @@ export function PlanFeatureFlagTenantsSection({ flagKey }: Readonly<{ flagKey: s
           </Trans>
         </p>
       </div>
-      <TextField
-        name="search"
-        placeholder={t`Search by account name or ID`}
-        value={search}
-        onChange={(value) => setSearch(value)}
-        className="max-w-[20rem]"
+      <FeatureFlagTenantsToolbar
+        flagKey={flagKey}
+        search={search}
+        plans={plans}
+        state={state}
+        hasOverride={false}
+        hideHasOverride={true}
       />
-      {isLoading ? (
-        <div className="flex flex-col gap-2">
-          <Skeleton className="h-10 w-full rounded-md" />
-          <Skeleton className="h-14 w-full rounded-md" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <PlanFeatureFlagTenantsEmpty hasFilters={isSearching} />
-      ) : isSearching ? (
-        <PlanFeatureFlagTenantTable ariaLabel={t`Search results`} tenants={filtered} />
+      {isLoading && tenants.length === 0 ? (
+        <PlanFeatureFlagTenantsSkeleton />
+      ) : tenants.length === 0 ? (
+        <PlanFeatureFlagTenantsEmpty flagKey={flagKey} hasFilters={hasFilters} />
       ) : (
-        planGroups.map((group) => <CollapsiblePlanGroup key={group.plan} plan={group.plan} tenants={group.tenants} />)
+        <>
+          <PlanFeatureFlagTenantTable ariaLabel={t`Accounts`} tenants={tenants} />
+          {totalPages > 1 && (
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              previousLabel={t`Previous`}
+              nextLabel={t`Next`}
+              trackingTitle="Plan feature flag tenants"
+              className="w-full"
+            />
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function PlanFeatureFlagTenantsEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
+function PlanFeatureFlagTenantsSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      <Skeleton className="h-10 w-full rounded-md" />
+      <Skeleton className="h-14 w-full rounded-md" />
+      <Skeleton className="h-14 w-full rounded-md" />
+    </div>
+  );
+}
+
+function PlanFeatureFlagTenantsEmpty({ flagKey, hasFilters }: Readonly<{ flagKey: string; hasFilters: boolean }>) {
+  const navigate = useNavigate();
   return (
     <Empty>
       <EmptyHeader>
@@ -145,31 +178,23 @@ function PlanFeatureFlagTenantsEmpty({ hasFilters }: Readonly<{ hasFilters: bool
           )}
         </EmptyDescription>
       </EmptyHeader>
+      {hasFilters && (
+        <EmptyContent>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              navigate({
+                to: "/feature-flags/$flagKey",
+                params: { flagKey },
+                search: () => ({})
+              })
+            }
+          >
+            <Trans>Clear filters</Trans>
+          </Button>
+        </EmptyContent>
+      )}
     </Empty>
-  );
-}
-
-function CollapsiblePlanGroup({
-  plan,
-  tenants
-}: Readonly<{ plan: SubscriptionPlan; tenants: FeatureFlagTenantInfo[] }>) {
-  const [isOpen, setIsOpen] = useState(true);
-  const planLabel = getSubscriptionPlanLabel(plan);
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="flex flex-col gap-1">
-      <CollapsibleTrigger className="flex cursor-pointer items-center gap-1 text-left">
-        <ChevronDown
-          className={`size-4 text-muted-foreground transition ${isOpen ? "" : "-rotate-90"}`}
-          aria-hidden={true}
-        />
-        <h4 className="text-muted-foreground">
-          {planLabel} ({tenants.length})
-        </h4>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <PlanFeatureFlagTenantTable ariaLabel={planLabel} tenants={tenants} />
-      </CollapsibleContent>
-    </Collapsible>
   );
 }

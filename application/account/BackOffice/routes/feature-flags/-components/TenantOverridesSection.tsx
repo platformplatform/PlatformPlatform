@@ -91,10 +91,13 @@ export function TenantOverridesSection({
           {showRolloutBucket ? (
             <Trans>
               Accounts are automatically included based on their rollout bucket. Use overrides to manually include or
-              exclude specific accounts.
+              exclude specific accounts. Changes can take up to 5 minutes to reach all users.
             </Trans>
           ) : (
-            <Trans>Toggle the override switch to enable this feature for specific accounts.</Trans>
+            <Trans>
+              Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes
+              to reach all users.
+            </Trans>
           )}
         </p>
       </div>
@@ -104,6 +107,7 @@ export function TenantOverridesSection({
         plans={plans}
         state={state}
         hasOverride={hasOverride}
+        hideHasOverride={!showRolloutBucket}
       />
       {isLoading && tenants.length === 0 ? (
         <TenantOverridesSkeleton />
@@ -118,6 +122,8 @@ export function TenantOverridesSection({
             featureFlagDescription={featureFlagDescription}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
+            stateFilter={state}
+            hasOverrideFilter={hasOverride}
           />
           {totalPages > 1 && (
             <TablePagination

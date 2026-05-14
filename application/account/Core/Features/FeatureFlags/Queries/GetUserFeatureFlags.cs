@@ -30,7 +30,9 @@ public sealed record UserFeatureFlagInfo(
     FeatureFlagSource Source,
     bool IsBaseRowActive,
     int RolloutBucket,
-    TenantId TenantId
+    TenantId TenantId,
+    int? InclusionThresholdPercentage,
+    bool DefaultEnabled
 );
 
 public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFlagRepository, IUserRepository userRepository)
@@ -88,6 +90,12 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             source = FeatureFlagSource.Default;
         }
 
+        var defaultEnabled = isBaseRowActive
+                             && definition.IsAbTestEligible
+                             && baseRow?.BucketStart is not null
+                             && baseRow.BucketEnd is not null
+                             && RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+
         return new UserFeatureFlagInfo(
             definition.Key,
             definition.Scope,
@@ -100,7 +108,11 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             source,
             isBaseRowActive,
             userRolloutBucket,
-            tenantId
+            tenantId,
+            definition.IsAbTestEligible
+                ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(userRolloutBucket, definition.Key)
+                : null,
+            defaultEnabled
         );
     }
 

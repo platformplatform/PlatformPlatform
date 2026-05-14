@@ -1,85 +1,123 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
-import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { getFeatureFlagSourceLabel } from "@repo/ui/featureFlags/labels";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
-import { Link } from "@tanstack/react-router";
-import { MailIcon, XIcon } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { MailIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { api, queryClient } from "@/shared/lib/api/client";
+import { api, FeatureFlagAudienceState, queryClient } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/labels";
 
 import type { FeatureFlagUserInfo } from "./types";
 
 import { getUserDisplayName, getUserInitials } from "../../users/-components/userDisplay";
+import { OverrideSwitch } from "./OverrideSwitch";
+import { type StateFilter, toApiState } from "./stateFilter";
+
+const USERS_QUERY_KEY = ["get", "/api/back-office/feature-flags/{flagKey}/users"] as const;
+const SKIP_AUTO_INVALIDATE = { meta: { skipQueryInvalidation: true } };
+
+interface UserOverrideRowProps {
+  flagKey: string;
+  featureFlagDescription: string;
+  user: FeatureFlagUserInfo;
+  showRolloutBucket: boolean;
+  isFeatureFlagActive: boolean;
+  stateFilter: StateFilter | undefined;
+  hasOverrideFilter: boolean;
+}
 
 export function UserOverrideRow({
   flagKey,
   featureFlagDescription,
   user,
   showRolloutBucket,
-  isFeatureFlagActive
-}: Readonly<{
-  flagKey: string;
-  featureFlagDescription: string;
-  user: FeatureFlagUserInfo;
-  showRolloutBucket: boolean;
-  isFeatureFlagActive: boolean;
-}>) {
+  isFeatureFlagActive,
+  stateFilter,
+  hasOverrideFilter
+}: Readonly<UserOverrideRowProps>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(user.isEnabled);
-  const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/user-override");
-  const removeMutation = api.useMutation("delete", "/api/back-office/feature-flags/{flagKey}/user-override");
+  const [optimisticIsOverride, setOptimisticIsOverride] = useState(user.source === "manual_override");
+  const overrideMutation = api.useMutation(
+    "put",
+    "/api/back-office/feature-flags/{flagKey}/user-override",
+    SKIP_AUTO_INVALIDATE
+  );
+  const removeMutation = api.useMutation(
+    "delete",
+    "/api/back-office/feature-flags/{flagKey}/user-override",
+    SKIP_AUTO_INVALIDATE
+  );
   const formatDate = useFormatDate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setOptimisticEnabled(user.isEnabled);
-  }, [user.isEnabled]);
+    setOptimisticIsOverride(user.source === "manual_override");
+  }, [user.isEnabled, user.source]);
 
-  const handleToggle = (checked: boolean) => {
+  const refreshAfter = (finalEnabled: boolean, willHaveOverride: boolean) => {
+    const apiState = toApiState(stateFilter);
+    const stateFilterWillDrop =
+      (apiState === FeatureFlagAudienceState.Enabled && !finalEnabled) ||
+      (apiState === FeatureFlagAudienceState.Disabled && finalEnabled);
+    const hasOverrideFilterWillDrop = hasOverrideFilter && !willHaveOverride;
+    const delayMs = stateFilterWillDrop || hasOverrideFilterWillDrop ? 500 : 0;
+    setTimeout(() => queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY }), delayMs);
+  };
+
+  const handleRemoveOverride = () => {
+    setOptimisticEnabled(user.defaultEnabled);
+    setOptimisticIsOverride(false);
+    removeMutation.mutate(
+      { params: { path: { flagKey }, query: { userId: user.id, tenantId: user.tenantId } } },
+      {
+        onSuccess: () => {
+          toast.success(t`Override removed for ${user.email}`);
+          refreshAfter(user.defaultEnabled, false);
+        },
+        onError: () => {
+          setOptimisticEnabled(user.isEnabled);
+          setOptimisticIsOverride(user.source === "manual_override");
+        }
+      }
+    );
+  };
+
+  const handleSetOverride = (checked: boolean) => {
     setOptimisticEnabled(checked);
+    setOptimisticIsOverride(true);
     overrideMutation.mutate(
       {
         params: { path: { flagKey } },
         body: { userId: user.id, tenantId: user.tenantId, enabled: checked }
       },
       {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
-          });
-          const message = checked
-            ? t`${featureFlagDescription} enabled for ${user.email}`
-            : t`${featureFlagDescription} disabled for ${user.email}`;
-          toast.success(message);
+        onSuccess: () => {
+          toast.success(
+            checked
+              ? t`${featureFlagDescription} enabled for ${user.email}`
+              : t`${featureFlagDescription} disabled for ${user.email}`
+          );
+          refreshAfter(checked, true);
         },
         onError: () => {
           setOptimisticEnabled(user.isEnabled);
+          setOptimisticIsOverride(user.source === "manual_override");
         }
       }
     );
   };
 
-  const handleRemoveOverride = () => {
-    removeMutation.mutate(
-      {
-        params: { path: { flagKey }, query: { userId: user.id, tenantId: user.tenantId } }
-      },
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users"]
-          });
-          toast.success(t`Override removed for ${user.email}`);
-        }
-      }
-    );
+  const handleToggle = (checked: boolean) => {
+    if (showRolloutBucket && optimisticIsOverride && optimisticEnabled === user.defaultEnabled) {
+      handleRemoveOverride();
+      return;
+    }
+    handleSetOverride(checked);
   };
 
   const isPending = overrideMutation.isPending || removeMutation.isPending;
@@ -87,14 +125,13 @@ export function UserOverrideRow({
   const initials = getUserInitials(user.firstName, user.lastName, user.email);
 
   return (
-    <TableRow rowKey={user.id}>
+    <TableRow
+      rowKey={user.id}
+      className="cursor-pointer transition-opacity duration-500"
+      onClick={() => navigate({ to: "/users/$userId", params: { userId: user.id }, search: { tab: "feature-flags" } })}
+    >
       <TableCell>
-        <Link
-          to="/users/$userId"
-          params={{ userId: user.id }}
-          className="flex min-w-0 items-center gap-3 outline-none hover:underline focus-visible:underline"
-          aria-label={t`Open user ${displayName}`}
-        >
+        <div className="flex min-w-0 items-center gap-3">
           <Avatar size="default" className="size-9 shrink-0">
             {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt={displayName} />}
             <AvatarFallback>{initials}</AvatarFallback>
@@ -106,7 +143,7 @@ export function UserOverrideRow({
               <span className="truncate">{user.email}</span>
             </span>
           </div>
-        </Link>
+        </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
         <span className="block truncate text-sm">{user.tenantName}</span>
@@ -117,43 +154,20 @@ export function UserOverrideRow({
       <TableCell className="hidden lg:table-cell">
         {user.lastSeenAt ? formatDate(user.lastSeenAt, true, true) : <span className="text-muted-foreground">-</span>}
       </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        <span className="text-sm text-muted-foreground">{getFeatureFlagSourceLabel(user.source)}</span>
-      </TableCell>
       {showRolloutBucket && (
-        <TableCell className="hidden text-muted-foreground lg:table-cell">{user.rolloutBucket}</TableCell>
+        <TableCell className="hidden text-center text-muted-foreground lg:table-cell">
+          {user.inclusionThresholdPercentage != null ? `${user.inclusionThresholdPercentage}%` : null}
+        </TableCell>
       )}
       <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
-        <div className="flex items-center justify-end gap-2">
-          {user.source === "manual_override" && (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="size-7"
-                    onClick={handleRemoveOverride}
-                    disabled={isPending}
-                    aria-label={t`Remove override for ${user.email}`}
-                  />
-                }
-              >
-                <XIcon className="size-4" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <Trans>Remove override</Trans>
-              </TooltipContent>
-            </Tooltip>
-          )}
-          <Switch
-            checked={optimisticEnabled}
-            onCheckedChange={handleToggle}
-            disabled={isPending}
-            className={!isFeatureFlagActive && optimisticEnabled ? "opacity-50" : ""}
-            aria-label={t`Override for ${user.email}`}
-          />
-        </div>
+        <OverrideSwitch
+          isManualOverride={optimisticIsOverride && showRolloutBucket}
+          checked={optimisticEnabled}
+          onCheckedChange={handleToggle}
+          disabled={isPending}
+          dimmed={!isFeatureFlagActive && optimisticEnabled}
+          ariaLabel={t`Override for ${user.email}`}
+        />
       </TableCell>
     </TableRow>
   );

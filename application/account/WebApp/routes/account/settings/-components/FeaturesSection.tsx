@@ -33,7 +33,7 @@ export function FeaturesSection() {
       </h3>
       <Separator />
       <p className="text-sm text-muted-foreground">
-        <Trans>Toggle features available to your account.</Trans>
+        <Trans>Toggle features available to your account. Changes can take up to 5 minutes to reach all users.</Trans>
       </p>
       <div className="flex flex-col gap-2">
         {tenantFlags.map((f) => (

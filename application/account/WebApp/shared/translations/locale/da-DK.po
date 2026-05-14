@@ -2678,8 +2678,8 @@ msgstr "Skift fed"
 msgid "Toggle buttons"
 msgstr "Skifteknapper"
 
-msgid "Toggle features available to your account."
-msgstr "Slå funktioner til og fra for din konto."
+msgid "Toggle features available to your account. Changes can take up to 5 minutes to reach all users."
+msgstr "Skift funktioner tilgængelige for din konto. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Toggle group"
 msgstr "Skiftegruppe"

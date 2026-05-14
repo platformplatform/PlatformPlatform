@@ -153,7 +153,13 @@ export default function FeatureFlagDetailPage() {
                 />
               )}
               {!isDeleted && featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
-                <PlanFeatureFlagTenantsSection flagKey={featureFlag.key} />
+                <PlanFeatureFlagTenantsSection
+                  flagKey={featureFlag.key}
+                  search={tenantsSearch}
+                  plans={tenantsPlans ?? []}
+                  state={tenantsState}
+                  pageOffset={tenantsPageOffset}
+                />
               )}
               {!isDeleted && featureFlag.scope === "User" && (
                 <UserOverridesSection

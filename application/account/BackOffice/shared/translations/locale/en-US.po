@@ -141,8 +141,8 @@ msgstr "Accounts"
 msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
 msgstr "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
 
-msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
-msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts. Changes can take up to 5 minutes to reach all users."
+msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts. Changes can take up to 5 minutes to reach all users."
 
 msgid "Accounts will appear here as they are created."
 msgstr "Accounts will appear here as they are created."
@@ -235,9 +235,6 @@ msgstr "Blended MRR"
 
 msgid "Browser"
 msgstr "Browser"
-
-msgid "Bucket"
-msgstr "Bucket"
 
 msgid "Cancel"
 msgstr "Cancel"
@@ -457,6 +454,9 @@ msgstr "Hide details"
 msgid "Inactive"
 msgstr "Inactive"
 
+msgid "Included at"
+msgstr "Included at"
+
 msgid "Invoice"
 msgstr "Invoice"
 
@@ -534,6 +534,9 @@ msgstr "Logo"
 
 msgid "Main navigation"
 msgstr "Main navigation"
+
+msgid "Manual override active. Click again to flip, three times to clear."
+msgstr "Manual override active. Click again to flip, three times to clear."
 
 msgid "Member"
 msgstr "Member"
@@ -706,10 +709,6 @@ msgstr "One-time password"
 msgid "Open account"
 msgstr "Open account"
 
-#. placeholder {0}: tenant.name
-msgid "Open account {0}"
-msgstr "Open account {0}"
-
 msgid "Open credit note"
 msgstr "Open credit note"
 
@@ -718,9 +717,6 @@ msgstr "Open in Stripe"
 
 msgid "Open invoice"
 msgstr "Open invoice"
-
-msgid "Open user {displayName}"
-msgstr "Open user {displayName}"
 
 msgid "Other"
 msgstr "Other"
@@ -789,14 +785,14 @@ msgstr "Pending"
 msgid "per month, billed monthly"
 msgstr "per month, billed monthly"
 
-msgid "Per-account flags. Toggle the override switch to enable or disable for this account."
-msgstr "Per-account flags. Toggle the override switch to enable or disable for this account."
+msgid "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
+msgstr "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
 
 msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 
-msgid "Per-user flags. Toggle the override switch to enable or disable for this user."
-msgstr "Per-user flags. Toggle the override switch to enable or disable for this user."
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to take effect."
+msgstr "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to take effect."
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
@@ -906,17 +902,6 @@ msgstr "Refunds and credit notes"
 msgid "Refunds and credit notes across all accounts."
 msgstr "Refunds and credit notes across all accounts."
 
-msgid "Remove override"
-msgstr "Remove override"
-
-#. placeholder {0}: tenant.name
-#. placeholder {0}: user.email
-msgid "Remove override for {0}"
-msgstr "Remove override for {0}"
-
-msgid "Remove override for {flagName}"
-msgstr "Remove override for {flagName}"
-
 msgid "Removed"
 msgstr "Removed"
 
@@ -990,9 +975,6 @@ msgstr "Search"
 msgid "Search by account name"
 msgstr "Search by account name"
 
-msgid "Search by account name or ID"
-msgstr "Search by account name or ID"
-
 msgid "Search by account name or owner email"
 msgstr "Search by account name or owner email"
 
@@ -1004,9 +986,6 @@ msgstr "Search by name"
 
 msgid "Search by name or email"
 msgstr "Search by name or email"
-
-msgid "Search results"
-msgstr "Search results"
 
 msgid "Search users"
 msgstr "Search users"
@@ -1040,9 +1019,6 @@ msgstr "Small"
 
 msgid "Something went wrong"
 msgstr "Something went wrong"
-
-msgid "Source"
-msgstr "Source"
 
 msgid "Standard"
 msgstr "Standard"
@@ -1137,11 +1113,11 @@ msgstr "This user is not a member of any account."
 msgid "Toggle activation"
 msgstr "Toggle activation"
 
-msgid "Toggle the override switch to enable this feature for specific accounts."
-msgstr "Toggle the override switch to enable this feature for specific accounts."
+msgid "Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes to reach all users."
+msgstr "Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes to reach all users."
 
-msgid "Toggle the override switch to enable this feature for specific users."
-msgstr "Toggle the override switch to enable this feature for specific users."
+msgid "Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to reach all users."
+msgstr "Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to reach all users."
 
 msgid "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
 msgstr "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
@@ -1200,8 +1176,8 @@ msgstr "Users"
 msgid "Users active"
 msgstr "Users active"
 
-msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
-msgstr "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users. Changes can take up to 5 minutes to reach all users."
+msgstr "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users. Changes can take up to 5 minutes to reach all users."
 
 msgid "Users will appear here as accounts are created."
 msgstr "Users will appear here as accounts are created."

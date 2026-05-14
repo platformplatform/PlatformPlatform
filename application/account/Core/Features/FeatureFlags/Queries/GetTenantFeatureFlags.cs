@@ -30,7 +30,9 @@ public sealed record TenantFeatureFlagInfo(
     bool IsEnabled,
     FeatureFlagSource Source,
     bool IsBaseRowActive,
-    int RolloutBucket
+    int RolloutBucket,
+    int? InclusionThresholdPercentage,
+    bool DefaultEnabled
 );
 
 public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository)
@@ -89,6 +91,12 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
             source = FeatureFlagSource.Default;
         }
 
+        var defaultEnabled = isBaseRowActive
+                             && definition.IsAbTestEligible
+                             && baseRow?.BucketStart is not null
+                             && baseRow.BucketEnd is not null
+                             && RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+
         return new TenantFeatureFlagInfo(
             definition.Key,
             definition.Scope,
@@ -101,7 +109,11 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
             isEnabled,
             source,
             isBaseRowActive,
-            tenantRolloutBucket
+            tenantRolloutBucket,
+            definition.IsAbTestEligible
+                ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(tenantRolloutBucket, definition.Key)
+                : null,
+            defaultEnabled
         );
     }
 

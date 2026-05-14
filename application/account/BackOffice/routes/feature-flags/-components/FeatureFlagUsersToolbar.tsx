@@ -20,6 +20,7 @@ interface FeatureFlagUsersToolbarProps {
   roles: UserRole[];
   state: StateFilter | undefined;
   hasOverride: boolean;
+  hideHasOverride?: boolean;
 }
 
 const HAS_OVERRIDE_VALUE = "true";
@@ -29,7 +30,8 @@ export function FeatureFlagUsersToolbar({
   search,
   roles,
   state,
-  hasOverride
+  hasOverride,
+  hideHasOverride
 }: Readonly<FeatureFlagUsersToolbarProps>) {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(search ?? "");
@@ -138,17 +140,19 @@ export function FeatureFlagUsersToolbar({
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <ToggleGroup
-        variant="outline"
-        aria-label={t`Override`}
-        multiple={true}
-        value={hasOverride ? [HAS_OVERRIDE_VALUE] : []}
-        onValueChange={handleHasOverrideChange}
-      >
-        <ToggleGroupItem value={HAS_OVERRIDE_VALUE} className="min-w-[5rem] justify-center">
-          <Trans>Has override</Trans>
-        </ToggleGroupItem>
-      </ToggleGroup>
+      {!hideHasOverride && (
+        <ToggleGroup
+          variant="outline"
+          aria-label={t`Override`}
+          multiple={true}
+          value={hasOverride ? [HAS_OVERRIDE_VALUE] : []}
+          onValueChange={handleHasOverrideChange}
+        >
+          <ToggleGroupItem value={HAS_OVERRIDE_VALUE} className="min-w-[5rem] justify-center">
+            <Trans>Has override</Trans>
+          </ToggleGroupItem>
+        </ToggleGroup>
+      )}
 
       <ToggleGroup
         variant="outline"

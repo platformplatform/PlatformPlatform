@@ -91,10 +91,13 @@ export function UserOverridesSection({
           {showRolloutBucket ? (
             <Trans>
               Users are automatically included based on their rollout bucket. Use overrides to manually include or
-              exclude specific users.
+              exclude specific users. Changes can take up to 5 minutes to reach all users.
             </Trans>
           ) : (
-            <Trans>Toggle the override switch to enable this feature for specific users.</Trans>
+            <Trans>
+              Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to
+              reach all users.
+            </Trans>
           )}
         </p>
       </div>
@@ -104,6 +107,7 @@ export function UserOverridesSection({
         roles={roles}
         state={state}
         hasOverride={hasOverride}
+        hideHasOverride={!showRolloutBucket}
       />
       {isLoading && users.length === 0 ? (
         <UserOverridesSkeleton />
@@ -118,6 +122,8 @@ export function UserOverridesSection({
             featureFlagDescription={featureFlagDescription}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
+            stateFilter={state}
+            hasOverrideFilter={hasOverride}
           />
           {totalPages > 1 && (
             <TablePagination

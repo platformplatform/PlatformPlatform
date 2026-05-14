@@ -51,7 +51,9 @@ public sealed record FeatureFlagUserInfo(
     SubscriptionPlan TenantPlan,
     int RolloutBucket,
     bool IsEnabled,
-    FeatureFlagSource Source
+    FeatureFlagSource Source,
+    int? InclusionThresholdPercentage,
+    bool DefaultEnabled
 );
 
 public sealed class GetFeatureFlagUsersValidator : AbstractValidator<GetFeatureFlagUsersQuery>
@@ -111,7 +113,11 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
                     TenantName = tenant?.Name ?? "Unknown",
                     TenantPlan = tenant?.Plan ?? SubscriptionPlan.Basis,
                     IsEnabled = isEnabled,
-                    Source = source
+                    Source = source,
+                    InclusionThresholdPercentage = definition.IsAbTestEligible
+                        ? RolloutBucketHasher.ComputeInclusionThresholdPercentage(user.RolloutBucket, query.FlagKey)
+                        : null,
+                    DefaultEnabled = ComputeDefaultEnabled(definition, baseRow, user.RolloutBucket)
                 };
             }
         ).ToArray();
@@ -139,6 +145,16 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         var paged = filtered.Skip(query.PageOffset * query.PageSize).Take(query.PageSize).ToArray();
 
         return new GetFeatureFlagUsersResponse(totalCount, query.PageSize, totalPages, query.PageOffset, paged);
+    }
+
+    // The state a user would have if no manual override existed: in-range for A/B-eligible flags
+    // (and the base row is active), otherwise false (non-A/B flags require the user to opt in).
+    private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket)
+    {
+        if (baseRow is null || !baseRow.IsActive) return false;
+        if (!definition.IsAbTestEligible) return false;
+        if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
+        return RolloutBucketHasher.IsInRolloutBucketRange(rolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
     private static (bool IsEnabled, FeatureFlagSource Source) EvaluateOverride(

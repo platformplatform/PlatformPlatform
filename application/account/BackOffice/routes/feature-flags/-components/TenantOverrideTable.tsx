@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 
+import type { StateFilter } from "./stateFilter";
 import type { FeatureFlagTenantInfo } from "./types";
 
 import { TenantOverrideRow } from "./TenantOverrideRow";
@@ -12,6 +13,8 @@ export interface TenantOverrideTableProps {
   featureFlagDescription: string;
   showRolloutBucket: boolean;
   isFeatureFlagActive: boolean;
+  stateFilter: StateFilter | undefined;
+  hasOverrideFilter: boolean;
 }
 
 export function TenantOverrideTable({
@@ -20,7 +23,9 @@ export function TenantOverrideTable({
   flagKey,
   featureFlagDescription,
   showRolloutBucket,
-  isFeatureFlagActive
+  isFeatureFlagActive,
+  stateFilter,
+  hasOverrideFilter
 }: Readonly<TenantOverrideTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
@@ -41,12 +46,9 @@ export function TenantOverrideTable({
           <TableHead className="hidden w-[6rem] md:table-cell">
             <Trans>Status</Trans>
           </TableHead>
-          <TableHead className="hidden w-[7rem] lg:table-cell">
-            <Trans>Source</Trans>
-          </TableHead>
           {showRolloutBucket && (
-            <TableHead className="hidden w-[5rem] lg:table-cell">
-              <Trans>Bucket</Trans>
+            <TableHead className="hidden w-[7rem] text-center lg:table-cell">
+              <Trans>Included at</Trans>
             </TableHead>
           )}
           <TableHead className="w-[5rem] text-right">
@@ -63,6 +65,8 @@ export function TenantOverrideTable({
             tenant={tenant}
             showRolloutBucket={showRolloutBucket}
             isFeatureFlagActive={isFeatureFlagActive}
+            stateFilter={stateFilter}
+            hasOverrideFilter={hasOverrideFilter}
           />
         ))}
       </TableBody>

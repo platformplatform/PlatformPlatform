@@ -2,6 +2,7 @@ using Account.Features.FeatureFlags.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Commands;
@@ -52,7 +53,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         }
         else
         {
-            rolloutBucketStart = ComputeStartingRolloutBucket(command.FlagKey);
+            rolloutBucketStart = RolloutBucketHasher.ComputeStartingRolloutBucket(command.FlagKey);
             rolloutBucketEnd = (rolloutBucketStart.Value + command.RolloutPercentage - 1) % 100;
         }
 
@@ -62,20 +63,5 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FlagKey, command.RolloutPercentage));
 
         return Result.Success();
-    }
-
-    private static int ComputeStartingRolloutBucket(string flagKey)
-    {
-        unchecked
-        {
-            var hash = 2166136261u;
-            foreach (var c in flagKey)
-            {
-                hash ^= c;
-                hash *= 16777619u;
-            }
-
-            return (int)(hash % 100);
-        }
     }
 }
