@@ -11,36 +11,73 @@ namespace SharedKernel.FeatureFlags;
 [PublicAPI]
 public abstract class FeatureFlagDefinition(string key, string label, string description)
 {
+    /// <summary>
+    ///     Stable identifier used in URLs, telemetry property names, JWT claims, and the feature_flags DB column.
+    ///     Lowercase kebab-case, max 50 chars.
+    /// </summary>
     public string Key { get; } = key;
 
+    /// <summary>Human-readable name shown in the BackOffice and (via Lingui codegen) in user-facing settings.</summary>
     public string Label { get; } = label;
 
+    /// <summary>Human-readable description shown in tooltips and detail pages.</summary>
     public string Description { get; } = description;
 
+    /// <summary>Where the flag is evaluated. System = env/config; Tenant = per-tenant DB row; User = per-user DB row.</summary>
     public abstract FeatureFlagScope Scope { get; }
 
+    /// <summary>
+    ///     Who is allowed to change the flag's state. Mapped to back-office and account-app policies at the controller
+    ///     level.
+    /// </summary>
     public abstract FeatureFlagAdminLevel AdminLevel { get; }
 
+    /// <summary>Another flag's Key that must be enabled for this flag to evaluate true. Only one level of nesting allowed.</summary>
     public virtual string? ParentDependency => null;
 
+    /// <summary>
+    ///     Gradual rollout via BucketStart/BucketEnd. Mutually exclusive with ConfigurableByTenant/User — admins drive
+    ///     the rollout, not end users.
+    /// </summary>
     public virtual bool IsAbTestEligible => false;
 
+    /// <summary>Tenant owners can toggle the flag from account settings. Cannot combine with IsAbTestEligible.</summary>
     public virtual bool ConfigurableByTenant => false;
 
+    /// <summary>End users can toggle the flag from preferences. Cannot combine with IsAbTestEligible.</summary>
     public virtual bool ConfigurableByUser => false;
 
+    /// <summary>Emit the flag's evaluated value as a property on every telemetry event so analytics can segment on it.</summary>
     public virtual bool TrackInTelemetry => false;
 
+    /// <summary>Override for the telemetry property name. Null = use Key verbatim.</summary>
     public virtual string? TelemetryName => null;
 
+    /// <summary>
+    ///     Subscription plan tier that activates this flag. Reconciler binds Source=Plan when set so the plan evaluator
+    ///     owns the row.
+    /// </summary>
     public virtual PlanTier? RequiredPlan => null;
 
+    /// <summary>appsettings.json key consulted by IsSystemFeatureFlagEnabled. System scope only.</summary>
     public virtual string? SystemConfigKey => null;
 
+    /// <summary>
+    ///     Exact value the SystemConfigKey must equal to enable the flag. Null = any non-empty value is treated as
+    ///     enabled.
+    /// </summary>
     public virtual string? SystemConfigExpectedValue => null;
 
+    /// <summary>
+    ///     Runtime env-var name the frontend reads via import.meta.runtime_env to evaluate the flag client-side. System
+    ///     scope only.
+    /// </summary>
     public virtual string? FrontendEnvVar => null;
 
+    /// <summary>
+    ///     True = the reconciler creates the base row inactive on first sight so an admin must explicitly enable it;
+    ///     false = activated automatically.
+    /// </summary>
     public virtual bool IsKillSwitchEnabled => false;
 
     public bool IsSystemFeatureFlagEnabled(IConfiguration configuration)
