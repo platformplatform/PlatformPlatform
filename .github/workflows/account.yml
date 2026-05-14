@@ -120,6 +120,16 @@ jobs:
             dotnet sonarscanner end
           fi
 
+      - name: Save Backend Build Artifacts for Migration Plan
+        if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: account-build
+          path: |
+            application/**/bin
+            application/**/obj
+          retention-days: 1
+
       - name: Build Frontend Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application
@@ -250,6 +260,7 @@ jobs:
       relative_startup_project: account/Api/Account.Api.csproj
       db_context: AccountDbContext
       apply_migrations: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+      build_artifact_name: account-build
 
   api-stage:
     name: API Staging
@@ -322,6 +333,7 @@ jobs:
       relative_startup_project: account/Api/Account.Api.csproj
       db_context: AccountDbContext
       apply_migrations: true
+      build_artifact_name: account-build
 
   api-prod1:
     name: API Production

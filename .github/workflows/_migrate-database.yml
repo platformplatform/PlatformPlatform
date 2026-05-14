@@ -32,6 +32,10 @@ on:
       apply_migrations:
         required: true
         type: boolean
+      build_artifact_name:
+        description: "Name of the artifact uploaded by the caller's build-and-test job that contains application/**/bin and application/**/obj"
+        required: true
+        type: string
 
     outputs:
       has_migrations_to_apply:
@@ -68,9 +72,11 @@ jobs:
         working-directory: application
         run: dotnet tool restore
 
-      - name: Build Backend Solution
-        working-directory: application
-        run: dotnet build ${{ inputs.relative_startup_project }}
+      - name: Download Backend Build Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.build_artifact_name }}
+          path: application
 
       - name: Login to Azure
         uses: azure/login@v3
