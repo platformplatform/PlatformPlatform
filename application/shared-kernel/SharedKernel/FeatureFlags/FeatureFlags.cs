@@ -64,7 +64,14 @@ public static class FeatureFlags
         isKillSwitchEnabled: true
     );
 
-    private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, AccountOverview, CompactView, ExperimentalUi];
+    // Reflected at startup over every `public static readonly FeatureFlagDefinition` field on this
+    // class — adding a new flag means just declaring the field; no manual array maintenance.
+    private static readonly FeatureFlagDefinition[] AllFeatureFlags =
+        typeof(FeatureFlags)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(f => f.IsInitOnly && f.FieldType == typeof(FeatureFlagDefinition))
+            .Select(f => (FeatureFlagDefinition)f.GetValue(null)!)
+            .ToArray();
 
     private static readonly Regex FeatureFlagKeyPattern =
         new("^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);
