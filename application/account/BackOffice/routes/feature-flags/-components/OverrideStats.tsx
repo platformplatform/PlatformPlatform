@@ -25,7 +25,7 @@ export function OverrideStats({ total, enabled, disabled, override, showOverride
         icon={<CircleCheckIcon className="size-3.5" aria-hidden={true} />}
         value={enabled}
         label={<Trans>Enabled</Trans>}
-        className="border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+        className="border-success/30 text-success"
       />
       <StatChip
         icon={<CircleSlashIcon className="size-3.5" aria-hidden={true} />}
@@ -38,7 +38,7 @@ export function OverrideStats({ total, enabled, disabled, override, showOverride
           icon={<PenLineIcon className="size-3.5" aria-hidden={true} />}
           value={override}
           label={<Trans>With override</Trans>}
-          className="border-amber-500/30 text-amber-700 dark:text-amber-300"
+          className="border-warning/30 text-warning"
         />
       )}
     </div>

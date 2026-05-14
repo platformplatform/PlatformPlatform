@@ -42,7 +42,7 @@ export function OverrideSwitch({
             checked={checked}
             onCheckedChange={onCheckedChange}
             disabled={disabled}
-            className={`data-checked:bg-amber-500 data-unchecked:bg-amber-500 ${dimClass}`}
+            className={`data-checked:bg-warning data-unchecked:bg-warning dark:data-unchecked:bg-warning ${dimClass}`}
             aria-label={ariaLabel}
           />
         }

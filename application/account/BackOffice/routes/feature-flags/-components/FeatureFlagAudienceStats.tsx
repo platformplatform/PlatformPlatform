@@ -31,10 +31,12 @@ export function FeatureFlagAudienceStats({ flagKey, scope, showOverride }: Reado
   );
 
   const data = isTenantScope ? tenantStats.data : userStats.data;
-  if (data === undefined) return null;
+  // Reserve the chip row height while loading so the page does not grow when the query resolves
+  // (otherwise the user sees the page suddenly extend after a moment and a new scroll range appears).
+  if (data === undefined) return <div className="h-[2.125rem]" aria-hidden={true} />;
 
   const populationCount = data.enabledCount + data.disabledCount;
-  if (populationCount === 0) return null;
+  if (populationCount === 0) return <div className="h-[2.125rem]" aria-hidden={true} />;
 
   return (
     <OverrideStats

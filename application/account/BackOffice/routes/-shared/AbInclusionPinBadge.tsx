@@ -15,7 +15,7 @@ export function AbInclusionPinBadge({ pin }: Readonly<AbInclusionPinBadgeProps>)
 
   if (pin === AbInclusionPin.AlwaysOn) {
     return (
-      <Badge variant="outline" className="gap-1 border-emerald-500/30 text-emerald-700 dark:text-emerald-300">
+      <Badge variant="outline" className="gap-1 border-success/30 text-success">
         <CircleCheckIcon className="size-3" aria-hidden={true} />
         <Trans>First in feature flag rollouts</Trans>
       </Badge>
@@ -23,7 +23,7 @@ export function AbInclusionPinBadge({ pin }: Readonly<AbInclusionPinBadgeProps>)
   }
 
   return (
-    <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-700 dark:text-amber-300">
+    <Badge variant="outline" className="gap-1 border-warning/30 text-warning">
       <CircleSlashIcon className="size-3" aria-hidden={true} />
       <Trans>Last in feature flag rollouts</Trans>
     </Badge>

@@ -75,7 +75,11 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
       aria-hidden={true}
       data-slot="pagination-ellipsis"
       className={cn(
-        "flex size-[var(--control-height)] items-center justify-center [&_svg:not([class*='size-'])]:size-4",
+        // `relative` keeps the inner `sr-only` span's `position: absolute` containing block scoped to
+        // this ellipsis. Without it the sr-only falls back to the next positioned ancestor (the page's
+        // outer <main>) where the auto top calculation lands at the bottom of the document, inflating
+        // the page scrollHeight and producing a phantom second window scrollbar.
+        "relative flex size-[var(--control-height)] items-center justify-center [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}
