@@ -68,7 +68,7 @@ test.describe("@smoke", () => {
       await page.goto("/account");
 
       await expect(page).toHaveURL("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account overview" })).toBeVisible();
       await expect(page.getByRole("link", { name: "View users" })).toBeVisible();
     })();
 

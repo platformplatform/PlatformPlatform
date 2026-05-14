@@ -1,10 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { LinkCard } from "@repo/ui/components/LinkCard";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 import { api, UserStatus } from "@/shared/lib/api/client";
 
@@ -14,13 +13,7 @@ export const Route = createFileRoute("/account/")({
 });
 
 export default function Home() {
-  // Gated by the `account-overview` tenant-configurable flag: when a tenant owner disables the
-  // overview in account/settings, signed-in users skip the dashboard and land on the users list.
-  const { enabled: isAccountOverviewEnabled, isLoading: isFlagLoading } = useFeatureFlag("account-overview");
   const { data: usersSummary } = api.useQuery("get", "/api/account/users/summary");
-
-  if (isFlagLoading) return null;
-  if (!isAccountOverviewEnabled) return <Navigate to="/account/users" replace={true} />;
 
   return (
     <AppLayout

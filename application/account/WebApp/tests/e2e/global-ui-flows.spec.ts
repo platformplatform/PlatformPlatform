@@ -22,7 +22,7 @@ test.describe("@comprehensive", () => {
       const response = await ownerPage.goto("/account");
 
       // Verify dashboard loads with default light theme
-      await expect(ownerPage.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "Account overview" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
 
       // Verify CSP nonce is configured in meta tag and response headers
@@ -152,7 +152,7 @@ test.describe("@comprehensive", () => {
       const newPage = await ownerPage.context().newPage();
       await newPage.goto("/account");
 
-      await expect(newPage.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(newPage.getByRole("heading", { name: "Account overview" })).toBeVisible();
       await expect(newPage.locator("html")).toHaveClass("dark");
 
       await newPage.close();
@@ -189,7 +189,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account overview" })).toBeVisible();
     })();
 
     await step("Navigate to preferences & select dark theme")(async () => {
@@ -201,7 +201,7 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("html")).toHaveClass("dark");
 
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account overview" })).toBeVisible();
     })();
 
     await step("Log out via User menu & verify dark theme persists on login page")(async () => {
@@ -245,7 +245,7 @@ test.describe("@comprehensive", () => {
 
       // Navigate to account
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account overview" })).toBeVisible();
     })();
 
     await step("Navigate to non-existent admin route & verify 404 page displays")(async () => {
@@ -265,7 +265,7 @@ test.describe("@comprehensive", () => {
     // === ERROR PAGE VIA KONAMI CODE ===
     await step("Navigate to admin dashboard & enter Konami code to trigger error page")(async () => {
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account overview" })).toBeVisible();
 
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("ArrowUp");
@@ -293,7 +293,7 @@ test.describe("@comprehensive", () => {
 
       await page.getByRole("button", { name: "Try again" }).click();
 
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account overview" })).toBeVisible();
     })();
   });
 });
