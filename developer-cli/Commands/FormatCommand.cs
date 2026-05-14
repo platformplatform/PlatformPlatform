@@ -196,5 +196,4 @@ public class FormatCommand : Command
             quiet
         );
     }
-
 }
