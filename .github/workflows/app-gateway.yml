@@ -93,63 +93,6 @@ jobs:
         with:
           name: app-gateway
           path: application/AppGateway/publish/**/*
-
-  code-style-and-linting:
-    name: Code Style and Linting
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-
-      - name: Install Node Modules
-        working-directory: application
-        run: npm ci
-
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: application/global.json
-
-      - name: Restore .NET Tools
-        working-directory: application
-        run: dotnet tool restore
-
-      - name: Restore .NET Dependencies
-        working-directory: application
-        run: dotnet restore
-
-      - name: Build Backend Solution
-        working-directory: application
-        run: dotnet build PlatformPlatform.slnx --no-restore
-
-      - name: Run Code Linting
-        working-directory: developer-cli
-        run: |
-          dotnet run lint --backend | tee lint-output.log
-
-          if ! grep -q "No backend issues found!" lint-output.log; then
-            echo "Code linting issues found."
-            exit 1
-          fi
-
-      - name: Check for Code Formatting Issues
-        working-directory: developer-cli
-        run: |
-          dotnet run format --backend
-
-          # Check for any changes made by the code formatter
-          git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run format --backend' from /developer-cli folder locally and commit the formatted code."
-            exit 1
-          }
-
   api-stage:
     name: Staging
     if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}

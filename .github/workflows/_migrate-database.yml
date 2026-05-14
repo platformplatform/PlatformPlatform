@@ -78,6 +78,13 @@ jobs:
           name: ${{ inputs.build_artifact_name }}
           path: application
 
+      # The artifact carries bin/ and obj/ but not the global NuGet package cache.
+      # `dotnet ef --no-build` loads compiled assemblies that reference packages by
+      # absolute path under ~/.nuget/packages — those must exist on this runner.
+      - name: Restore .NET Dependencies
+        working-directory: application
+        run: dotnet restore ${{ inputs.relative_startup_project }}
+
       - name: Login to Azure
         uses: azure/login@v3
         with:
