@@ -5,7 +5,7 @@ import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
 import { createFileRoute } from "@tanstack/react-router";
 import { MoonIcon, SunIcon } from "lucide-react";
 
-import { BetaFeaturesSection } from "./-components/BetaFeaturesSection";
+import { PreferencesFeatureFlagsSection } from "./-components/PreferencesFeatureFlagsSection";
 import { ThemeMode, locales, usePreferences } from "./-components/usePreferences";
 
 export const Route = createFileRoute("/user/preferences/")({
@@ -121,7 +121,7 @@ function PreferencesPage() {
           </ToggleGroup>
         </section>
 
-        <BetaFeaturesSection />
+        <PreferencesFeatureFlagsSection />
       </div>
     </AppLayout>
   );

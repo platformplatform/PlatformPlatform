@@ -423,9 +423,6 @@ msgstr "Basal support"
 msgid "Basis"
 msgstr "Basis"
 
-msgid "Beta features"
-msgstr "Betafunktioner"
-
 msgid "Bill to"
 msgstr "Faktureres til"
 
@@ -816,6 +813,9 @@ msgstr "Nuværende plan"
 msgid "Customer deleted"
 msgstr "Kunde slettet"
 
+msgid "Customize which optional features are enabled for your account."
+msgstr "Tilpas hvilke valgfri funktioner der er aktiveret for din konto."
+
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Tilpas dit tema, sprog og zoomindstillinger."
 
@@ -1155,6 +1155,9 @@ msgstr "Mislykket"
 
 msgid "Failed to load payment processor."
 msgstr "Kunne ikke indlæse betalingsprocessor."
+
+msgid "Feature preferences"
+msgstr "Funktionspræferencer"
 
 msgid "Feature updated"
 msgstr "Funktion opdateret"
@@ -1788,9 +1791,6 @@ msgstr "Åbn sidepanel"
 
 msgid "Opened documentation"
 msgstr "Åbnet dokumentation"
-
-msgid "Opt in to try new features before they are available to everyone."
-msgstr "Tilmeld dig for at prøve nye funktioner, før de er tilgængelige for alle."
 
 msgid "Option A"
 msgstr "Mulighed A"

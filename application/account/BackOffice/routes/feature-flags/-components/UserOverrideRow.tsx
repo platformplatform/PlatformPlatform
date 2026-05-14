@@ -109,7 +109,7 @@ export function UserOverrideRow({
         </Link>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <span className="truncate text-sm">{user.tenantName}</span>
+        <span className="block truncate text-sm">{user.tenantName}</span>
       </TableCell>
       <TableCell className="hidden lg:table-cell">
         <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
@@ -117,11 +117,11 @@ export function UserOverrideRow({
       <TableCell className="hidden lg:table-cell">
         {user.lastSeenAt ? formatDate(user.lastSeenAt, true, true) : <span className="text-muted-foreground">-</span>}
       </TableCell>
-      <TableCell className="hidden sm:table-cell">
+      <TableCell className="hidden lg:table-cell">
         <span className="text-sm text-muted-foreground">{getFeatureFlagSourceLabel(user.source)}</span>
       </TableCell>
       {showRolloutBucket && (
-        <TableCell className="hidden text-muted-foreground sm:table-cell">{user.rolloutBucket}</TableCell>
+        <TableCell className="hidden text-muted-foreground lg:table-cell">{user.rolloutBucket}</TableCell>
       )}
       <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-end gap-2">

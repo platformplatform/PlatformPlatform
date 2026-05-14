@@ -23,8 +23,8 @@ export function DeletedFeatureFlagBadge({ deletedAt }: Readonly<DeletedFeatureFl
       </TooltipTrigger>
       <TooltipContent className="max-w-[20rem]">
         <Trans>
-          This flag was deleted on {formatted}. The row is retained for historical telemetry; account and user overrides
-          have been removed. If the flag is re-added in code, the same row will be restored.
+          This flag was deleted on {formatted}. It is retained for historical telemetry; account and user overrides have
+          been removed. Adding a new feature flag with the same name will fail deployment.
         </Trans>
       </TooltipContent>
     </Tooltip>

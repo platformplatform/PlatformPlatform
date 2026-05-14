@@ -12,8 +12,8 @@ export interface FeatureFlagInfo {
   configurableByUser: boolean;
   enabledAt: string | null;
   disabledAt: string | null;
-  bucketStart: number | null;
-  bucketEnd: number | null;
+  rolloutBucketStart: number | null;
+  rolloutBucketEnd: number | null;
   rolloutPercentage: number | null;
   isActive: boolean;
   createdAt: string | null;

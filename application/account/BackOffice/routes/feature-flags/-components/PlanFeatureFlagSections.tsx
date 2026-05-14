@@ -2,10 +2,11 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
-import { ChevronDown } from "lucide-react";
+import { Building2Icon, ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
@@ -20,7 +21,7 @@ const PLAN_TENANT_LIST_CAP = 1000;
 export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
           <span>
             <Trans>Name:</Trans> <span className="font-mono">{featureFlag.key}</span>
@@ -110,6 +111,8 @@ export function PlanFeatureFlagTenantsSection({ flagKey }: Readonly<{ flagKey: s
           <Skeleton className="h-10 w-full rounded-md" />
           <Skeleton className="h-14 w-full rounded-md" />
         </div>
+      ) : filtered.length === 0 ? (
+        <PlanFeatureFlagTenantsEmpty hasFilters={isSearching} />
       ) : isSearching ? (
         <PlanFeatureFlagTenantTable ariaLabel={t`Search results`} tenants={filtered} />
       ) : (
@@ -124,7 +127,7 @@ function PlanFeatureFlagTenantTable({
   tenants
 }: Readonly<{ ariaLabel: string; tenants: FeatureFlagTenantInfo[] }>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
+    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
       <TableHeader>
         <TableRow>
           <TableHead className="hidden w-[14rem] lg:table-cell">
@@ -156,6 +159,20 @@ function PlanFeatureFlagTenantTable({
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+function PlanFeatureFlagTenantsEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
+  const title = hasFilters ? t`No accounts found matching your search` : t`No accounts qualify for this feature yet`;
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Building2Icon />
+        </EmptyMedia>
+        <EmptyTitle>{title}</EmptyTitle>
+      </EmptyHeader>
+    </Empty>
   );
 }
 

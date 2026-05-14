@@ -23,9 +23,8 @@ export function OrphanedFeatureFlagBadge({ orphanedAt }: Readonly<OrphanedFeatur
       </TooltipTrigger>
       <TooltipContent className="max-w-[20rem]">
         <Trans>
-          This flag no longer exists in FeatureFlags.cs as of {formatted}. Account and user state is preserved but no
-          longer evaluated by new code paths or telemetry. Use the delete action to remove the global row and all
-          overrides.
+          This flag no longer exists in code as of {formatted}. Account and user state is preserved but no longer
+          evaluated. Use the delete action to remove the flag and all overrides.
         </Trans>
       </TooltipContent>
     </Tooltip>

@@ -104,41 +104,33 @@ export default function FeatureFlagDetailPage() {
             <FeatureFlagDetailSkeleton />
           ) : featureFlag ? (
             <div className="flex flex-col gap-8">
-              {isDeleted ? (
-                <div className="flex flex-col gap-2 rounded-lg border border-muted-foreground/30 bg-muted/30 p-4">
-                  <h3>
-                    <Trans>This flag has been deleted</Trans>
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    <Trans>
-                      The base row is retained for historical telemetry. Account and user overrides were removed at
-                      delete time. If the flag is re-added in code, the reconciler restores this same row.
-                    </Trans>
-                  </p>
-                </div>
-              ) : isPlanFeatureFlag ? (
+              {isPlanFeatureFlag ? (
                 <PlanFeatureFlagInfoSection featureFlag={featureFlag} />
               ) : (
                 <FeatureFlagInfoSection
                   featureFlag={featureFlag}
-                  orphanedAt={featureFlag.orphanedAt}
+                  orphanedAt={featureFlag.deletedAt ?? featureFlag.orphanedAt}
                   canActivate={canActivate}
                 />
               )}
+              {isDeleted && (
+                <div className="rounded-lg border border-muted-foreground/30 bg-muted/30 p-4 text-sm text-muted-foreground">
+                  <Trans>
+                    This flag has been deleted. It is retained for historical telemetry. Adding a new feature flag with
+                    the same name will fail deployment.
+                  </Trans>
+                </div>
+              )}
               {isOrphaned && (
-                <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-                  <h3 className="text-destructive">
-                    <Trans>This flag no longer exists in code</Trans>
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                  <span className="text-sm text-destructive">
                     <Trans>
-                      Account and user state is preserved but no longer evaluated. Delete the flag to remove the global
-                      row and all account and user overrides permanently.
+                      This flag no longer exists in code. Delete it to remove all account and user overrides.
                     </Trans>
-                  </p>
+                  </span>
                   <Button
                     variant="destructive"
-                    className="self-start"
+                    className="shrink-0"
                     onClick={() => setIsDeleteDialogOpen(true)}
                     disabled={!canActivate}
                   >

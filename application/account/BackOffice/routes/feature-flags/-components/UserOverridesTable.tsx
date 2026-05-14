@@ -23,7 +23,7 @@ export function UserOverridesTable({
   isFeatureFlagActive
 }: Readonly<UserOverridesTableProps>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel}>
+    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
       <TableHeader>
         <TableRow>
           <TableHead>
@@ -32,21 +32,21 @@ export function UserOverridesTable({
           <TableHead className="hidden md:table-cell">
             <Trans>Account</Trans>
           </TableHead>
-          <TableHead className="hidden lg:table-cell">
+          <TableHead className="hidden w-[6rem] lg:table-cell">
             <Trans>Role</Trans>
           </TableHead>
-          <TableHead className="hidden lg:table-cell">
+          <TableHead className="hidden w-[8.5rem] lg:table-cell">
             <Trans>Last seen</Trans>
           </TableHead>
-          <TableHead className="hidden sm:table-cell">
+          <TableHead className="hidden w-[7rem] lg:table-cell">
             <Trans>Source</Trans>
           </TableHead>
           {showRolloutBucket && (
-            <TableHead className="hidden sm:table-cell">
+            <TableHead className="hidden w-[5rem] lg:table-cell">
               <Trans>Bucket</Trans>
             </TableHead>
           )}
-          <TableHead className="text-right">
+          <TableHead className="w-[5rem] text-right">
             <Trans>Override</Trans>
           </TableHead>
         </TableRow>

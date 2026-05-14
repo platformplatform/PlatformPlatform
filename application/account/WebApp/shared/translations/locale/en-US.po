@@ -423,9 +423,6 @@ msgstr "Basic support"
 msgid "Basis"
 msgstr "Basis"
 
-msgid "Beta features"
-msgstr "Beta features"
-
 msgid "Bill to"
 msgstr "Bill to"
 
@@ -816,6 +813,9 @@ msgstr "Current plan"
 msgid "Customer deleted"
 msgstr "Customer deleted"
 
+msgid "Customize which optional features are enabled for your account."
+msgstr "Customize which optional features are enabled for your account."
+
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Customize your theme, language, and zoom settings."
 
@@ -1155,6 +1155,9 @@ msgstr "Failed"
 
 msgid "Failed to load payment processor."
 msgstr "Failed to load payment processor."
+
+msgid "Feature preferences"
+msgstr "Feature preferences"
 
 msgid "Feature updated"
 msgstr "Feature updated"
@@ -1788,9 +1791,6 @@ msgstr "Open side pane"
 
 msgid "Opened documentation"
 msgstr "Opened documentation"
-
-msgid "Opt in to try new features before they are available to everyone."
-msgstr "Opt in to try new features before they are available to everyone."
 
 msgid "Option A"
 msgstr "Option A"

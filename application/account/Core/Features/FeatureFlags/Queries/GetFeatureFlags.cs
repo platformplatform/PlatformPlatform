@@ -83,7 +83,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
             .Where(row => row.DeletedAt is null || request.IncludeDeleted)
             .Select(row => new FeatureFlagInfo(
                     row.FlagKey, row.Scope, FeatureFlagAdminLevel.SystemAdmin, string.Empty,
-                    false, false, false, null,
+                    row.BucketStart is not null || row.BucketEnd is not null, false, false, null,
                     row.CreatedAt, row.EnabledAt, row.DisabledAt, row.BucketStart, row.BucketEnd,
                     ComputeRolloutPercentage(row.BucketStart, row.BucketEnd), row.IsActive, false, false, row.OrphanedAt, row.DeletedAt
                 )

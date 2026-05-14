@@ -112,9 +112,6 @@ msgstr "Konto"
 msgid "Account actions"
 msgstr "Kontohandlinger"
 
-msgid "Account and user state is preserved but no longer evaluated. Delete the flag to remove the global row and all account and user overrides permanently."
-msgstr "Konto- og brugertilstand er bevaret, men evalueres ikke længere. Slet flaget for at fjerne den globale række og alle konto- og brugertilsidesættelser permanent."
-
 msgid "Account flags"
 msgstr "Kontoflag"
 
@@ -332,6 +329,10 @@ msgstr "Slet flag og alle tilsidesættelser"
 
 msgid "Deleted"
 msgstr "Slettet"
+
+#. placeholder {0}: formatTimestamp(featureFlag.deletedAt)
+msgid "Deleted: {0}"
+msgstr "Slettet: {0}"
 
 msgid "Desktop"
 msgstr "Computer"
@@ -806,6 +807,9 @@ msgstr "Brugerflag. Slå tilsidesættelsesknappen til eller fra for at aktivere 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Brugerflag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
+msgid "Percentage of accounts or users included in the A/B rollout. Buckets are assigned consistently per account or user."
+msgstr "Procentdel af konti eller brugere inkluderet i A/B-udrulningen. Buckets tildeles konsekvent pr. konto eller bruger."
+
 msgid "Period"
 msgstr "Periode"
 
@@ -918,6 +922,9 @@ msgstr "Fjern tilsidesættelse for {0}"
 
 msgid "Remove override for {flagName}"
 msgstr "Fjern tilsidesættelse for {flagName}"
+
+msgid "Removed"
+msgstr "Fjernet"
 
 msgid "Removed from definitions"
 msgstr "Fjernet fra definitioner"
@@ -1094,9 +1101,6 @@ msgstr "Systemflag"
 msgid "Tablet"
 msgstr "Tablet"
 
-msgid "The base row is retained for historical telemetry. Account and user overrides were removed at delete time. If the flag is re-added in code, the reconciler restores this same row."
-msgstr "Grundrækken bevares til historisk telemetri. Konto- og brugertilsidesættelser blev fjernet ved sletning. Hvis flaget tilføjes igen i koden, gendannes den samme række automatisk."
-
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 
@@ -1106,20 +1110,20 @@ msgstr "Tema"
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
 
-msgid "This flag has been deleted"
-msgstr "Dette flag er blevet slettet"
+msgid "This flag has been deleted. It is retained for historical telemetry. Adding a new feature flag with the same name will fail deployment."
+msgstr "Dette feature flag er blevet slettet. Det bevares til historisk telemetri. Tilføjelse af et nyt feature flag med samme navn vil få deployment til at fejle."
 
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "Dette flag styres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
 
-msgid "This flag no longer exists in code"
-msgstr "Dette flag findes ikke længere i koden"
+msgid "This flag no longer exists in code as of {formatted}. Account and user state is preserved but no longer evaluated. Use the delete action to remove the flag and all overrides."
+msgstr "Dette feature flag findes ikke længere i koden pr. {formatted}. Konto- og brugertilstand bevares, men evalueres ikke længere. Brug sletteknappen for at fjerne feature flagget og alle overrides."
 
-msgid "This flag no longer exists in FeatureFlags.cs as of {formatted}. Account and user state is preserved but no longer evaluated by new code paths or telemetry. Use the delete action to remove the global row and all overrides."
-msgstr "Dette flag findes ikke længere i FeatureFlags.cs pr. {formatted}. Konto- og brugertilstand er bevaret, men evalueres ikke længere af nye kodestier eller telemetri. Brug sletteknappen for at fjerne den globale række og alle tilsidesættelser."
+msgid "This flag no longer exists in code. Delete it to remove all account and user overrides."
+msgstr "Dette feature flag findes ikke længere i koden. Slet det for at fjerne alle konto- og brugeroverrides."
 
-msgid "This flag was deleted on {formatted}. The row is retained for historical telemetry; account and user overrides have been removed. If the flag is re-added in code, the same row will be restored."
-msgstr "Dette flag blev slettet den {formatted}. Rækken bevares til historisk telemetri; konto- og brugertilsidesættelser er fjernet. Hvis flaget tilføjes igen i koden, gendannes den samme række."
+msgid "This flag was deleted on {formatted}. It is retained for historical telemetry; account and user overrides have been removed. Adding a new feature flag with the same name will fail deployment."
+msgstr "Dette feature flag blev slettet den {formatted}. Det bevares til historisk telemetri; konto- og brugeroverrides er fjernet. Tilføjelse af et nyt feature flag med samme navn vil få deployment til at fejle."
 
 msgid "This is a stable module. It is always on and cannot be deactivated."
 msgstr "Dette er et stabilt modul. Det er altid aktiveret og kan ikke slås fra."
@@ -1136,15 +1140,17 @@ msgstr "Denne bruger har ingen registrerede sessioner."
 msgid "This user is not a member of any account."
 msgstr "Denne bruger er ikke medlem af nogen konto."
 
-#. placeholder {0}: getFeatureFlagName(featureFlag.key)
-msgid "Toggle {0}"
-msgstr "Slå {0} til/fra"
+msgid "Toggle activation"
+msgstr "Skift aktivering"
 
 msgid "Toggle the override switch to enable this feature for specific accounts."
 msgstr "Slå tilsidesættelsesknappen til for at aktivere denne funktion for specifikke konti."
 
 msgid "Toggle the override switch to enable this feature for specific users."
 msgstr "Skift tilsidesættelse for at aktivere denne funktion for specifikke brugere."
+
+msgid "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
+msgstr "Skift om dette feature flag er aktivt. Når inaktivt, modtager konti og brugere den deaktiverede tilstand uanset tilsidesættelser."
 
 msgid "Total"
 msgstr "I alt"

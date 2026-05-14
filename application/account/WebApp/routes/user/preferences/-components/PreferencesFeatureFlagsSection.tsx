@@ -13,11 +13,11 @@ interface UserFlag {
   enabled: boolean;
 }
 
-export function BetaFeaturesSection() {
+export function PreferencesFeatureFlagsSection() {
   const { data, isLoading } = api.useQuery("get", "/api/account/feature-flags/user-configurable");
 
   if (isLoading) {
-    return <BetaFeaturesSkeleton />;
+    return <PreferencesFeatureFlagsSkeleton />;
   }
 
   const userFlags = data?.flags ?? [];
@@ -28,10 +28,10 @@ export function BetaFeaturesSection() {
   return (
     <section>
       <h3 className="mb-1">
-        <Trans>Beta features</Trans>
+        <Trans>Feature preferences</Trans>
       </h3>
       <p className="mb-4 text-sm text-muted-foreground">
-        <Trans>Opt in to try new features before they are available to everyone.</Trans>
+        <Trans>Customize which optional features are enabled for your account.</Trans>
       </p>
       <div className="flex flex-col gap-2">
         {userFlags.map((f) => (
@@ -73,13 +73,12 @@ function UserFlagToggle({ flagKey, enabled }: Readonly<UserFlag>) {
   );
 }
 
-function BetaFeaturesSkeleton() {
+function PreferencesFeatureFlagsSkeleton() {
   return (
     <section>
       <Skeleton className="mb-1 h-6 w-32" />
       <Skeleton className="mb-4 h-4 w-80" />
       <div className="flex flex-col gap-2">
-        <Skeleton className="h-[4.5rem] w-full rounded-lg" />
         <Skeleton className="h-[4.5rem] w-full rounded-lg" />
       </div>
     </section>

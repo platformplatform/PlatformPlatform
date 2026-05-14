@@ -16,8 +16,7 @@ import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo, FeatureFlagScope, GetFeatureFlagsResponse } from "./-components/types";
 
-import { DeletedFeatureFlagBadge } from "./-components/DeletedFeatureFlagBadge";
-import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
+import { FeatureFlagStatusBadge } from "./-components/FeatureFlagStatusBadge";
 import { ScopeIcon } from "./-components/ScopeIcon";
 
 export const Route = createFileRoute("/feature-flags/")({
@@ -105,7 +104,7 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
             <p className="text-sm text-muted-foreground">
               <FeatureFlagGroupSubtitle groupKey={group.groupKey} />
             </p>
-            <Table rowSize="compact" aria-label={group.label}>
+            <Table rowSize="compact" aria-label={group.label} className="w-full table-fixed">
               <TableHeader>
                 <TableRow>
                   <TableHead>
@@ -141,13 +140,9 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                       <div className="flex min-w-0 flex-col">
                         <span className="flex items-center gap-2 font-medium">
                           <ScopeIcon scope={featureFlag.scope} isAbTestEligible={featureFlag.isAbTestEligible} />
-                          {getFeatureFlagName(featureFlag.key)}
-                          {featureFlag.orphanedAt && featureFlag.deletedAt == null && (
-                            <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />
-                          )}
-                          {featureFlag.deletedAt && <DeletedFeatureFlagBadge deletedAt={featureFlag.deletedAt} />}
+                          <span className="truncate">{getFeatureFlagName(featureFlag.key)}</span>
                         </span>
-                        <span className="hidden max-w-[40rem] truncate text-sm text-muted-foreground sm:block">
+                        <span className="hidden truncate text-sm text-muted-foreground sm:block">
                           {getFeatureFlagDescription(featureFlag.key) || featureFlag.description}
                         </span>
                       </div>
@@ -160,16 +155,18 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                     {showRollout && (
                       <TableCell className="hidden text-center sm:table-cell">
                         {featureFlag.isAbTestEligible && (
-                          <span className={featureFlag.isActive ? undefined : "text-muted-foreground"}>
+                          <span
+                            className={
+                              featureFlag.isActive && !featureFlag.deletedAt ? undefined : "text-muted-foreground"
+                            }
+                          >
                             {featureFlag.rolloutPercentage ?? 0}%
                           </span>
                         )}
                       </TableCell>
                     )}
                     <TableCell className="hidden text-center sm:table-cell">
-                      <Badge variant={featureFlag.isActive ? "default" : "outline"}>
-                        {featureFlag.isStableModule ? t`Always on` : featureFlag.isActive ? t`Active` : t`Inactive`}
-                      </Badge>
+                      <FeatureFlagStatusBadge featureFlag={featureFlag} />
                     </TableCell>
                   </TableRow>
                 ))}

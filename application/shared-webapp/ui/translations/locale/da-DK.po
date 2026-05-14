@@ -30,7 +30,7 @@ msgid "Allow users to authenticate using enterprise identity providers"
 msgstr "Tillad brugere at logge ind via virksomhedsidentitetsudbydere"
 
 msgid "Beta features"
-msgstr "Betafunktioner"
+msgstr "Beta-funktioner"
 
 msgid "Breadcrumb"
 msgstr "Brødkrumme"
@@ -72,7 +72,7 @@ msgid "Drop files here, or click to browse"
 msgstr "Slip filer her, eller klik for at vælge"
 
 msgid "Early access to experimental features before general availability"
-msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighed"
+msgstr "Tidlig adgang til eksperimentelle funktioner inden generel tilgængelighed"
 
 msgid "Experimental UI"
 msgstr "Eksperimentel UI"

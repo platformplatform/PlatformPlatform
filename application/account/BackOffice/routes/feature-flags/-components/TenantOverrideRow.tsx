@@ -127,11 +127,11 @@ export function TenantOverrideRow({
           hasEverSubscribed={tenant.hasEverSubscribed}
         />
       </TableCell>
-      <TableCell className="hidden sm:table-cell">
+      <TableCell className="hidden lg:table-cell">
         <span className="text-sm text-muted-foreground">{getFeatureFlagSourceLabel(tenant.source)}</span>
       </TableCell>
       {showRolloutBucket && (
-        <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.rolloutBucket}</TableCell>
+        <TableCell className="hidden text-muted-foreground lg:table-cell">{tenant.rolloutBucket}</TableCell>
       )}
       <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-end gap-2">

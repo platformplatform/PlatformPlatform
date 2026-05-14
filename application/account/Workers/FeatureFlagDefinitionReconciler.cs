@@ -16,8 +16,10 @@ namespace Account.Workers;
 ///     stale tenant overrides whose Source no longer matches the definition (so
 ///     <see cref="Features.FeatureFlags.Shared.PlanBasedFeatureFlagEvaluator" /> can rebuild them on
 ///     the next login). Any DB row whose flag_key is not in the C# definitions is marked
-///     <see cref="FeatureFlag.OrphanedAt" /> at the current time. The reconciler is idempotent — a
-///     second pass on top of a converged DB produces no changes.
+///     <see cref="FeatureFlag.OrphanedAt" /> at the current time. If a definition reuses a key that
+///     was previously soft-deleted, the reconciler throws to abort deployment — admins explicitly
+///     retired the key and reusing it would conflate historical telemetry between two distinct flags.
+///     The reconciler is idempotent — a second pass on top of a converged DB produces no changes.
 ///     Runs inline at Worker startup (NOT a BackgroundService) so that a failure aborts the process
 ///     before it accepts traffic — better to fail to start than to run with inconsistent flag state.
 /// </summary>
@@ -62,10 +64,21 @@ public sealed class FeatureFlagDefinitionReconciler(
                 continue;
             }
 
-            // A previously-removed flag is back in code (rollback or intentional reintroduction). Clear
-            // both timestamps so the row participates as a live flag again — historical telemetry remains
-            // continuous on the same row instead of starting a new one.
-            if (baseRow.OrphanedAt is not null || baseRow.DeletedAt is not null)
+            // A deleted base row with the same key signals that an admin explicitly retired the flag.
+            // Reusing the key would conflate historical telemetry between the retired flag and a new one
+            // that happens to share the name, so deployment is aborted. Choose a different key, or
+            // manually clear DeletedAt in the database if you are sure you want to reuse it.
+            if (baseRow.DeletedAt is not null)
+            {
+                throw new InvalidOperationException(
+                    $"Feature flag '{definition.Key}' was previously deleted on {baseRow.DeletedAt:O}. Adding a new feature flag with the same name is not allowed."
+                );
+            }
+
+            // An orphaned (but not deleted) base row is back in code. This is the rollback / intentional
+            // reintroduction path — clear the timestamp so the row participates as a live flag again,
+            // preserving historical telemetry on the same row instead of starting a new one.
+            if (baseRow.OrphanedAt is not null)
             {
                 baseRow.Restore();
                 featureFlagRepository.Update(baseRow);

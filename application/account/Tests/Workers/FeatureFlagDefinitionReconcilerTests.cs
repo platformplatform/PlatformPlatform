@@ -205,7 +205,7 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
     }
 
     [Fact]
-    public async Task Reconciler_WhenSoftDeletedBaseRowKeyIsBackInDefinitions_ShouldClearDeletedAt()
+    public async Task Reconciler_WhenSoftDeletedBaseRowKeyIsBackInDefinitions_ShouldAbortDeployment()
     {
         // Arrange
         var baseRowId = Connection.ExecuteScalar<string>(
@@ -218,17 +218,15 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
         );
 
         // Act
-        await RunReconcilerAsync();
+        var act = async () => await RunReconcilerAsync();
 
         // Assert
-        var orphanedAt = Connection.ExecuteScalar<string>(
-            "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
-        );
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("Feature flag 'sso' was previously deleted*");
         var deletedAt = Connection.ExecuteScalar<string>(
             "SELECT deleted_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
         );
-        orphanedAt.Should().BeNullOrEmpty();
-        deletedAt.Should().BeNullOrEmpty();
+        deletedAt.Should().NotBeNullOrEmpty("the reconciler must not clear DeletedAt; it must fail deployment instead");
     }
 
     private async Task RunReconcilerAsync()

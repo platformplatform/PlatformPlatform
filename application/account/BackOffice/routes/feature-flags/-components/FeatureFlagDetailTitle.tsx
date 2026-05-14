@@ -4,8 +4,6 @@ import { ArrowLeftIcon } from "lucide-react";
 
 import type { FeatureFlagInfo } from "./types";
 
-import { DeletedFeatureFlagBadge } from "./DeletedFeatureFlagBadge";
-import { OrphanedFeatureFlagBadge } from "./OrphanedFeatureFlagBadge";
 import { ScopeIcon } from "./ScopeIcon";
 
 interface FeatureFlagDetailTitleProps {
@@ -27,10 +25,6 @@ export function FeatureFlagDetailTitle({ featureFlag, featureFlagName }: Readonl
         />
       )}
       <span>{featureFlagName}</span>
-      {featureFlag?.deletedAt == null && featureFlag?.orphanedAt != null && (
-        <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />
-      )}
-      {featureFlag?.deletedAt != null && <DeletedFeatureFlagBadge deletedAt={featureFlag.deletedAt} />}
     </div>
   );
 }

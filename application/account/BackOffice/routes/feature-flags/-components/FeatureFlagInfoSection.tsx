@@ -1,12 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
-import { Switch } from "@repo/ui/components/Switch";
-import { TextField } from "@repo/ui/components/TextField";
+import { NumberField } from "@repo/ui/components/NumberField";
+import { SwitchField } from "@repo/ui/components/SwitchField";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { getFeatureFlagName } from "@repo/ui/featureFlags/labels";
 import { InfoIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { api } from "@/shared/lib/api/client";
@@ -46,47 +45,51 @@ export function FeatureFlagInfoSection({
     );
   };
 
+  const rolloutMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/rollout-percentage");
+  const [rolloutPercentage, setRolloutPercentage] = useState<number>(featureFlag.rolloutPercentage ?? 0);
+  const commitRolloutPercentage = (value: number) => {
+    setRolloutPercentage(value);
+    if (value === (featureFlag.rolloutPercentage ?? 0)) return;
+    rolloutMutation.mutate(
+      { params: { path: { flagKey: featureFlag.key } }, body: { rolloutPercentage: value } },
+      { onSuccess: () => toast.success(t`Rollout percentage updated`) }
+    );
+  };
+
   const showToggle = orphanedAt === null && !featureFlag.isStableModule;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <FeatureFlagMetadata featureFlag={featureFlag} />
-        {showToggle && featureFlag.isAbTestEligible ? (
-          <div className="flex shrink-0 flex-col gap-1">
-            <span className="text-sm font-medium text-foreground">
-              <Trans>Rollout %</Trans>
-            </span>
-            <div className="flex items-center gap-4">
-              <RolloutPercentageInput flagKey={featureFlag.key} currentPercentage={featureFlag.rolloutPercentage} />
-              <Badge variant={featureFlag.isActive ? "default" : "outline"}>
-                {featureFlag.isActive ? t`Active` : t`Inactive`}
-              </Badge>
-              <Switch
-                checked={featureFlag.isActive}
-                onCheckedChange={handleToggle}
-                disabled={isPending || !canActivate}
-                aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
-              />
-            </div>
-          </div>
-        ) : showToggle ? (
-          <div className="flex shrink-0 items-center gap-4">
-            <Badge variant={featureFlag.isActive ? "default" : "outline"}>
-              {featureFlag.isActive ? t`Active` : t`Inactive`}
-            </Badge>
-            <Switch
+        <div className="flex shrink-0 items-end gap-6">
+          {showToggle && featureFlag.isAbTestEligible && (
+            <NumberField
+              label={t`Rollout %`}
+              tooltip={t`Percentage of accounts or users included in the A/B rollout. Buckets are assigned consistently per account or user.`}
+              name="rolloutPercentage"
+              value={rolloutPercentage}
+              minValue={0}
+              maxValue={100}
+              onChange={(value) => commitRolloutPercentage(value ?? 0)}
+              className="w-[7rem]"
+            />
+          )}
+          {showToggle ? (
+            <SwitchField
+              label={featureFlag.isActive ? t`Active` : t`Inactive`}
+              tooltip={t`Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides.`}
               checked={featureFlag.isActive}
               onCheckedChange={handleToggle}
               disabled={isPending || !canActivate}
-              aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
+              aria-label={t`Toggle activation`}
             />
-          </div>
-        ) : (
-          <Badge variant={featureFlag.isActive ? "default" : "outline"} className="shrink-0">
-            {featureFlag.isStableModule ? t`Always on` : featureFlag.isActive ? t`Active` : t`Inactive`}
-          </Badge>
-        )}
+          ) : orphanedAt === null ? (
+            <Badge variant={featureFlag.isActive ? "default" : "outline"} className="shrink-0">
+              {featureFlag.isStableModule ? t`Always on` : featureFlag.isActive ? t`Active` : t`Inactive`}
+            </Badge>
+          ) : null}
+        </div>
       </div>
       {featureFlag.isStableModule && orphanedAt === null && (
         <p className="text-sm text-muted-foreground">
@@ -105,12 +108,18 @@ function FeatureFlagMetadata({ featureFlag }: Readonly<{ featureFlag: FeatureFla
         ? t`Enabled: ${formatTimestamp(featureFlag.enabledAt)}`
         : null;
 
+  const deletedLine = featureFlag.deletedAt ? t`Deleted: ${formatTimestamp(featureFlag.deletedAt)}` : null;
+
   const rolloutBucketLine =
     featureFlag.isAbTestEligible &&
-    featureFlag.bucketStart != null &&
-    featureFlag.bucketEnd != null &&
+    featureFlag.rolloutBucketStart != null &&
+    featureFlag.rolloutBucketEnd != null &&
     featureFlag.rolloutPercentage != null
-      ? formatRolloutBucketRange(featureFlag.bucketStart, featureFlag.bucketEnd, featureFlag.rolloutPercentage)
+      ? formatRolloutBucketRange(
+          featureFlag.rolloutBucketStart,
+          featureFlag.rolloutBucketEnd,
+          featureFlag.rolloutPercentage
+        )
       : null;
 
   return (
@@ -119,6 +128,7 @@ function FeatureFlagMetadata({ featureFlag }: Readonly<{ featureFlag: FeatureFla
         <Trans>Name:</Trans> <span className="font-mono">{featureFlag.key}</span>
       </span>
       {enabledLine && <span>{enabledLine}</span>}
+      {deletedLine && <span>{deletedLine}</span>}
       {rolloutBucketLine && (
         <span className="flex items-center gap-1">
           {rolloutBucketLine}
@@ -148,54 +158,4 @@ function formatTimestamp(isoDate: string): string {
     hour: "numeric",
     minute: "2-digit"
   }).format(date);
-}
-
-function RolloutPercentageInput({
-  flagKey,
-  currentPercentage
-}: Readonly<{
-  flagKey: string;
-  currentPercentage: number | null;
-}>) {
-  const [percentage, setPercentage] = useState(String(currentPercentage ?? 0));
-  const lastSavedValue = useRef(String(currentPercentage ?? 0));
-
-  const rolloutMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/rollout-percentage");
-
-  const handleBlur = () => {
-    const value = Number.parseInt(percentage, 10);
-    if (Number.isNaN(value) || value < 0 || value > 100) {
-      setPercentage(lastSavedValue.current);
-      return;
-    }
-    if (percentage === lastSavedValue.current) return;
-
-    rolloutMutation.mutate(
-      {
-        params: { path: { flagKey } },
-        body: { rolloutPercentage: value }
-      },
-      {
-        onSuccess: () => {
-          lastSavedValue.current = String(value);
-          toast.success(t`Rollout percentage updated`);
-        },
-        onError: () => {
-          setPercentage(lastSavedValue.current);
-        }
-      }
-    );
-  };
-
-  return (
-    <TextField
-      aria-label={t`Rollout %`}
-      name="rolloutPercentage"
-      type="number"
-      value={percentage}
-      onChange={(value) => setPercentage(value)}
-      onBlur={handleBlur}
-      className="w-[6rem] whitespace-nowrap"
-    />
-  );
 }
