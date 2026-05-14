@@ -19,6 +19,7 @@ export interface FeatureFlagInfo {
   createdAt: string | null;
   requiredPlan: string | null;
   orphanedAt: string | null;
+  deletedAt: string | null;
   isKillSwitchEnabled: boolean;
 }
 

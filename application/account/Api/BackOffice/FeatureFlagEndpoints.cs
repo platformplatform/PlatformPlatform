@@ -24,8 +24,8 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             .RequireAuthorization(BackOfficeIdentityDefaults.PolicyName)
             .ProducesValidationProblem();
 
-        group.MapGet("/", async Task<ApiResult<GetFeatureFlagsResponse>> (IMediator mediator)
-            => await mediator.Send(new GetFeatureFlagsQuery())
+        group.MapGet("/", async Task<ApiResult<GetFeatureFlagsResponse>> ([AsParameters] GetFeatureFlagsQuery query, IMediator mediator)
+            => await mediator.Send(query)
         ).Produces<GetFeatureFlagsResponse>();
 
         group.MapGet("/{flagKey}/tenants", async Task<ApiResult<GetFeatureFlagTenantsResponse>> (string flagKey, [AsParameters] GetFeatureFlagTenantsQuery query, IMediator mediator)

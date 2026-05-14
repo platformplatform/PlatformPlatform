@@ -16,6 +16,7 @@ import { api, FeatureFlagAudienceState, SubscriptionPlan, UserRole } from "@/sha
 
 import type { GetFeatureFlagsResponse } from "./-components/types";
 
+import { DeletedFeatureFlagBadge } from "./-components/DeletedFeatureFlagBadge";
 import { DeleteFeatureFlagDialog } from "./-components/DeleteFeatureFlagDialog";
 import { FeatureFlagInfoSection } from "./-components/FeatureFlagInfoSection";
 import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
@@ -75,14 +76,16 @@ export default function FeatureFlagDetailPage() {
 
   const { data: featureFlagsData, isLoading: isLoadingFeatureFlags } = api.useQuery(
     "get",
-    "/api/back-office/feature-flags"
+    "/api/back-office/feature-flags",
+    { params: { query: { IncludeDeleted: true } } }
   ) as {
     data: GetFeatureFlagsResponse | undefined;
     isLoading: boolean;
   };
 
   const featureFlag = featureFlagsData?.flags?.find((f) => f.key === flagKey);
-  const isOrphaned = featureFlag?.orphanedAt != null;
+  const isDeleted = featureFlag?.deletedAt != null;
+  const isOrphaned = featureFlag?.orphanedAt != null && !isDeleted;
 
   const isPlanFeatureFlag = featureFlag?.requiredPlan != null;
   const isLoading = isLoadingFeatureFlags;
@@ -104,7 +107,10 @@ export default function FeatureFlagDetailPage() {
               </Link>
               {featureFlag && <ScopeIcon scope={featureFlag.scope} className="size-6 stroke-[2.5] text-foreground" />}
               <span>{featureFlagName}</span>
-              {featureFlag?.orphanedAt && <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />}
+              {isOrphaned && featureFlag?.orphanedAt && (
+                <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />
+              )}
+              {isDeleted && featureFlag?.deletedAt && <DeletedFeatureFlagBadge deletedAt={featureFlag.deletedAt} />}
             </div>
           }
           subtitle={featureFlag ? description : undefined}
@@ -113,7 +119,19 @@ export default function FeatureFlagDetailPage() {
             <FeatureFlagDetailSkeleton />
           ) : featureFlag ? (
             <div className="flex flex-col gap-8">
-              {isPlanFeatureFlag ? (
+              {isDeleted ? (
+                <div className="flex flex-col gap-2 rounded-lg border border-muted-foreground/30 bg-muted/30 p-4">
+                  <h3>
+                    <Trans>This flag has been deleted</Trans>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    <Trans>
+                      The base row is retained for historical telemetry. Account and user overrides were removed at
+                      delete time. If the flag is re-added in code, the reconciler restores this same row.
+                    </Trans>
+                  </p>
+                </div>
+              ) : isPlanFeatureFlag ? (
                 <PlanFeatureFlagInfoSection featureFlag={featureFlag} />
               ) : (
                 <FeatureFlagInfoSection
@@ -145,7 +163,7 @@ export default function FeatureFlagDetailPage() {
                   </Button>
                 </div>
               )}
-              {featureFlag.scope === "Tenant" && !isPlanFeatureFlag && (
+              {!isDeleted && featureFlag.scope === "Tenant" && !isPlanFeatureFlag && (
                 <TenantOverridesSection
                   flagKey={featureFlag.key}
                   featureFlagDescription={featureFlagName}
@@ -158,10 +176,10 @@ export default function FeatureFlagDetailPage() {
                   pageOffset={tenantsPageOffset}
                 />
               )}
-              {featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
+              {!isDeleted && featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
                 <PlanFeatureFlagTenantsSection flagKey={featureFlag.key} />
               )}
-              {featureFlag.scope === "User" && (
+              {!isDeleted && featureFlag.scope === "User" && (
                 <UserOverridesSection
                   flagKey={featureFlag.key}
                   featureFlagDescription={featureFlagName}

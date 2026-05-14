@@ -324,6 +324,9 @@ msgstr "Slet feature flag"
 msgid "Delete flag and all overrides"
 msgstr "Slet flag og alle tilsidesættelser"
 
+msgid "Deleted"
+msgstr "Slettet"
+
 msgid "Desktop"
 msgstr "Computer"
 
@@ -1007,6 +1010,9 @@ msgstr "Søg, filtrér og gennemse konti."
 msgid "Sessions"
 msgstr "Sessioner"
 
+msgid "Show deleted"
+msgstr "Vis slettede"
+
 msgid "Show details"
 msgstr "Vis detaljer"
 
@@ -1082,6 +1088,9 @@ msgstr "Systemflag"
 msgid "Tablet"
 msgstr "Tablet"
 
+msgid "The base row is retained for historical telemetry. Account and user overrides were removed at delete time. If the flag is re-added in code, the reconciler restores this same row."
+msgstr "Grundrækken bevares til historisk telemetri. Konto- og brugertilsidesættelser blev fjernet ved sletning. Hvis flaget tilføjes igen i koden, gendannes den samme række automatisk."
+
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 
@@ -1090,6 +1099,9 @@ msgstr "Tema"
 
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
+
+msgid "This flag has been deleted"
+msgstr "Dette flag er blevet slettet"
 
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "Dette flag styres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
@@ -1102,6 +1114,9 @@ msgstr "Dette flag findes ikke længere i koden"
 
 msgid "This flag no longer exists in FeatureFlags.cs as of {formatted}. Account and user state is preserved but no longer evaluated by new code paths or telemetry. Use the delete action to remove the global row and all overrides."
 msgstr "Dette flag findes ikke længere i FeatureFlags.cs pr. {formatted}. Konto- og brugertilstand er bevaret, men evalueres ikke længere af nye kodestier eller telemetri. Brug sletteknappen for at fjerne den globale række og alle tilsidesættelser."
+
+msgid "This flag was deleted on {formatted}. The row is retained for historical telemetry; account and user overrides have been removed. If the flag is re-added in code, the same row will be restored."
+msgstr "Dette flag blev slettet den {formatted}. Rækken bevares til historisk telemetri; konto- og brugertilsidesættelser er fjernet. Hvis flaget tilføjes igen i koden, gendannes den samme række."
 
 msgid "this period"
 msgstr "denne periode"

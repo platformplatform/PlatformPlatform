@@ -2,18 +2,22 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
+import { Label } from "@repo/ui/components/Label";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { Switch } from "@repo/ui/components/Switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { getFeatureFlagDescription, getFeatureFlagName } from "@repo/ui/featureFlags/labels";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
 import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo, FeatureFlagScope, GetFeatureFlagsResponse } from "./-components/types";
 
+import { DeletedFeatureFlagBadge } from "./-components/DeletedFeatureFlagBadge";
+import { OrphanedFeatureFlagBadge } from "./-components/OrphanedFeatureFlagBadge";
 import { ScopeIcon } from "./-components/ScopeIcon";
 
 export const Route = createFileRoute("/feature-flags/")({
@@ -30,7 +34,11 @@ interface FeatureFlagGroup {
 }
 
 export default function FeatureFlagsPage() {
-  const { data, isLoading } = api.useQuery("get", "/api/back-office/feature-flags") as {
+  const [showDeleted, setShowDeleted] = useState(false);
+
+  const { data, isLoading } = api.useQuery("get", "/api/back-office/feature-flags", {
+    params: { query: { IncludeDeleted: showDeleted } }
+  }) as {
     data: GetFeatureFlagsResponse | undefined;
     isLoading: boolean;
   };
@@ -67,6 +75,12 @@ export default function FeatureFlagsPage() {
           title={t`Feature flags`}
           subtitle={t`Feature flags are defined in code. This view controls their activation and rollout.`}
         >
+          <div className="flex items-center justify-end gap-3 pb-2">
+            <Label htmlFor="show-deleted-toggle" className="text-sm text-muted-foreground">
+              <Trans>Show deleted</Trans>
+            </Label>
+            <Switch id="show-deleted-toggle" checked={showDeleted} onCheckedChange={setShowDeleted} />
+          </div>
           {isLoading ? <FeatureFlagsSkeleton /> : <FeatureFlagGroupList groups={groups} />}
         </AppLayout>
       </SidebarInset>
@@ -128,6 +142,10 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                         <span className="flex items-center gap-2 font-medium">
                           <ScopeIcon scope={featureFlag.scope} />
                           {getFeatureFlagName(featureFlag.key)}
+                          {featureFlag.orphanedAt && featureFlag.deletedAt == null && (
+                            <OrphanedFeatureFlagBadge orphanedAt={featureFlag.orphanedAt} />
+                          )}
+                          {featureFlag.deletedAt && <DeletedFeatureFlagBadge deletedAt={featureFlag.deletedAt} />}
                         </span>
                         <span className="hidden truncate text-sm text-muted-foreground sm:block">
                           {getFeatureFlagDescription(featureFlag.key) || featureFlag.description}

@@ -1293,6 +1293,62 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         result.Flags.Single(f => f.Key == "compact-view").ConfigurableByUser.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task GetFeatureFlags_WhenOrphanedRowWithScope_ShouldIncludeInResponse()
+    {
+        // Arrange
+        InsertHistoricalBaseRow("removed-feature", FeatureFlagScope.Tenant);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/feature-flags");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagsResponse>();
+        result.Should().NotBeNull();
+        var orphan = result.Flags.Single(f => f.Key == "removed-feature");
+        orphan.Scope.Should().Be(FeatureFlagScope.Tenant);
+        orphan.OrphanedAt.Should().NotBeNull();
+        orphan.DeletedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetFeatureFlags_WhenSoftDeletedRowAndIncludeDeletedFalse_ShouldExcludeFromResponse()
+    {
+        // Arrange
+        InsertHistoricalBaseRow("removed-feature", FeatureFlagScope.Tenant, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/feature-flags");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagsResponse>();
+        result.Should().NotBeNull();
+        result.Flags.Should().NotContain(f => f.Key == "removed-feature");
+    }
+
+    [Fact]
+    public async Task GetFeatureFlags_WhenSoftDeletedRowAndIncludeDeletedTrue_ShouldIncludeWithDeletedAt()
+    {
+        // Arrange
+        InsertHistoricalBaseRow("removed-feature", FeatureFlagScope.Tenant, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/feature-flags?IncludeDeleted=true");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagsResponse>();
+        result.Should().NotBeNull();
+        var deleted = result.Flags.Single(f => f.Key == "removed-feature");
+        deleted.DeletedAt.Should().NotBeNull();
+        deleted.OrphanedAt.Should().NotBeNull();
+    }
+
     // Back-office mutations do NOT chain AddRefreshAuthenticationTokens() because the back-office
     // actor's own claim set is unchanged when they mutate flags for other tenants/users. Target
     // sessions pick up the change via the x-user-feature-flags header on their next request.
@@ -1479,6 +1535,32 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual"),
+                ("scope", null),
+                ("orphaned_at", now),
+                ("deleted_at", softDeleted ? now : null)
+            ]
+        );
+    }
+
+    private void InsertHistoricalBaseRow(string flagKey, FeatureFlagScope scope, bool softDeleted = false)
+    {
+        var rowId = FeatureFlagId.NewId().ToString();
+        var now = TimeProvider.System.GetUtcNow();
+        Connection.Insert("feature_flags", [
+                ("id", rowId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", null),
+                ("user_id", null),
+                ("enabled_at", now),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false),
+                ("source", "Manual"),
+                ("scope", scope.ToString()),
                 ("orphaned_at", now),
                 ("deleted_at", softDeleted ? now : null)
             ]

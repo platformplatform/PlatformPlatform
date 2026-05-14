@@ -7,7 +7,7 @@ using SharedKernel.FeatureFlags;
 namespace Account.Features.FeatureFlags.Queries;
 
 [PublicAPI]
-public sealed record GetFeatureFlagsQuery : IRequest<Result<GetFeatureFlagsResponse>>;
+public sealed record GetFeatureFlagsQuery(bool IncludeDeleted = false) : IRequest<Result<GetFeatureFlagsResponse>>;
 
 [PublicAPI]
 public sealed record GetFeatureFlagsResponse(FeatureFlagInfo[] Flags);
@@ -30,7 +30,8 @@ public sealed record FeatureFlagInfo(
     int? RolloutPercentage,
     bool IsActive,
     bool IsKillSwitchEnabled,
-    DateTimeOffset? OrphanedAt
+    DateTimeOffset? OrphanedAt,
+    DateTimeOffset? DeletedAt
 );
 
 public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRepository, IConfiguration configuration)
@@ -42,7 +43,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
         var baseRows = await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken);
         var baseRowsByKey = baseRows.ToDictionary(f => f.FlagKey);
 
-        var featureFlags = definitions.Select(definition =>
+        var activeFlags = definitions.Select(definition =>
             {
                 if (definition.Scope == FeatureFlagScope.System)
                 {
@@ -50,7 +51,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     return new FeatureFlagInfo(
                         definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                         definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                        null, null, null, null, null, null, isSystemFeatureFlagActive, definition.IsKillSwitchEnabled, null
+                        null, null, null, null, null, null, isSystemFeatureFlagActive, definition.IsKillSwitchEnabled, null, null
                     );
                 }
 
@@ -67,12 +68,27 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                 return new FeatureFlagInfo(
                     definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                     definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
-                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive, definition.IsKillSwitchEnabled, baseRow?.OrphanedAt
+                    createdAt, enabledAt, disabledAt, rolloutBucketStart, rolloutBucketEnd, rolloutPercentage, isActive, definition.IsKillSwitchEnabled, baseRow?.OrphanedAt, baseRow?.DeletedAt
                 );
             }
-        ).ToArray();
+        );
 
-        return new GetFeatureFlagsResponse(featureFlags);
+        // Surface orphaned (and optionally soft-deleted) rows whose key is no longer in the C# definitions
+        // so admins can review and retire them. Scope is row-persisted; other definition-side fields use
+        // safe defaults because no live behavior depends on them once the definition is gone.
+        var definitionKeys = definitions.Select(d => d.Key).ToHashSet();
+        var historicalFlags = baseRowsByKey.Values
+            .Where(row => !definitionKeys.Contains(row.FlagKey) && row.Scope is not null)
+            .Where(row => row.DeletedAt is null || request.IncludeDeleted)
+            .Select(row => new FeatureFlagInfo(
+                    row.FlagKey, row.Scope!.Value, FeatureFlagAdminLevel.SystemAdmin, string.Empty,
+                    false, false, false, null,
+                    row.CreatedAt, row.EnabledAt, row.DisabledAt, row.BucketStart, row.BucketEnd,
+                    ComputeRolloutPercentage(row.BucketStart, row.BucketEnd), row.IsActive, false, row.OrphanedAt, row.DeletedAt
+                )
+            );
+
+        return new GetFeatureFlagsResponse(activeFlags.Concat(historicalFlags).ToArray());
     }
 
     private static int? ComputeRolloutPercentage(int? rolloutBucketStart, int? rolloutBucketEnd)

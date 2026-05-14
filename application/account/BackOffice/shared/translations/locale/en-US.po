@@ -324,6 +324,9 @@ msgstr "Delete feature flag"
 msgid "Delete flag and all overrides"
 msgstr "Delete flag and all overrides"
 
+msgid "Deleted"
+msgstr "Deleted"
+
 msgid "Desktop"
 msgstr "Desktop"
 
@@ -1007,6 +1010,9 @@ msgstr "Search, filter, and review accounts."
 msgid "Sessions"
 msgstr "Sessions"
 
+msgid "Show deleted"
+msgstr "Show deleted"
+
 msgid "Show details"
 msgstr "Show details"
 
@@ -1082,6 +1088,9 @@ msgstr "System flags"
 msgid "Tablet"
 msgstr "Tablet"
 
+msgid "The base row is retained for historical telemetry. Account and user overrides were removed at delete time. If the flag is re-added in code, the reconciler restores this same row."
+msgstr "The base row is retained for historical telemetry. Account and user overrides were removed at delete time. If the flag is re-added in code, the reconciler restores this same row."
+
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
 
@@ -1090,6 +1099,9 @@ msgstr "Theme"
 
 msgid "This account has no users."
 msgstr "This account has no users."
+
+msgid "This flag has been deleted"
+msgstr "This flag has been deleted"
 
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
@@ -1102,6 +1114,9 @@ msgstr "This flag no longer exists in code"
 
 msgid "This flag no longer exists in FeatureFlags.cs as of {formatted}. Account and user state is preserved but no longer evaluated by new code paths or telemetry. Use the delete action to remove the global row and all overrides."
 msgstr "This flag no longer exists in FeatureFlags.cs as of {formatted}. Account and user state is preserved but no longer evaluated by new code paths or telemetry. Use the delete action to remove the global row and all overrides."
+
+msgid "This flag was deleted on {formatted}. The row is retained for historical telemetry; account and user overrides have been removed. If the flag is re-added in code, the same row will be restored."
+msgstr "This flag was deleted on {formatted}. The row is retained for historical telemetry; account and user overrides have been removed. If the flag is re-added in code, the same row will be restored."
 
 msgid "this period"
 msgstr "this period"
