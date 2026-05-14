@@ -155,7 +155,7 @@ export default function FeatureFlagDetailPage() {
                   </Button>
                 </div>
               )}
-              {!isDeleted && featureFlag.scope === "Tenant" && !isPlanFeatureFlag && (
+              {!isDeleted && !isOrphaned && featureFlag.scope === "Tenant" && !isPlanFeatureFlag && (
                 <TenantOverridesSection
                   flagKey={featureFlag.key}
                   featureFlagDescription={featureFlagName}
@@ -170,7 +170,7 @@ export default function FeatureFlagDetailPage() {
                   sortOrder={tenantsSortOrder}
                 />
               )}
-              {!isDeleted && featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
+              {!isDeleted && !isOrphaned && featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
                 <PlanFeatureFlagTenantsSection
                   flagKey={featureFlag.key}
                   requiredPlan={featureFlag.requiredPlan}
@@ -179,7 +179,7 @@ export default function FeatureFlagDetailPage() {
                   pageOffset={tenantsPageOffset}
                 />
               )}
-              {!isDeleted && featureFlag.scope === "User" && (
+              {!isDeleted && !isOrphaned && featureFlag.scope === "User" && (
                 <UserOverridesSection
                   flagKey={featureFlag.key}
                   featureFlagDescription={featureFlagName}
