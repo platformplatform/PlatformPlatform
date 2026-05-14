@@ -1037,6 +1037,9 @@ msgstr "Something went wrong"
 msgid "Source"
 msgstr "Source"
 
+msgid "Stable features are always on and cannot be toggled."
+msgstr "Stable features are always on and cannot be toggled."
+
 msgid "Standard"
 msgstr "Standard"
 
@@ -1105,9 +1108,6 @@ msgstr "This flag has been deleted"
 
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
-
-msgid "This flag is platform-managed. Plan-based flags update with the account's subscription. Stable features are not togglable."
-msgstr "This flag is platform-managed. Plan-based flags update with the account's subscription. Stable features are not togglable."
 
 msgid "This flag no longer exists in code"
 msgstr "This flag no longer exists in code"

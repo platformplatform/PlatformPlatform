@@ -80,7 +80,7 @@ export function FeatureFlagInfoSection({
             <Switch
               checked={featureFlag.isActive}
               onCheckedChange={handleToggle}
-              disabled={isPending}
+              disabled={isPending || !canActivate}
               aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
             />
           </div>
@@ -92,10 +92,7 @@ export function FeatureFlagInfoSection({
       </div>
       {!isKillSwitchEnabled && orphanedAt === null && (
         <p className="text-sm text-muted-foreground">
-          <Trans>
-            This flag is platform-managed. Plan-based flags update with the account's subscription. Stable features are
-            not togglable.
-          </Trans>
+          <Trans>Stable features are always on and cannot be toggled.</Trans>
         </p>
       )}
     </div>
