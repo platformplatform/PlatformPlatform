@@ -29,6 +29,7 @@ jobs:
     outputs:
       backend_scope: ${{ steps.scope.outputs.backend_scope }}
       backend_label: ${{ steps.scope.outputs.backend_label }}
+      format_all_files_flag: ${{ steps.scope.outputs.format_all_files_flag }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -80,8 +81,21 @@ jobs:
             echo "backend_label=full backend (default — no backend paths matched)" >> "$GITHUB_OUTPUT"
           fi
 
+          # Force --all-files when the JetBrains tool manifest moves. Tool upgrades change the
+          # cleanupcode rule set, so latent formatting drift in untouched files needs reformatting
+          # in the same PR. Otherwise the next PR that happens to touch one of those files fails CI.
+          if echo "$changed" | grep -q '^application/dotnet-tools.json$'; then
+            echo "format_all_files_flag=--all-files" >> "$GITHUB_OUTPUT"
+            echo "format_label=all files (JetBrains tools upgraded)" >> "$GITHUB_OUTPUT"
+          else
+            echo "format_all_files_flag=" >> "$GITHUB_OUTPUT"
+            echo "format_label=changed .cs files only" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Print Scope
-        run: echo "Backend scope - ${{ steps.scope.outputs.backend_label }}"
+        run: |
+          echo "Backend scope - ${{ steps.scope.outputs.backend_label }}"
+          echo "Format scope  - ${{ steps.scope.outputs.format_label }}"
 
   code-linting:
     name: Code Linting
@@ -184,10 +198,10 @@ jobs:
       - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
-          dotnet run format --backend ${{ needs.detect-changes.outputs.backend_scope }} --no-build
+          dotnet run format --backend ${{ needs.detect-changes.outputs.backend_scope }} ${{ needs.detect-changes.outputs.format_all_files_flag }} --no-build
 
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --backend ${{ needs.detect-changes.outputs.backend_scope }}' locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --backend ${{ needs.detect-changes.outputs.backend_scope }} ${{ needs.detect-changes.outputs.format_all_files_flag }}' locally and commit the formatted code."
             exit 1
           }
 
