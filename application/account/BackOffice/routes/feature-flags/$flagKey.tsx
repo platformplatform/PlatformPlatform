@@ -155,9 +155,9 @@ export default function FeatureFlagDetailPage() {
               {!isDeleted && featureFlag.scope === "Tenant" && isPlanFeatureFlag && (
                 <PlanFeatureFlagTenantsSection
                   flagKey={featureFlag.key}
+                  requiredPlan={featureFlag.requiredPlan}
                   search={tenantsSearch}
                   plans={tenantsPlans ?? []}
-                  state={tenantsState}
                   pageOffset={tenantsPageOffset}
                 />
               )}

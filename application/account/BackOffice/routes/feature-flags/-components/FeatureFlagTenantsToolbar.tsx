@@ -21,6 +21,7 @@ interface FeatureFlagTenantsToolbarProps {
   state: StateFilter | undefined;
   hasOverride: boolean;
   hideHasOverride?: boolean;
+  hideState?: boolean;
 }
 
 const HAS_OVERRIDE_VALUE = "true";
@@ -31,7 +32,8 @@ export function FeatureFlagTenantsToolbar({
   plans,
   state,
   hasOverride,
-  hideHasOverride
+  hideHasOverride,
+  hideState
 }: Readonly<FeatureFlagTenantsToolbarProps>) {
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState(search ?? "");
@@ -122,23 +124,25 @@ export function FeatureFlagTenantsToolbar({
         </InputGroup>
       </div>
 
-      <ToggleGroup
-        variant="outline"
-        aria-label={t`State`}
-        multiple={true}
-        value={[state ?? DEFAULT_STATE_FILTER]}
-        onValueChange={handleStateChange}
-      >
-        <ToggleGroupItem value={ALL_STATE_FILTER} className="min-w-[5rem] justify-center">
-          <Trans>All</Trans>
-        </ToggleGroupItem>
-        <ToggleGroupItem value={FeatureFlagAudienceState.Enabled} className="min-w-[5rem] justify-center">
-          <Trans>Enabled</Trans>
-        </ToggleGroupItem>
-        <ToggleGroupItem value={FeatureFlagAudienceState.Disabled} className="min-w-[5rem] justify-center">
-          <Trans>Disabled</Trans>
-        </ToggleGroupItem>
-      </ToggleGroup>
+      {!hideState && (
+        <ToggleGroup
+          variant="outline"
+          aria-label={t`State`}
+          multiple={true}
+          value={[state ?? DEFAULT_STATE_FILTER]}
+          onValueChange={handleStateChange}
+        >
+          <ToggleGroupItem value={ALL_STATE_FILTER} className="min-w-[5rem] justify-center">
+            <Trans>All</Trans>
+          </ToggleGroupItem>
+          <ToggleGroupItem value={FeatureFlagAudienceState.Enabled} className="min-w-[5rem] justify-center">
+            <Trans>Enabled</Trans>
+          </ToggleGroupItem>
+          <ToggleGroupItem value={FeatureFlagAudienceState.Disabled} className="min-w-[5rem] justify-center">
+            <Trans>Disabled</Trans>
+          </ToggleGroupItem>
+        </ToggleGroup>
+      )}
 
       {!hideHasOverride && (
         <ToggleGroup

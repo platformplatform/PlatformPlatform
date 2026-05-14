@@ -10,15 +10,23 @@ import { useNavigate } from "@tanstack/react-router";
 import { Building2Icon } from "lucide-react";
 import { useCallback } from "react";
 
-import type { SubscriptionPlan } from "@/shared/lib/api/client";
-
-import { api } from "@/shared/lib/api/client";
+import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo } from "./types";
 
 import { FeatureFlagTenantsToolbar } from "./FeatureFlagTenantsToolbar";
 import { PlanFeatureFlagTenantTable } from "./PlanFeatureFlagTenantTable";
-import { DEFAULT_STATE_FILTER, type StateFilter, toApiState } from "./stateFilter";
+
+// Ordered low → high tier. A plan-gated feature is enabled for accounts on the required plan or any
+// higher plan, so the default selection on entry is everything from the required plan upward.
+const PLAN_ORDER = [SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium] as const;
+
+function plansAtOrAboveRequired(requiredPlan: string | null): SubscriptionPlan[] {
+  if (!requiredPlan) return [];
+  const idx = PLAN_ORDER.indexOf(requiredPlan as SubscriptionPlan);
+  if (idx < 0) return [];
+  return PLAN_ORDER.slice(idx);
+}
 
 export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFlag: FeatureFlagInfo }>) {
   return (
@@ -48,20 +56,27 @@ export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFl
 
 interface PlanFeatureFlagTenantsSectionProps {
   flagKey: string;
+  requiredPlan: string | null;
   search: string | undefined;
   plans: SubscriptionPlan[];
-  state: StateFilter | undefined;
   pageOffset: number | undefined;
 }
 
 export function PlanFeatureFlagTenantsSection({
   flagKey,
+  requiredPlan,
   search,
   plans,
-  state,
   pageOffset
 }: Readonly<PlanFeatureFlagTenantsSectionProps>) {
   const navigate = useNavigate();
+
+  // On entry (no plans param in URL) pre-select the plans the flag is active for — for plan-gated
+  // flags those are the only accounts where the feature is relevant. If the user explicitly clears
+  // every chip the toolbar drops the URL param, which we treat as "back to the default selection";
+  // they always have to pass through "everything selected" or another chip combination to see other
+  // accounts.
+  const effectivePlans = plans.length === 0 ? plansAtOrAboveRequired(requiredPlan) : plans;
 
   const { data, isLoading } = api.useQuery(
     "get",
@@ -71,8 +86,7 @@ export function PlanFeatureFlagTenantsSection({
         path: { flagKey },
         query: {
           Search: search,
-          Plans: plans.length === 0 ? undefined : plans,
-          State: toApiState(state),
+          Plans: effectivePlans.length === 0 ? undefined : effectivePlans,
           PageOffset: pageOffset
         }
       }
@@ -83,8 +97,7 @@ export function PlanFeatureFlagTenantsSection({
   const tenants = data?.tenants ?? [];
   const totalPages = data?.totalPages ?? 0;
   const currentPage = (data?.currentPageOffset ?? 0) + 1;
-  const effectiveState = state ?? DEFAULT_STATE_FILTER;
-  const hasFilters = Boolean(search) || plans.length > 0 || effectiveState !== DEFAULT_STATE_FILTER;
+  const hasFilters = Boolean(search) || plans.length > 0;
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -116,10 +129,11 @@ export function PlanFeatureFlagTenantsSection({
       <FeatureFlagTenantsToolbar
         flagKey={flagKey}
         search={search}
-        plans={plans}
-        state={state}
+        plans={effectivePlans}
+        state={undefined}
         hasOverride={false}
         hideHasOverride={true}
+        hideState={true}
       />
       {isLoading && tenants.length === 0 ? (
         <PlanFeatureFlagTenantsSkeleton />
