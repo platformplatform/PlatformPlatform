@@ -11,7 +11,7 @@ namespace Account.Tests.ArchitectureTests;
 // The InternalApiEndpoints_ShouldEitherRequireAuthorizationOrBeOnAllowlist arch test enforces the
 // auth-or-allowlist invariant going forward; this Theory locks in that the specific routes deleted
 // by PP-1251 stay deleted (a future contributor cannot accidentally remap them).
-public sealed class InternalApiRoutesRemovedTests : EndpointBaseTest<AccountDbContext>
+public sealed class InternalApiRoutesRemovedTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Theory]
     [InlineData("GET", "/internal-api/account/feature-flags")]

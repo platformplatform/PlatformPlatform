@@ -16,7 +16,7 @@ namespace Account.Tests.Subscriptions.Domain;
 ///     cascade, must not flip the row to soft-deleted, and must not exclude the row from cross-tenant
 ///     back-office reads. Without this guarantee the MRR ledger silently corrupts on every churn.
 /// </summary>
-public sealed class SubscriptionRepositoryTests : EndpointBaseTest<AccountDbContext>
+public sealed class SubscriptionRepositoryTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task WhenTenantIsSoftDeleted_SubscriptionRowsRemainQueryable()

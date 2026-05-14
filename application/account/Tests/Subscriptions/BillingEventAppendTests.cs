@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class BillingEventAppendTests : EndpointBaseTest<AccountDbContext>
+public sealed class BillingEventAppendTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 

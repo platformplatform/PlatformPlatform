@@ -16,7 +16,7 @@ namespace Account.Tests.Subscriptions.Domain;
 ///     this is what guarantees that cancelled tenants (Plan reset to Basis, customer id retained, billing
 ///     history intact) keep being audited for drift instead of silently falling off the radar.
 /// </summary>
-public sealed class SubscriptionRepositoryDriftScopeTests : EndpointBaseTest<AccountDbContext>
+public sealed class SubscriptionRepositoryDriftScopeTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetSubscriptionsDueForDriftCheckUnfilteredAsync_WhenSubscriptionsHaveMixedStaleness_ShouldReturnOnlyStaleOnesWithStripeCustomer()

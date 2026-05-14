@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Billing;
 
-public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetPaymentHistoryTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetPaymentHistory_WhenTransactionsExist_ShouldReturnPaginatedHistory()

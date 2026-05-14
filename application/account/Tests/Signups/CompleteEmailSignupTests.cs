@@ -14,15 +14,18 @@ using Xunit;
 
 namespace Account.Tests.Signups;
 
-public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountDbContext>
+public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountDbContext>, IClassFixture<CompleteEmailSignupFactory>
 {
     private const string CorrectOneTimePassword = "UNLOCK"; // UNLOCK is a special global OTP for development and tests
     private const string WrongOneTimePassword = "FAULTY";
-    private readonly ILogger<TenantCreatedEventHandler> _tenantCreatedEventHandlerLogger = Substitute.For<ILogger<TenantCreatedEventHandler>>();
+    private readonly ILogger<TenantCreatedEventHandler> _tenantCreatedEventHandlerLogger;
 
-    protected override void RegisterMockLoggers(IServiceCollection services)
+    public CompleteEmailSignupTests(CompleteEmailSignupFactory factory) : base(factory)
     {
-        services.AddSingleton(_tenantCreatedEventHandlerLogger);
+        _tenantCreatedEventHandlerLogger = factory.TenantCreatedEventHandlerLogger;
+        // Substitute is class-scoped (lives on the IClassFixture); reset between tests so received
+        // calls from a prior test in this class don't bleed into this test's assertions.
+        _tenantCreatedEventHandlerLogger.ClearReceivedCalls();
     }
 
     [Fact]
@@ -174,5 +177,15 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountDbContext
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/signup/start", command);
         var responseBody = await response.DeserializeResponse<StartEmailSignupResponse>();
         return responseBody!.EmailLoginId;
+    }
+}
+
+public sealed class CompleteEmailSignupFactory : AccountWebApplicationFactory
+{
+    public ILogger<TenantCreatedEventHandler> TenantCreatedEventHandlerLogger { get; } = Substitute.For<ILogger<TenantCreatedEventHandler>>();
+
+    protected override void ConfigureAdditionalTestServices(IServiceCollection services)
+    {
+        services.AddSingleton(TenantCreatedEventHandlerLogger);
     }
 }

@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class GetDeletedUsersTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetDeletedUsersTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetDeletedUsers_WhenOwner_ShouldReturnDeletedUsers()

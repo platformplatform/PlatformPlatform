@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Account.Tests.EmailAuthentication;
 
-public sealed class ResendEmailLoginCodeTests : EndpointBaseTest<AccountDbContext>
+public sealed class ResendEmailLoginCodeTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ResendEmailLoginCode_WhenValid_ShouldSendNewVerificationCode()

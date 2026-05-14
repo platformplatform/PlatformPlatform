@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
+public sealed class DeclineInvitationTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task DeclineInvitation_WhenValidInviteExists_ShouldDeleteUserAndCollectTelemetry()

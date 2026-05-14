@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Billing;
 
-public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
+public sealed class UpdateBillingInfoTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task UpdateBillingInfo_WhenValid_ShouldSucceed()

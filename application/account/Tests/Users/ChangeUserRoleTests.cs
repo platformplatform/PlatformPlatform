@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
+public sealed class ChangeUserRoleTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ChangeUserRole_WhenOwnerChangesAnotherUserRole_ShouldSucceed()

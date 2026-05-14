@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.Authentication;
 
-public sealed class RevokeSessionTests : EndpointBaseTest<AccountDbContext>
+public sealed class RevokeSessionTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task RevokeSession_WhenValid_ShouldRevokeSession()

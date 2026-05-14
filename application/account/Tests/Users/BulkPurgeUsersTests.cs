@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountDbContext>
+public sealed class BulkPurgeUsersTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task BulkPurgeUsers_WhenOwnerDeletesMultipleDeletedUsers_ShouldPermanentlyDeleteAllSpecifiedUsers()

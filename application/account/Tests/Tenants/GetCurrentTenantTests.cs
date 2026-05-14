@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants;
 
-public sealed class GetCurrentTenantTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetCurrentTenantTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetCurrentTenant_WhenTenantExists_ShouldReturnTenantWithValidContract()

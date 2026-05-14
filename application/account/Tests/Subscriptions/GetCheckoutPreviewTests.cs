@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetCheckoutPreviewTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetCheckoutPreview_WhenStandardPlan_ShouldReturnPreview()

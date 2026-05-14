@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
+public sealed class ChangeLocaleTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ChangeLocale_WhenValidLocale_ShouldUpdateUserLocaleAndCollectEvent()

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class GetPricingCatalogTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetPricingCatalogTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetPricingCatalog_WhenCalled_ShouldReturnPlans()

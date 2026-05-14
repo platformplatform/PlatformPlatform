@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
+public sealed class ScheduleDowngradeTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ScheduleDowngrade_WhenPremiumToStandard_ShouldSucceed()

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Billing;
 
-public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDbContext>
+public sealed class RetryPendingInvoicePaymentTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task RetryPendingInvoicePayment_WhenOpenInvoicePaid_ShouldReturnPaid()

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class ChangeThemeTests : EndpointBaseTest<AccountDbContext>
+public sealed class ChangeThemeTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ChangeTheme_WhenValid_ShouldCollectTelemetryEvent()

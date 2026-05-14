@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class DeleteUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task DeleteUser_WhenUserDoesNotExists_ShouldReturnNotFound()

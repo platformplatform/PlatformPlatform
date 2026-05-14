@@ -16,7 +16,7 @@ namespace Account.Tests.Subscriptions;
 ///     <c>stripe_events</c> archive as recovered rows. The replayer then reads from the local
 ///     archive — which is now complete — and emits the corresponding <c>billing_events</c>.
 /// </summary>
-public sealed class EventLogReconciliationTests : EndpointBaseTest<AccountDbContext>
+public sealed class EventLogReconciliationTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants;
 
-public sealed class RemoveTenantLogoTests : EndpointBaseTest<AccountDbContext>
+public sealed class RemoveTenantLogoTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task RemoveTenantLogo_WhenOwnerUser_ShouldSucceed()

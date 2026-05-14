@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Billing;
 
-public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbContext>
+public sealed class ConfirmPaymentMethodSetupTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ConfirmPaymentMethodSetup_WhenValid_ShouldSucceed()

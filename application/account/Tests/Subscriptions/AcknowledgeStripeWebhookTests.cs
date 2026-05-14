@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbContext>
+public sealed class AcknowledgeStripeWebhookTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 

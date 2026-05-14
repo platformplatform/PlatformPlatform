@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class ChangeZoomLevelTests : EndpointBaseTest<AccountDbContext>
+public sealed class ChangeZoomLevelTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ChangeZoomLevel_WhenValid_ShouldCollectTelemetryEvent()

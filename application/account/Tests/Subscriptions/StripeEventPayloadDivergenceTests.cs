@@ -15,7 +15,7 @@ namespace Account.Tests.Subscriptions;
 ///     row is preserved unchanged and a <c>StripeEventPayloadMismatch</c> telemetry event is emitted
 ///     so the drift banner can surface it.
 /// </summary>
-public sealed class StripeEventPayloadDivergenceTests : EndpointBaseTest<AccountDbContext>
+public sealed class StripeEventPayloadDivergenceTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 

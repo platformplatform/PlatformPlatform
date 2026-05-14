@@ -15,7 +15,7 @@ namespace Account.Tests.FeatureFlags;
 // rollout-bucket math. Back-office (cross-tenant) feature-flag behavior is exercised in the parallel
 // FeatureFlagBackOfficeTests.cs under Tests/BackOffice/FeatureFlags/ — that file owns the kill-switch,
 // rollout, override, and listing flows that used to live on /internal-api/account/feature-flags/*.
-public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
+public sealed class FeatureFlagTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     // Tenant override tests (owner API)
 

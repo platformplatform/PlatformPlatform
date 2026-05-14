@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants;
 
-public sealed class DeleteTenantTests : EndpointBaseTest<AccountDbContext>
+public sealed class DeleteTenantTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task DeleteTenant_WhenTenantDoesNotExists_ShouldReturnNotFound()
