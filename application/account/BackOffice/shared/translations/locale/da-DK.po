@@ -123,9 +123,6 @@ msgstr "Kontovækst"
 msgid "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
 msgstr "Kontoen har {0} afvigelser. Sidst afstemt {1}. Hvis standard-afstemning ikke kan rydde afvigelserne, er katastrofegendannelse fra arkiverede Stripe-events tilgængelig som sidste udvej."
 
-msgid "Account ID"
-msgstr "Konto-ID"
-
 msgid "Account preview"
 msgstr "Kontoforhåndsvisning"
 
@@ -149,6 +146,9 @@ msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug til
 
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
+
+msgid "Accounts will appear here as they qualify for this feature."
+msgstr "Konti vises her, efterhånden som de kvalificerer til denne funktion."
 
 msgid "Actions"
 msgstr "Handlinger"
@@ -580,9 +580,6 @@ msgstr "Næste"
 msgid "No account memberships"
 msgstr "Ingen kontomedlemskaber"
 
-msgid "No accounts found matching your search"
-msgstr "Ingen konti fundet, der matcher din søgning"
-
 msgid "No accounts match your filters"
 msgstr "Ingen konti matcher dine filtre"
 
@@ -681,9 +678,6 @@ msgstr "Der er ingen brugeromfattede feature flags defineret."
 
 msgid "No users"
 msgstr "Ingen brugere"
-
-msgid "No users found matching your search"
-msgstr "Ingen brugere fundet, der matcher din søgning"
 
 msgid "No users match your filters."
 msgstr "Ingen brugere matcher dine filtre."
@@ -1211,6 +1205,9 @@ msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug t
 
 msgid "Users will appear here as accounts are created."
 msgstr "Brugere vises her efterhånden som konti oprettes."
+
+msgid "Users will appear here as they qualify for this feature."
+msgstr "Brugere vises her, efterhånden som de kvalificerer til denne funktion."
 
 msgid "VAT"
 msgstr "Moms"

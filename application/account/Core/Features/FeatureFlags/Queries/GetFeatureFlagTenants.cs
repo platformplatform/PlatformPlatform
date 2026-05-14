@@ -66,7 +66,9 @@ public sealed class GetFeatureFlagTenantsValidator : AbstractValidator<GetFeatur
 
         RuleFor(x => x.Search).MaximumLength(100).WithMessage("The search term must be at most 100 characters.");
         RuleFor(x => x.Plans.Length).LessThanOrEqualTo(10).WithMessage("Plans filter must contain no more than 10 values.");
-        RuleFor(x => x.PageSize).InclusiveBetween(1, 100).WithMessage("Page size must be between 1 and 100.");
+        // Plan-gated flag detail page requests every tenant in one shot (PLAN_TENANT_LIST_CAP = 1000) so it can
+        // group them by plan without pagination. Other call sites still use the default 25.
+        RuleFor(x => x.PageSize).InclusiveBetween(1, 1000).WithMessage("Page size must be between 1 and 1000.");
         RuleFor(x => x.PageOffset).GreaterThanOrEqualTo(0).WithMessage("Page offset must be greater than or equal to 0.");
     }
 }

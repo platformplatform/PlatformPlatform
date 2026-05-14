@@ -2,9 +2,8 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@repo/ui/components/Collapsible";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
 import { Building2Icon, ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -13,6 +12,8 @@ import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
 
 import type { FeatureFlagInfo, FeatureFlagTenantInfo } from "./types";
+
+import { PlanFeatureFlagTenantTable } from "./PlanFeatureFlagTenantTable";
 
 // Plan-managed flags display every tenant grouped by plan; the section is not paginated because the plan
 // inheritance view needs the full picture at a glance. Cap is high enough for current tenant counts.
@@ -122,55 +123,27 @@ export function PlanFeatureFlagTenantsSection({ flagKey }: Readonly<{ flagKey: s
   );
 }
 
-function PlanFeatureFlagTenantTable({
-  ariaLabel,
-  tenants
-}: Readonly<{ ariaLabel: string; tenants: FeatureFlagTenantInfo[] }>) {
-  return (
-    <Table rowSize="compact" aria-label={ariaLabel} className="w-full table-fixed">
-      <TableHeader>
-        <TableRow>
-          <TableHead className="hidden w-[14rem] lg:table-cell">
-            <Trans>Account ID</Trans>
-          </TableHead>
-          <TableHead className="w-auto">
-            <Trans>Account</Trans>
-          </TableHead>
-          <TableHead className="w-[5rem]">
-            <Trans>Plan</Trans>
-          </TableHead>
-          <TableHead className="w-[6rem] text-right">
-            <Trans>Status</Trans>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tenants.map((tenant) => (
-          <TableRow key={tenant.id}>
-            <TableCell className="hidden truncate text-muted-foreground lg:table-cell">{tenant.id}</TableCell>
-            <TableCell className="truncate font-medium">{tenant.name}</TableCell>
-            <TableCell className="text-muted-foreground">{tenant.plan}</TableCell>
-            <TableCell className="text-right">
-              <Badge variant={tenant.isEnabled ? "default" : "outline"}>
-                {tenant.isEnabled ? t`Enabled` : t`Disabled`}
-              </Badge>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
 function PlanFeatureFlagTenantsEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
-  const title = hasFilters ? t`No accounts found matching your search` : t`No accounts qualify for this feature yet`;
   return (
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Building2Icon />
         </EmptyMedia>
-        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyTitle>
+          {hasFilters ? (
+            <Trans>No accounts match your filters</Trans>
+          ) : (
+            <Trans>No accounts qualify for this feature yet</Trans>
+          )}
+        </EmptyTitle>
+        <EmptyDescription>
+          {hasFilters ? (
+            <Trans>Try clearing the search or filters to see more results.</Trans>
+          ) : (
+            <Trans>Accounts will appear here as they qualify for this feature.</Trans>
+          )}
+        </EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

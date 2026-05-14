@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -147,14 +147,26 @@ function UserOverridesSkeleton() {
 }
 
 function UserOverridesEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
-  const title = hasFilters ? t`No users found matching your search` : t`No users qualify for this feature yet`;
   return (
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <UsersIcon />
         </EmptyMedia>
-        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyTitle>
+          {hasFilters ? (
+            <Trans>No users match your search</Trans>
+          ) : (
+            <Trans>No users qualify for this feature yet</Trans>
+          )}
+        </EmptyTitle>
+        <EmptyDescription>
+          {hasFilters ? (
+            <Trans>Try clearing the search or filters to see more results.</Trans>
+          ) : (
+            <Trans>Users will appear here as they qualify for this feature.</Trans>
+          )}
+        </EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

@@ -22,8 +22,9 @@ type TenantFeatureFlagInfo = components["schemas"]["TenantFeatureFlagInfo"];
 export function AccountFeatureFlagRow({
   tenantId,
   flag,
-  isPlanGroup
-}: Readonly<{ tenantId: string; flag: TenantFeatureFlagInfo; isPlanGroup: boolean }>) {
+  isPlanGroup,
+  showBucketColumn
+}: Readonly<{ tenantId: string; flag: TenantFeatureFlagInfo; isPlanGroup: boolean; showBucketColumn: boolean }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(flag.isEnabled);
   const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/tenant-override");
   const removeMutation = api.useMutation("delete", "/api/back-office/feature-flags/{flagKey}/tenant-override");
@@ -82,16 +83,19 @@ export function AccountFeatureFlagRow({
           params={{ flagKey: flag.flagKey }}
           className="flex min-w-0 items-center gap-2 outline-none hover:underline focus-visible:underline"
         >
-          <ScopeIcon scope={flag.scope} />
+          <ScopeIcon scope={flag.scope} isAbTestEligible={flag.isAbTestEligible} />
           <span className="truncate font-medium">{flagName}</span>
         </Link>
       </TableCell>
-      {isPlanGroup ? (
+      {isPlanGroup && (
         <TableCell className="hidden sm:table-cell">
           <Badge variant="outline">{flag.requiredPlan}</Badge>
         </TableCell>
-      ) : (
-        <TableCell className="hidden text-muted-foreground sm:table-cell">{flag.rolloutBucket}</TableCell>
+      )}
+      {showBucketColumn && (
+        <TableCell className="hidden text-muted-foreground sm:table-cell">
+          {flag.isAbTestEligible ? flag.rolloutBucket : null}
+        </TableCell>
       )}
       <TableCell className="hidden md:table-cell">
         <span className="text-sm text-muted-foreground">{getFeatureFlagSourceLabel(flag.source)}</span>

@@ -86,6 +86,7 @@ function FeatureFlagGroup({
   description: string;
   isPlanGroup: boolean;
 }>) {
+  const hasAbTestFlag = flags.some((f) => f.isAbTestEligible);
   return (
     <div className="flex flex-col gap-2">
       <h3>{title}</h3>
@@ -96,11 +97,12 @@ function FeatureFlagGroup({
             <TableHead>
               <Trans>Name</Trans>
             </TableHead>
-            {isPlanGroup ? (
+            {isPlanGroup && (
               <TableHead className="hidden sm:table-cell">
                 <Trans>Required plan</Trans>
               </TableHead>
-            ) : (
+            )}
+            {!isPlanGroup && hasAbTestFlag && (
               <TableHead className="hidden sm:table-cell">
                 <Trans>Bucket</Trans>
               </TableHead>
@@ -115,7 +117,13 @@ function FeatureFlagGroup({
         </TableHeader>
         <TableBody>
           {flags.map((flag) => (
-            <AccountFeatureFlagRow key={flag.flagKey} tenantId={tenantId} flag={flag} isPlanGroup={isPlanGroup} />
+            <AccountFeatureFlagRow
+              key={flag.flagKey}
+              tenantId={tenantId}
+              flag={flag}
+              isPlanGroup={isPlanGroup}
+              showBucketColumn={!isPlanGroup && hasAbTestFlag}
+            />
           ))}
         </TableBody>
       </Table>

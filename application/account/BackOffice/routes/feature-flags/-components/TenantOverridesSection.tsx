@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -147,14 +147,26 @@ function TenantOverridesSkeleton() {
 }
 
 function TenantOverridesEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
-  const title = hasFilters ? t`No accounts found matching your search` : t`No accounts qualify for this feature yet`;
   return (
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <Building2Icon />
         </EmptyMedia>
-        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyTitle>
+          {hasFilters ? (
+            <Trans>No accounts match your filters</Trans>
+          ) : (
+            <Trans>No accounts qualify for this feature yet</Trans>
+          )}
+        </EmptyTitle>
+        <EmptyDescription>
+          {hasFilters ? (
+            <Trans>Try clearing the search or filters to see more results.</Trans>
+          ) : (
+            <Trans>Accounts will appear here as they qualify for this feature.</Trans>
+          )}
+        </EmptyDescription>
       </EmptyHeader>
     </Empty>
   );

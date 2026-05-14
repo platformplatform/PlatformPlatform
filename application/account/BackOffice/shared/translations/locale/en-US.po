@@ -123,9 +123,6 @@ msgstr "Account growth"
 msgid "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
 msgstr "Account has {0} drift discrepancies. Last reconciled at {1}. If standard reconcile cannot clear the drift, disaster recovery from archived Stripe events is available as a last resort."
 
-msgid "Account ID"
-msgstr "Account ID"
-
 msgid "Account preview"
 msgstr "Account preview"
 
@@ -149,6 +146,9 @@ msgstr "Accounts are automatically included based on their rollout bucket. Use o
 
 msgid "Accounts will appear here as they are created."
 msgstr "Accounts will appear here as they are created."
+
+msgid "Accounts will appear here as they qualify for this feature."
+msgstr "Accounts will appear here as they qualify for this feature."
 
 msgid "Actions"
 msgstr "Actions"
@@ -580,9 +580,6 @@ msgstr "Next"
 msgid "No account memberships"
 msgstr "No account memberships"
 
-msgid "No accounts found matching your search"
-msgstr "No accounts found matching your search"
-
 msgid "No accounts match your filters"
 msgstr "No accounts match your filters"
 
@@ -681,9 +678,6 @@ msgstr "No user-scoped feature flags are defined."
 
 msgid "No users"
 msgstr "No users"
-
-msgid "No users found matching your search"
-msgstr "No users found matching your search"
 
 msgid "No users match your filters."
 msgstr "No users match your filters."
@@ -1211,6 +1205,9 @@ msgstr "Users are automatically included based on their rollout bucket. Use over
 
 msgid "Users will appear here as accounts are created."
 msgstr "Users will appear here as accounts are created."
+
+msgid "Users will appear here as they qualify for this feature."
+msgstr "Users will appear here as they qualify for this feature."
 
 msgid "VAT"
 msgstr "VAT"
