@@ -120,3 +120,18 @@ Follow these steps when implementing changes:
    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
 
 When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `main`, `account`) and `[Feature]` with the feature name (e.g., `Users`, `Tenants`). A feature is often 1:1 with a domain aggregate. Back-office features live under `account/Core/Features/BackOffice/`.
+
+## Feature Flags
+
+Gate behaviour with feature flags from `SharedKernel.FeatureFlags.FeatureFlags` instead of inventing ad-hoc booleans or env-var checks.
+
+- Declare a flag as a `public static readonly FeatureFlagDefinition` field on the `FeatureFlags` static class in `/application/shared-kernel/SharedKernel/FeatureFlags/FeatureFlags.cs`. The registry is reflected from those fields at startup, so adding a flag is a single field declaration. Keys are lowercase kebab-case (`a-z`, `0-9`, hyphen) and at most 50 characters.
+- Pick the subtype that matches the intent — the type system enforces the rest:
+  - `SystemFeatureFlag` — process-wide kill switch driven by a config key + env var (e.g. Google OAuth, Stripe)
+  - `PlanGatedTenantFlag` — entitlement tied to a `PlanTier`; the subscription evaluator writes `Plan` source rows on upgrade/downgrade
+  - `TenantAbTestFlag` / `UserAbTestFlag` — percentage rollout via the tenant/user rollout bucket (van der Corput-spread `0..99`)
+  - `TenantOwnerConfigurableFlag` — toggle exposed to owners under `/account/settings`
+  - `UserConfigurableFlag` — per-user toggle exposed in user preferences
+- Read flags at the boundaries: the `FeatureFlagEvaluator` runs at JWT refresh and writes the enabled keys into the `x-user-feature-flags` header for the SPA. Inside command/query handlers, read `executionContext.UserInfo.FeatureFlags` (already populated from the JWT claim) — never re-query the database for flag state on every request.
+- Don't bypass evaluation precedence: manual per-flag override > per-entity A/B inclusion pin (`AlwaysOn` / `NeverOn`) > rollout bucket range > plan tier > default off. Reuse `FeatureFlagEvaluator` and `RolloutBucketHasher` rather than re-implementing the math.
+- Removing a flag from code is safe: the startup `FeatureFlagDefinitionReconciler` marks the orphaned base row, the back-office surfaces it for manual delete, and re-adding the same key restores the row. Never hard-delete rows from a migration.

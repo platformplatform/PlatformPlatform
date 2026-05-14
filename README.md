@@ -33,6 +33,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 * **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
 * **Multi-agent development** - Agent Teams workflow where specialized Claude Code agents with deep PlatformPlatform expertise collaborate end-to-end
+* **Feature flags** - System / plan-gated / A/B-rollout / owner-configurable / user-configurable flags declared in C# and surfaced as a strongly-typed React hook; back-office UI for rollouts, overrides, and per-entity pins; flag state piggybacks on the JWT refresh so the SPA never polls
 
 Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like SSO, monitoring, alerts, multi-region, feature flags, back office for support, etc.
 

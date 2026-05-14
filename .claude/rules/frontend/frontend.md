@@ -43,6 +43,14 @@ Use browser MCP tools to test at `https://app.dev.localhost:<appGateway>`. Look 
    - Server state lives in TanStack Query only
    - Use `queryClient.invalidateQueries()` to refresh data after mutations
 
+5. **Feature Flags**:
+   - Gate UI behaviour with `useFeatureFlag(<key>)` from `@repo/infrastructure/featureFlags/useFeatureFlag` — returns `{ enabled, isLoading }`
+   - The `<key>` parameter is typed against `FeatureFlagKey`, a codegen union built from `SharedKernel.FeatureFlags.FeatureFlags.cs`. Removing or renaming a flag in C# turns every stale callsite into a TypeScript compile error — never hard-code flag keys as raw strings or cast to `FeatureFlagKey`
+   - Flag state is delivered by the backend on the `x-user-feature-flags` response header; `AuthenticationProvider` parses it once and exposes it via `useUserInfo().featureFlags`. The hook reads from that state, so re-renders triggered by a token refresh pick up new flags without a page reload
+   - Don't call `queryClient.invalidateQueries` for flag changes — the next authenticated response carries the refreshed header automatically
+   - Use the matching `<key>` in i18n labels via `@repo/ui/featureFlags/labels` so display names stay aligned with the backend manifest
+   - The user-facing self-service surface lives at `/account/settings` (Features section) and user preferences; the admin surface is `/feature-flags/{key}` in the back-office. Read-only display for orphaned/deleted flags is the back-office's responsibility, not call-sites of `useFeatureFlag`
+
 5. **ShadCN 2.0 with BaseUI** (not Radix UI):
    - **BaseUI** (`@base-ui/react`): Headless primitives providing accessibility and behavior
    - **ShadCN 2.0**: Pre-styled components built on BaseUI, using class-variance-authority (cva)
