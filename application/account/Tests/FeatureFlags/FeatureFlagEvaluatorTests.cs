@@ -231,7 +231,8 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
                 ("bucket_end", rolloutBucketEnd),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", "Manual")
+                ("source", "Manual"),
+                ("scope", tenantId is null && userId is null ? "Tenant" : userId is not null ? "User" : "Tenant")
             ]
         );
     }

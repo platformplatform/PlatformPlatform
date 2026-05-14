@@ -50,7 +50,7 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
             var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
             if (tenantOverride is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId, FeatureFlagScope.Tenant);
                 tenantOverride.Activate(now);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
             }
@@ -70,7 +70,7 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
                 // Create the override row in a disabled state. Without an explicit override, the evaluator
                 // falls back to the base row + rollout, so a tenant currently enabled-by-rollout would stay
                 // enabled if we just no-op'd here. The row's EnabledAt == DisabledAt makes IsActive=false.
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId, FeatureFlagScope.Tenant);
                 tenantOverride.Activate(now);
                 tenantOverride.Deactivate(now);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);

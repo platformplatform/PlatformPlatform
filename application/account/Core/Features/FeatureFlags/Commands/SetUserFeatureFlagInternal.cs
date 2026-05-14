@@ -51,7 +51,7 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
             var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, command.UserId, cancellationToken);
             if (userOverride is null)
             {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId);
+                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId, FeatureFlagScope.User);
                 userOverride.Activate(now);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);
             }
@@ -71,7 +71,7 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
                 // Create the override row in a disabled state. Without an explicit override, the evaluator
                 // falls back to the base row + rollout, so a user currently enabled-by-rollout would stay
                 // enabled if we just no-op'd here. The row's EnabledAt == DisabledAt makes IsActive=false.
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId);
+                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, command.TenantId, command.UserId, FeatureFlagScope.User);
                 userOverride.Activate(now);
                 userOverride.Deactivate(now);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);

@@ -158,7 +158,8 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", source)
+                ("source", source),
+                ("scope", "Tenant")
             ]
         );
     }

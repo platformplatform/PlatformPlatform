@@ -52,7 +52,8 @@ public sealed class GetUserFeatureFlagsTests : BackOfficeEndpointBaseTest
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", "Manual")
+                ("source", "Manual"),
+                ("scope", "User")
             ]
         );
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");

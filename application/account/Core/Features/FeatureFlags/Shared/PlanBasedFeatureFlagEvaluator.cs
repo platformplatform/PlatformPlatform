@@ -27,7 +27,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
             {
                 if (existingOverride is null)
                 {
-                    var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId, FeatureFlagSource.Plan);
+                    var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId, definition.Scope, FeatureFlagSource.Plan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
                 }

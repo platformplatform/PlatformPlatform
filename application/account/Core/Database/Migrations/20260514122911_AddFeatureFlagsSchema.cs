@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Account.Database.Migrations;
 
 [DbContext(typeof(AccountDbContext))]
-[Migration("20260513225500_AddFeatureFlagsSchema")]
+[Migration("20260514122911_AddFeatureFlagsSchema")]
 public sealed class AddFeatureFlagsSchema : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,6 +18,8 @@ public sealed class AddFeatureFlagsSchema : Migration
                 user_id = table.Column<string>("text", nullable: true),
                 created_at = table.Column<DateTimeOffset>("timestamptz", nullable: false),
                 modified_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
+                deleted_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
+                orphaned_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 flag_key = table.Column<string>("text", nullable: false),
                 enabled_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 disabled_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
@@ -26,9 +28,7 @@ public sealed class AddFeatureFlagsSchema : Migration
                 configurable_by_tenant = table.Column<bool>("boolean", nullable: false),
                 configurable_by_user = table.Column<bool>("boolean", nullable: false),
                 source = table.Column<string>("text", nullable: false),
-                scope = table.Column<string>("text", nullable: true),
-                orphaned_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
-                deleted_at = table.Column<DateTimeOffset>("timestamptz", nullable: true)
+                scope = table.Column<string>("text", nullable: false)
             },
             constraints: table =>
             {

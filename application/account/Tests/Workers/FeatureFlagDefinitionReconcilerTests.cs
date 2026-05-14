@@ -33,6 +33,8 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
                 ("id", FeatureFlagId.NewId().ToString()),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", null),
                 ("flag_key", "sso"),
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
                 ("user_id", null),
@@ -43,7 +45,7 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Plan"),
-                ("orphaned_at", null)
+                ("scope", "Tenant")
             ]
         );
 
@@ -88,6 +90,8 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
                 ("id", staleOverrideId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", null),
                 ("flag_key", "sso"),
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
                 ("user_id", null),
@@ -98,7 +102,7 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual"),
-                ("orphaned_at", null)
+                ("scope", "Tenant")
             ]
         );
 
@@ -150,6 +154,8 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
                 ("id", orphanRowId),
                 ("created_at", TimeProvider.GetUtcNow()),
                 ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", null),
                 ("flag_key", "removed-feature"),
                 ("tenant_id", null),
                 ("user_id", null),
@@ -160,7 +166,7 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual"),
-                ("orphaned_at", null)
+                ("scope", "Tenant")
             ]
         );
 

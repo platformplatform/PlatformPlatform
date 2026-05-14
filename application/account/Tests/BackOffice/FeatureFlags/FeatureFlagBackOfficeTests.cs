@@ -1519,27 +1519,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 
     private void InsertOrphanedBaseRow(string flagKey, bool softDeleted = false)
     {
-        var rowId = FeatureFlagId.NewId().ToString();
-        var now = TimeProvider.System.GetUtcNow();
-        Connection.Insert("feature_flags", [
-                ("id", rowId),
-                ("created_at", now),
-                ("modified_at", null),
-                ("flag_key", flagKey),
-                ("tenant_id", null),
-                ("user_id", null),
-                ("enabled_at", now),
-                ("disabled_at", null),
-                ("bucket_start", null),
-                ("bucket_end", null),
-                ("configurable_by_tenant", false),
-                ("configurable_by_user", false),
-                ("source", "Manual"),
-                ("scope", null),
-                ("orphaned_at", now),
-                ("deleted_at", softDeleted ? now : null)
-            ]
-        );
+        InsertHistoricalBaseRow(flagKey, FeatureFlagScope.Tenant, softDeleted);
     }
 
     private void InsertHistoricalBaseRow(string flagKey, FeatureFlagScope scope, bool softDeleted = false)
@@ -1550,6 +1530,8 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("id", rowId),
                 ("created_at", now),
                 ("modified_at", null),
+                ("deleted_at", softDeleted ? now : null),
+                ("orphaned_at", now),
                 ("flag_key", flagKey),
                 ("tenant_id", null),
                 ("user_id", null),
@@ -1560,9 +1542,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
                 ("source", "Manual"),
-                ("scope", scope.ToString()),
-                ("orphaned_at", now),
-                ("deleted_at", softDeleted ? now : null)
+                ("scope", scope.ToString())
             ]
         );
     }
@@ -1584,7 +1564,8 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", "Manual")
+                ("source", "Manual"),
+                ("scope", "Tenant")
             ]
         );
     }
@@ -1606,7 +1587,8 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", "Manual")
+                ("source", "Manual"),
+                ("scope", "User")
             ]
         );
     }

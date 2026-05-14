@@ -50,7 +50,7 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
             var userOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, userId, cancellationToken);
             if (userOverride is null)
             {
-                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, tenantId, userId);
+                userOverride = FeatureFlag.CreateUserOverride(command.FlagKey, tenantId, userId, FeatureFlagScope.User);
                 userOverride.Activate(now);
                 await featureFlagRepository.AddAsync(userOverride, cancellationToken);
             }

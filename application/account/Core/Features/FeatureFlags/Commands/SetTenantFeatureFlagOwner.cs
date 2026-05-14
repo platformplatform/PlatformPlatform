@@ -55,7 +55,7 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
             var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, tenantId, null, cancellationToken);
             if (tenantOverride is null)
             {
-                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, tenantId);
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, tenantId, FeatureFlagScope.Tenant);
                 tenantOverride.Activate(now);
                 await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
             }

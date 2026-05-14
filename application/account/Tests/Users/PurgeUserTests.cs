@@ -147,7 +147,8 @@ public sealed class PurgeUserTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", "Manual")
+                ("source", "Manual"),
+                ("scope", "User")
             ]
         );
         Connection.Insert("feature_flags", [
@@ -163,7 +164,8 @@ public sealed class PurgeUserTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
                 ("configurable_by_user", false),
-                ("source", "Manual")
+                ("source", "Manual"),
+                ("scope", "User")
             ]
         );
 

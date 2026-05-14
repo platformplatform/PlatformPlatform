@@ -78,10 +78,10 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
         // safe defaults because no live behavior depends on them once the definition is gone.
         var definitionKeys = definitions.Select(d => d.Key).ToHashSet();
         var historicalFlags = baseRowsByKey.Values
-            .Where(row => !definitionKeys.Contains(row.FlagKey) && row.Scope is not null)
+            .Where(row => !definitionKeys.Contains(row.FlagKey))
             .Where(row => row.DeletedAt is null || request.IncludeDeleted)
             .Select(row => new FeatureFlagInfo(
-                    row.FlagKey, row.Scope!.Value, FeatureFlagAdminLevel.SystemAdmin, string.Empty,
+                    row.FlagKey, row.Scope, FeatureFlagAdminLevel.SystemAdmin, string.Empty,
                     false, false, false, null,
                     row.CreatedAt, row.EnabledAt, row.DisabledAt, row.BucketStart, row.BucketEnd,
                     ComputeRolloutPercentage(row.BucketStart, row.BucketEnd), row.IsActive, false, row.OrphanedAt, row.DeletedAt

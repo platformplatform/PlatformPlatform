@@ -51,8 +51,7 @@ public sealed class FeatureFlagDefinitionReconciler(
 
             if (baseRow is null)
             {
-                baseRow = FeatureFlag.Create(definition.Key, expectedSource);
-                baseRow.SetScope(definition.Scope);
+                baseRow = FeatureFlag.Create(definition.Key, definition.Scope, expectedSource);
                 if (!definition.IsKillSwitchEnabled) baseRow.Activate(now);
                 await featureFlagRepository.AddAsync(baseRow, cancellationToken);
                 baseRowsCreated++;
@@ -74,9 +73,7 @@ public sealed class FeatureFlagDefinitionReconciler(
                 logger.LogInformation("Reconciler restored '{FlagKey}' after re-add to the C# definitions", definition.Key);
             }
 
-            // Backfill Scope for rows created before the column existed, and converge if a definition
-            // changed scope (e.g., from TenantOwnerConfigurableFlag to TenantAbTestFlag — Scope stays
-            // Tenant, but renaming subtype between two scopes is a valid evolution).
+            // Converge if a definition changed scope (e.g., subtype renamed across scopes between deploys).
             if (baseRow.Scope != definition.Scope)
             {
                 baseRow.SetScope(definition.Scope);

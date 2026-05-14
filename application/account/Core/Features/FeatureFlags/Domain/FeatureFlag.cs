@@ -14,14 +14,19 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         FlagKey = string.Empty;
     }
 
-    private FeatureFlag(string flagKey, TenantId? tenantId, UserId? userId, FeatureFlagSource source)
+    private FeatureFlag(string flagKey, TenantId? tenantId, UserId? userId, FeatureFlagSource source, FeatureFlagScope scope)
         : base(FeatureFlagId.NewId())
     {
         FlagKey = flagKey;
         TenantId = tenantId;
         UserId = userId;
         Source = source;
+        Scope = scope;
     }
+
+    public DateTimeOffset? DeletedAt { get; private set; }
+
+    public DateTimeOffset? OrphanedAt { get; private set; }
 
     public string FlagKey { get; private set; }
 
@@ -45,31 +50,27 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public FeatureFlagSource Source { get; private set; }
 
-    // Persisted at reconciler time so orphaned and soft-deleted rows can still be grouped correctly in
-    // the BackOffice (Tenant/User) after their definition is removed from FeatureFlags.cs. Nullable
-    // because override rows (TenantId or UserId set) do not carry definition-level scope.
-    public FeatureFlagScope? Scope { get; private set; }
-
-    public DateTimeOffset? OrphanedAt { get; private set; }
-
-    public DateTimeOffset? DeletedAt { get; private set; }
+    // Persisted on every row so orphaned and soft-deleted base rows can still be grouped correctly in
+    // the BackOffice (Tenant/User) after their definition is removed from FeatureFlags.cs. Override rows
+    // also carry it for consistency with the base row they inherit from.
+    public FeatureFlagScope Scope { get; private set; }
 
     [NotMapped]
     public bool IsActive => EnabledAt is not null && (DisabledAt is null || EnabledAt > DisabledAt);
 
-    public static FeatureFlag Create(string flagKey, FeatureFlagSource source = FeatureFlagSource.Manual)
+    public static FeatureFlag Create(string flagKey, FeatureFlagScope scope, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
-        return new FeatureFlag(flagKey, null, null, source);
+        return new FeatureFlag(flagKey, null, null, source, scope);
     }
 
-    public static FeatureFlag CreateTenantOverride(string flagKey, TenantId tenantId, FeatureFlagSource source = FeatureFlagSource.Manual)
+    public static FeatureFlag CreateTenantOverride(string flagKey, TenantId tenantId, FeatureFlagScope scope, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
-        return new FeatureFlag(flagKey, tenantId, null, source);
+        return new FeatureFlag(flagKey, tenantId, null, source, scope);
     }
 
-    public static FeatureFlag CreateUserOverride(string flagKey, TenantId tenantId, UserId userId)
+    public static FeatureFlag CreateUserOverride(string flagKey, TenantId tenantId, UserId userId, FeatureFlagScope scope)
     {
-        return new FeatureFlag(flagKey, tenantId, userId, FeatureFlagSource.Manual);
+        return new FeatureFlag(flagKey, tenantId, userId, FeatureFlagSource.Manual, scope);
     }
 
     public void Activate(DateTimeOffset now)
