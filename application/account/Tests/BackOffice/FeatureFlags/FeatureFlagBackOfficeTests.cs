@@ -207,31 +207,6 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task SetTenantOverride_WhenDisabledWithNoExistingOverride_ShouldNotInsertRowOrEmitTelemetry()
-    {
-        // Arrange - tenant has no override row. Disabling a non-existent override is a no-op:
-        // no dead-row insert, no telemetry. Mirrors the Owner-variant handler's early-return.
-        var flagKey = "beta-features";
-        var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
-        var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
-
-        // Act
-        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override", command);
-
-        // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-
-        var rowCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
-            [new { flagKey, tenantId = tenantId.Value }]
-        );
-        rowCount.Should().Be(0);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
-    }
-
-    [Fact]
     public async Task RemoveTenantOverride_WhenOverrideExists_ShouldDeleteRow()
     {
         // Arrange
@@ -441,6 +416,79 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         rowCount.Should().Be(0, "the guard must run before any repository write");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SetTenantFeatureFlagInternal_WhenDisableAndNoOverrideExists_ShouldCreateExplicitDisableOverride()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId = tenantId.Value }]
+        );
+        rowCount.Should().Be(1, "an explicit-disable override must be written so the evaluator overrides the rollout for this tenant");
+
+        var enabledAt = Connection.ExecuteScalar<string>(
+            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId = tenantId.Value }]
+        );
+        var disabledAt = Connection.ExecuteScalar<string>(
+            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId = tenantId.Value }]
+        );
+        enabledAt.Should().NotBeNullOrEmpty();
+        disabledAt.Should().NotBeNullOrEmpty();
+        enabledAt.Should().Be(disabledAt, "EnabledAt and DisabledAt at the same instant make FeatureFlag.IsActive evaluate to false");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideSet");
+    }
+
+    [Fact]
+    public async Task SetUserFeatureFlagInternal_WhenDisableAndNoOverrideExists_ShouldCreateExplicitDisableOverride()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = false };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/user-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = userId.Value }]
+        );
+        rowCount.Should().Be(1, "an explicit-disable override must be written so the evaluator overrides the rollout for this user");
+
+        var enabledAt = Connection.ExecuteScalar<string>(
+            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = userId.Value }]
+        );
+        var disabledAt = Connection.ExecuteScalar<string>(
+            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = userId.Value }]
+        );
+        enabledAt.Should().NotBeNullOrEmpty();
+        disabledAt.Should().NotBeNullOrEmpty();
+        enabledAt.Should().Be(disabledAt, "EnabledAt and DisabledAt at the same instant make FeatureFlag.IsActive evaluate to false");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagUserOverrideSet");
     }
 
     [Fact]

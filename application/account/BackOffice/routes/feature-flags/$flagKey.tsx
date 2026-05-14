@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
@@ -66,6 +67,12 @@ export default function FeatureFlagDetailPage() {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  // Activate/Deactivate and Delete server-side endpoints require AdminPolicyName (admin group
+  // membership), so the matching controls are disabled for non-admin back-office users. UserInfo.role
+  // mirrors the back-office groups claim — null when the principal has no group, set otherwise.
+  const userInfo = useUserInfo();
+  const canActivate = userInfo?.role != null;
+
   const { data: featureFlagsData, isLoading: isLoadingFeatureFlags } = api.useQuery(
     "get",
     "/api/back-office/feature-flags"
@@ -113,6 +120,7 @@ export default function FeatureFlagDetailPage() {
                   featureFlag={featureFlag}
                   isKillSwitchEnabled={featureFlag.isKillSwitchEnabled}
                   orphanedAt={featureFlag.orphanedAt}
+                  canActivate={canActivate}
                 />
               )}
               {isOrphaned && (
@@ -126,7 +134,12 @@ export default function FeatureFlagDetailPage() {
                       row and all account and user overrides permanently.
                     </Trans>
                   </p>
-                  <Button variant="destructive" className="self-start" onClick={() => setIsDeleteDialogOpen(true)}>
+                  <Button
+                    variant="destructive"
+                    className="self-start"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                    disabled={!canActivate}
+                  >
                     <Trash2Icon className="size-4" aria-hidden={true} />
                     <Trans>Delete flag and all overrides</Trans>
                   </Button>

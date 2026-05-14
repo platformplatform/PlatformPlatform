@@ -19,12 +19,18 @@ interface FeatureFlagInfoSectionProps {
   featureFlag: FeatureFlagInfo;
   isKillSwitchEnabled: boolean;
   orphanedAt: string | null;
+  // True when the signed-in back-office user belongs to the admin group claim. Activate/Deactivate
+  // and Delete are gated by AdminPolicyName server-side, so the Switch and Delete button are
+  // disabled (not hidden) for non-admin back-office users to avoid silent 403s. Rollout %, overrides,
+  // and read operations work for any authenticated back-office identity and stay interactive.
+  canActivate: boolean;
 }
 
 export function FeatureFlagInfoSection({
   featureFlag,
   isKillSwitchEnabled,
-  orphanedAt
+  orphanedAt,
+  canActivate
 }: Readonly<FeatureFlagInfoSectionProps>) {
   const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/activate");
   const deactivateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/deactivate");
@@ -61,7 +67,7 @@ export function FeatureFlagInfoSection({
               <Switch
                 checked={featureFlag.isActive}
                 onCheckedChange={handleToggle}
-                disabled={isPending}
+                disabled={isPending || !canActivate}
                 aria-label={t`Toggle ${getFeatureFlagName(featureFlag.key)}`}
               />
             </div>
