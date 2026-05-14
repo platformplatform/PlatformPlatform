@@ -65,6 +65,11 @@ const labelsContent = `// AUTO-GENERATED FROM application/shared-kernel/SharedKe
 // The English copy here mirrors the Label and Description fields on each FeatureFlagDefinition.
 // Lingui extracts these strings at frontend build time into shared-webapp/ui/translations/locale/*.po
 // for translators to localize.
+//
+// Helpers accept \`string\` (not the strict FeatureFlagKey union) because flag keys arrive here
+// from API responses too — values that the type system can't pin to the current set. Unknown keys
+// fall back to a humanized form so historical telemetry and stale tenant overrides still display
+// readably. Strict-typing for hard-coded keys happens at the \`useFeatureFlag\` hook, not here.
 
 import { t } from "@lingui/core/macro";
 
@@ -138,20 +143,29 @@ const registryEntries = flags
     })
     .join(",\n");
 
+const keyUnion = flags.map((flag) => jsonString(flag.key)).join(" | ");
+
 const registryContent = `// AUTO-GENERATED FROM application/shared-kernel/SharedKernel/FeatureFlags/FeatureFlags.cs.
 // Regenerate with \`dotnet run --project developer-cli -- build --backend\`. Do not edit by hand.
 //
 // Carries the runtime metadata that \`useFeatureFlag\` needs to evaluate a flag client-side. System
 // flags additionally carry the frontend env-var name so the hook can read from import.meta.runtime_env.
+//
+// FeatureFlagKey is the union of every key defined in FeatureFlags.cs. Hook + helper signatures
+// accept this union instead of \`string\`, so deleting or renaming a backend flag turns every
+// \`useFeatureFlag(deletedKey)\` and \`getFeatureFlagLabel(deletedKey)\` callsite into a TS compile
+// error after the next backend build regenerates this file.
+
+export type FeatureFlagKey = ${keyUnion};
 
 type FeatureFlagScope = "system" | "tenant" | "user";
 type FeatureFlagAdminLevel = "systemAdmin" | "tenantOwner" | "user";
 
 type BaseFeatureFlagDefinition = {
-  key: string;
+  key: FeatureFlagKey;
   scope: FeatureFlagScope;
   adminLevel: FeatureFlagAdminLevel;
-  parentDependency: string | null;
+  parentDependency: FeatureFlagKey | null;
   description: string;
 };
 
@@ -166,11 +180,11 @@ type DatabaseFeatureFlagDefinition = BaseFeatureFlagDefinition & {
 
 export type FeatureFlagDefinition = SystemFeatureFlagDefinition | DatabaseFeatureFlagDefinition;
 
-const featureFlagRegistry: Record<string, FeatureFlagDefinition> = {
+const featureFlagRegistry: Record<FeatureFlagKey, FeatureFlagDefinition> = {
 ${registryEntries}
 };
 
-export function getFlag(key: string): FeatureFlagDefinition | undefined {
+export function getFlag(key: FeatureFlagKey): FeatureFlagDefinition {
   return featureFlagRegistry[key];
 }
 
