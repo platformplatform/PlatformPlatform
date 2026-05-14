@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace SharedKernel.FeatureFlags;
 
 [PublicAPI]
@@ -78,6 +80,9 @@ public static class FeatureFlags
 
     private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
 
+    private static readonly Regex FeatureFlagKeyPattern =
+        new("^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);
+
     static FeatureFlags()
     {
         ValidateFlags();
@@ -93,6 +98,15 @@ public static class FeatureFlags
         return AllFeatureFlags.FirstOrDefault(f => f.Key == key);
     }
 
+    // Keys are surfaced verbatim in URLs, JWT claim payloads, telemetry property names, frontend
+    // route params, and the configurable-feature-flag toggle UI. Lowercase kebab-case keeps every
+    // consumer's case-handling simple and removes ambiguity for the comma-separated `feature_flags`
+    // JWT claim. Internal so SharedKernel.Tests can pin the pattern.
+    internal static bool IsValidKey(string key)
+    {
+        return FeatureFlagKeyPattern.IsMatch(key);
+    }
+
     private static void ValidateFlags()
     {
         var featureFlagsByKey = AllFeatureFlags.ToDictionary(f => f.Key);
@@ -104,9 +118,9 @@ public static class FeatureFlags
                 throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' exceeds 50 characters.");
             }
 
-            if (featureFlag.Key.Contains(','))
+            if (!IsValidKey(featureFlag.Key))
             {
-                throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' must not contain commas.");
+                throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' must be lowercase kebab-case (a-z, 0-9, hyphen). No leading/trailing hyphens, no consecutive hyphens, no other characters.");
             }
 
             if (featureFlag is { Scope: FeatureFlagScope.System, SystemConfigKey: null })
