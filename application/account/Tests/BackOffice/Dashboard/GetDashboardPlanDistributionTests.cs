@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardPlanDistributionTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardPlanDistributionTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardPlanDistribution_WhenCalled_ShouldReturnEntryPerPlan()

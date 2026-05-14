@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class GetBackOfficeInvoicesTests : BackOfficeEndpointBaseTest
+public sealed class GetBackOfficeInvoicesTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetBackOfficeInvoices_WithoutStatusFilter_ShouldReturnInvoiceAndCreditNoteRowsForEveryTransaction()

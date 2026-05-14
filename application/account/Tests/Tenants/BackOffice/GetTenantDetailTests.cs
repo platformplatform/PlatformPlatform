@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants.BackOffice;
 
-public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
+public sealed class GetTenantDetailTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetTenantDetail_WhenTenantExists_ShouldReturnFullDetail()

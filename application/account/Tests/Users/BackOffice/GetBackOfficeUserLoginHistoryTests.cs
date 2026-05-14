@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Account.Tests.Users.BackOffice;
 
-public sealed class GetBackOfficeUserLoginHistoryTests : BackOfficeEndpointBaseTest
+public sealed class GetBackOfficeUserLoginHistoryTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetBackOfficeUserLoginHistory_WhenUserHasEmailAndExternalLogins_ShouldReturnUnion()

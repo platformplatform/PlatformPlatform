@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardTrendsTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardTrendsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardTrends_WhenMetricIsNewTenants_ShouldBucketTenantsByCreatedDate()

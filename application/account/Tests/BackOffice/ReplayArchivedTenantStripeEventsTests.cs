@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class ReplayArchivedTenantStripeEventsTests : BackOfficeEndpointBaseTest
+public sealed class ReplayArchivedTenantStripeEventsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task ExecuteAsync_ReplaysArchivedEventsIntoBillingEvents()

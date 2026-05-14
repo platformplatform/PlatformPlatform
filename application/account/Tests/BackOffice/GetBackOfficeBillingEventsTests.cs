@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class GetBackOfficeBillingEventsTests : BackOfficeEndpointBaseTest
+public sealed class GetBackOfficeBillingEventsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetBackOfficeBillingEvents_WhenCalled_ShouldReturnAllEventsOrderedByOccurredAtDescending()

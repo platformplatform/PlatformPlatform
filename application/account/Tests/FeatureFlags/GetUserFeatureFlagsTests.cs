@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.FeatureFlags;
 
-public sealed class GetUserFeatureFlagsTests : BackOfficeEndpointBaseTest
+public sealed class GetUserFeatureFlagsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetUserFeatureFlags_WhenCalled_ShouldReturnAllUserScopedFlags()

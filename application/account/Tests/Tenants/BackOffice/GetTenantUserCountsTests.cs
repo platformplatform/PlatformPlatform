@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants.BackOffice;
 
-public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
+public sealed class GetTenantUserCountsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetTenantUserCounts_WhenCalled_ShouldReturnTotalActiveAndPendingCounts()

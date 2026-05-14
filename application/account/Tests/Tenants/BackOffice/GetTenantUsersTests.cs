@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants.BackOffice;
 
-public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
+public sealed class GetTenantUsersTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetTenantUsers_WhenCalled_ShouldReturnUsersForThatTenantOnly()

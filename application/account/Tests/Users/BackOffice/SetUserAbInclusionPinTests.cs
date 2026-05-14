@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Users.BackOffice;
 
-public sealed class SetUserAbInclusionPinTests : BackOfficeEndpointBaseTest
+public sealed class SetUserAbInclusionPinTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task SetUserAbInclusionPin_WhenAlwaysOn_ShouldPersistPin()

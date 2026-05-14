@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardRecentStripeEventsTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardRecentStripeEventsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardRecentStripeEvents_WhenCalled_ShouldReturnEventsFromBillingEventLog()

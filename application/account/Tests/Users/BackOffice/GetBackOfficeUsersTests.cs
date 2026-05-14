@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Account.Tests.Users.BackOffice;
 
-public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
+public sealed class GetBackOfficeUsersTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetBackOfficeUsers_WhenSearchByEmail_ShouldReturnMatchingUsersAcrossTenants()
