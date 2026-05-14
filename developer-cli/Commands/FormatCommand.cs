@@ -134,7 +134,7 @@ public class FormatCommand : Command
         var includeArgument = string.Empty;
         if (!allFiles)
         {
-            var changedCsFiles = GetChangedCsFiles(solutionFile.Directory!.FullName);
+            var changedCsFiles = GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName);
             if (changedCsFiles.Length == 0)
             {
                 if (!quiet) AnsiConsole.MarkupLine("[green]No changed C# files found, skipping backend format.[/]");
@@ -173,7 +173,7 @@ public class FormatCommand : Command
         var includeArgument = string.Empty;
         if (!allFiles)
         {
-            var changedCsFiles = GetChangedCsFiles(solutionFile.Directory!.FullName);
+            var changedCsFiles = GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName);
             if (changedCsFiles.Length == 0)
             {
                 if (!quiet) AnsiConsole.MarkupLine("[green]No changed C# files found, skipping developer-cli format.[/]");
@@ -197,20 +197,4 @@ public class FormatCommand : Command
         );
     }
 
-    // Returns relative paths (relative to solutionDirectory) of .cs files changed compared to origin/main.
-    // Fetches origin/main first so this works on shallow CI clones; the fetch is best-effort and silent on failure.
-    private static string[] GetChangedCsFiles(string solutionDirectory)
-    {
-        ProcessHelper.StartProcess("git fetch origin main --depth=1", Configuration.SourceCodeFolder, true, exitOnError: false);
-        var output = ProcessHelper.StartProcess("git diff --name-only origin/main -- \"*.cs\"", Configuration.SourceCodeFolder, true, exitOnError: false);
-        if (string.IsNullOrWhiteSpace(output)) return [];
-
-        var repoRoot = Configuration.SourceCodeFolder;
-        return output
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(relativePath => Path.GetFullPath(Path.Combine(repoRoot, relativePath.Trim())))
-            .Where(fullPath => fullPath.StartsWith(solutionDirectory, StringComparison.OrdinalIgnoreCase) && File.Exists(fullPath))
-            .Select(fullPath => Path.GetRelativePath(solutionDirectory, fullPath))
-            .ToArray();
-    }
 }
