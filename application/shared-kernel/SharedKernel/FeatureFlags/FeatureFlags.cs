@@ -5,77 +5,56 @@ namespace SharedKernel.FeatureFlags;
 [PublicAPI]
 public static class FeatureFlags
 {
-    public static readonly FeatureFlagDefinition GoogleOauth = new(
+    public static readonly FeatureFlagDefinition GoogleOauth = new SystemFeatureFlag(
         "google-oauth",
-        FeatureFlagScope.System,
-        FeatureFlagAdminLevel.SystemAdmin,
         "Google OAuth",
         "Sign in with Google using OpenID Connect",
-        SystemConfigKey: "OAuth:Google:ClientId",
-        FrontendEnvVar: "PUBLIC_GOOGLE_OAUTH_ENABLED"
+        "OAuth:Google:ClientId",
+        "PUBLIC_GOOGLE_OAUTH_ENABLED"
     );
 
-    public static readonly FeatureFlagDefinition Subscriptions = new(
+    public static readonly FeatureFlagDefinition Subscriptions = new SystemFeatureFlag(
         "subscriptions",
-        FeatureFlagScope.System,
-        FeatureFlagAdminLevel.SystemAdmin,
         "Subscriptions",
         "Stripe-powered subscription billing and plan management",
-        SystemConfigKey: "Stripe:SubscriptionEnabled",
-        SystemConfigExpectedValue: "true",
-        FrontendEnvVar: "PUBLIC_SUBSCRIPTION_ENABLED"
+        "Stripe:SubscriptionEnabled",
+        "PUBLIC_SUBSCRIPTION_ENABLED",
+        "true"
     );
 
-    public static readonly FeatureFlagDefinition BetaFeatures = new(
+    public static readonly FeatureFlagDefinition BetaFeatures = new TenantAbTestFlag(
         "beta-features",
-        FeatureFlagScope.Tenant,
-        FeatureFlagAdminLevel.SystemAdmin,
         "Beta features",
         "Early access to experimental features before general availability",
-        IsAbTestEligible: true,
-        TrackInTelemetry: true,
-        IsKillSwitchEnabled: true
+        trackInTelemetry: true,
+        isKillSwitchEnabled: true
     );
 
-    public static readonly FeatureFlagDefinition Sso = new(
+    public static readonly FeatureFlagDefinition Sso = new PlanGatedTenantFlag(
         "sso",
-        FeatureFlagScope.Tenant,
-        FeatureFlagAdminLevel.SystemAdmin,
         "Single sign-on",
         "Allow users to authenticate using enterprise identity providers",
-        RequiredPlan: PlanTier.Premium,
-        IsKillSwitchEnabled: false
+        PlanTier.Premium
     );
 
-    public static readonly FeatureFlagDefinition CustomBranding = new(
+    public static readonly FeatureFlagDefinition CustomBranding = new TenantOwnerConfigurableFlag(
         "custom-branding",
-        FeatureFlagScope.Tenant,
-        FeatureFlagAdminLevel.TenantOwner,
         "Custom branding",
-        "Customize the login page with your organization's logo and colors",
-        ConfigurableByTenant: true,
-        IsKillSwitchEnabled: false
+        "Customize the login page with your organization's logo and colors"
     );
 
-    public static readonly FeatureFlagDefinition CompactView = new(
+    public static readonly FeatureFlagDefinition CompactView = new UserConfigurableFlag(
         "compact-view",
-        FeatureFlagScope.User,
-        FeatureFlagAdminLevel.User,
         "Compact view",
-        "Reduce spacing between UI elements for a denser layout",
-        ConfigurableByUser: true,
-        IsKillSwitchEnabled: false
+        "Reduce spacing between UI elements for a denser layout"
     );
 
-    public static readonly FeatureFlagDefinition ExperimentalUi = new(
+    public static readonly FeatureFlagDefinition ExperimentalUi = new UserAbTestFlag(
         "experimental-ui",
-        FeatureFlagScope.User,
-        FeatureFlagAdminLevel.User,
         "Experimental UI",
         "Try out experimental user interface components",
-        IsAbTestEligible: true,
-        TrackInTelemetry: true,
-        IsKillSwitchEnabled: true
+        true,
+        isKillSwitchEnabled: true
     );
 
     private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
@@ -107,6 +86,9 @@ public static class FeatureFlags
         return FeatureFlagKeyPattern.IsMatch(key);
     }
 
+    // Subtype hierarchy in FeatureFlagDefinition.cs enforces all cross-property invariants at compile
+    // time. This method now validates only what subtypes cannot: key format and parent-dependency
+    // existence + depth (parent must exist in the registry and itself have no parent).
     private static void ValidateFlags()
     {
         var featureFlagsByKey = AllFeatureFlags.ToDictionary(f => f.Key);
@@ -121,69 +103,6 @@ public static class FeatureFlags
             if (!IsValidKey(featureFlag.Key))
             {
                 throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' must be lowercase kebab-case (a-z, 0-9, hyphen). No leading/trailing hyphens, no consecutive hyphens, no other characters.");
-            }
-
-            if (featureFlag is { Scope: FeatureFlagScope.System, SystemConfigKey: null })
-            {
-                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with System scope must define a SystemConfigKey.");
-            }
-
-            if (featureFlag.Scope != FeatureFlagScope.System && featureFlag.SystemConfigKey is not null)
-            {
-                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' must not define SystemConfigKey unless Scope is System.");
-            }
-
-            switch (featureFlag.Scope)
-            {
-                case FeatureFlagScope.System when featureFlag.AdminLevel != FeatureFlagAdminLevel.SystemAdmin:
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with System scope must use SystemAdmin admin level.");
-                case FeatureFlagScope.Tenant when featureFlag.AdminLevel is not (FeatureFlagAdminLevel.SystemAdmin or FeatureFlagAdminLevel.TenantOwner):
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with Tenant scope must use SystemAdmin or TenantOwner admin level.");
-                case FeatureFlagScope.User when featureFlag.AdminLevel != FeatureFlagAdminLevel.User:
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with User scope must use User admin level.");
-            }
-
-            if (featureFlag.ConfigurableByTenant && (featureFlag.Scope != FeatureFlagScope.Tenant || featureFlag.AdminLevel != FeatureFlagAdminLevel.TenantOwner))
-            {
-                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' can only be ConfigurableByTenant when Scope=Tenant and AdminLevel=TenantOwner.");
-            }
-
-            if (featureFlag.ConfigurableByUser && (featureFlag.Scope != FeatureFlagScope.User || featureFlag.AdminLevel != FeatureFlagAdminLevel.User))
-            {
-                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' can only be ConfigurableByUser when Scope=User and AdminLevel=User.");
-            }
-
-            if (featureFlag is { ConfigurableByTenant: true, IsAbTestEligible: true })
-            {
-                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' cannot be both ConfigurableByTenant and IsAbTestEligible.");
-            }
-
-            if (featureFlag.RequiredPlan is not null)
-            {
-                if (featureFlag.Scope != FeatureFlagScope.Tenant)
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan must have Tenant scope.");
-                }
-
-                if (featureFlag.ConfigurableByTenant)
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be ConfigurableByTenant.");
-                }
-
-                if (featureFlag.ConfigurableByUser)
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be ConfigurableByUser.");
-                }
-
-                if (featureFlag.IsAbTestEligible)
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be IsAbTestEligible.");
-                }
-
-                if (featureFlag.IsKillSwitchEnabled)
-                {
-                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be IsKillSwitchEnabled - plan-gated flags must always be platform-managed.");
-                }
             }
 
             if (featureFlag.ParentDependency is not null)
