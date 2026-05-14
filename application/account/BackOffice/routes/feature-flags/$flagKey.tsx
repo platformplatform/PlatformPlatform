@@ -136,7 +136,6 @@ export default function FeatureFlagDetailPage() {
               ) : (
                 <FeatureFlagInfoSection
                   featureFlag={featureFlag}
-                  isKillSwitchEnabled={featureFlag.isKillSwitchEnabled}
                   orphanedAt={featureFlag.orphanedAt}
                   canActivate={canActivate}
                 />

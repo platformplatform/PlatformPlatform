@@ -1037,9 +1037,6 @@ msgstr "Noget gik galt"
 msgid "Source"
 msgstr "Kilde"
 
-msgid "Stable features are always on and cannot be toggled."
-msgstr "Stabile features er altid aktiveret og kan ikke slås fra."
-
 msgid "Standard"
 msgstr "Standard"
 

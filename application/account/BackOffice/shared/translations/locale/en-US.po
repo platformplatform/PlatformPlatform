@@ -1037,9 +1037,6 @@ msgstr "Something went wrong"
 msgid "Source"
 msgstr "Source"
 
-msgid "Stable features are always on and cannot be toggled."
-msgstr "Stable features are always on and cannot be toggled."
-
 msgid "Standard"
 msgstr "Standard"
 

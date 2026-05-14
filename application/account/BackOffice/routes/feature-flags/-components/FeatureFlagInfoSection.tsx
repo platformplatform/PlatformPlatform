@@ -17,7 +17,6 @@ import { formatRolloutBucketRange } from "./rolloutBucket";
 
 interface FeatureFlagInfoSectionProps {
   featureFlag: FeatureFlagInfo;
-  isKillSwitchEnabled: boolean;
   orphanedAt: string | null;
   // True when the signed-in back-office user belongs to the admin group claim. Activate/Deactivate
   // and Delete are gated by AdminPolicyName server-side, so the Switch and Delete button are
@@ -28,7 +27,6 @@ interface FeatureFlagInfoSectionProps {
 
 export function FeatureFlagInfoSection({
   featureFlag,
-  isKillSwitchEnabled,
   orphanedAt,
   canActivate
 }: Readonly<FeatureFlagInfoSectionProps>) {
@@ -48,7 +46,7 @@ export function FeatureFlagInfoSection({
     );
   };
 
-  const showToggle = isKillSwitchEnabled && orphanedAt === null;
+  const showToggle = orphanedAt === null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -90,11 +88,6 @@ export function FeatureFlagInfoSection({
           </Badge>
         )}
       </div>
-      {!isKillSwitchEnabled && orphanedAt === null && (
-        <p className="text-sm text-muted-foreground">
-          <Trans>Stable features are always on and cannot be toggled.</Trans>
-        </p>
-      )}
     </div>
   );
 }
