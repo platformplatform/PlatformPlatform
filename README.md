@@ -31,7 +31,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS like Azure Container Apps and PostgreSQL
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
-* **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
+* **AI rules** - 30+ rules & skills, battle-tested across a year of daily use to capture how we build here
 * **Multi-agent development** - Agent Teams workflow where specialized Claude Code agents with deep PlatformPlatform expertise collaborate end-to-end
 
 Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2).
