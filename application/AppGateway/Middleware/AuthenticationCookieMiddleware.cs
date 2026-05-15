@@ -27,7 +27,7 @@ public sealed class AuthenticationCookieMiddleware(
         {
             tokenState.InboundRefreshToken = refreshTokenFromCookie;
             context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenCookieName, out var accessTokenCookieValue);
-            tokenState.CurrentAccessToken = await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenFromCookie, accessTokenCookieValue);
+            tokenState.CurrentAccessToken = await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, tokenState, accessTokenCookieValue);
         }
 
         // If session was revoked during the inbound cookie validation, short-circuit before reaching
@@ -125,7 +125,7 @@ public sealed class AuthenticationCookieMiddleware(
         }
     }
 
-    private async Task<string?> ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string refreshToken, string? accessToken)
+    private async Task<string?> ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, TokenState tokenState, string? accessToken)
     {
         if (context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey) ||
             context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey))
@@ -136,6 +136,8 @@ public sealed class AuthenticationCookieMiddleware(
 
         try
         {
+            var refreshToken = tokenState.InboundRefreshToken!;
+
             if (accessToken is null || await ExtractExpirationFromTokenAsync(accessToken) < timeProvider.GetUtcNow())
             {
                 if (await ExtractExpirationFromTokenAsync(refreshToken) < timeProvider.GetUtcNow())
@@ -150,6 +152,12 @@ public sealed class AuthenticationCookieMiddleware(
                 logger.LogDebug("The access-token has expired, attempting to refresh");
 
                 (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshToken);
+
+                // Mirror the rotated refresh token onto tokenState so a downstream-triggered refresh in
+                // HandleOutgoingResponseAsync uses the v=2 jti, not the stale v=1 cookie value. Without
+                // this the second refresh fell back to the 30-second grace window in Session.IsRefreshTokenValid
+                // and would emit a spurious 401 once the gap exceeded the grace window.
+                tokenState.InboundRefreshToken = refreshToken;
 
                 // Update the authentication token cookies with the new tokens
                 await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken, accessToken);

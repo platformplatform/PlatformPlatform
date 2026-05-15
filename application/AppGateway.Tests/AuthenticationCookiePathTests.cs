@@ -168,6 +168,44 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
     }
 
     [Fact]
+    public async Task InvokeAsync_WhenInlineRefreshPrecedesEndpointTriggeredRefresh_ShouldUseRotatedRefreshTokenForSecondCall()
+    {
+        // Arrange - expired access token forces inline refresh on the inbound path. The downstream
+        // endpoint then signals x-refresh-authentication-tokens-required, triggering a second refresh.
+        // Without M8 the second call would reuse the v=1 cookie value and fall back on the 30-second
+        // grace window; with M8 the second call uses the v=2 token returned from the first refresh.
+        await using var stubFactory = new RefreshStubAppGatewayApplicationFactory();
+        var middleware = stubFactory.Services.GetRequiredService<AuthenticationCookieMiddleware>();
+        var signingClient = stubFactory.Services.GetRequiredService<ITokenSigningClient>();
+        var inboundRefreshTokenV1 = CreateSignedToken(signingClient, 60, []);
+        var expiredAccessToken = CreateSignedToken(signingClient, -1, []);
+        var rotatedRefreshTokenV2 = CreateSignedToken(signingClient, 60, []);
+        var inlineRefreshedAccessToken = CreateSignedToken(signingClient, 5, []);
+        var finalRefreshToken = CreateSignedToken(signingClient, 60, []);
+        var finalAccessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, "account-overview")]);
+        RefreshStubAppGatewayApplicationFactory.SetStubResponse(rotatedRefreshTokenV2, inlineRefreshedAccessToken);
+        RefreshStubAppGatewayApplicationFactory.EnqueueStubResponse(finalRefreshToken, finalAccessToken);
+        var context = CreateHttpContext("/api/account/me/change-locale");
+        context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={inboundRefreshTokenV1}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={expiredAccessToken}";
+
+        // Act
+        await middleware.InvokeAsync(context, downstream =>
+            {
+                downstream.Response.Headers[AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey] = "true";
+                return Task.CompletedTask;
+            }
+        );
+        await TriggerOnStartingAsync(context);
+
+        // Assert
+        var bearerTokens = RefreshStubAppGatewayApplicationFactory.ReceivedBearerTokens;
+        bearerTokens.Should().HaveCount(2, "both an inline refresh and an endpoint-triggered refresh fired");
+        bearerTokens[0].Should().Be(inboundRefreshTokenV1, "the inline refresh uses the cookie's v=1 token");
+        bearerTokens[1].Should().Be(rotatedRefreshTokenV2, "the endpoint-triggered refresh must use the v=2 token returned from the inline refresh, not the stale v=1");
+        context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey].ToString().Should().Be("account-overview");
+    }
+
+    [Fact]
     public async Task InvokeAsync_WhenRefreshEndpointSignalsSessionRevoked_ShouldOverwriteResponseWith401AndClearCookies()
     {
         // Arrange
@@ -256,20 +294,34 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
 
 internal sealed class RefreshStubAppGatewayApplicationFactory : WebApplicationFactory<Program>
 {
-    private static string _refreshToken = string.Empty;
-    private static string _accessToken = string.Empty;
+    private static readonly Queue<(string Refresh, string Access)> ResponseQueue = new();
+    private static readonly List<string?> ReceivedBearerTokensField = [];
     private static string? _revokedReason;
+
+    public static IReadOnlyList<string?> ReceivedBearerTokens => ReceivedBearerTokensField;
 
     public static void SetStubResponse(string refreshToken, string accessToken)
     {
-        _refreshToken = refreshToken;
-        _accessToken = accessToken;
-        _revokedReason = null;
+        ResetStub();
+        ResponseQueue.Enqueue((refreshToken, accessToken));
+    }
+
+    public static void EnqueueStubResponse(string refreshToken, string accessToken)
+    {
+        ResponseQueue.Enqueue((refreshToken, accessToken));
     }
 
     public static void SetStubRevoked(string revokedReason)
     {
+        ResetStub();
         _revokedReason = revokedReason;
+    }
+
+    private static void ResetStub()
+    {
+        ResponseQueue.Clear();
+        ReceivedBearerTokensField.Clear();
+        _revokedReason = null;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -284,6 +336,8 @@ internal sealed class RefreshStubAppGatewayApplicationFactory : WebApplicationFa
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            ReceivedBearerTokensField.Add(request.Headers.Authorization?.Parameter);
+
             if (_revokedReason is not null)
             {
                 var revoked = new HttpResponseMessage(HttpStatusCode.Unauthorized);
@@ -291,9 +345,10 @@ internal sealed class RefreshStubAppGatewayApplicationFactory : WebApplicationFa
                 return Task.FromResult(revoked);
             }
 
+            var (refreshToken, accessToken) = ResponseQueue.Dequeue();
             var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Headers.Add(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, _refreshToken);
-            response.Headers.Add(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, _accessToken);
+            response.Headers.Add(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, refreshToken);
+            response.Headers.Add(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, accessToken);
             return Task.FromResult(response);
         }
     }
