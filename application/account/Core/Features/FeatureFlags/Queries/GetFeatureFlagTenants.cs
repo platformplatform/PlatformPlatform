@@ -273,7 +273,10 @@ public sealed class GetFeatureFlagTenantsHandler(
             return (isEnabled, source);
         }
 
-        if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
+        // Gate by baseRow.IsActive so a globally-deactivated flag never shows as Enabled in the
+        // bulk admin view — matches FeatureFlagEvaluator.EvaluateAsync which skips entirely when
+        // the base row is inactive.
+        if (definition.IsAbTestEligible && baseRow is { IsActive: true, BucketStart: not null, BucketEnd: not null })
         {
             var effectiveBucket = tenant.AbInclusionPin switch
             {
