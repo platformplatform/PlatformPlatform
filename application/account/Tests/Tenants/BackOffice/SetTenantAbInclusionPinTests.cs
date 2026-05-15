@@ -32,6 +32,8 @@ public sealed class SetTenantAbInclusionPinTests : BackOfficeEndpointBaseTest
         storedPin.Should().Be(nameof(AbInclusionPin.AlwaysOn));
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "TenantAbInclusionPinUpdated");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.from_pin"].Should().Be("none");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.to_pin"].Should().Be("AlwaysOn");
     }
 
     [Fact]

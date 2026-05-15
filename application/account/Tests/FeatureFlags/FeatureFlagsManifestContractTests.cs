@@ -1,19 +1,19 @@
 using System.Text.Json;
 using FluentAssertions;
-using SharedKernel.FeatureFlags;
 using Xunit;
 
 namespace Account.Tests.FeatureFlags;
 
-// Codegen contract: every public instance property defined on FeatureFlagDefinition must appear in
-// every entry of the generated manifest (application/shared-webapp/ui/featureFlags/featureFlags.generated.json).
-// The manifest is the source-of-truth bridge between C# and the TS registry consumed by useFeatureFlag.
-// When someone adds a new virtual property to FeatureFlagDefinition without updating
-// FeatureFlagsManifestEmitter, this test fails — preventing silent codegen drift.
+// Codegen contract: every public instance property defined on every concrete FeatureFlagDefinition
+// subtype must appear in the entry of the generated manifest for at least one flag
+// (application/shared-webapp/ui/featureFlags/featureFlags.generated.json). The manifest is the
+// source-of-truth bridge between C# and the TS registry consumed by useFeatureFlag. Reflecting over
+// the base class would miss subtype-only properties (a new `MyNewCapability { get; }` on a future
+// subtype), which is exactly the drift class the contract test exists to prevent.
 public sealed class FeatureFlagsManifestContractTests
 {
     [Fact]
-    public void EveryPublicPropertyOnFeatureFlagDefinition_AppearsInManifestEntry()
+    public void EveryPublicPropertyOnEveryFlagSubtype_AppearsInManifestEntry()
     {
         var manifestPath = ResolveManifestPath();
         File.Exists(manifestPath).Should().BeTrue($"manifest must exist at '{manifestPath}'; run `build --backend` to regenerate");
@@ -23,17 +23,18 @@ public sealed class FeatureFlagsManifestContractTests
         manifest.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
         manifest.RootElement.GetArrayLength().Should().BeGreaterThan(0);
 
-        var firstEntry = manifest.RootElement[0];
-        var manifestKeys = firstEntry.EnumerateObject().Select(p => p.Name).ToHashSet(StringComparer.Ordinal);
+        var manifestKeys = manifest.RootElement.EnumerateArray()
+            .SelectMany(entry => entry.EnumerateObject().Select(p => p.Name))
+            .ToHashSet(StringComparer.Ordinal);
 
-        var expectedKeys = typeof(FeatureFlagDefinition)
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        var expectedKeys = global::SharedKernel.FeatureFlags.FeatureFlags.GetAll()
+            .SelectMany(f => f.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             .Select(p => ToCamelCase(p.Name))
             .ToHashSet(StringComparer.Ordinal);
 
         var missing = expectedKeys.Except(manifestKeys).ToArray();
         missing.Should().BeEmpty(
-            $"FeatureFlagDefinition exposes properties that the manifest emitter does not project. "
+            $"At least one FeatureFlagDefinition subtype exposes properties that the manifest emitter does not project. "
             + $"Add these to FeatureFlagsManifestEmitter.cs and regenerate: {string.Join(", ", missing)}"
         );
     }

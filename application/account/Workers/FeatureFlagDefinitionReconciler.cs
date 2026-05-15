@@ -53,7 +53,7 @@ public sealed class FeatureFlagDefinitionReconciler(
         // Session-scoped advisory locks are PostgreSQL-only. In-memory SQLite tests run the same code
         // path and would otherwise blow up on `no such function: pg_advisory_lock` — the cross-replica
         // race the lock guards against cannot happen in a single-process unit test anyway.
-        var isPostgres = accountDbContext.Database.IsNpgsql();
+        var isPostgres = accountDbContext.Database.ProviderName is not "Microsoft.EntityFrameworkCore.Sqlite";
 
         if (isPostgres)
         {

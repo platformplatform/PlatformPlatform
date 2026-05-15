@@ -27,7 +27,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(
         // Required because this evaluator runs on every JWT refresh / login, and concurrent fan-in for
         // the same tenant otherwise hits the unique index as a 500. The lock is PostgreSQL-specific;
         // in-memory SQLite test runs cannot exhibit cross-process concurrency, so we skip it there.
-        if (accountDbContext.Database.IsNpgsql())
+        if (accountDbContext.Database.ProviderName is not "Microsoft.EntityFrameworkCore.Sqlite")
         {
             await accountDbContext.Database.ExecuteSqlAsync(
                 $"SELECT pg_advisory_xact_lock(hashtextextended('plan_flags:' || {tenantId.Value}, 0))",
