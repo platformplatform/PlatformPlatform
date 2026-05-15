@@ -251,16 +251,78 @@ Loop until all pass:
 
 Any new [tasks] filed in steps 1, 3, or 4 go into the current iteration and route through normal task sets. Restart the checklist after they're [Completed].
 
-## Retrospective
+## Autonomous Ultra-Review
 
-After reporting the [feature] as production-ready, offer the user a retrospective. Include 1-2 lines per finding upfront so the user sees what's worth double-clicking on. Example:
+After the Feature Completion Checklist passes, run an autonomous ultra-review before declaring the [feature] done.
 
-> "Would you like a retrospective of the findings during this [feature]?
-> - Dead-inbox routing cost ~1 hour -- reviewers addressed approvals to stale names
-> - Turbo cache 502 hit twice, needed manual cache clear each time
-> - Regression tester sat idle the entire session (Chrome extension disconnected)"
+### Trigger
 
-If the user says yes, write a thorough deep-dive: every agent involved, every problem encountered, timing and chronology, root causes, process gaps, optimization recommendations. Save it as `.workspace/{branch-name}/session-retrospective.md`.
+Once every [task] is [Completed], git is clean, and the architect has signed off, invoke the **ultra-review** skill in autonomous mode. You supply (from your accumulated feature context):
+- Scope: the feature's branch and a one-paragraph summary of what was built.
+- Risk hotspots: where you saw friction during implementation (architect-updated [tasks], regression-tester bugs, reviewer pushback).
+- Size: per the ultra-review skill's own sizing guidance — match the change.
+- Confidence policy: "Allow Likely and Possible with explanation".
+- Output sink: `TASKS.md` (no `[PRODUCT_MANAGEMENT_TOOL]` writes).
+
+### Tracking [task]
+
+When the skill returns, create one [task] in `[PRODUCT_MANAGEMENT_TOOL]` titled "Ultra-review: <feature>" with the full `SUMMARY.md` content in the description and a checklist of finding IDs. You — and only you — update this [task] as fixes commit. Fix-up agents update TASKS.md rows; never the `[PRODUCT_MANAGEMENT_TOOL]` [task]. Single writer prevents races.
+
+### Fix loop
+
+The skill writes `.workspace/{branch-name}/ultra-review/<timestamp>/TASKS.md`. Read it, then loop through severity batches:
+
+1. **Critical + High** — spawn fresh fix-up pairs (`backend-fixup-{batch}`, `frontend-fixup-{batch}`, `qa-fixup-{batch}` and their reviewers as needed). Each pair owns a slice. Guardian commits the batch.
+2. **Medium** — same pattern. Skip blocked-on-user items.
+3. **Nits / Low** — same pattern, unless a finding is huge or risky (judgment call; consult architect if unsure).
+
+Each batch goes through the normal Engineer → Reviewer → Guardian flow.
+
+### Row status ownership
+
+In autonomous mode, TASKS.md row status replaces `[PRODUCT_MANAGEMENT_TOOL]` status. Same ownership pattern, same andon-cord checks:
+
+| Transition | Owner |
+|---|---|
+| `⏳ Open` → `🔧 In progress` | Engineer when starting |
+| `🔧 In progress` → `👀 In review` | Reviewer when reviewing |
+| `👀 In review` → `🔧 In progress` | Engineer when fixing reviewer findings |
+| `👀 In review` → `✅ Done (<commit>)` | Guardian on commit |
+| any → `🚫 Blocked — <reason>` | Team lead when business/scope decision needed |
+
+When assigning a slice to a fix-up agent, point them at their row IDs in TASKS.md and tell them to keep the status current — same discipline as `[PRODUCT_MANAGEMENT_TOOL]`. Pull the andon cord on unexpected state.
+
+### Defend the feature against scope creep
+
+Reviewers do not know what was discussed during the PRD or implementation. They will sometimes propose "fixes" that quietly change business rules. Stay skeptical. Mark a finding **blocked-on-user** in TASKS.md when:
+- It would alter behaviour the user explicitly agreed to.
+- It requires business/product judgment you do not have.
+- It needs external access you do not have (third-party credentials, systems the user owns).
+
+Do not let reviewers redefine the product. Continue fixing the rest while blocked items wait.
+
+### What to auto-fix vs let go
+
+Auto-fix: convention drift, readability, real security / scalability / production-readiness gaps, missing test coverage for already-agreed behaviour.
+
+Let go: defensive programming for scenarios that can't happen. Fragile code is a future cost.
+
+### Hand-off
+
+When all non-blocked findings are committed, report to the user in one message:
+- One-line summary: N findings, M fixed, K blocked.
+- The blocked findings, each with the specific question or decision the user must make.
+- Paths to TASKS.md and SUMMARY.md.
+
+### Process retrospective
+
+Before hand-off, write `.workspace/{branch-name}/process-retrospective.md`. Focus on the workflow, not the feature. The user reads this to decide whether to tune the process:
+- Where did agents stall, miscommunicate, or duplicate work?
+- Which handoffs (engineer ↔ reviewer, reviewer → Guardian, fix-up batches) had friction?
+- Where did the rolling window, andon cord, or task-set lifecycle help vs hurt?
+- Concrete edits to suggest for `.claude/agents/*.md` or related rules.
+
+Skip what the feature does or how it was built.
 
 ## Post-Feature Polish Mode
 

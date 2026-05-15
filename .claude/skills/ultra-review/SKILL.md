@@ -10,6 +10,11 @@ Orchestrate a multi-round, multi-agent deep review. Goal: depth over speed. Maxi
 
 The orchestrator never writes findings. Design the review, spawn agents, digest results.
 
+## Invocation modes
+
+- **Interactive** (user typed "ultra review"): run STEP 1 interview. STEP 10 offers either `[PRODUCT_MANAGEMENT_TOOL]` tasks or `TASKS.md`.
+- **Autonomous** (team-lead invocation at feature completion): the caller supplies scope, risk hotspots, size, and confidence policy directly. Skip STEP 1's user questions. Skip STEP 10's chat presentation. Always write `TASKS.md`; never write to `[PRODUCT_MANAGEMENT_TOOL]`. Return the `TASKS.md` path to the caller.
+
 ## Core principles
 
 - **Depth, not token-saving.** Spend whatever it takes. Use Explore subagents for code search, MCP tools (Stripe, [PRODUCT_MANAGEMENT_TOOL], Aspire, DB, etc.), and any other tooling. Prefer Perplexity over WebSearch for online research.
@@ -386,24 +391,61 @@ Deduplication rules:
 - Disagreement on severity → take the higher (carry its uncertainty note if below Certain). Disagreement on implementation → prefer the more concrete one, note the alternative.
 - Likely/Possible findings → preserve the "Why not Certain" note in the summary.
 
-### STEP 10: Present to user, then offer [PRODUCT_MANAGEMENT_TOOL] tasks
+### STEP 10: Present + write findings sink
 
-Present `SUMMARY.md` in chat: Critical first, then High, then a one-line list of Medium titles. Do not paste Medium implementations unless asked.
+**Autonomous mode:** skip presentation. Write `TASKS.md` (format below) and return its path to the caller. Done.
 
-Wait for the user. They may discuss findings, mark some as won't-fix, reorder priorities, or ask for deeper investigation.
+**Interactive mode:** present `SUMMARY.md` in chat — Critical first, then High, then a one-line list of Medium titles. Do not paste Medium implementations unless asked. Wait for the user (discuss, won't-fix, reprioritize, deeper investigation).
 
-Once satisfied, ask via `AskUserQuestion` whether to create `[tasks]` in `[PRODUCT_MANAGEMENT_TOOL]`. Options:
-- Yes — one [task] per Critical and High
-- Yes — one [task] per Critical, High, and Medium
-- Yes — let me select which findings
-- No — handle manually
+Once satisfied, `AskUserQuestion`:
+- TASKS.md — one row per Critical, High, and Medium in `.workspace/<branch-name>/ultra-review/<timestamp>/TASKS.md`
+- `[PRODUCT_MANAGEMENT_TOOL]` — one [task] per Critical and High (or Critical/High/Medium)
+- Let me select which findings
+- Handle manually
 
-If yes, follow `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md`. Each [task]:
-- Title: short imperative description of the fix
-- Description: consolidated finding from `SUMMARY.md` (description, why, implementation, test)
-- Link to parent [feature] if one exists
-- Status: [Planned] / equivalent
-- Iteration: current
+`[PRODUCT_MANAGEMENT_TOOL]` tasks (when chosen): follow `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md`. Each [task]: title (imperative), description (consolidated finding from `SUMMARY.md`), link to parent [feature] if any, [Planned] status, current iteration.
+
+### TASKS.md format
+
+```markdown
+# Ultra Review Tasks — <timestamp>
+
+<one-line summary>. Full per-agent reports in `round3/`. Consolidated digest in `SUMMARY.md`.
+
+**Merge blockers:** <comma-separated IDs of Critical + High>.
+
+## Tally
+- Critical: <N> (<IDs>)
+- High: <N> (<IDs>)
+- Medium: <N>
+- Low / Nit: <N>
+
+## Tasks
+
+| ID | Status | Severity | Title | Files | Fix size | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| C-1 | ⏳ Open | Critical | <title> | <file:line, ...> | <~lines or n/a> | <agent-slug> |
+| H-1 | ⏳ Open | High | ... | ... | ... | ... |
+
+ID format: `<severity>-<index>` where severity is `C` (Critical), `H` (High), `M` (Medium), `L` (Low), `N` (Nit).
+
+Status values (mirror the standard task lifecycle):
+- `⏳ Open` — initial, not yet picked up
+- `🔧 In progress` — engineer is working on the fix
+- `👀 In review` — reviewer has it
+- `✅ Done (<commit>)` — committed
+- `🚫 Blocked — <reason>` — needs user input or external access
+
+## Details
+
+### C-1 — <title>
+**Why**: <root cause>.
+**Blast radius**: <impact>.
+**Fix**: <concrete change>.
+**Rule citation** (when applicable): <path>.
+
+### H-1 — ...
+```
 
 ## Guidelines
 
