@@ -94,4 +94,55 @@ public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<Accoun
         );
         secondEnabledAt.Should().Be(firstEnabledAt);
     }
+
+    [Fact]
+    public async Task EvaluatePlanFlags_WhenUpgradingToPremium_ShouldEmitPlanOverrideActivatedEvent()
+    {
+        // Arrange
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        await _service.EvaluatePlanFlagsForTenantAsync(tenantId, SubscriptionPlan.Premium, CancellationToken.None);
+        await _dbContext.SaveChangesAsync();
+
+        // Assert
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "FeatureFlagPlanOverrideActivated");
+    }
+
+    [Fact]
+    public async Task EvaluatePlanFlags_WhenDowngradingFromPremium_ShouldEmitPlanOverrideDeactivatedEvent()
+    {
+        // Arrange
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        await _service.EvaluatePlanFlagsForTenantAsync(tenantId, SubscriptionPlan.Premium, CancellationToken.None);
+        await _dbContext.SaveChangesAsync();
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        await _service.EvaluatePlanFlagsForTenantAsync(tenantId, SubscriptionPlan.Basis, CancellationToken.None);
+        await _dbContext.SaveChangesAsync();
+
+        // Assert
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "FeatureFlagPlanOverrideDeactivated");
+    }
+
+    [Fact]
+    public async Task EvaluatePlanFlags_WhenNoChange_ShouldNotEmitTelemetryEvent()
+    {
+        // Arrange
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        await _service.EvaluatePlanFlagsForTenantAsync(tenantId, SubscriptionPlan.Premium, CancellationToken.None);
+        await _dbContext.SaveChangesAsync();
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        await _service.EvaluatePlanFlagsForTenantAsync(tenantId, SubscriptionPlan.Premium, CancellationToken.None);
+        await _dbContext.SaveChangesAsync();
+
+        // Assert — handler is idempotent; a no-op pass must not emit any plan-override events.
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().NotContain(e =>
+            e.GetType().Name == "FeatureFlagPlanOverrideActivated" || e.GetType().Name == "FeatureFlagPlanOverrideDeactivated"
+        );
+    }
 }

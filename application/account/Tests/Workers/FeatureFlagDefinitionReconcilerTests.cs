@@ -333,6 +333,105 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
         deletedAt.Should().NotBeNullOrEmpty("the reconciler must not clear DeletedAt; it must fail deployment instead");
     }
 
+    [Fact]
+    public async Task Reconciler_WhenRowExistsForRemovedFlag_ShouldEmitOrphanedTelemetryEvent()
+    {
+        // Arrange
+        Connection.Insert("feature_flags", [
+                ("id", FeatureFlagId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", null),
+                ("flag_key", "removed-feature"),
+                ("tenant_id", null),
+                ("user_id", null),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Manual"),
+                ("scope", "Tenant")
+            ]
+        );
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagOrphanedByReconciler");
+    }
+
+    [Fact]
+    public async Task Reconciler_WhenOrphanedBaseRowKeyIsBackInDefinitions_ShouldEmitRestoredTelemetryEvent()
+    {
+        // Arrange — orphan the sso base row and a tenant override sharing the key so the restore
+        // event reports a non-zero overrides_restored count.
+        var orphanedAt = TimeProvider.GetUtcNow();
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = 'sso' AND tenant_id IS NULL AND user_id IS NULL", []
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("orphaned_at", orphanedAt)]);
+        Connection.Insert("feature_flags", [
+                ("id", FeatureFlagId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", orphanedAt),
+                ("flag_key", "sso"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", null),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Plan"),
+                ("scope", "Tenant")
+            ]
+        );
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagRestoredByReconciler");
+        var restored = TelemetryEventsCollectorSpy.CollectedEvents.Single(e => e.GetType().Name == "FeatureFlagRestoredByReconciler");
+        restored.Properties["event.overrides_restored"].Should().Be("1");
+    }
+
+    [Fact]
+    public async Task Reconciler_WhenSsoTenantOverrideSourceDiffersFromDefinition_ShouldEmitSourceTransitionedTelemetryEvent()
+    {
+        // Arrange — sso is a PlanGatedTenantFlag (definition Source=Plan). Seed a Manual override
+        // row so the reconciler's source-transition sweep removes it and emits the event.
+        Connection.Insert("feature_flags", [
+                ("id", FeatureFlagId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", null),
+                ("flag_key", "sso"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", null),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Manual"),
+                ("scope", "Tenant")
+            ]
+        );
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "FeatureFlagSourceTransitionedByReconciler");
+    }
+
     private async Task RunReconcilerAsync()
     {
         using var scope = Provider.CreateScope();
