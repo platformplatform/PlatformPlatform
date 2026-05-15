@@ -48,7 +48,7 @@ public abstract class FeatureFlagDefinition(string key, string label, string des
     public virtual bool ConfigurableByUser => false;
 
     /// <summary>Emit the flag's evaluated value as a property on every telemetry event so analytics can segment on it.</summary>
-    public virtual bool TrackInTelemetry => false;
+    public abstract bool TrackInTelemetry { get; }
 
     /// <summary>Override for the telemetry property name. Null = use Key verbatim.</summary>
     public virtual string? TelemetryName => null;
@@ -108,6 +108,7 @@ public sealed class SystemFeatureFlag(
     string description,
     string systemConfigKey,
     string frontendEnvVar,
+    bool trackInTelemetry,
     string? systemConfigExpectedValue = null
 ) : FeatureFlagDefinition(key, label, description)
 {
@@ -120,6 +121,8 @@ public sealed class SystemFeatureFlag(
     public override string FrontendEnvVar => frontendEnvVar;
 
     public override string? SystemConfigExpectedValue => systemConfigExpectedValue;
+
+    public override bool TrackInTelemetry => trackInTelemetry;
 }
 
 // Tenant scope, A/B-eligible, system-admin-managed. Used for flags rolled out gradually across the
@@ -130,10 +133,10 @@ public sealed class TenantAbTestFlag(
     string key,
     string label,
     string description,
+    bool trackInTelemetry,
+    bool isKillSwitchEnabled,
     string? parentDependency = null,
-    bool trackInTelemetry = false,
-    string? telemetryName = null,
-    bool isKillSwitchEnabled = false
+    string? telemetryName = null
 ) : FeatureFlagDefinition(key, label, description)
 {
     public override FeatureFlagScope Scope => FeatureFlagScope.Tenant;
@@ -158,7 +161,8 @@ public sealed class PlanGatedTenantFlag(
     string key,
     string label,
     string description,
-    PlanTier requiredPlan
+    PlanTier requiredPlan,
+    bool trackInTelemetry
 ) : FeatureFlagDefinition(key, label, description)
 {
     public override FeatureFlagScope Scope => FeatureFlagScope.Tenant;
@@ -166,6 +170,8 @@ public sealed class PlanGatedTenantFlag(
     public override FeatureFlagAdminLevel AdminLevel => FeatureFlagAdminLevel.SystemAdmin;
 
     public override PlanTier? RequiredPlan => requiredPlan;
+
+    public override bool TrackInTelemetry => trackInTelemetry;
 }
 
 // Tenant scope, owner-toggled. Tenant owners flip these on/off in account settings. Mutually
@@ -175,7 +181,8 @@ public sealed class TenantOwnerConfigurableFlag(
     string key,
     string label,
     string description,
-    bool isKillSwitchEnabled = false,
+    bool trackInTelemetry,
+    bool isKillSwitchEnabled,
     bool isStableModule = false
 ) : FeatureFlagDefinition(key, label, description)
 {
@@ -184,6 +191,8 @@ public sealed class TenantOwnerConfigurableFlag(
     public override FeatureFlagAdminLevel AdminLevel => FeatureFlagAdminLevel.TenantOwner;
 
     public override bool ConfigurableByTenant => true;
+
+    public override bool TrackInTelemetry => trackInTelemetry;
 
     public override bool IsKillSwitchEnabled => isKillSwitchEnabled;
 
@@ -196,7 +205,8 @@ public sealed class UserConfigurableFlag(
     string key,
     string label,
     string description,
-    bool isKillSwitchEnabled = false,
+    bool trackInTelemetry,
+    bool isKillSwitchEnabled,
     bool isStableModule = false
 ) : FeatureFlagDefinition(key, label, description)
 {
@@ -205,6 +215,8 @@ public sealed class UserConfigurableFlag(
     public override FeatureFlagAdminLevel AdminLevel => FeatureFlagAdminLevel.User;
 
     public override bool ConfigurableByUser => true;
+
+    public override bool TrackInTelemetry => trackInTelemetry;
 
     public override bool IsKillSwitchEnabled => isKillSwitchEnabled;
 
@@ -217,9 +229,9 @@ public sealed class UserAbTestFlag(
     string key,
     string label,
     string description,
-    bool trackInTelemetry = false,
-    string? telemetryName = null,
-    bool isKillSwitchEnabled = false
+    bool trackInTelemetry,
+    bool isKillSwitchEnabled,
+    string? telemetryName = null
 ) : FeatureFlagDefinition(key, label, description)
 {
     public override FeatureFlagScope Scope => FeatureFlagScope.User;

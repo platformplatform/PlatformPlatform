@@ -10,7 +10,8 @@ public static class FeatureFlags
         "Google OAuth",
         "Sign in with Google using OpenID Connect",
         "OAuth:Google:ClientId",
-        "PUBLIC_GOOGLE_OAUTH_ENABLED"
+        "PUBLIC_GOOGLE_OAUTH_ENABLED",
+        false
     );
 
     public static readonly FeatureFlagDefinition Subscriptions = new SystemFeatureFlag(
@@ -19,6 +20,7 @@ public static class FeatureFlags
         "Stripe-powered subscription billing and plan management",
         "Stripe:SubscriptionEnabled",
         "PUBLIC_SUBSCRIPTION_ENABLED",
+        false,
         "true"
     );
 
@@ -26,29 +28,32 @@ public static class FeatureFlags
         "beta-features",
         "Beta features",
         "Early access to experimental features before general availability",
-        trackInTelemetry: true,
-        isKillSwitchEnabled: true
+        true,
+        true
     );
 
     public static readonly FeatureFlagDefinition Sso = new PlanGatedTenantFlag(
         "sso",
         "Single sign-on",
         "Allow users to authenticate using enterprise identity providers",
-        PlanTier.Premium
+        PlanTier.Premium,
+        false
     );
 
     public static readonly FeatureFlagDefinition AccountOverview = new TenantOwnerConfigurableFlag(
         "account-overview",
         "Account overview page",
         "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list.",
-        isKillSwitchEnabled: true
+        true,
+        true
     );
 
     public static readonly FeatureFlagDefinition CompactView = new UserConfigurableFlag(
         "compact-view",
         "Compact view",
         "Reduce spacing between UI elements for a denser layout",
-        isKillSwitchEnabled: true
+        true,
+        true
     );
 
     public static readonly FeatureFlagDefinition ExperimentalUi = new UserAbTestFlag(
@@ -56,7 +61,7 @@ public static class FeatureFlags
         "Experimental UI",
         "Try out experimental user interface components",
         true,
-        isKillSwitchEnabled: true
+        true
     );
 
     // Reflected at startup over every `public static readonly FeatureFlagDefinition` field on this

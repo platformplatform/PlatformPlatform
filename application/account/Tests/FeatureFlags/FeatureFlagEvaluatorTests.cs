@@ -366,8 +366,8 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         // parent flag with a parent-dependent child. The production registry does not currently declare
         // any parent-dep relationship, so this exercises the gating in FeatureFlagEvaluator without
         // contributing test-only flags to the real registry.
-        var parent = new TenantAbTestFlag("test-parent", "Test parent", "Parent flag for evaluator test");
-        var child = new TenantAbTestFlag("test-child", "Test child", "Child flag for evaluator test", "test-parent");
+        var parent = new TenantAbTestFlag("test-parent", "Test parent", "Parent flag for evaluator test", false, false);
+        var child = new TenantAbTestFlag("test-child", "Test child", "Child flag for evaluator test", false, false, "test-parent");
         var evaluator = new FeatureFlagEvaluator(_scope.ServiceProvider.GetRequiredService<IFeatureFlagRepository>())
         {
             DefinitionsProvider = () => [parent, child]
