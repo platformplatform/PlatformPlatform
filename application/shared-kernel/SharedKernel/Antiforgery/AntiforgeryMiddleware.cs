@@ -14,7 +14,7 @@ public sealed class AntiforgeryMiddleware(IAntiforgery antiforgery, ILogger<Anti
             return;
         }
 
-        if (bool.TryParse(Environment.GetEnvironmentVariable("BypassAntiforgeryValidation"), out _))
+        if (bool.TryParse(Environment.GetEnvironmentVariable("BypassAntiforgeryValidation"), out var bypass) && bypass)
         {
             logger.LogDebug("Bypassing antiforgery validation due to environment variable setting");
             await next(context);

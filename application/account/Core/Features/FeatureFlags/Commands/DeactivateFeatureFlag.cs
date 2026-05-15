@@ -15,7 +15,8 @@ public sealed class DeactivateFeatureFlagValidator : AbstractValidator<Deactivat
     {
         RuleFor(x => x.FlagKey)
             .NotEmpty().WithMessage("Feature flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.");
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.IsKillSwitchEnabled == true).WithMessage("Only kill-switch-enabled feature flags can be globally deactivated.");
     }
 }
 

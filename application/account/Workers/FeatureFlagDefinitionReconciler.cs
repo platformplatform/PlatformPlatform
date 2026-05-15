@@ -1,5 +1,8 @@
+using System.Security.Cryptography;
+using System.Text;
 using Account.Database;
 using Account.Features.FeatureFlags.Domain;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.FeatureFlags;
 
 namespace Account.Workers;
@@ -8,20 +11,23 @@ namespace Account.Workers;
 ///     Converges the <c>feature_flags</c> table to the C# definitions in
 ///     <see cref="SharedKernel.FeatureFlags.FeatureFlags" /> on every worker startup. Replaces the
 ///     deleted one-shot <c>SeedFeatureFlags</c> and <c>SeedPlanBasedFeatureFlags</c> data migrations
-///     with a converging path that handles future flag-definition changes (kill-switch flip, plan-tier
-///     transitions, flag removal) without writing new data migrations.
+///     with a converging path that handles future flag-definition changes (plan-tier transitions,
+///     flag removal) without writing new data migrations.
 ///     For every non-System definition the reconciler ensures the global row exists with the correct
-///     <see cref="FeatureFlag.Source" />, ensures the global row is active when
-///     <see cref="FeatureFlagDefinition.IsKillSwitchEnabled" /> is <c>false</c>, and removes
-///     stale tenant overrides whose Source no longer matches the definition (so
+///     <see cref="FeatureFlag.Source" />. The base row's IsActive state is set on creation (active
+///     when <see cref="FeatureFlagDefinition.IsKillSwitchEnabled" /> is <c>false</c>, inactive
+///     otherwise) and thereafter is owned by admins via Activate/Deactivate commands — the
+///     reconciler never flips it. Stale tenant overrides whose Source no longer matches the
+///     definition are removed (so
 ///     <see cref="Features.FeatureFlags.Shared.PlanBasedFeatureFlagEvaluator" /> can rebuild them on
 ///     the next login). Any DB row whose flag_key is not in the C# definitions is marked
 ///     <see cref="FeatureFlag.OrphanedAt" /> at the current time. If a definition reuses a key that
-///     was previously soft-deleted, the reconciler throws to abort deployment — admins explicitly
-///     retired the key and reusing it would conflate historical telemetry between two distinct flags.
+///     was previously soft-deleted, the reconciler throws to abort deployment.
 ///     The reconciler is idempotent — a second pass on top of a converged DB produces no changes.
 ///     Runs inline at Worker startup (NOT a BackgroundService) so that a failure aborts the process
 ///     before it accepts traffic — better to fail to start than to run with inconsistent flag state.
+///     A PostgreSQL session-scoped advisory lock serializes concurrent reconciles across worker
+///     replicas during rolling deploys or KEDA scale-from-zero.
 /// </summary>
 public sealed class FeatureFlagDefinitionReconciler(
     IFeatureFlagRepository featureFlagRepository,
@@ -30,7 +36,34 @@ public sealed class FeatureFlagDefinitionReconciler(
     ILogger<FeatureFlagDefinitionReconciler> logger
 )
 {
+    // Stable per-reconciler advisory-lock key derived from the type name (mirrors DataMigrationRunner's
+    // BitConverter.ToInt64(SHA256(typeof(TContext).FullName)) pattern). Naming the key from the type
+    // namespace isolates it from the migration runner's lock so the two coexist on the same DB session.
+    private static readonly long AdvisoryLockKey = BitConverter.ToInt64(
+        SHA256.HashData(Encoding.UTF8.GetBytes(typeof(FeatureFlagDefinitionReconciler).FullName!))
+    );
+
     public async Task ReconcileAsync(CancellationToken cancellationToken)
+    {
+        await accountDbContext.Database.ExecuteSqlAsync(
+            $"SELECT pg_advisory_lock({AdvisoryLockKey})",
+            cancellationToken
+        );
+
+        try
+        {
+            await ReconcileInternalAsync(cancellationToken);
+        }
+        finally
+        {
+            await accountDbContext.Database.ExecuteSqlAsync(
+                $"SELECT pg_advisory_unlock({AdvisoryLockKey})",
+                CancellationToken.None
+            );
+        }
+    }
+
+    private async Task ReconcileInternalAsync(CancellationToken cancellationToken)
     {
         var now = timeProvider.GetUtcNow();
         var definitions = FeatureFlags.GetAll().Where(d => d.Scope != FeatureFlagScope.System).ToArray();
@@ -41,7 +74,6 @@ public sealed class FeatureFlagDefinitionReconciler(
         var baseRowsByKey = (await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken)).ToDictionary(r => r.FlagKey);
 
         var baseRowsCreated = 0;
-        var baseRowsActivated = 0;
         var baseRowsRestored = 0;
         var sourceTransitions = 0;
         var staleRowsRemoved = 0;
@@ -111,14 +143,6 @@ public sealed class FeatureFlagDefinitionReconciler(
                     definition.Key, expectedSource, staleTenantRowsToRemove.Length
                 );
             }
-
-            if (!definition.IsKillSwitchEnabled && !baseRow.IsActive)
-            {
-                baseRow.Activate(now);
-                featureFlagRepository.Update(baseRow);
-                baseRowsActivated++;
-                logger.LogInformation("Reconciler activated kill-switch-locked base row for '{FlagKey}'", definition.Key);
-            }
         }
 
         var knownKeys = definitions.Select(d => d.Key).ToHashSet();
@@ -136,8 +160,8 @@ public sealed class FeatureFlagDefinitionReconciler(
         await accountDbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsActivated} kill-switch-locked rows activated, {BaseRowsRestored} re-added rows restored, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",
-            definitions.Length, baseRowsCreated, baseRowsActivated, baseRowsRestored, sourceTransitions, staleRowsRemoved, orphansMarked
+            "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsRestored} re-added rows restored, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",
+            definitions.Length, baseRowsCreated, baseRowsRestored, sourceTransitions, staleRowsRemoved, orphansMarked
         );
     }
 }

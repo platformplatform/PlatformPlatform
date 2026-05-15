@@ -43,7 +43,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     public async Task ActivateFeatureFlag_WhenAdmin_ShouldSetEnabledAt()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         using var client = CreateAdminBackOfficeClient();
 
         // Act
@@ -88,7 +88,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     public async Task ActivateFeatureFlag_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         using var client = CreateRegularBackOfficeClient();
 
         // Act
@@ -129,8 +129,10 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     public async Task DeactivateFeatureFlag_WhenAlreadyInactiveAndAdmin_ShouldHandleGracefully()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         using var client = CreateAdminBackOfficeClient();
+        // First deactivate to make it inactive, then deactivate again to test idempotency
+        await client.PutAsync($"/api/back-office/feature-flags/{flagKey}/deactivate", null);
 
         // Act
         var response = await client.PutAsync($"/api/back-office/feature-flags/{flagKey}/deactivate", null);
@@ -1356,7 +1358,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     public async Task ActivateFeatureFlag_WhenCalledByAdmin_ShouldNotAddRefreshAuthenticationTokensHeader()
     {
         // Arrange
-        var flagKey = "sso";
+        var flagKey = "beta-features";
         using var client = CreateAdminBackOfficeClient();
 
         // Act
