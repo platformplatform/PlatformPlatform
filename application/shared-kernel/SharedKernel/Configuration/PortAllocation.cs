@@ -78,7 +78,13 @@ public sealed record PortAllocation(int BasePort)
         var workspaceDirectory = Path.Combine(repositoryRoot, WorkspaceDirectoryName);
         var portFilePath = Path.Combine(workspaceDirectory, PortFileName);
 
-        if (!File.Exists(portFilePath))
+        // Treat "file doesn't exist" and "file exists but is empty" as the same condition: both
+        // mean we need to (re-)bootstrap. The empty case happens when a concurrent caller has
+        // opened the file with O_CREAT|O_TRUNC but hasn't written yet — overwriting it with the
+        // same deterministic value is a harmless no-op.
+        var content = File.Exists(portFilePath) ? File.ReadAllText(portFilePath).Trim() : "";
+
+        if (content.Length == 0)
         {
             var bootstrapPort = IsWorktree(repositoryRoot)
                 ? FindFreeBasePortForWorktree()
@@ -88,7 +94,6 @@ public sealed record PortAllocation(int BasePort)
             return new PortAllocation(bootstrapPort);
         }
 
-        var content = File.ReadAllText(portFilePath).Trim();
         if (!int.TryParse(content, out var basePort) || basePort <= 0)
         {
             throw new InvalidOperationException(
