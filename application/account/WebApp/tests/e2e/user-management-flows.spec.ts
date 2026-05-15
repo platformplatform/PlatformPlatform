@@ -511,6 +511,19 @@ test.describe("@comprehensive", () => {
     })();
 
     // === DASHBOARD METRICS SECTION ===
+    await step("Enable the account-overview feature flag via settings & verify the toggle is checked")(async () => {
+      // The /account dashboard is gated by the account-overview feature flag (off by default for
+      // new tenants). Owners enable it via the Features section on /account/settings.
+      await page.goto("/account/settings");
+      await expect(page.getByRole("heading", { name: "Features" })).toBeVisible();
+
+      const toggle = page.getByRole("switch", { name: "Account overview page" });
+      await toggle.click();
+
+      await expectToastMessage(context, "Feature updated");
+      await expect(toggle).toBeChecked();
+    })();
+
     await step("Navigate to dashboard & verify user count metrics display correctly")(async () => {
       await page.goto("/account/");
 

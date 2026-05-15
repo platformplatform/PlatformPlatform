@@ -14,10 +14,11 @@ const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
 
 // Both tests in this file mutate the shared `beta-features` rollout pin. Playwright runs @smoke and
 // @comprehensive in separate projects (see playwright.config.ts), so file-level serial mode would NOT
-// serialize across projects. Instead, both tests target the same idempotent end state (rollout=100):
-// each test pins rollout to 100 at the start, and at cleanup leaves rollout AT 100 rather than
-// resetting to 0. Concurrent runs converge to the same state and never observe an empty Enabled
-// view.
+// serialize across projects. Instead, both tests target the same idempotent end state (active +
+// rollout=100 + no override on the worker tenant): each test activates the flag and pins rollout to
+// 100 at the start, removes any leftover Test Organization override before driving the toggle steps,
+// and at cleanup re-pins rollout to 100 and removes the override rather than resetting to 0.
+// Concurrent runs converge to the same state and never observe an empty Enabled view.
 
 // SPA shells inject the antiforgery token into a `<meta name="antiforgeryToken">` tag at runtime.
 // Back-office mutation endpoints removed `.DisableAntiforgery()`, so Playwright API calls now have to
@@ -28,6 +29,57 @@ async function getAntiforgeryHeaders(page: Page): Promise<{ "x-xsrf-token": stri
     () => document.head.querySelector('meta[name="antiforgeryToken"]')?.getAttribute("content") ?? ""
   );
   return { "x-xsrf-token": token };
+}
+
+// Activate the flag and pin rollout to 100 — both are idempotent and the test relies on tenants
+// evaluating Enabled. The flag may have been deactivated by a prior @comprehensive run (or human),
+// in which case rollout alone produces an empty Accounts table.
+async function activateAndPinRollout(page: Page, flagKey: string, rolloutPercentage: number): Promise<void> {
+  const headers = await getAntiforgeryHeaders(page);
+  const activateResponse = await page.request.put(
+    `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/activate`,
+    { headers }
+  );
+  expect(activateResponse.ok()).toBe(true);
+
+  const rolloutResponse = await page.request.put(
+    `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/rollout-percentage`,
+    { data: { rolloutPercentage }, headers }
+  );
+  expect(rolloutResponse.ok()).toBe(true);
+}
+
+// Remove every tenant-override on `flagKey` across the entire database. The override toggles in
+// @smoke pick the first "Test Organization" row, but the back-office tables interleave every
+// worker's tenant (and stale rows from old runs), so the .first() row is unpredictable unless we
+// scrub overrides upfront. Doing this once at the start (and once at the end) keeps the cross-test
+// state symmetric without leaking implementation details (the cleanup endpoint is internal).
+async function removeAllTenantOverrides(page: Page, flagKey: string): Promise<void> {
+  const headers = await getAntiforgeryHeaders(page);
+  // PageSize=100 covers the worst case we expect (100s of stale "Test Organization" workers); the
+  // query loops in case more pages exist.
+  const pageSize = 100;
+  let pageOffset = 0;
+  while (true) {
+    const response = await page.request.get(
+      `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/tenants?HasOverride=true&PageSize=${pageSize}&PageOffset=${pageOffset}`
+    );
+    expect(response.ok()).toBe(true);
+    const body = await response.json();
+    const tenants = body.tenants as { id: string }[];
+    if (tenants.length === 0) return;
+
+    for (const tenant of tenants) {
+      const deleteResponse = await page.request.delete(
+        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/tenant-override?tenantId=${tenant.id}`,
+        { headers }
+      );
+      // 200 = override existed and was removed; 404 = override raced away (e.g., concurrent worker).
+      expect([200, 404]).toContain(deleteResponse.status());
+    }
+    if (tenants.length < pageSize) return;
+    pageOffset += 1;
+  }
 }
 
 test.describe("@smoke", () => {
@@ -92,15 +144,20 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
     })();
 
-    // Both @smoke and @comprehensive mutate the shared beta-features rollout; @smoke restores it to 0
-    // at the end and @comprehensive does the same, so cross-test ordering is deterministic.
-    await step("Pin beta-features rollout to 100 via back-office API & verify tenants evaluate enabled")(async () => {
-      const response = await page.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-        { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
-      );
+    // Both @smoke and @comprehensive mutate the shared beta-features rollout; both leave it at 100
+    // and remove any tenant-override they created, so cross-test ordering is deterministic.
+    await step("Activate beta-features and pin rollout to 100 via back-office API & verify tenants evaluate enabled")(
+      async () => {
+        await activateAndPinRollout(page, "beta-features", 100);
+      }
+    )();
 
-      expect(response.ok()).toBe(true);
+    await step("Remove all leftover tenant overrides for beta-features & verify clean precondition")(async () => {
+      await removeAllTenantOverrides(page, "beta-features");
+      // The detail page caches tenant override state in TanStack Query; the API DELETEs above
+      // don't invalidate that cache. Reload so the next steps see post-cleanup data.
+      await page.reload();
+      await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
     })();
 
     await step("Switch to the All state filter and search by Test Organization & verify a matching row renders")(
@@ -113,28 +170,40 @@ test.describe("@smoke", () => {
       }
     )();
 
-    await step("Toggle the first Test Organization override ON & verify toast and switch flips to checked")(
-      async () => {
-        const overrideSwitch = testOrgRow.getByRole("switch");
-        await overrideSwitch.click();
+    // With rollout=100 and no leftover override the switch starts ON (default-enabled via rollout).
+    // First click creates a disable-override; second click flips it to an enable-override (skipping
+    // the "single-click clears redundant override" branch because the override state differs from
+    // the default). Cleanup deletes the override so the next run starts from the same precondition.
+    await step(
+      "Click the Test Organization switch from default-enabled to disabled & verify disable toast and switch off"
+    )(async () => {
+      const overrideSwitch = testOrgRow.getByRole("switch");
+      await overrideSwitch.click();
 
-        await expectToastMessage(context, "Beta features");
-        await expect(overrideSwitch).toBeChecked();
+      await expectToastMessage(context, "Beta features");
+      await expect(overrideSwitch).not.toBeChecked();
+    })();
+
+    await step(
+      "Click the Test Organization switch back from disabled override to enabled override & verify enable toast and switch on"
+    )(async () => {
+      const overrideSwitch = testOrgRow.getByRole("switch");
+      await overrideSwitch.click();
+
+      await expectToastMessage(context, "Beta features");
+      await expect(overrideSwitch).toBeChecked();
+    })();
+
+    await step("Remove all tenant overrides for beta-features via back-office API & verify clean end state")(
+      async () => {
+        await removeAllTenantOverrides(page, "beta-features");
       }
     )();
 
-    await step("Toggle the same Test Organization override OFF & verify toast and switch flips to unchecked")(
-      async () => {
-        const overrideSwitch = testOrgRow.getByRole("switch");
-        await overrideSwitch.click();
-
-        await expectToastMessage(context, "Beta features");
-        await expect(overrideSwitch).not.toBeChecked();
-      }
-    )();
-
-    await step("Set A/B rollout percentage to 42 via the spinbutton & verify toast and spinbutton value")(async () => {
-      const percentageInput = page.getByRole("spinbutton", { name: "Rollout %" });
+    await step("Set A/B rollout percentage to 42 via the rollout input & verify toast and input value")(async () => {
+      // NumberField renders an `<input type="text">` (not number), so it exposes the `textbox` role
+      // rather than `spinbutton`. Match the label via aria-labelledby on the input.
+      const percentageInput = page.getByRole("textbox", { name: "Rollout %" });
       await percentageInput.fill("42");
       await blurActiveElement(page);
 
@@ -149,29 +218,10 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Feature flags" })).toBeVisible();
     })();
 
-    await step("Activate account-overview flag globally via back-office API & verify the toggle reads Active")(
-      async () => {
-        const response = await page.request.put(
-          `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/account-overview/activate`,
-          { headers: await getAntiforgeryHeaders(page) }
-        );
-        expect(response.ok()).toBe(true);
-
-        await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/account-overview`);
-        await expect(page.getByRole("switch", { name: "Toggle activation" })).toBeChecked();
-      }
-    )();
-
-    await step("Activate compact-view flag globally via back-office API & verify the toggle reads Active")(async () => {
-      const response = await page.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/compact-view/activate`,
-        { headers: await getAntiforgeryHeaders(page) }
-      );
-      expect(response.ok()).toBe(true);
-
-      await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/compact-view`);
-      await expect(page.getByRole("switch", { name: "Toggle activation" })).toBeChecked();
-    })();
+    // Globally activating non-kill-switch flags (account-overview, compact-view) was previously
+    // tested here, but the ActivateFeatureFlagValidator now rejects flags whose definition has
+    // `IsKillSwitchEnabled: false` with a 400. The activation surface for those flags is the
+    // owner-scoped tenant-override and the user-scoped user-override toggles exercised below.
 
     await backOfficeContext.close();
 
@@ -216,10 +266,12 @@ test.describe("@smoke", () => {
 
     // === USER PREFERENCES: USER FEATURE FLAGS ===
 
-    await step("Navigate to user preferences & verify Beta features section with user flags")(async () => {
+    await step("Navigate to user preferences & verify Feature preferences section with user flags")(async () => {
       await ownerPage.goto("/user/preferences");
 
-      await expect(ownerPage.getByRole("heading", { name: "Beta features" })).toBeVisible();
+      // The section was renamed from "Beta features" to "Feature preferences" when the toggle list
+      // grew to surface every user-configurable feature flag, not just the Beta features flag.
+      await expect(ownerPage.getByRole("heading", { name: "Feature preferences" })).toBeVisible();
       await expect(ownerPage.getByText("Compact view")).toBeVisible();
     })();
 
@@ -253,22 +305,17 @@ test.describe("@smoke", () => {
       }
     )();
 
-    // === CLEANUP: pin beta-features rollout to 100 (idempotent end state shared with @comprehensive) ===
+    // === CLEANUP: re-activate + pin beta-features rollout to 100 (idempotent end state shared with @comprehensive) ===
 
     const cleanupContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
     const cleanupPage = await cleanupContext.newPage();
     createTestContext(cleanupPage);
 
-    await step("Log in as Admin & re-pin beta-features rollout to 100 (idempotent end state)")(async () => {
+    await step("Log in as Admin & re-activate beta-features with rollout=100 (idempotent end state)")(async () => {
       await cleanupPage.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
       await logInAsAdmin(cleanupPage, `${BACK_OFFICE_BASE_URL}/feature-flags`);
 
-      const response = await cleanupPage.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-        { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(cleanupPage) }
-      );
-
-      expect(response.ok()).toBe(true);
+      await activateAndPinRollout(cleanupPage, "beta-features", 100);
     })();
 
     await cleanupContext.close();
@@ -309,16 +356,13 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
     })();
 
-    // Both @smoke and @comprehensive mutate the shared beta-features rollout; both restore it to 0
-    // at the end so cross-test ordering is deterministic.
-    await step("Pin beta-features rollout to 100 via back-office API & verify tenants evaluate enabled")(async () => {
-      const response = await page.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-        { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
-      );
-
-      expect(response.ok()).toBe(true);
-    })();
+    // Both @smoke and @comprehensive mutate the shared beta-features rollout; both leave it active
+    // with rollout=100 so cross-test ordering is deterministic.
+    await step("Activate beta-features and pin rollout to 100 via back-office API & verify tenants evaluate enabled")(
+      async () => {
+        await activateAndPinRollout(page, "beta-features", 100);
+      }
+    )();
 
     // === TENANTS: STATE CHIPS (single-select; default Enabled pressed; All/Enabled/Disabled exclusive) ===
 
@@ -460,16 +504,13 @@ test.describe("@comprehensive", () => {
       await expect(ownerChip).toHaveAttribute("aria-pressed", "true");
     })();
 
-    // === CLEANUP: re-pin beta-features rollout to 100 (idempotent end state shared with @smoke) ===
+    // === CLEANUP: re-activate + pin beta-features rollout to 100 (idempotent end state shared with @smoke) ===
 
-    await step("Re-pin beta-features rollout to 100 via back-office API & verify success")(async () => {
-      const response = await page.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-        { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
-      );
-
-      expect(response.ok()).toBe(true);
-    })();
+    await step("Re-activate beta-features and pin rollout to 100 via back-office API & verify idempotent end state")(
+      async () => {
+        await activateAndPinRollout(page, "beta-features", 100);
+      }
+    )();
 
     await backOfficeContext.close();
   });
