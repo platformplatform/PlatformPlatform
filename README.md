@@ -26,10 +26,10 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 
 ## What's inside
 
-* **Backend** - .NET 10 and C# 14 adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
+* **Backend** - .NET 10 and C# 14 following the principles of vertical slice architecture, DDD, CQRS, and clean code
 * **Frontend** - React 19, TypeScript, TanStack Router & Query, ShadCN 2.0 with Base UI for accessible UI
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
-* **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure PostgreSQL, etc.
+* **Infrastructure** - Cost efficient and scalable Azure PaaS like Azure Container Apps and PostgreSQL
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 * **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
 * **Multi-agent development** - Agent Teams workflow where specialized Claude Code agents with deep PlatformPlatform expertise collaborate end-to-end
@@ -40,11 +40,11 @@ Show your support for our project - give us a star on GitHub! It truly means a l
 
 ### Back office
 
-Operate the platform from a dedicated SPA on its own hostname, locked down with Entra ID Easy Auth and group-based admin checks:
+Operate the platform from a dedicated SPA on its own hostname, secured by Entra ID Easy Auth:
 
 * **Dashboard** - KPI tiles for total accounts, blended MRR, all-time revenue, active users, and live sessions; trend cards for MRR, revenue, tenant growth, plan distribution, user logins; activity feeds for recent signups, payments, logins, and Stripe webhook events
-* **Accounts** - Search and filter every tenant, drill into account detail with owner, plan, signup activity, and per-account usage
-* **Users** - Cross-tenant user list with role and last-seen filters, drill into per-user profile, role, and tenant membership
+* **Accounts** - Search and filter every tenant; drill into detail with owner, plan, and signup activity
+* **Users** - Cross-tenant user list with role and last-seen filters; drill into per-user profile and tenant
 * **Invoices** - Paginated invoice ledger across every account with Stripe drift detection so finance can reconcile what's in Stripe vs. what landed in the database
 * **Billing events** - Authoritative event log of subscription, payment, and billing transitions, filterable by event type and account, with deep-link from dashboard cards
 * **Feature flags** - System / plan-gated / A/B-rollout / owner-configurable / user-configurable flags declared in C# and surfaced as a strongly-typed React hook; back-office UI for rollouts, overrides, and per-entity pins; flag state piggybacks on the JWT refresh so the SPA never polls
@@ -57,14 +57,14 @@ Production-ready end-user surfaces — fully localized, accessible, and ready to
 
 * **Signup** - Tenant signup with email one-time password or Google OAuth (OpenID Connect with PKCE)
 * **Login** - Same OTP and Google sign-in flows, with `UNLOCK` shortcut on localhost so dev mail is optional
-* **Welcome** - First-run guided flow that walks new owners through naming the account, uploading a logo, and inviting their first teammates
-* **Account overview** - At-a-glance dashboard of account activity, owner-toggleable so signed-in users can land straight on Users instead
+* **Welcome** - First-run guided flow for naming the account, uploading a logo, and inviting colleagues
+* **Account overview** - At-a-glance dashboard of account activity, owner-toggleable so users land on Users instead
 * **Account settings** - Owner-editable account name, logo, and danger-zone account deletion
-* **User management** - Invite users, change roles (Owner/Admin/Member), bulk delete, and restore deleted users from a recycle bin
+* **User management** - Invite users, change roles (Owner/Admin/Member), bulk delete, and recycle-bin restore
 * **Subscription & billing** - Embedded Stripe Checkout & Payment Element, prorated plan upgrades/downgrades, billing-info editing, scheduled-downgrade banner, dunning, and a full payment history with downloadable invoices and credit notes
 * **User profile** - Personal profile with avatar upload (Gravatar fallback), first/last name, email, and job title
-* **User preferences** - Theme (system/light/dark), language, and zoom level — device-local for theme and zoom, profile-level for language
-* **Sessions** - Active session list with device type, browser, and OS, plus one-click revocation of any session you don't recognise
+* **User preferences** - Theme (system/light/dark), language, and zoom — device-local for theme/zoom, profile for language
+* **Sessions** - Active session list with device type, browser, and OS, plus one-click revocation of any session
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/PlatformPlatformDemo.gif" alt="PlatformPlatform Demo" title="PlatformPlatform Demo" />
 
