@@ -57,7 +57,11 @@ export function FeatureFlagInfoSection({
     );
   };
 
-  const showToggle = orphanedAt === null && !featureFlag.isStableModule;
+  // The Activate/Deactivate endpoints reject any flag whose definition doesn't carry
+  // isKillSwitchEnabled: true (Activate/DeactivateFeatureFlagValidator). Hide the toggle for those
+  // flags so the UI never exposes a button guaranteed to 400 — non-kill-switch flags get the
+  // read-only Badge branch below instead.
+  const showToggle = orphanedAt === null && !featureFlag.isStableModule && featureFlag.isKillSwitchEnabled;
   const isFlagAudienceVisible = orphanedAt === null && featureFlag.scope !== "System";
 
   return (
