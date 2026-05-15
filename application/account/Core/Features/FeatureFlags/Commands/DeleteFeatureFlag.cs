@@ -37,16 +37,19 @@ public sealed class DeleteFeatureFlagHandler(
 
         // Soft-delete the base row to retain the flag key for historical telemetry; hard-delete the
         // tenant and user override rows because they carry no historical value once the flag is retired.
-        baseRow.MarkDeleted(timeProvider.GetUtcNow());
+        var now = timeProvider.GetUtcNow();
+        var daysSinceOrphaned = (int)(now - baseRow.OrphanedAt.Value).TotalDays;
+        baseRow.MarkDeleted(now);
         featureFlagRepository.Update(baseRow);
 
         var overrides = await featureFlagRepository.GetRowsByFlagKeyUnfilteredAsync(command.FlagKey, cancellationToken);
-        foreach (var row in overrides.Where(r => r.TenantId is not null || r.UserId is not null))
+        var overrideRowsToRemove = overrides.Where(r => r.TenantId is not null || r.UserId is not null).ToArray();
+        foreach (var row in overrideRowsToRemove)
         {
             featureFlagRepository.Remove(row);
         }
 
-        events.CollectEvent(new FeatureFlagDeleted(command.FlagKey));
+        events.CollectEvent(new FeatureFlagDeleted(command.FlagKey, overrideRowsToRemove.Length, daysSinceOrphaned));
 
         return Result.Success();
     }

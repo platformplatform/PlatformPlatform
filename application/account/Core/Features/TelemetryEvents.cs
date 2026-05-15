@@ -72,8 +72,8 @@ public sealed class FeatureFlagActivated(string flagKey)
 public sealed class FeatureFlagDeactivated(string flagKey)
     : TelemetryEvent(("flag_key", flagKey));
 
-public sealed class FeatureFlagDeleted(string flagKey)
-    : TelemetryEvent(("flag_key", flagKey));
+public sealed class FeatureFlagDeleted(string flagKey, int overridesRemoved, int daysSinceOrphaned)
+    : TelemetryEvent(("flag_key", flagKey), ("overrides_removed", overridesRemoved), ("days_since_orphaned", daysSinceOrphaned));
 
 public sealed class FeatureFlagOrphanedByReconciler(string flagKey)
     : TelemetryEvent(("flag_key", flagKey));
