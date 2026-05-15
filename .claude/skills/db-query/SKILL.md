@@ -5,6 +5,8 @@ description: Query the local Postgres database of the active Aspire worktree via
 
 # Database Query
 
+**Port = `.workspace/port.txt` base + 2. Never trust Aspire MCP for the port — a common critical failure that silently runs SQL on another worktree's database.**
+
 **Read-only. Every write needs explicit user approval for that exact statement, every time — prior approvals never carry over.**
 
 **For destructive operations (DROP, TRUNCATE, DELETE, ALTER, or anything that loses data), take extreme care. If anything in the request is even slightly unclear about the scope, target, or intent, stop and ask for clarification before executing. Always assume the most conservative interpretation.**
