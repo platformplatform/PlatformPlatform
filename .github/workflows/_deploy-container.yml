@@ -38,6 +38,10 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: ${{ inputs.image_name }}-${{ inputs.azure_environment }}-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy

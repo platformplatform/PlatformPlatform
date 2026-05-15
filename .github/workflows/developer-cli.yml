@@ -51,6 +51,7 @@ jobs:
       - name: Run Code Linting
         working-directory: developer-cli
         run: |
+          set -o pipefail
           dotnet run --no-build -- lint --cli --no-build | tee lint-output.log
 
           if ! grep -q "No developer-cli issues found!" lint-output.log; then

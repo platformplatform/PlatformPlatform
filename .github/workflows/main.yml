@@ -12,7 +12,6 @@ on:
       - ".github/workflows/main.yml"
       - ".github/workflows/_deploy-container.yml"
       - ".github/workflows/_migrate-database.yml"
-      - ".github/workflows/_preview-migrations.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -23,7 +22,6 @@ on:
       - ".github/workflows/main.yml"
       - ".github/workflows/_deploy-container.yml"
       - ".github/workflows/_migrate-database.yml"
-      - ".github/workflows/_preview-migrations.yml"
       - "!**.md"
   workflow_dispatch:
 
@@ -89,36 +87,19 @@ jobs:
         run: |
           # Extract UserSecretsId from the .csproj file
           USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.csproj)
-          
+
           # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
           dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID
-
-      - name: Setup Java JDK for SonarScanner
-        uses: actions/setup-java@v5
-        with:
-          distribution: "microsoft"
-          java-version: "17"
 
       - name: Build Email Templates
         working-directory: application
         run: npx turbo run build --filter=@repo/emails
 
-      - name: Run Tests with SonarScanner Analysis
+      - name: Run Tests
         working-directory: application
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]] || [[ "${{ vars.SONAR_ORGANIZATION }}" == "" ]] || [[ "${{ secrets.SONAR_TOKEN }}" == "" ]]; then
-            echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
-            dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }} &&
-            dotnet test main/Main.slnf --no-build
-          else
-            dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" &&
-            dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }} &&
-            dotnet test main/Main.slnf --no-build &&
-            dotnet sonarscanner end
-          fi
+          dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }} &&
+          dotnet test main/Main.slnf --no-build
 
       - name: Save Backend Build Artifacts for Migration Plan
         if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
@@ -144,7 +125,8 @@ jobs:
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/main
         run: |
-          dotnet publish ./Api/Main.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+          dotnet publish ./Api/Main.Api.csproj --configuration Release --no-restore --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+
       - name: Save API Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v7
@@ -156,13 +138,15 @@ jobs:
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/main
         run: |
-          dotnet publish ./Workers/Main.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+          dotnet publish ./Workers/Main.Workers.csproj --configuration Release --no-restore --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+
       - name: Save Workers Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: main-workers
           path: application/main/Workers/publish/**/*
+
   database-migrations-stage:
     name: Database Staging
     if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}

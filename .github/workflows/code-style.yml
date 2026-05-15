@@ -137,6 +137,7 @@ jobs:
       - name: Run Backend Linting
         working-directory: developer-cli
         run: |
+          set -o pipefail
           dotnet run lint --backend ${{ needs.detect-scope.outputs.backend_scope }} --no-build | tee lint-output.log
 
           if ! grep -q "No backend issues found!" lint-output.log; then
@@ -272,7 +273,13 @@ jobs:
             exit 0
           fi
 
+          # Run test assemblies sequentially via per-SCS slnf files. Running `dotnet test
+          # PlatformPlatform.slnx` parallelizes test assemblies across processes, which races on
+          # PortAllocation.Load() (`.workspace/port.txt` half-created between O_CREAT and write).
+          # AppGateway.Tests is covered by app-gateway.yml. SharedKernel.Tests is included in both
+          # slnf files and will run twice; that is acceptable.
           dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" &&
           dotnet build PlatformPlatform.slnx --no-restore &&
-          dotnet test PlatformPlatform.slnx --no-build &&
+          dotnet test account/Account.slnf --no-build &&
+          dotnet test main/Main.slnf --no-build &&
           dotnet sonarscanner end
