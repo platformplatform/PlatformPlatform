@@ -1,6 +1,7 @@
 import { type FeatureFlagKey, getFlag } from "@repo/ui/featureFlags/registry.generated";
 
 import { useUserInfo } from "../auth/hooks";
+import { getLatestUserFeatureFlags } from "./userFeatureFlagsHeader";
 
 type FeatureFlagResult = { enabled: boolean };
 
@@ -34,9 +35,10 @@ export function useFeatureFlag(flagKey: FeatureFlagKey): FeatureFlagResult {
 }
 
 // Synchronous flag check for non-React callers (TanStack Router `beforeLoad` guards, fetch
-// interceptors, etc.). Reads from the initial UserInfo embedded in the HTML meta tag; for
-// dynamically toggled flags during a session, prefer the `useFeatureFlag` hook which re-renders
-// when the `x-user-feature-flags` header updates.
+// interceptors, etc.). Reads the live header-dispatched flag set when an authenticated response
+// has already resolved in this session, and falls back to the bootstrap meta tag only on first
+// load. Without the live-read step, in-session toggles (owner self-service, admin override) would
+// diverge from the `useFeatureFlag` hook until a full page reload.
 export function isFeatureFlagEnabled(flagKey: FeatureFlagKey): boolean {
   const definition = getFlag(flagKey);
 
@@ -46,9 +48,11 @@ export function isFeatureFlagEnabled(flagKey: FeatureFlagKey): boolean {
     return import.meta.runtime_env[envVar as keyof RuntimeEnv] === "true";
   }
 
+  const liveFlags = getLatestUserFeatureFlags();
+  if (liveFlags !== null) return liveFlags.includes(flagKey);
+
   const userInfo = import.meta.user_info_env;
   if (!userInfo.isAuthenticated) return false;
-
-  const enabledFlags = userInfo.featureFlags ?? [];
-  return enabledFlags.includes(flagKey);
+  const bootstrapFlags = userInfo.featureFlags ?? [];
+  return bootstrapFlags.includes(flagKey);
 }

@@ -68,3 +68,14 @@ export function subscribeToUserFeatureFlags(listener: Listener): () => void {
     registry.listeners.delete(listener);
   };
 }
+
+/**
+ * Synchronous read of the most recent header-dispatched flag set. Returns null when no header has
+ * been seen yet (no authenticated response has resolved in this session). Used by non-React
+ * callers — TanStack Router `beforeLoad` guards, fetch interceptors — so they share the live
+ * eventing channel instead of reading a bootstrap meta tag that goes stale after the first
+ * mid-session toggle.
+ */
+export function getLatestUserFeatureFlags(): string[] | null {
+  return getRegistry().lastFlagKeys;
+}
