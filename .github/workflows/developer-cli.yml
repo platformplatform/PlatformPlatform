@@ -15,6 +15,10 @@ on:
       - "!**.md"
   workflow_dispatch:
 
+concurrency:
+  group: developer-cli-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

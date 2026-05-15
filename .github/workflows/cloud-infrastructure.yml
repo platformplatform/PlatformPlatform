@@ -17,6 +17,10 @@ on:
       - "!**.md"
   workflow_dispatch:
 
+concurrency:
+  group: cloud-infrastructure-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   id-token: write
   contents: read

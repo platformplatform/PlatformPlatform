@@ -21,6 +21,10 @@ on:
       - "!**.md"
   workflow_dispatch:
 
+concurrency:
+  group: app-gateway-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   id-token: write
   contents: read
