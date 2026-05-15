@@ -14,6 +14,7 @@ public class FormatCommand : Command
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Format frontend code" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Format developer-cli code" };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to format (e.g., main, account, back-office)" };
+        var gatewayOption = new Option<bool>("--gateway", "-g") { Description = "Scope backend formatting to AppGateway and AppGateway.Tests" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring before formatting" };
         var allFilesOption = new Option<bool>("--all-files") { Description = "Format every file in the solution. Default is to format only .cs files changed against origin/main." };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
@@ -22,6 +23,7 @@ public class FormatCommand : Command
         Options.Add(frontendOption);
         Options.Add(cliOption);
         Options.Add(selfContainedSystemOption);
+        Options.Add(gatewayOption);
         Options.Add(noBuildOption);
         Options.Add(allFilesOption);
         Options.Add(quietOption);
@@ -31,6 +33,7 @@ public class FormatCommand : Command
                 parseResult.GetValue(frontendOption),
                 parseResult.GetValue(cliOption),
                 parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(gatewayOption),
                 parseResult.GetValue(noBuildOption),
                 parseResult.GetValue(allFilesOption),
                 parseResult.GetValue(quietOption)
@@ -38,8 +41,10 @@ public class FormatCommand : Command
         );
     }
 
-    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool noBuild, bool allFiles, bool quiet)
+    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool gateway, bool noBuild, bool allFiles, bool quiet)
     {
+        if (gateway) AppGatewayHelper.EnsureNotCombinedWithSelfContainedSystem(selfContainedSystem);
+
         var noFlags = !backend && !frontend && !developerCli;
         var formatBackend = backend || noFlags;
         var formatFrontend = frontend || noFlags;
@@ -61,7 +66,7 @@ public class FormatCommand : Command
             if (formatBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunBackendFormat(selfContainedSystem, noBuild, allFiles, quiet);
+                RunBackendFormat(selfContainedSystem, gateway, noBuild, allFiles, quiet);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -125,14 +130,33 @@ public class FormatCommand : Command
         }
     }
 
-    private static void RunBackendFormat(string? selfContainedSystem, bool noBuild, bool allFiles, bool quiet)
+    private static void RunBackendFormat(string? selfContainedSystem, bool gateway, bool noBuild, bool allFiles, bool quiet)
     {
-        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(gateway ? null : selfContainedSystem);
 
         if (!quiet) AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
 
         var includeArgument = string.Empty;
-        if (!allFiles)
+        if (gateway)
+        {
+            if (allFiles)
+            {
+                includeArgument = $""" --include="{AppGatewayHelper.IncludeGlob}" """.TrimEnd();
+            }
+            else
+            {
+                var changedCsFiles = AppGatewayHelper.FilterToAppGatewayFiles(GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName));
+                if (changedCsFiles.Length == 0)
+                {
+                    if (!quiet) AnsiConsole.MarkupLine("[green]No changed AppGateway C# files found, skipping backend format.[/]");
+                    return;
+                }
+
+                includeArgument = $""" --include="{string.Join(";", changedCsFiles)}" """.TrimEnd();
+                if (!quiet) AnsiConsole.MarkupLine($"[blue]Formatting {changedCsFiles.Length} changed AppGateway file(s)...[/]");
+            }
+        }
+        else if (!allFiles)
         {
             var changedCsFiles = GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName);
             if (changedCsFiles.Length == 0)

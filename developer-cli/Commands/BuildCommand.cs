@@ -15,6 +15,7 @@ public class BuildCommand : Command
         var emailsOption = new Option<bool>("--emails", "-e") { Description = "Build email templates" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Build developer-cli code" };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to build (e.g., main, account, back-office)" };
+        var gatewayOption = new Option<bool>("--gateway", "-g") { Description = "Scope backend work to AppGateway and AppGateway.Tests" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
@@ -22,6 +23,7 @@ public class BuildCommand : Command
         Options.Add(emailsOption);
         Options.Add(cliOption);
         Options.Add(selfContainedSystemOption);
+        Options.Add(gatewayOption);
         Options.Add(quietOption);
 
         SetAction(parseResult => Execute(
@@ -30,13 +32,16 @@ public class BuildCommand : Command
                 parseResult.GetValue(emailsOption),
                 parseResult.GetValue(cliOption),
                 parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(gatewayOption),
                 parseResult.GetValue(quietOption)
             )
         );
     }
 
-    private static void Execute(bool backend, bool frontend, bool emails, bool developerCli, string? selfContainedSystem, bool quiet)
+    private static void Execute(bool backend, bool frontend, bool emails, bool developerCli, string? selfContainedSystem, bool gateway, bool quiet)
     {
+        if (gateway) AppGatewayHelper.EnsureNotCombinedWithSelfContainedSystem(selfContainedSystem);
+
         var noFlags = !backend && !frontend && !emails && !developerCli;
         var buildBackend = backend || noFlags;
         var buildFrontend = frontend || noFlags;
@@ -61,8 +66,16 @@ public class BuildCommand : Command
             {
                 if (!quiet) AnsiConsole.MarkupLine("[blue]Running backend build...[/]");
 
-                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-                ProcessHelper.Run($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName, "Build", quiet);
+                if (gateway)
+                {
+                    ProcessHelper.Run($"dotnet build {AppGatewayHelper.TestProjectRelativePath}", Configuration.ApplicationFolder, "Build", quiet);
+                }
+                else
+                {
+                    var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+                    ProcessHelper.Run($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName, "Build", quiet);
+                }
+
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 

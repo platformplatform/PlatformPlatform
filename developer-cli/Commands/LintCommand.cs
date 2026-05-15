@@ -15,6 +15,7 @@ public class LintCommand : Command
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run frontend linting" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Run developer-cli linting" };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to lint (e.g., main, account, back-office)" };
+        var gatewayOption = new Option<bool>("--gateway", "-g") { Description = "Scope backend linting to AppGateway and AppGateway.Tests" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running linting" };
         var changedOnlyOption = new Option<bool>("--changed-only") { Description = "Lint only .cs files changed against origin/main. Default is to lint the full solution. Recommended for routine local runs; CI always lints the full solution." };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
@@ -23,6 +24,7 @@ public class LintCommand : Command
         Options.Add(frontendOption);
         Options.Add(cliOption);
         Options.Add(selfContainedSystemOption);
+        Options.Add(gatewayOption);
         Options.Add(noBuildOption);
         Options.Add(changedOnlyOption);
         Options.Add(quietOption);
@@ -32,6 +34,7 @@ public class LintCommand : Command
                 parseResult.GetValue(frontendOption),
                 parseResult.GetValue(cliOption),
                 parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(gatewayOption),
                 parseResult.GetValue(noBuildOption),
                 parseResult.GetValue(changedOnlyOption),
                 parseResult.GetValue(quietOption)
@@ -39,8 +42,10 @@ public class LintCommand : Command
         );
     }
 
-    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool noBuild, bool changedOnly, bool quiet)
+    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool gateway, bool noBuild, bool changedOnly, bool quiet)
     {
+        if (gateway) AppGatewayHelper.EnsureNotCombinedWithSelfContainedSystem(selfContainedSystem);
+
         var noFlags = !backend && !frontend && !developerCli;
         var lintBackend = backend || noFlags;
         var lintFrontend = frontend || noFlags;
@@ -57,7 +62,7 @@ public class LintCommand : Command
             if (lintBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                hasIssues = RunBackendLinting(selfContainedSystem, noBuild, changedOnly, quiet);
+                hasIssues = RunBackendLinting(selfContainedSystem, gateway, noBuild, changedOnly, quiet);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -122,12 +127,28 @@ public class LintCommand : Command
         }
     }
 
-    private static bool RunBackendLinting(string? selfContainedSystem, bool noBuild, bool changedOnly, bool quiet)
+    private static bool RunBackendLinting(string? selfContainedSystem, bool gateway, bool noBuild, bool changedOnly, bool quiet)
     {
-        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(gateway ? null : selfContainedSystem);
 
         var includeArgument = string.Empty;
-        if (changedOnly)
+        if (gateway && !changedOnly)
+        {
+            includeArgument = $""" --include="{AppGatewayHelper.IncludeGlob}" """.TrimEnd();
+        }
+        else if (gateway)
+        {
+            var changedCsFiles = AppGatewayHelper.FilterToAppGatewayFiles(GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName));
+            if (changedCsFiles.Length == 0)
+            {
+                if (!quiet) AnsiConsole.MarkupLine("[green]No changed AppGateway C# files found, skipping backend linting.[/]");
+                return false;
+            }
+
+            includeArgument = $""" --include="{string.Join(";", changedCsFiles)}" """.TrimEnd();
+            if (!quiet) AnsiConsole.MarkupLine($"[blue]Linting {changedCsFiles.Length} changed AppGateway file(s)...[/]");
+        }
+        else if (changedOnly)
         {
             var changedCsFiles = GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName);
             if (changedCsFiles.Length == 0)
