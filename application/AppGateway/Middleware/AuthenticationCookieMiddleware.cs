@@ -96,12 +96,17 @@ public sealed class AuthenticationCookieMiddleware(
                 catch (HttpRequestException ex)
                 {
                     // Backend temporarily unreachable: the upstream mutation already succeeded, so
-                    // let the response through. The SPA picks up new claims on the next refresh.
+                    // let the response through. The SPA picks up new claims on the next refresh. The
+                    // degraded flag below suppresses x-user-feature-flags emission so the SPA isn't
+                    // told the pre-mutation flag set is current — that would look like the mutation
+                    // didn't take effect.
                     logger.LogWarning(ex, "Backend unavailable during endpoint-triggered refresh. Path: {Path}", context.Request.Path);
+                    tokenState.EndpointTriggeredRefreshFailedDegraded = true;
                 }
                 catch (TaskCanceledException ex) when (!context.RequestAborted.IsCancellationRequested)
                 {
                     logger.LogWarning(ex, "Backend timed out during endpoint-triggered refresh. Path: {Path}", context.Request.Path);
+                    tokenState.EndpointTriggeredRefreshFailedDegraded = true;
                 }
             }
 
@@ -118,7 +123,7 @@ public sealed class AuthenticationCookieMiddleware(
             tokenState.CurrentAccessToken = newAccessToken;
         }
 
-        if (tokenState.CurrentAccessToken is { } currentAccessToken &&
+        if (tokenState is { EndpointTriggeredRefreshFailedDegraded: false, CurrentAccessToken: { } currentAccessToken } &&
             ExtractFeatureFlagsClaim(currentAccessToken) is { } featureFlagsClaim)
         {
             context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey] = featureFlagsClaim;
@@ -338,6 +343,12 @@ public sealed class AuthenticationCookieMiddleware(
         public string? CurrentAccessToken { get; set; }
 
         public string? InboundRefreshToken { get; set; }
+
+        // Set when an endpoint-triggered refresh swallows a transient backend failure so the response
+        // does NOT emit x-user-feature-flags from the now-stale pre-refresh access token. Without this,
+        // the SPA would interpret a successful mutation + stale claim header as "the toggle didn't
+        // apply", causing flag-toggle UX confusion.
+        public bool EndpointTriggeredRefreshFailedDegraded { get; set; }
     }
 }
 

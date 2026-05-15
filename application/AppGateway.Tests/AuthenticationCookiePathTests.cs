@@ -206,6 +206,38 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
     }
 
     [Fact]
+    public async Task InvokeAsync_WhenEndpointTriggeredRefreshHitsBackendOutage_ShouldOmitUserFeatureFlagsHeader()
+    {
+        // Arrange - downstream PUT succeeds and signals endpoint-triggered refresh. The refresh call to
+        // the account backend throws HttpRequestException (simulating a transient outage). The middleware
+        // logs and lets the mutation response through, but must NOT emit x-user-feature-flags from the
+        // pre-refresh access token — that would mislead the SPA into "your toggle didn't take effect".
+        await using var stubFactory = new RefreshStubAppGatewayApplicationFactory();
+        var middleware = stubFactory.Services.GetRequiredService<AuthenticationCookieMiddleware>();
+        var signingClient = stubFactory.Services.GetRequiredService<ITokenSigningClient>();
+        var inboundRefreshToken = CreateSignedToken(signingClient, 60, []);
+        var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, "stale-flag")]);
+        RefreshStubAppGatewayApplicationFactory.SetStubBackendUnavailable();
+        var context = CreateHttpContext("/api/account/feature-flags/stale-flag/tenant-override");
+        context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={inboundRefreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={preRefreshAccessToken}";
+
+        // Act
+        await middleware.InvokeAsync(context, downstream =>
+            {
+                downstream.Response.StatusCode = StatusCodes.Status204NoContent;
+                downstream.Response.Headers[AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey] = "true";
+                return Task.CompletedTask;
+            }
+        );
+        await TriggerOnStartingAsync(context);
+
+        // Assert
+        context.Response.StatusCode.Should().Be(StatusCodes.Status204NoContent, "the mutation response must pass through unchanged");
+        context.Response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey, "emitting the pre-refresh claim would tell the SPA the mutation had no effect");
+        context.Response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+    }
+
+    [Fact]
     public async Task InvokeAsync_WhenRefreshEndpointSignalsSessionRevoked_ShouldOverwriteResponseWith401AndClearCookies()
     {
         // Arrange
@@ -297,6 +329,7 @@ internal sealed class RefreshStubAppGatewayApplicationFactory : WebApplicationFa
     private static readonly Queue<(string Refresh, string Access)> ResponseQueue = new();
     private static readonly List<string?> ReceivedBearerTokensField = [];
     private static string? _revokedReason;
+    private static bool _backendUnavailable;
 
     public static IReadOnlyList<string?> ReceivedBearerTokens => ReceivedBearerTokensField;
 
@@ -317,11 +350,18 @@ internal sealed class RefreshStubAppGatewayApplicationFactory : WebApplicationFa
         _revokedReason = revokedReason;
     }
 
+    public static void SetStubBackendUnavailable()
+    {
+        ResetStub();
+        _backendUnavailable = true;
+    }
+
     private static void ResetStub()
     {
         ResponseQueue.Clear();
         ReceivedBearerTokensField.Clear();
         _revokedReason = null;
+        _backendUnavailable = false;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -337,6 +377,11 @@ internal sealed class RefreshStubAppGatewayApplicationFactory : WebApplicationFa
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             ReceivedBearerTokensField.Add(request.Headers.Authorization?.Parameter);
+
+            if (_backendUnavailable)
+            {
+                throw new HttpRequestException("Stub backend unavailable.");
+            }
 
             if (_revokedReason is not null)
             {
