@@ -281,7 +281,7 @@ test.describe("@smoke", () => {
     await step("Navigate to /account with account-overview ON & verify the dashboard heading renders")(async () => {
       await ownerPage.goto("/account");
 
-      await expect(ownerPage).toHaveURL("/account/");
+      await expect(ownerPage).toHaveURL("/account");
       await expect(ownerPage.getByRole("heading", { name: "Account overview" })).toBeVisible();
     })();
 
