@@ -43,6 +43,13 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
     ///     from admin paths — never from a tenant-scoped request.
     /// </summary>
     Task<FeatureFlag[]> GetRowsByFlagKeyUnfilteredAsync(string flagKey, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns every row (tenant overrides + user overrides for users of this tenant) bound to a single
+    ///     tenant. Used to cascade-delete on tenant removal so stale flag rows don't accumulate. Base rows
+    ///     (tenant_id IS NULL) are not returned.
+    /// </summary>
+    Task<FeatureFlag[]> GetRowsByTenantAsync(TenantId tenantId, CancellationToken cancellationToken);
 }
 
 internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
@@ -111,5 +118,10 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
     public async Task<FeatureFlag[]> GetRowsByFlagKeyUnfilteredAsync(string flagKey, CancellationToken cancellationToken)
     {
         return await DbSet.Where(f => f.FlagKey == flagKey).ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<FeatureFlag[]> GetRowsByTenantAsync(TenantId tenantId, CancellationToken cancellationToken)
+    {
+        return await DbSet.Where(f => f.TenantId == tenantId).ToArrayAsync(cancellationToken);
     }
 }
