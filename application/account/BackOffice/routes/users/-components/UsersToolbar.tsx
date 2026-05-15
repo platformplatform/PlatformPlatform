@@ -22,14 +22,17 @@ export function UsersToolbar({ search, roles, activity }: Readonly<UsersToolbarP
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    if ((debouncedSearch || undefined) === search) {
-      return;
-    }
+    // `search` is intentionally NOT a dep here so external URL changes (Clear filters) don't fire
+    // this effect with a stale debouncedSearch and immediately re-push the old typed value back
+    // into the URL. The companion sync effect below handles URL → input. This effect only runs
+    // when the user types something new and the debounce settles.
+    if ((debouncedSearch || undefined) === search) return;
     navigate({
       to: "/users",
       search: (previous) => ({ ...previous, search: debouncedSearch || undefined, pageOffset: undefined })
     });
-  }, [debouncedSearch, navigate, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, navigate]);
 
   useEffect(() => {
     setSearchInput(search ?? "");

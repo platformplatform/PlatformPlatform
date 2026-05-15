@@ -28,9 +28,8 @@ export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetect
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    if ((debouncedSearch || undefined) === search) {
-      return;
-    }
+    // See UsersToolbar.tsx for the rationale on omitting `search` from this effect's deps.
+    if ((debouncedSearch || undefined) === search) return;
     navigate({
       to: "/accounts",
       search: (previous) => ({
@@ -40,7 +39,8 @@ export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetect
         pageOffset: undefined
       })
     });
-  }, [debouncedSearch, navigate, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, navigate]);
 
   useEffect(() => {
     setSearchInput(search ?? "");

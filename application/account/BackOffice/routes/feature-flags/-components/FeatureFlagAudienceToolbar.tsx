@@ -47,14 +47,14 @@ export function FeatureFlagAudienceToolbar({
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    // Only push when the debounce has caught up with the current input. Without this guard a
-    // "Clear filters" navigation races the debounce: the prop-change effect below resets
-    // searchInput to "" but debouncedSearch still holds the stale typed value for ~500ms, and
-    // this effect would re-push it back into the URL.
-    if ((debouncedSearch || undefined) !== (searchInput || undefined)) return;
+    // `search` is intentionally NOT a dep here so external URL changes (Clear filters) don't fire
+    // this effect with a stale debouncedSearch and immediately re-push the old typed value back
+    // into the URL. The companion sync effect below handles URL → input. This effect only runs
+    // when the user types something new and the debounce settles.
     if ((debouncedSearch || undefined) === search) return;
     onSearchChange(debouncedSearch || undefined);
-  }, [debouncedSearch, searchInput, onSearchChange, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, onSearchChange]);
 
   useEffect(() => {
     setSearchInput(search ?? "");
