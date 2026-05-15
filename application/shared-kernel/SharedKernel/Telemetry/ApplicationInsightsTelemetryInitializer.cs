@@ -70,9 +70,9 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
         AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
 
-        foreach (var (name, value) in FeatureFlagTelemetryProperties.Enumerate(executionContext.UserInfo.FeatureFlags))
+        if (FeatureFlagTelemetryProperties.GetEnabledFeatureFlagsTag(executionContext.UserInfo.FeatureFlags) is { } featureFlagsTag)
         {
-            AddCustomProperty(telemetry, name, value);
+            AddCustomProperty(telemetry, featureFlagsTag.Name, featureFlagsTag.Value);
         }
     }
 
