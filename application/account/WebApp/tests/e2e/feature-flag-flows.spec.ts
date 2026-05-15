@@ -12,11 +12,12 @@ import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
 
-// Both tests in this file mutate the shared `beta-features` rollout pin. Running them in parallel
-// across workers would race the smoke test's cleanup-to-0 against the comprehensive test's
-// expectations of rollout=100. Serial mode within the file (still parallel with other files)
-// removes the race without test-only production scaffolding.
-test.describe.configure({ mode: "serial" });
+// Both tests in this file mutate the shared `beta-features` rollout pin. Playwright runs @smoke and
+// @comprehensive in separate projects (see playwright.config.ts), so file-level serial mode would NOT
+// serialize across projects. Instead, both tests target the same idempotent end state (rollout=100):
+// each test pins rollout to 100 at the start, and at cleanup leaves rollout AT 100 rather than
+// resetting to 0. Concurrent runs converge to the same state and never observe an empty Enabled
+// view.
 
 // SPA shells inject the antiforgery token into a `<meta name="antiforgeryToken">` tag at runtime.
 // Back-office mutation endpoints removed `.DisableAntiforgery()`, so Playwright API calls now have to
@@ -252,19 +253,19 @@ test.describe("@smoke", () => {
       }
     )();
 
-    // === CLEANUP: reset beta-features rollout so other tests/workers see the pre-test state ===
+    // === CLEANUP: pin beta-features rollout to 100 (idempotent end state shared with @comprehensive) ===
 
     const cleanupContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
     const cleanupPage = await cleanupContext.newPage();
     createTestContext(cleanupPage);
 
-    await step("Log in as Admin & reset beta-features rollout to 0 to restore shared state")(async () => {
+    await step("Log in as Admin & re-pin beta-features rollout to 100 (idempotent end state)")(async () => {
       await cleanupPage.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
       await logInAsAdmin(cleanupPage, `${BACK_OFFICE_BASE_URL}/feature-flags`);
 
       const response = await cleanupPage.request.put(
         `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-        { data: { rolloutPercentage: 0 }, headers: await getAntiforgeryHeaders(cleanupPage) }
+        { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(cleanupPage) }
       );
 
       expect(response.ok()).toBe(true);
@@ -459,12 +460,12 @@ test.describe("@comprehensive", () => {
       await expect(ownerChip).toHaveAttribute("aria-pressed", "true");
     })();
 
-    // === CLEANUP: reset rollouts so the rest of the suite sees the pre-test state ===
+    // === CLEANUP: re-pin beta-features rollout to 100 (idempotent end state shared with @smoke) ===
 
-    await step("Reset beta-features rollout to 0 via back-office API & verify success")(async () => {
+    await step("Re-pin beta-features rollout to 100 via back-office API & verify success")(async () => {
       const response = await page.request.put(
         `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-        { data: { rolloutPercentage: 0 }, headers: await getAntiforgeryHeaders(page) }
+        { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
       );
 
       expect(response.ok()).toBe(true);
