@@ -120,9 +120,10 @@ public sealed class OpenTelemetryEnricherTests
     }
 
     [Fact]
-    public void Apply_WhenTrackableFeatureFlagsEnabled_ShouldEmitSingleSortedFeatureFlagsTag()
+    public void Apply_WhenTrackableFeatureFlagsEnabled_ShouldEmitScopedPerFlagTags()
     {
-        // Arrange - beta-features and experimental-ui are the registry's two TrackInTelemetry=true flags.
+        // Arrange - beta-features (Tenant) and experimental-ui (User) are the registry's
+        // two TrackInTelemetry=true flags with different scopes.
         var userInfo = new UserInfo
         {
             IsAuthenticated = true,
@@ -152,9 +153,10 @@ public sealed class OpenTelemetryEnricherTests
             // Act
             enricher.Apply();
 
-            // Assert - single comma-separated tag, sorted ordinally, avoids OTel-reserved feature_flag.*
-            var featureFlagsTag = activity.Tags.FirstOrDefault(t => t.Key == "user.feature_flags");
-            featureFlagsTag.Value.Should().Be("beta-features,experimental-ui");
+            // Assert - per-flag tags scoped by who carries the setting, value is "enabled",
+            // and the OTel-reserved feature_flag.* namespace is never emitted.
+            activity.Tags.Should().Contain(t => t.Key == "tenant.feature_flags.beta-features" && t.Value == "enabled");
+            activity.Tags.Should().Contain(t => t.Key == "user.feature_flags.experimental-ui" && t.Value == "enabled");
             activity.Tags.Should().NotContain(t => t.Key.StartsWith("feature_flag.", StringComparison.Ordinal));
         }
     }
@@ -193,7 +195,8 @@ public sealed class OpenTelemetryEnricherTests
             enricher.Apply();
 
             // Assert
-            activity.Tags.Should().NotContain(t => t.Key == "user.feature_flags");
+            activity.Tags.Should().NotContain(t => t.Key.StartsWith("user.feature_flags.", StringComparison.Ordinal));
+            activity.Tags.Should().NotContain(t => t.Key.StartsWith("tenant.feature_flags.", StringComparison.Ordinal));
         }
     }
 

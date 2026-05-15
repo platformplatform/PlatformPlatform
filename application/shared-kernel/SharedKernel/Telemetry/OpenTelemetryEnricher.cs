@@ -36,9 +36,9 @@ public class OpenTelemetryEnricher(IExecutionContext executionContext)
         Activity.Current.SetTag("user.role", executionContext.UserInfo.Role);
         Activity.Current.SetTag("user.session_id", executionContext.UserInfo.SessionId?.Value);
 
-        if (FeatureFlagTelemetryProperties.GetEnabledFeatureFlagsTag(executionContext.UserInfo.FeatureFlags) is { } featureFlagsTag)
+        foreach (var (name, value) in FeatureFlagTelemetryProperties.GetEnabledFeatureFlagTags(executionContext.UserInfo.FeatureFlags))
         {
-            Activity.Current.SetTag(featureFlagsTag.Name, featureFlagsTag.Value);
+            Activity.Current.SetTag(name, value);
         }
     }
 }
