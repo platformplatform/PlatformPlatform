@@ -27,7 +27,7 @@ namespace Account.Tests.Workers;
 ///     iteration-token linkage to <see cref="BillingDriftIterationTimeout" /> (M13), and
 ///     resilience-on-per-subscription-failure so one bad row cannot kill the entire pass.
 /// </summary>
-public sealed class BillingDriftWorkerTests : EndpointBaseTest<AccountDbContext>
+public sealed class BillingDriftWorkerTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ExecuteAsync_RunsOnePassThenExits_WithoutPeriodicTimer()

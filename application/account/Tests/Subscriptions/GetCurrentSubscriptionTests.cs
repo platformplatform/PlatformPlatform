@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetCurrentSubscriptionTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetCurrentSubscription_WhenExists_ShouldReturnSubscription()

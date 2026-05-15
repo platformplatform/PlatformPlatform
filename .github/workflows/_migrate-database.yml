@@ -32,6 +32,10 @@ on:
       apply_migrations:
         required: true
         type: boolean
+      build_artifact_name:
+        description: "Name of the artifact uploaded by the caller's build-and-test job that contains application/**/bin and application/**/obj"
+        required: true
+        type: string
 
     outputs:
       has_migrations_to_apply:
@@ -68,9 +72,18 @@ jobs:
         working-directory: application
         run: dotnet tool restore
 
-      - name: Build Backend Solution
+      - name: Download Backend Build Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.build_artifact_name }}
+          path: application
+
+      # The artifact carries bin/ and obj/ but not the global NuGet package cache.
+      # `dotnet ef --no-build` loads compiled assemblies that reference packages by
+      # absolute path under ~/.nuget/packages — those must exist on this runner.
+      - name: Restore .NET Dependencies
         working-directory: application
-        run: dotnet build ${{ inputs.relative_startup_project }}
+        run: dotnet restore ${{ inputs.relative_startup_project }}
 
       - name: Login to Azure
         uses: azure/login@v3
@@ -93,7 +106,7 @@ jobs:
         run: |
           ENTRA_USER=$(az postgres flexible-server microsoft-entra-admin list --resource-group ${{ env.CLUSTER_RESOURCE_GROUP_NAME }} --server-name ${{ env.POSTGRES_SERVER_NAME }} --query "[0].principalName" --output tsv)
           CONNECTION_STRING="Host=${{ env.POSTGRES_HOST }};Database=${{ inputs.database_name }};Username=$ENTRA_USER;Password=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv);Ssl Mode=VerifyFull;"
-          
+
           echo "Checking for pending migrations..."
           MIGRATION_INFO=$(dotnet ef migrations list \
             --project ${{ inputs.relative_project_path }} \
@@ -102,12 +115,12 @@ jobs:
             --connection "$CONNECTION_STRING" \
             --no-build \
             --json)
-          
+
           MIGRATION_JSON=$(echo "$MIGRATION_INFO" | sed -n '/^[{[]/,$p')
           PENDING_MIGRATIONS_JSON=$(echo "$MIGRATION_JSON" | jq '[.[] | select(.applied == false)]')
           PENDING_MIGRATIONS_COUNT=$(echo "$PENDING_MIGRATIONS_JSON" | jq '. | length')
           LAST_APPLIED_MIGRATION=$(echo "$MIGRATION_JSON" | jq -r '[.[] | select(.applied == true) | .id] | sort | last // "0"')
-          
+
           if [ "$PENDING_MIGRATIONS_COUNT" -gt "0" ]; then
             LAST_PENDING_MIGRATION=$(echo "$PENDING_MIGRATIONS_JSON" | jq -r '.[-1].id')
             echo "$PENDING_MIGRATIONS_COUNT pending migration(s) detected:"
@@ -122,13 +135,13 @@ jobs:
               --idempotent \
               --no-build \
               --output migration.sql
-            
+
             echo "has_migrations_to_apply=true" >> $GITHUB_OUTPUT
-            
+
             echo "migration_script<<EOF" >> $GITHUB_OUTPUT
             cat migration.sql >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
-            
+
             echo "migration_json<<EOF" >> $GITHUB_OUTPUT
             echo "$PENDING_MIGRATIONS_JSON" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
@@ -165,22 +178,22 @@ jobs:
         with:
           script: |
             const migrationJson = JSON.parse(process.env.MIGRATION_JSON);
-            
+
             const migrationsList = migrationJson.map(m => `- ${m.name} (${m.id})`).join('\n');
-            
+
             const migrationInfo = `## Approve Database Migration \`${{ inputs.database_name }}\` database on \`${{ inputs.azure_environment }}\`
-            
+
             The following pending migration(s) will be applied to the database when approved:
             ${migrationsList}
-            
+
             ### Migration Script
             \`\`\`sql
             ${process.env.MIGRATION_SCRIPT}
             \`\`\`
             `;
-            
+
             console.log(migrationInfo);
-            
+
             core.setOutput('markdown', migrationInfo);
 
       - name: Add Migration Information to Pull Request

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class AcknowledgeBillingDriftTests : BackOfficeEndpointBaseTest
+public sealed class AcknowledgeBillingDriftTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task AcknowledgeBillingDrift_WhenSubscriptionHasDrift_ShouldClearDrift()

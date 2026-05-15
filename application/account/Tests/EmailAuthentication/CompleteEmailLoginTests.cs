@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Account.Tests.EmailAuthentication;
 
-public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
+public sealed class CompleteEmailLoginTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private const string CorrectOneTimePassword = "UNLOCK"; // UNLOCK is a special global OTP for development and tests
     private const string WrongOneTimePassword = "FAULTY";

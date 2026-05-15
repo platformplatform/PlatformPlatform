@@ -18,7 +18,7 @@ namespace Account.Tests.Subscriptions;
 ///     the latest persisted <see cref="BillingEvent" />; without that seed an events.list anchor that has
 ///     aged past Stripe's 30-day window would replay against phantom-zero defaults and silently rewrite MRR.
 /// </summary>
-public sealed class ProcessPendingStripeEventsTests : EndpointBaseTest<AccountDbContext>
+public sealed class ProcessPendingStripeEventsTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ExecuteAsync_WhenAnchorAgesOutOfEventsListWindow_ReplaysWithSeededStateNotPhantomZero()

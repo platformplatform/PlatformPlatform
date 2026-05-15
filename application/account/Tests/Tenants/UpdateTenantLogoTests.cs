@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Account.Tests.Tenants;
 
-public sealed class UpdateTenantLogoTests : EndpointBaseTest<AccountDbContext>
+public sealed class UpdateTenantLogoTests : EndpointBaseTest<AccountDbContext>, IClassFixture<AccountWebApplicationFactory>
 {
-    public UpdateTenantLogoTests()
+    public UpdateTenantLogoTests(AccountWebApplicationFactory factory) : base(factory)
     {
         // Set up blob storage URL for tests - tests won't actually upload files
         Environment.SetEnvironmentVariable("BLOB_STORAGE_URL", "https://test.blob.core.windows.net");

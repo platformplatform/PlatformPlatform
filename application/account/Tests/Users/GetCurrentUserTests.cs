@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class GetCurrentUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetCurrentUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetLoggedInUser_WhenUserExists_ShouldReturnUserWithValidContract()

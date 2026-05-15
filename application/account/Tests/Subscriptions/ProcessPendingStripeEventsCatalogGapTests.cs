@@ -17,7 +17,7 @@ namespace Account.Tests.Subscriptions;
 ///     ScheduledPriceAmount write when the result is null, emits a structured warning + the
 ///     StripePriceCatalogLookupMissed telemetry event, and lets the transaction commit normally.
 /// </summary>
-public sealed class ProcessPendingStripeEventsCatalogGapTests : EndpointBaseTest<AccountDbContext>
+public sealed class ProcessPendingStripeEventsCatalogGapTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 

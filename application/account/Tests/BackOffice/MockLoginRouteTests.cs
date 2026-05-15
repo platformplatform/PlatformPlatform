@@ -10,7 +10,7 @@ namespace Account.Tests.BackOffice;
 // authenticated principal — it serves the SPA shell that hosts the MockEasyAuth identity picker. The
 // Azure branch (empty unauthenticatedPaths + 401 short-circuit) is gated on the static readonly
 // SharedInfrastructureConfiguration.IsRunningInAzure and verified by inspection of Program.cs.
-public sealed class MockLoginRouteTests : BackOfficeEndpointBaseTest
+public sealed class MockLoginRouteTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetLogin_OnBackOfficeHostWithoutAuth_ShouldServeSpaShell()

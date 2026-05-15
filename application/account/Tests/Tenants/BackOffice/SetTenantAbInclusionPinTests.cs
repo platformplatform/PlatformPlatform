@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants.BackOffice;
 
-public sealed class SetTenantAbInclusionPinTests : BackOfficeEndpointBaseTest
+public sealed class SetTenantAbInclusionPinTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task SetTenantAbInclusionPin_WhenAlwaysOn_ShouldPersistPin()

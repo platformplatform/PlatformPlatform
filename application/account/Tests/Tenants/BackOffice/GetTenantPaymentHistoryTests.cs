@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants.BackOffice;
 
-public sealed class GetTenantPaymentHistoryTests : BackOfficeEndpointBaseTest
+public sealed class GetTenantPaymentHistoryTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetTenantPaymentHistory_WhenSubscriptionHasTransactions_ShouldReturnPagedTransactions()

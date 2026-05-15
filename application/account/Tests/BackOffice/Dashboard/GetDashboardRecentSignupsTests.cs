@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardRecentSignupsTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardRecentSignupsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardRecentSignups_WhenCalled_ShouldReturnMostRecentTenantsFirst()

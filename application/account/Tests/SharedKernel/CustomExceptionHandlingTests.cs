@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Account.Tests.SharedKernel;
 
-public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountDbContext>
+public sealed class CustomExceptionHandlingTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
 

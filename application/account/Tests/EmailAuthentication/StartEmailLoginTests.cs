@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Account.Tests.EmailAuthentication;
 
-public sealed class StartEmailLoginTests : EndpointBaseTest<AccountDbContext>
+public sealed class StartEmailLoginTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task StartEmailLogin_WhenValidEmailAndUserExists_ShouldReturnSuccess()

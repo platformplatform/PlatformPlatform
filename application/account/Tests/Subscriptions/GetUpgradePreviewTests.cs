@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetUpgradePreviewTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetUpgradePreview_WhenStandardToPremium_ShouldReturnPreview()

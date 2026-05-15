@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Account.Tests.Users.BackOffice;
 
-public sealed class GetBackOfficeUserSessionsTests : BackOfficeEndpointBaseTest
+public sealed class GetBackOfficeUserSessionsTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetBackOfficeUserSessions_WhenUserHasSessions_ShouldReturnAllSessions()

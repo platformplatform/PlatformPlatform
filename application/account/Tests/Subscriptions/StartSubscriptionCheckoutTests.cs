@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbContext>
+public sealed class StartSubscriptionCheckoutTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task StartSubscriptionCheckout_WhenNoSavedPaymentMethod_ShouldReturnCheckoutSession()

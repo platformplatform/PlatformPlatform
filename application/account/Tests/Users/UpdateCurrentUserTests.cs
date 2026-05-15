@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class UpdateCurrentUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task UpdateCurrentUser_WhenValid_ShouldUpdateUser()

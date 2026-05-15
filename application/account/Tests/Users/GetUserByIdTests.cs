@@ -11,11 +11,11 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class GetUserByIdTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetUserByIdTests : EndpointBaseTest<AccountDbContext>, IClassFixture<AccountWebApplicationFactory>
 {
     private readonly UserId _userId = UserId.NewId();
 
-    public GetUserByIdTests()
+    public GetUserByIdTests(AccountWebApplicationFactory factory) : base(factory)
     {
         Connection.Insert("users", [
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),

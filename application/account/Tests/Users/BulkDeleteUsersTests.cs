@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
+public sealed class BulkDeleteUsersTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task BulkDeleteUsers_WhenUsersExist_ShouldSoftDeleteUsers()

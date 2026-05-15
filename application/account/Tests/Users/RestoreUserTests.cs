@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class RestoreUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task RestoreUser_WhenOwnerRestoresDeletedUser_ShouldSucceed()

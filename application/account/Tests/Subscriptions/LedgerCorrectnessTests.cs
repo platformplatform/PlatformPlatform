@@ -23,7 +23,7 @@ namespace Account.Tests.Subscriptions;
 ///     M17 — the AmountExcludingTax tax-greater-than-display clamp must emit a structured warning log
 ///     + telemetry + drift discrepancy so the masked LTV anomaly stays visible.
 /// </summary>
-public sealed class LedgerCorrectnessTests : EndpointBaseTest<AccountDbContext>
+public sealed class LedgerCorrectnessTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ExecuteAsync_WhenEventsListFailsMidPagination_AnchorDoesNotAdvance()

@@ -21,6 +21,10 @@ on:
       - "!**.md"
   workflow_dispatch:
 
+concurrency:
+  group: app-gateway-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   id-token: write
   contents: read
@@ -51,7 +55,7 @@ jobs:
         run: |
           deploy_staging="${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}"
           echo "deploy_staging=$deploy_staging" >> $GITHUB_OUTPUT
-          
+
           deploy_production="${{ github.ref == 'refs/heads/main' && vars.PRODUCTION_CLUSTER1_ENABLED == 'true' }}"
           echo "deploy_production=$deploy_production" >> $GITHUB_OUTPUT
 
@@ -77,78 +81,39 @@ jobs:
         working-directory: application
         run: dotnet restore
 
+      - name: Generate and Set User Secret for Token Signing Key
+        working-directory: application/shared-kernel/SharedKernel
+        run: |
+          # Extract UserSecretsId from the .csproj file
+          USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.csproj)
+
+          # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
+          dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID
+
+      - name: Run Tests
+        working-directory: application
+        run: |
+          dotnet build AppGateway.Tests/AppGateway.Tests.csproj --no-restore &&
+          dotnet test AppGateway.Tests/AppGateway.Tests.csproj --no-build
+
       - name: Build Backend Solution
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application
         run: |
           dotnet build PlatformPlatform.slnx --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+
       - name: Publish Build
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application
         run: |
-          dotnet publish ./AppGateway/AppGateway.csproj --no-restore --configuration Release --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+          dotnet publish ./AppGateway/AppGateway.csproj --configuration Release --no-restore --output ./AppGateway/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+
       - name: Save Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: app-gateway
           path: application/AppGateway/publish/**/*
-
-  code-style-and-linting:
-    name: Code Style and Linting
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-
-      - name: Install Node Modules
-        working-directory: application
-        run: npm ci
-
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: application/global.json
-
-      - name: Restore .NET Tools
-        working-directory: application
-        run: dotnet tool restore
-
-      - name: Restore .NET Dependencies
-        working-directory: application
-        run: dotnet restore
-
-      - name: Build Backend Solution
-        working-directory: application
-        run: dotnet build PlatformPlatform.slnx --no-restore
-
-      - name: Run Code Linting
-        working-directory: developer-cli
-        run: |
-          dotnet run lint --backend | tee lint-output.log
-
-          if ! grep -q "No backend issues found!" lint-output.log; then
-            echo "Code linting issues found."
-            exit 1
-          fi
-
-      - name: Check for Code Formatting Issues
-        working-directory: developer-cli
-        run: |
-          dotnet run format --backend
-
-          # Check for any changes made by the code formatter
-          git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run format --backend' from /developer-cli folder locally and commit the formatted code."
-            exit 1
-          }
 
   api-stage:
     name: Staging

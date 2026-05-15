@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.Authentication;
 
-public sealed class LogoutTests : EndpointBaseTest<AccountDbContext>
+public sealed class LogoutTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task Logout_WhenAuthenticatedAsOwner_ShouldRevokeSessionAndCollectLogoutEvent()

@@ -13,6 +13,7 @@ public class TestCommand : Command
     {
         var backendOption = new Option<bool>("--backend", "-b") { Description = "This command is always only backend. The option is only here for consistency." };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to test (e.g., main, account, back-office)" };
+        var gatewayOption = new Option<bool>("--gateway", "-g") { Description = "Scope tests to AppGateway.Tests" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running tests" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
         var filterOption = new Option<string?>("--filter") { Description = "Filter tests by name (dotnet test --filter)" };
@@ -20,6 +21,7 @@ public class TestCommand : Command
 
         Options.Add(backendOption);
         Options.Add(selfContainedSystemOption);
+        Options.Add(gatewayOption);
         Options.Add(noBuildOption);
         Options.Add(quietOption);
         Options.Add(filterOption);
@@ -27,6 +29,7 @@ public class TestCommand : Command
 
         SetAction(parseResult => Execute(
                 parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(gatewayOption),
                 parseResult.GetValue(noBuildOption),
                 parseResult.GetValue(quietOption),
                 parseResult.GetValue(filterOption),
@@ -35,33 +38,48 @@ public class TestCommand : Command
         );
     }
 
-    private void Execute(string? selfContainedSystem, bool noBuild, bool quiet, string? filter, string? excludeCategory)
+    private void Execute(string? selfContainedSystem, bool gateway, bool noBuild, bool quiet, string? filter, string? excludeCategory)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
+        if (gateway) AppGatewayHelper.EnsureNotCombinedWithSelfContainedSystem(selfContainedSystem);
+
         try
         {
-            var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+            string targetName;
+            string? workingDirectory;
+
+            if (gateway)
+            {
+                targetName = AppGatewayHelper.TestProjectRelativePath;
+                workingDirectory = Configuration.ApplicationFolder;
+            }
+            else
+            {
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+                targetName = solutionFile.Name;
+                workingDirectory = solutionFile.Directory?.FullName;
+            }
 
             if (!noBuild)
             {
                 var buildCommand = quiet
-                    ? $"dotnet build {solutionFile.Name}"
-                    : $"dotnet build {solutionFile.Name} --verbosity quiet";
+                    ? $"dotnet build {targetName}"
+                    : $"dotnet build {targetName} --verbosity quiet";
 
-                ProcessHelper.Run(buildCommand, solutionFile.Directory?.FullName, "Build", quiet);
+                ProcessHelper.Run(buildCommand, workingDirectory, "Build", quiet);
             }
 
             var filterArgument = BuildFilterArgument(filter, excludeCategory);
-            var testCommand = $"""dotnet test {solutionFile.Name} --no-build --no-restore --logger "console;verbosity=normal"{filterArgument}""";
+            var testCommand = $"""dotnet test {targetName} --no-build --no-restore --logger "console;verbosity=normal"{filterArgument}""";
 
             if (quiet)
             {
-                RunTestsQuietly(testCommand, solutionFile.Directory?.FullName);
+                RunTestsQuietly(testCommand, workingDirectory);
             }
             else
             {
-                RunTestsWithFilteredOutput(testCommand, solutionFile.Directory?.FullName);
+                RunTestsWithFilteredOutput(testCommand, workingDirectory);
             }
         }
         catch (Exception ex)

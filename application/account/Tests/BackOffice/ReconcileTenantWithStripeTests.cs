@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class ReconcileTenantWithStripeTests : BackOfficeEndpointBaseTest
+public sealed class ReconcileTenantWithStripeTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task ReconcileTenantWithStripe_WhenSubscriptionHasStripeCustomer_ShouldReturnReconcileResponse()

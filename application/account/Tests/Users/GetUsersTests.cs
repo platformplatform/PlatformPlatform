@@ -10,14 +10,14 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class GetUsersTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetUsersTests : EndpointBaseTest<AccountDbContext>, IClassFixture<AccountWebApplicationFactory>
 {
     private const string Email = "willgates@email.com";
     private const string FirstName = "William Henry";
     private const string LastName = "Gates";
     private const UserRole UserRole = Features.Users.Domain.UserRole.Member;
 
-    public GetUsersTests()
+    public GetUsersTests(AccountWebApplicationFactory factory) : base(factory)
     {
         Connection.Insert("users", [
                 ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),

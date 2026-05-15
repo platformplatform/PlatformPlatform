@@ -1,0 +1,307 @@
+name: Code Style
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "application/**"
+      - "developer-cli/**"
+      - ".github/workflows/code-style.yml"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "application/**"
+      - "developer-cli/**"
+      - ".github/workflows/code-style.yml"
+      - "!**.md"
+  workflow_dispatch:
+
+concurrency:
+  group: code-style-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  detect-scope:
+    name: Detect Scope
+    runs-on: ubuntu-24.04
+    outputs:
+      backend_scope: ${{ steps.scope.outputs.backend_scope }}
+      backend_label: ${{ steps.scope.outputs.backend_label }}
+      format_all_files_flag: ${{ steps.scope.outputs.format_all_files_flag }}
+      format_label: ${{ steps.scope.outputs.format_label }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          # Need history to diff against the base ref
+          fetch-depth: 0
+
+      - name: Resolve Backend Scope
+        id: scope
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || format('{0}~1', github.sha) }}
+          HEAD_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Run scoped commands only when exactly one SCS's backend changed and nothing shared.
+          # Anything shared (shared-kernel, AppGateway, root, or developer-cli) forces a full pass,
+          # since per-SCS slnf scopes don't cover those projects.
+          changed=$(git diff --name-only "$BASE_REF" "$HEAD_REF")
+
+          account=false
+          main=false
+          other=false
+
+          while IFS= read -r path; do
+            case "$path" in
+              application/account/Api/*|application/account/Core/*|application/account/Workers/*|application/account/Tests/*)
+                account=true ;;
+              application/main/Api/*|application/main/Core/*|application/main/Workers/*|application/main/Tests/*)
+                main=true ;;
+              application/AppGateway/*|application/shared-kernel/*|developer-cli/*)
+                other=true ;;
+              application/*)
+                # Files directly under application/ (slnx, package.json, etc.) — treat as shared.
+                # Subdirectories matched the cases above.
+                other=true ;;
+            esac
+          done <<< "$changed"
+
+          if [[ "$other" == "true" ]] || { [[ "$account" == "true" ]] && [[ "$main" == "true" ]]; }; then
+            echo "backend_scope=" >> "$GITHUB_OUTPUT"
+            echo "backend_label=full backend (PlatformPlatform.slnx)" >> "$GITHUB_OUTPUT"
+          elif [[ "$account" == "true" ]]; then
+            echo "backend_scope=--self-contained-system account" >> "$GITHUB_OUTPUT"
+            echo "backend_label=account only" >> "$GITHUB_OUTPUT"
+          elif [[ "$main" == "true" ]]; then
+            echo "backend_scope=--self-contained-system main" >> "$GITHUB_OUTPUT"
+            echo "backend_label=main only" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend_scope=" >> "$GITHUB_OUTPUT"
+            echo "backend_label=full backend (default — no backend paths matched)" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Force --all-files when the JetBrains tool manifest moves. Tool upgrades change the
+          # inspectcode + cleanupcode rule sets, so latent issues in untouched files need to be
+          # caught in the same PR. Otherwise the next PR that happens to touch one of those files
+          # fails CI on issues it didn't introduce.
+          if echo "$changed" | grep -q '^application/dotnet-tools.json$'; then
+            echo "format_all_files_flag=--all-files" >> "$GITHUB_OUTPUT"
+            echo "format_label=all files (JetBrains tools upgraded)" >> "$GITHUB_OUTPUT"
+          else
+            echo "format_all_files_flag=" >> "$GITHUB_OUTPUT"
+            echo "format_label=changed .cs files only" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Print Scope
+        run: |
+          echo "Backend scope - ${{ steps.scope.outputs.backend_label }}"
+          echo "Format mode   - ${{ steps.scope.outputs.format_label }}"
+
+  code-linting:
+    name: Code Linting
+    needs: detect-scope
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Node Modules
+        working-directory: application
+        run: npm ci
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: application/global.json
+
+      - name: Restore .NET Tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Restore .NET Dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Build Backend Solution
+        working-directory: developer-cli
+        run: dotnet run -- build --backend ${{ needs.detect-scope.outputs.backend_scope }} --quiet
+
+      - name: Run Backend Linting
+        working-directory: developer-cli
+        run: |
+          set +e
+          dotnet run lint --backend ${{ needs.detect-scope.outputs.backend_scope }} --no-build
+          LINT_EXIT_CODE=$?
+          set -e
+
+          if [ $LINT_EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "::error::Code linting issues found."
+            echo ""
+
+            RESULT_FILE=$(find ${GITHUB_WORKSPACE}/application -maxdepth 2 -name result.json -type f 2>/dev/null | head -n 1)
+
+            if [ -n "$RESULT_FILE" ] && [ -f "$RESULT_FILE" ]; then
+              cat "$RESULT_FILE"
+              echo ""
+              echo "### Code Inspection Issues" >> $GITHUB_STEP_SUMMARY
+              echo '```json' >> $GITHUB_STEP_SUMMARY
+              cat "$RESULT_FILE" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Result file not found in application/"
+            fi
+            exit 1
+          fi
+
+      - name: Build Frontend Artifacts
+        working-directory: application
+        run: npm run build
+
+      - name: Run Frontend Linting
+        working-directory: developer-cli
+        run: dotnet run -- lint --frontend
+
+  code-formatting:
+    name: Code Formatting
+    needs: detect-scope
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Node Modules
+        working-directory: application
+        run: npm ci
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: application/global.json
+
+      - name: Restore .NET Tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Restore .NET Dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Build Backend Solution
+        working-directory: developer-cli
+        run: dotnet run -- build --backend ${{ needs.detect-scope.outputs.backend_scope }} --quiet
+
+      - name: Check for Backend Formatting Issues
+        working-directory: developer-cli
+        run: |
+          dotnet run format --backend ${{ needs.detect-scope.outputs.backend_scope }} ${{ needs.detect-scope.outputs.format_all_files_flag }} --no-build
+
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --backend ${{ needs.detect-scope.outputs.backend_scope }} ${{ needs.detect-scope.outputs.format_all_files_flag }}' locally and commit the formatted code."
+            exit 1
+          }
+
+      - name: Build Frontend Artifacts
+        working-directory: application
+        run: npm run build
+
+      - name: Check for Frontend Formatting Issues
+        working-directory: developer-cli
+        run: |
+          dotnet run -- format --frontend
+
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --frontend' locally and commit the formatted code."
+            exit 1
+          }
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    needs: detect-scope
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Node Modules
+        working-directory: application
+        run: npm ci
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: application/global.json
+
+      - name: Restore .NET Tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Restore .NET Dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Generate and Set User Secret for Token Signing Key
+        working-directory: application/shared-kernel/SharedKernel
+        run: |
+          # Extract UserSecretsId from the .csproj file
+          USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.csproj)
+
+          # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
+          dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID
+
+      - name: Setup Java JDK for SonarScanner
+        uses: actions/setup-java@v5
+        with:
+          distribution: "microsoft"
+          java-version: "17"
+
+      - name: Build Email Templates
+        working-directory: application
+        run: npx turbo run build --filter=@repo/emails
+
+      - name: Run SonarCloud Analysis
+        working-directory: application
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]] || [[ "${{ vars.SONAR_ORGANIZATION }}" == "" ]] || [[ "${{ secrets.SONAR_TOKEN }}" == "" ]]; then
+            echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
+            exit 0
+          fi
+
+          # Run test assemblies sequentially via per-SCS slnf files. Running `dotnet test
+          # PlatformPlatform.slnx` parallelizes test assemblies across processes, which races on
+          # PortAllocation.Load() (`.workspace/port.txt` half-created between O_CREAT and write).
+          # AppGateway.Tests is covered by app-gateway.yml. SharedKernel.Tests is included in both
+          # slnf files and will run twice; that is acceptable.
+          dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" &&
+          dotnet build PlatformPlatform.slnx --no-restore &&
+          dotnet test account/Account.slnf --no-build &&
+          dotnet test main/Main.slnf --no-build &&
+          dotnet sonarscanner end

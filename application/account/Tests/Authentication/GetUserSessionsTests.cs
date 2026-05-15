@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Account.Tests.Authentication;
 
-public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetUserSessionsTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetUserSessions_WhenUserHasSessions_ShouldReturnSessions()

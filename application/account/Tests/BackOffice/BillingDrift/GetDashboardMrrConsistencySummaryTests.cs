@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.BillingDrift;
 
-public sealed class GetDashboardMrrConsistencySummaryTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardMrrConsistencySummaryTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardMrrConsistencySummary_WhenSubscriptionsAndEventsAgree_ShouldReturnEqualValues()

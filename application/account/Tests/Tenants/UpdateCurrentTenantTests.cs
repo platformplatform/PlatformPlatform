@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants;
 
-public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountDbContext>
+public sealed class UpdateCurrentTenantTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task UpdateCurrentTenant_WhenValid_ShouldUpdateTenant()

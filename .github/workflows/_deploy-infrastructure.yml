@@ -49,6 +49,10 @@ on:
         type: string
         default: "-"
 
+concurrency:
+  group: ${{ inputs.unique_prefix }}-${{ inputs.azure_environment }}-infrastructure
+  cancel-in-progress: false
+
 jobs:
   plan:
     name: Plan
@@ -67,6 +71,7 @@ jobs:
             should_deploy="false"
           fi
           echo "should_deploy=$should_deploy" >> $GITHUB_OUTPUT
+
       - name: Checkout Code
         uses: actions/checkout@v6
 

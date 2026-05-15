@@ -15,6 +15,10 @@ on:
       - "!**.md"
   workflow_dispatch:
 
+concurrency:
+  group: developer-cli-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -51,10 +55,29 @@ jobs:
       - name: Run Code Linting
         working-directory: developer-cli
         run: |
-          dotnet run --no-build -- lint --cli --no-build | tee lint-output.log
+          set +e
+          dotnet run --no-build -- lint --cli --no-build
+          LINT_EXIT_CODE=$?
+          set -e
 
-          if ! grep -q "No developer-cli issues found!" lint-output.log; then
-            echo "Code linting issues found."
+          if [ $LINT_EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "::error::Code linting issues found."
+            echo ""
+
+            RESULT_FILE="result.json"
+
+            if [ -f "$RESULT_FILE" ]; then
+              cat "$RESULT_FILE"
+              echo ""
+              echo "### Code Inspection Issues" >> $GITHUB_STEP_SUMMARY
+              echo '```json' >> $GITHUB_STEP_SUMMARY
+              cat "$RESULT_FILE" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Result file not found in developer-cli/"
+            fi
             exit 1
           fi
 

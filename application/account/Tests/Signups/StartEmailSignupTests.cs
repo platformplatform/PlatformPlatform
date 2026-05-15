@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Account.Tests.Signups;
 
-public sealed class StartEmailSignupTests : EndpointBaseTest<AccountDbContext>
+public sealed class StartEmailSignupTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task StartSignup_WhenEmailIsValid_ShouldReturnSuccess()

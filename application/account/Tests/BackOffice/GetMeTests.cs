@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class GetMeTests : BackOfficeEndpointBaseTest
+public sealed class GetMeTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetMe_WithAdminIdentity_ShouldReturnIsAdminTrue()

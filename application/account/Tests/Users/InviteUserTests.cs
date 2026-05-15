@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class InviteUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task InviteUser_WhenTenantNameNotSet_ShouldReturnBadRequest()

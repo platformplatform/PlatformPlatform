@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardKpisTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardKpisTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardKpis_WhenCalled_ShouldReturnTenantUserAndRevenueAggregates()

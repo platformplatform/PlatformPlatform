@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbContext>
+public sealed class ReactivateSubscriptionTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ReactivateSubscription_WhenCancelled_ShouldSucceed()

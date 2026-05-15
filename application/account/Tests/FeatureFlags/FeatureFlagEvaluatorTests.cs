@@ -11,12 +11,12 @@ using Xunit;
 
 namespace Account.Tests.FeatureFlags;
 
-public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContext>
+public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContext>, IClassFixture<AccountWebApplicationFactory>
 {
     private readonly FeatureFlagEvaluator _evaluationService;
     private readonly IServiceScope _scope;
 
-    public FeatureFlagEvaluatorTests()
+    public FeatureFlagEvaluatorTests(AccountWebApplicationFactory factory) : base(factory)
     {
         _scope = Provider.CreateScope();
         _evaluationService = _scope.ServiceProvider.GetRequiredService<FeatureFlagEvaluator>();

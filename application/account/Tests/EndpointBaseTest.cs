@@ -7,54 +7,37 @@ using JetBrains.Annotations;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using SharedKernel.Authentication;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.ExecutionContext;
 using SharedKernel.Integrations.Email;
-using SharedKernel.SinglePageApp;
 using SharedKernel.Telemetry;
 using SharedKernel.Tests.Telemetry;
 
 namespace Account.Tests;
 
+// Base class for Account API endpoint tests. Each derived class declares
+// IClassFixture<AccountWebApplicationFactory> (or a subclass) to share a single host across its
+// tests; per-test isolation is preserved by the AccountTestContext routed through the fixture's
+// AsyncLocal slot.
 public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : DbContext
 {
-    // Tests use the in-memory test server (WebApplicationFactory); no real listener is bound.
-    // SinglePageAppConfiguration only consumes this as a URI for CSP construction.
-    private const string TestPublicUrl = "https://localhost";
     protected readonly AccessTokenGenerator AccessTokenGenerator;
     protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     protected readonly TimeProvider TimeProvider;
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
-    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
+    private readonly AccountWebApplicationFactory _factory;
+    private readonly IDisposable _testScope;
 
-    protected EndpointBaseTest()
+    protected EndpointBaseTest(AccountWebApplicationFactory factory)
     {
-        Environment.SetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey, TestPublicUrl);
-        Environment.SetEnvironmentVariable(SinglePageAppConfiguration.CdnUrlKey, $"{TestPublicUrl}/account");
-        Environment.SetEnvironmentVariable(
-            "APPLICATIONINSIGHTS_CONNECTION_STRING",
-            "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost"
-        );
-        Environment.SetEnvironmentVariable("Stripe__AllowMockProvider", "true");
-        Environment.SetEnvironmentVariable("Stripe__PublishableKey", "pk_test_mock_publishable_key");
-
-        Services = new ServiceCollection();
+        _factory = factory;
         TimeProvider = TimeProvider.System;
-
-        Services.AddLogging();
-        Services.AddTransient<DatabaseSeeder>();
 
         // Create connection using shared cache mode so isolated connections can access the same in-memory database
         Connection = new SqliteConnection($"Data Source=TestDb_{Guid.NewGuid():N};Mode=Memory;Cache=Shared");
@@ -80,19 +63,32 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
             command.ExecuteNonQuery();
         }
 
-        Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
-
-        Services.AddAccountServices();
-
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-        Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-
         EmailClient = Substitute.For<IEmailClient>();
+        StripeState = new MockStripeState();
+
+        // BeginTest must run before any service resolution on the shared host so the host's
+        // hosted services (PlatformCurrencyStartupResolver) and per-request DI lookups see the
+        // per-test state.
+        _testScope = factory.BeginTest(new AccountTestContext
+            {
+                Connection = Connection,
+                TelemetryCollector = TelemetryEventsCollectorSpy,
+                EmailClient = EmailClient,
+                StripeState = StripeState
+            }
+        );
+
+        // The local Services collection is unit-test scaffolding (not part of the WAF). Tests can
+        // resolve handlers and repositories directly via Provider without going through HTTP.
+        Services = new ServiceCollection();
+        Services.AddLogging();
+        Services.AddTransient<DatabaseSeeder>();
+        Services.AddDbContext<TContext>(options => options.UseSqlite(Connection).UseSnakeCaseNamingConvention());
+        Services.AddAccountServices();
+        Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
         Services.AddScoped<IEmailClient>(_ => EmailClient);
-
-        var telemetryChannel = Substitute.For<ITelemetryChannel>();
-        Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
-
+        Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = Substitute.For<ITelemetryChannel>() }));
         Services.AddScoped<IExecutionContext, HttpExecutionContext>();
 
         // Make sure the database is created
@@ -102,70 +98,29 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
 
-        _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureLogging(logging =>
-                    {
-                        logging.AddFilter(_ => false); // Suppress all logs during tests
-                    }
-                );
-
-                builder.ConfigureAppConfiguration((_, configuration) =>
-                    {
-                        // Account-api hosts both the user-facing and back-office SPAs scoped via RequireHost
-                        // on each MapFallback. The TestServer sends requests to "localhost" by default, so
-                        // configure Hostnames:App to match for the user-facing SPA shell.
-                        configuration.AddInMemoryCollection(new Dictionary<string, string?>
-                            {
-                                ["Hostnames:App"] = "localhost"
-                            }
-                        );
-                    }
-                );
-
-                builder.ConfigureTestServices(services =>
-                    {
-                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)));
-                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
-
-                        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-                        services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
-                        services.AddTransient<IEmailClient>(_ => EmailClient);
-
-                        RegisterMockLoggers(services);
-
-                        services.AddScoped<IExecutionContext, HttpExecutionContext>();
-                    }
-                );
-            }
-        );
-
-        AnonymousHttpClient = _webApplicationFactory.CreateClient();
+        AnonymousHttpClient = factory.CreateClient();
         AnonymousHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         var ownerUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Owner, DatabaseSeeder.Tenant1OwnerSession.Id);
         var ownerAccessToken = AccessTokenGenerator.Generate(ownerUserInfo);
-        AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedOwnerHttpClient = factory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         var memberUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Member, DatabaseSeeder.Tenant1MemberSession.Id);
         var memberAccessToken = AccessTokenGenerator.Generate(memberUserInfo);
-        AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedMemberHttpClient = factory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
-
-        // Set the environment variable to bypass antiforgery validation on the server. ASP.NET uses a cryptographic
-        // double-submit pattern that encrypts the user's ClaimUid in the token, which is complex to replicate in tests
-        Environment.SetEnvironmentVariable("BypassAntiforgeryValidation", "true");
     }
 
     protected SqliteConnection Connection { get; }
 
     protected DatabaseSeeder DatabaseSeeder { get; }
+
+    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy { get; }
+
+    protected MockStripeState StripeState { get; }
 
     protected ServiceProvider Provider
     {
@@ -183,18 +138,12 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
     protected HttpClient AuthenticatedMemberHttpClient { get; }
 
-    protected MockStripeState StripeState => _webApplicationFactory.Services.GetRequiredService<MockStripeState>();
-
-    protected IServiceProvider WebApplicationServices => _webApplicationFactory.Services;
+    protected IServiceProvider WebApplicationServices => _factory.Services;
 
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
-    }
-
-    protected virtual void RegisterMockLoggers(IServiceCollection services)
-    {
     }
 
     // SonarLint complains if the virtual keyword is missing, as it is required to correctly implement the dispose pattern.
@@ -204,7 +153,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         if (!disposing) return;
         Provider.Dispose();
         Connection.Close();
-        _webApplicationFactory.Dispose();
+        _testScope.Dispose();
     }
 
     private static UserInfo CreateUserInfo(User user, SessionId sessionId)

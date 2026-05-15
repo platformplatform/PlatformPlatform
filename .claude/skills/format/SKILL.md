@@ -6,7 +6,7 @@ description: Auto-format code via the developer CLI - backend (.NET via JetBrain
 # Format
 
 ```bash
-dotnet run --project developer-cli -- format [--backend] [--frontend] [--cli] [--self-contained-system <name>] [--no-build] --quiet
+dotnet run --project developer-cli -- format [--backend] [--frontend] [--cli] [--self-contained-system <name>] [--no-build] [--all-files] --quiet
 ```
 
 Use `developer-cli` exactly as written - do not expand to an absolute worktree path.
@@ -16,8 +16,9 @@ Use `developer-cli` exactly as written - do not expand to an absolute worktree p
 - `--cli` - the developer CLI itself
 - `--self-contained-system <name>` - narrows backend formatting to one SCS (e.g. `account`, `main`)
 - `--no-build` - skip the `dotnet tool restore` step (faster after a recent run)
+- `--all-files` - format every file in the solution. Default is to format only `.cs` files changed against `origin/main` (faster).
 
-No arguments formats everything. Unformatted code fails CI - commit all changes, never revert.
+No arguments formats everything (changed-only by default). Unformatted code fails CI - commit all changes, never revert.
 
 After `build` succeeds, run `format`, `lint`, `test` in parallel with `--no-build`.
 

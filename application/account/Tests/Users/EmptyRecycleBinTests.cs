@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class EmptyRecycleBinTests : EndpointBaseTest<AccountDbContext>
+public sealed class EmptyRecycleBinTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task EmptyRecycleBin_WhenOwnerEmptiesRecycleBin_ShouldPermanentlyDeleteAllUsers()

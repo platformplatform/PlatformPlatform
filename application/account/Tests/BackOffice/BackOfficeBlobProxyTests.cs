@@ -8,9 +8,10 @@ using Xunit;
 
 namespace Account.Tests.BackOffice;
 
-public sealed class BackOfficeBlobProxyTests : BackOfficeEndpointBaseTest
+public sealed class BackOfficeBlobProxyTests(BackOfficeBlobProxyFactory factory)
+    : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeBlobProxyFactory>
 {
-    private readonly IBlobStorageClient _blobStorageClient = Substitute.For<IBlobStorageClient>();
+    private readonly IBlobStorageClient _blobStorageClient = factory.BlobStorageClient;
 
     [Fact]
     public async Task BackOfficeBlobProxy_WhenServingBlob_ShouldSetNoSniffHeader()
@@ -30,10 +31,18 @@ public sealed class BackOfficeBlobProxyTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.GetValues("X-Content-Type-Options").Should().Contain("nosniff");
     }
+}
+
+public sealed class BackOfficeBlobProxyFactory : BackOfficeWebApplicationFactory
+{
+    // Shared across every test in the class (IClassFixture lifetime). If more tests are added,
+    // call ClearSubstitute() / ClearReceivedCalls() at the top of each so configured behaviours
+    // and ReceivedCalls() do not leak between tests.
+    public IBlobStorageClient BlobStorageClient { get; } = Substitute.For<IBlobStorageClient>();
 
     protected override void ConfigureAdditionalTestServices(IServiceCollection services)
     {
         services.RemoveAll(typeof(IBlobStorageClient));
-        services.AddKeyedSingleton("account-storage", _blobStorageClient);
+        services.AddKeyedSingleton("account-storage", BlobStorageClient);
     }
 }

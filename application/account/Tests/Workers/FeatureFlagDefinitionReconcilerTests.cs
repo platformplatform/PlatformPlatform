@@ -20,7 +20,7 @@ namespace Account.Tests.Workers;
 ///     <c>SharedKernel.FeatureFlags.FeatureFlags</c>. These tests exercise the reconciler against the
 ///     production code path that the existing test harness's hand-built fixtures do not cover.
 /// </summary>
-public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<AccountDbContext>
+public sealed class FeatureFlagDefinitionReconcilerTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task Reconciler_WhenPremiumTenantWithPlanOverride_ShouldEnableSsoInUserInfo()

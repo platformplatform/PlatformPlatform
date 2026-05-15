@@ -12,7 +12,6 @@ on:
       - ".github/workflows/main.yml"
       - ".github/workflows/_deploy-container.yml"
       - ".github/workflows/_migrate-database.yml"
-      - ".github/workflows/_preview-migrations.yml"
       - "!**.md"
   pull_request:
     paths:
@@ -23,9 +22,12 @@ on:
       - ".github/workflows/main.yml"
       - ".github/workflows/_deploy-container.yml"
       - ".github/workflows/_migrate-database.yml"
-      - ".github/workflows/_preview-migrations.yml"
       - "!**.md"
   workflow_dispatch:
+
+concurrency:
+  group: main-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   id-token: write
@@ -40,10 +42,28 @@ jobs:
       version: ${{ steps.generate_version.outputs.version }}
       deploy_staging: ${{ steps.determine_deployment.outputs.deploy_staging }}
       deploy_production: ${{ steps.determine_deployment.outputs.deploy_production }}
+      migrations_changed: ${{ steps.detect_migrations.outputs.migrations_changed }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
+        with:
+          # Full history is required to diff base..head for migration-change detection.
+          fetch-depth: 0
+
+      - name: Detect Migration Changes
+        id: detect_migrations
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || format('{0}~1', github.sha) }}
+          HEAD_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if git diff --name-only "$BASE_REF" "$HEAD_REF" | grep -q "^application/main/Core/Database/Migrations/"; then
+            echo "migrations_changed=true" >> $GITHUB_OUTPUT
+            echo "Migration changes detected — Database Staging will run."
+          else
+            echo "migrations_changed=false" >> $GITHUB_OUTPUT
+            echo "No migration changes — Database Staging will be skipped on pull requests."
+          fi
 
       - name: Generate Version
         id: generate_version
@@ -89,36 +109,29 @@ jobs:
         run: |
           # Extract UserSecretsId from the .csproj file
           USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.csproj)
-          
+
           # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
           dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID
-
-      - name: Setup Java JDK for SonarScanner
-        uses: actions/setup-java@v5
-        with:
-          distribution: "microsoft"
-          java-version: "17"
 
       - name: Build Email Templates
         working-directory: application
         run: npx turbo run build --filter=@repo/emails
 
-      - name: Run Tests with SonarScanner Analysis
+      - name: Run Tests
         working-directory: application
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]] || [[ "${{ vars.SONAR_ORGANIZATION }}" == "" ]] || [[ "${{ secrets.SONAR_TOKEN }}" == "" ]]; then
-            echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
-            dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }} &&
-            dotnet test main/Main.slnf --no-build
-          else
-            dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" &&
-            dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }} &&
-            dotnet test main/Main.slnf --no-build &&
-            dotnet sonarscanner end
-          fi
+          dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }} &&
+          dotnet test main/Main.slnf --no-build
+
+      - name: Save Backend Build Artifacts for Migration Plan
+        if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && (github.event_name != 'pull_request' || steps.detect_migrations.outputs.migrations_changed == 'true') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: main-build
+          path: |
+            application/**/bin
+            application/**/obj
+          retention-days: 1
 
       - name: Build Frontend Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
@@ -134,7 +147,8 @@ jobs:
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/main
         run: |
-          dotnet publish ./Api/Main.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+          dotnet publish ./Api/Main.Api.csproj --configuration Release --no-restore --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+
       - name: Save API Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v7
@@ -146,7 +160,8 @@ jobs:
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         working-directory: application/main
         run: |
-          dotnet publish ./Workers/Main.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+          dotnet publish ./Workers/Main.Workers.csproj --configuration Release --no-restore --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }} /p:DeploymentCommitHash=${{ github.event.pull_request.head.sha || github.sha }} /p:DeploymentGithubActionId=${{ github.run_id }}
+
       - name: Save Workers Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
         uses: actions/upload-artifact@v7
@@ -154,84 +169,9 @@ jobs:
           name: main-workers
           path: application/main/Workers/publish/**/*
 
-  code-style-and-linting:
-    name: Code Style and Linting
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-
-      - name: Install Node Modules
-        working-directory: application
-        run: npm ci
-
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: application/global.json
-
-      - name: Restore .NET Tools
-        working-directory: application
-        run: dotnet tool restore
-
-      - name: Restore .NET Dependencies
-        working-directory: application
-        run: dotnet restore
-
-      - name: Build Backend Solution
-        working-directory: application
-        run: dotnet build main/Main.slnf --no-restore
-
-      - name: Run Code Linting
-        working-directory: developer-cli
-        run: |
-          dotnet run lint --backend --self-contained-system main | tee lint-output.log
-
-          if ! grep -q "No backend issues found!" lint-output.log; then
-            echo "Code linting issues found."
-            exit 1
-          fi
-
-      - name: Check for Code Formatting Issues
-        working-directory: developer-cli
-        run: |
-          dotnet run format --backend --self-contained-system main
-
-          # Check for any changes made by the code formatter
-          git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run format --backend --self-contained-system main' from /developer-cli folder locally and commit the formatted code."
-            exit 1
-          }
-
-      - name: Build Frontend Artifacts
-        working-directory: application
-        run: npm run build
-
-      - name: Run Lint
-        working-directory: developer-cli
-        run: dotnet run -- lint --frontend
-
-      - name: Run Format
-        working-directory: developer-cli
-        run: |
-          dotnet run -- format --frontend
-
-          # Check for any changes made by the code formatter
-          git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run --project developer-cli -- format --frontend' locally and commit the formatted code."
-            exit 1
-          }
-
   database-migrations-stage:
     name: Database Staging
-    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && (github.event_name != 'pull_request' || needs.build-and-test.outputs.migrations_changed == 'true') }}
     needs: build-and-test
     uses: ./.github/workflows/_migrate-database.yml
     secrets: inherit
@@ -245,6 +185,7 @@ jobs:
       relative_startup_project: main/Api/Main.Api.csproj
       db_context: MainDbContext
       apply_migrations: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+      build_artifact_name: main-build
 
   api-stage:
     name: API Staging
@@ -298,6 +239,7 @@ jobs:
       relative_startup_project: main/Api/Main.Api.csproj
       db_context: MainDbContext
       apply_migrations: true
+      build_artifact_name: main-build
 
   api-prod1:
     name: API Production

@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardRevenueTrendTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardRevenueTrendTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardRevenueTrend_WhenPaymentsAcrossMultipleDays_ShouldAccumulateRevenueInPeriod()

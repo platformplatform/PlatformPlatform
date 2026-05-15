@@ -20,7 +20,7 @@ namespace Account.Tests.Subscriptions;
 ///     <c>SetStripeSubscription</c>, no <c>SetPaymentTransactions</c>, no <c>AdvanceLastSyncedStripeEventCreatedAt</c>,
 ///     no <c>billing_events</c> rows appended, and no recovered <c>stripe_events</c> rows inserted.
 /// </summary>
-public sealed class ProcessPendingStripeEventsDetectModeTests : EndpointBaseTest<AccountDbContext>
+public sealed class ProcessPendingStripeEventsDetectModeTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task ProcessPendingStripeEvents_WhenDetectMode_AndSubscriptionDriftsFromStripe_ShouldRecordDriftWithoutMutatingOtherFields()

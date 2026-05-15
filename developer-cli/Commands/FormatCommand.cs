@@ -1,7 +1,5 @@
 using System.CommandLine;
 using System.Diagnostics;
-using System.Text.Json;
-using System.Xml.Linq;
 using DeveloperCli.Installation;
 using DeveloperCli.Utilities;
 using Spectre.Console;
@@ -16,14 +14,18 @@ public class FormatCommand : Command
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Format frontend code" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Format developer-cli code" };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to format (e.g., main, account, back-office)" };
+        var gatewayOption = new Option<bool>("--gateway", "-g") { Description = "Scope backend formatting to AppGateway and AppGateway.Tests" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring before formatting" };
+        var allFilesOption = new Option<bool>("--all-files") { Description = "Format every file in the solution. Default is to format only .cs files changed against origin/main." };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
         Options.Add(cliOption);
         Options.Add(selfContainedSystemOption);
+        Options.Add(gatewayOption);
         Options.Add(noBuildOption);
+        Options.Add(allFilesOption);
         Options.Add(quietOption);
 
         SetAction(parseResult => Execute(
@@ -31,14 +33,18 @@ public class FormatCommand : Command
                 parseResult.GetValue(frontendOption),
                 parseResult.GetValue(cliOption),
                 parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(gatewayOption),
                 parseResult.GetValue(noBuildOption),
+                parseResult.GetValue(allFilesOption),
                 parseResult.GetValue(quietOption)
             )
         );
     }
 
-    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool noBuild, bool quiet)
+    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool gateway, bool noBuild, bool allFiles, bool quiet)
     {
+        if (gateway) AppGatewayHelper.EnsureNotCombinedWithSelfContainedSystem(selfContainedSystem);
+
         var noFlags = !backend && !frontend && !developerCli;
         var formatBackend = backend || noFlags;
         var formatFrontend = frontend || noFlags;
@@ -60,7 +66,7 @@ public class FormatCommand : Command
             if (formatBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunBackendFormat(selfContainedSystem, noBuild, quiet);
+                RunBackendFormat(selfContainedSystem, gateway, noBuild, allFiles, quiet);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -74,7 +80,7 @@ public class FormatCommand : Command
             if (formatDeveloperCli)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunDeveloperCliFormat(noBuild, quiet);
+                RunDeveloperCliFormat(noBuild, allFiles, quiet);
                 developerCliTime = Stopwatch.GetElapsedTime(startTime) - backendTime - frontendTime;
             }
 
@@ -124,40 +130,56 @@ public class FormatCommand : Command
         }
     }
 
-    private static void RunBackendFormat(string? selfContainedSystem, bool noBuild, bool quiet)
+    private static void RunBackendFormat(string? selfContainedSystem, bool gateway, bool noBuild, bool allFiles, bool quiet)
     {
-        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(gateway ? null : selfContainedSystem);
 
         if (!quiet) AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
+
+        var includeArgument = string.Empty;
+        if (gateway)
+        {
+            if (allFiles)
+            {
+                includeArgument = $""" --include="{AppGatewayHelper.IncludeGlob}" """.TrimEnd();
+            }
+            else
+            {
+                var changedCsFiles = AppGatewayHelper.FilterToAppGatewayFiles(GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName));
+                if (changedCsFiles.Length == 0)
+                {
+                    if (!quiet) AnsiConsole.MarkupLine("[green]No changed AppGateway C# files found, skipping backend format.[/]");
+                    return;
+                }
+
+                includeArgument = $""" --include="{string.Join(";", changedCsFiles)}" """.TrimEnd();
+                if (!quiet) AnsiConsole.MarkupLine($"[blue]Formatting {changedCsFiles.Length} changed AppGateway file(s)...[/]");
+            }
+        }
+        else if (!allFiles)
+        {
+            var changedCsFiles = GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName);
+            if (changedCsFiles.Length == 0)
+            {
+                if (!quiet) AnsiConsole.MarkupLine("[green]No changed C# files found, skipping backend format.[/]");
+                return;
+            }
+
+            includeArgument = $""" --include="{string.Join(";", changedCsFiles)}" """.TrimEnd();
+            if (!quiet) AnsiConsole.MarkupLine($"[blue]Formatting {changedCsFiles.Length} changed file(s)...[/]");
+        }
 
         if (!noBuild)
         {
             ProcessHelper.Run("dotnet tool restore", solutionFile.Directory!.FullName, "Tool restore", quiet);
         }
 
-        // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
-        var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
-        var jetbrainsSupportedSolutionFile = string.Empty;
-        try
-        {
-            jetbrainsSupportedSolutionFile = createTemporarySolutionFile
-                ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
-                : solutionFile.FullName;
-
-            ProcessHelper.Run(
-                $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
-                solutionFile.Directory!.FullName,
-                "Format",
-                quiet
-            );
-        }
-        finally
-        {
-            if (createTemporarySolutionFile && File.Exists(jetbrainsSupportedSolutionFile))
-            {
-                File.Delete(jetbrainsSupportedSolutionFile);
-            }
-        }
+        ProcessHelper.Run(
+            $"""dotnet jb cleanupcode {solutionFile.FullName} --profile=".NET only" --no-build{includeArgument}""",
+            solutionFile.Directory!.FullName,
+            "Format",
+            quiet
+        );
     }
 
     private static void RunFrontendFormat(bool quiet)
@@ -166,96 +188,36 @@ public class FormatCommand : Command
         ProcessHelper.Run("npm run format", Configuration.ApplicationFolder, "Frontend format", quiet);
     }
 
-    private static void RunDeveloperCliFormat(bool noBuild, bool quiet)
+    private static void RunDeveloperCliFormat(bool noBuild, bool allFiles, bool quiet)
     {
         var solutionFile = new FileInfo(Path.Combine(Configuration.CliFolder, "DeveloperCli.slnx"));
 
         if (!quiet) AnsiConsole.MarkupLine("[blue]Running developer-cli code format...[/]");
+
+        var includeArgument = string.Empty;
+        if (!allFiles)
+        {
+            var changedCsFiles = GitHelper.GetChangedCsFilesInDirectory(solutionFile.Directory!.FullName);
+            if (changedCsFiles.Length == 0)
+            {
+                if (!quiet) AnsiConsole.MarkupLine("[green]No changed C# files found, skipping developer-cli format.[/]");
+                return;
+            }
+
+            includeArgument = $""" --include="{string.Join(";", changedCsFiles)}" """.TrimEnd();
+            if (!quiet) AnsiConsole.MarkupLine($"[blue]Formatting {changedCsFiles.Length} changed file(s)...[/]");
+        }
 
         if (!noBuild)
         {
             ProcessHelper.Run("dotnet tool restore", solutionFile.Directory!.FullName, "Tool restore", quiet);
         }
 
-        // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
-        var jetbrainsSupportedSolutionFile = CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile);
-        try
-        {
-            ProcessHelper.Run(
-                $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
-                solutionFile.Directory!.FullName,
-                "Format",
-                quiet
-            );
-        }
-        finally
-        {
-            if (File.Exists(jetbrainsSupportedSolutionFile))
-            {
-                File.Delete(jetbrainsSupportedSolutionFile);
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Creates a temporary Solution Filter (.slnf) file that JetBrains tools can work with.
-    /// </summary>
-    /// <remarks>
-    ///     This is a temporary workaround until JetBrains tools support the new .NET 9.2 .slnx format.
-    ///     The method extracts all projects from the .slnx file and creates a compatible .slnf file that can be used
-    ///     with the JetBrains cleanupcode tool, even if the soluition filter file points to the .slnx file.
-    ///     This method can be removed when JetBrains "dotnet jb cleanupcode" adds native support for the .slnx format.
-    /// </remarks>
-    /// <param name="solutionFile">The .slnx solution file</param>
-    /// <returns>Path to the temporary .slnf file</returns>
-    private static string CreateTemporaryJetBrainsCompatibleSolutionFile(FileInfo solutionFile)
-    {
-        // Create content following the official .NET Solution File structure
-        var solutionFilterFileContent = new
-        {
-            solution = new
-            {
-                path = solutionFile.FullName,
-                projects = ExtractProjectPathsFromSlnx(solutionFile)
-            }
-        };
-
-        // Create the temporary file path
-        var temporarySolutionFile = $"{Path.GetTempFileName()}.slnf";
-
-        // Write the .slnf file
-        File.WriteAllText(
-            temporarySolutionFile,
-            JsonSerializer.Serialize(solutionFilterFileContent, new JsonSerializerOptions { WriteIndented = true })
+        ProcessHelper.Run(
+            $"""dotnet jb cleanupcode {solutionFile.FullName} --profile=".NET only" --no-build{includeArgument}""",
+            solutionFile.Directory!.FullName,
+            "Format",
+            quiet
         );
-
-        return temporarySolutionFile;
-    }
-
-    private static List<string> ExtractProjectPathsFromSlnx(FileInfo solutionFile)
-    {
-        var projectPaths = new List<string>();
-
-        try
-        {
-            var xDocument = XDocument.Load(solutionFile.FullName);
-            var projectElements = xDocument.Descendants("Project");
-
-            foreach (var projectElement in projectElements)
-            {
-                var pathAttribute = projectElement.Attribute("Path");
-                if (pathAttribute is not null)
-                {
-                    projectPaths.Add(Path.Combine(solutionFile.Directory!.FullName, pathAttribute.Value));
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"[red]ERROR:[/] Failed to parse .slnx file: {ex.Message}");
-            Environment.Exit(1);
-        }
-
-        return projectPaths;
     }
 }

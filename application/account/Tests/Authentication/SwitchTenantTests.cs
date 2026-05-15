@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Account.Tests.Authentication;
 
-public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
+public sealed class SwitchTenantTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task SwitchTenant_WhenUserExistsInTargetTenant_ShouldSwitchSuccessfully()

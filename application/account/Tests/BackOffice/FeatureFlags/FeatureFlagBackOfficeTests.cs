@@ -22,7 +22,7 @@ namespace Account.Tests.BackOffice.FeatureFlags;
 // All mutations (activate, deactivate, tenant/user overrides, rollout percentage, delete) carry the
 // AdminPolicyName requirement; GET queries use the regular back-office identity policy so support
 // staff can investigate state without being able to change it.
-public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
+public sealed class FeatureFlagBackOfficeTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     private const string RegularBackOfficeIdentityId = "user";
     private const string AdminBackOfficeIdentityId = "admin";

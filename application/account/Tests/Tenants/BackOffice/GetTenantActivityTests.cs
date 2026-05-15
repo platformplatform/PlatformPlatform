@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants.BackOffice;
 
-public sealed class GetTenantActivityTests : BackOfficeEndpointBaseTest
+public sealed class GetTenantActivityTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetTenantActivity_WhenTenantExists_ShouldReturnEmptyEventsList()

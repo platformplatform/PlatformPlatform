@@ -1,13 +1,42 @@
-import { expect } from "@playwright/test";
+import { type BrowserContext, expect, type Page } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
+import { getBackOfficeBaseUrl } from "@shared/e2e/utils/constants";
 import {
   createTestContext,
   expectToastMessage,
   selectOption,
   typeOneTimeCode
 } from "@shared/e2e/utils/test-assertions";
-import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
+import { completeSignupFlow, getVerificationCode, logInAsAdmin, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
+
+const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
+
+// account-overview is a kill-switch flag — the reconciler creates the base row inactive on first
+// sight, so the Features section on /account/settings stays empty (the section returns null when
+// no tenant-configurable flag has an active base row) until an admin explicitly activates it.
+// Activating is idempotent (PUT just resets EnabledAt), so this can run for every test that needs
+// the toggle without coordinating across tests.
+async function activateAccountOverviewFlag(browserContext: BrowserContext): Promise<void> {
+  const backOfficePage = await browserContext.newPage();
+  await backOfficePage.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
+  await logInAsAdmin(backOfficePage, `${BACK_OFFICE_BASE_URL}/feature-flags`);
+
+  const antiforgeryToken = await getAntiforgeryToken(backOfficePage);
+  const activateResponse = await backOfficePage.request.put(
+    `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/account-overview/activate`,
+    { headers: { "x-xsrf-token": antiforgeryToken } }
+  );
+  expect(activateResponse.ok()).toBe(true);
+
+  await backOfficePage.close();
+}
+
+async function getAntiforgeryToken(page: Page): Promise<string> {
+  return page.evaluate(
+    () => document.head.querySelector('meta[name="antiforgeryToken"]')?.getAttribute("content") ?? ""
+  );
+}
 
 test.describe("@smoke", () => {
   /**
@@ -470,11 +499,22 @@ test.describe("@comprehensive", () => {
    * - Permanent delete user via confirmation dialog
    * - Empty recycle bin functionality
    */
-  test("should handle single and bulk user deletion workflows with dashboard integration", async ({ page }) => {
+  test("should handle single and bulk user deletion workflows with dashboard integration", async ({
+    page,
+    browser
+  }) => {
     const context = createTestContext(page);
     const owner = testUser();
     const user1 = testUser();
     const user2 = testUser();
+
+    // The Features section on /account/settings only renders when at least one tenant-configurable
+    // flag has an active base row. account-overview is the only such flag and is a kill-switch flag
+    // (created inactive by the reconciler), so activate it once via the back-office API up front so
+    // the later "Enable the account-overview feature flag via settings" step finds the section.
+    const backOfficeContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
+    await activateAccountOverviewFlag(backOfficeContext);
+    await backOfficeContext.close();
 
     // === USER SETUP SECTION ===
     await step("Complete owner signup & verify dashboard")(async () => {

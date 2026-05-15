@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Account.Tests.Tenants;
 
-public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetTenantsForUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetTenants_UserWithMultipleTenants_ReturnsAllTenants()

@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Account.Tests.Users.BackOffice;
 
-public sealed class GetBackOfficeUserDetailTests : BackOfficeEndpointBaseTest
+public sealed class GetBackOfficeUserDetailTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetBackOfficeUserDetail_WhenUserExists_ShouldReturnFullProfile()

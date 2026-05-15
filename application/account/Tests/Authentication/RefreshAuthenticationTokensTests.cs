@@ -12,11 +12,11 @@ using Xunit;
 
 namespace Account.Tests.Authentication;
 
-public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountDbContext>
+public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountDbContext>, IClassFixture<AccountWebApplicationFactory>
 {
     private readonly RefreshTokenGenerator _refreshTokenGenerator;
 
-    public RefreshAuthenticationTokensTests()
+    public RefreshAuthenticationTokensTests(AccountWebApplicationFactory factory) : base(factory)
     {
         using var serviceScope = Provider.CreateScope();
         _refreshTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<RefreshTokenGenerator>();

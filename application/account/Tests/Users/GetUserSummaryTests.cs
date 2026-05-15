@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class GetUserSummaryTests : EndpointBaseTest<AccountDbContext>
+public sealed class GetUserSummaryTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task GetUserSummary_WhenUsersHaveVariousLastSeenDates_ShouldCountActiveUsersCorrectly()

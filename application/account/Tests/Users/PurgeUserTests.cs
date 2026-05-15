@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Users;
 
-public sealed class PurgeUserTests : EndpointBaseTest<AccountDbContext>
+public sealed class PurgeUserTests(AccountWebApplicationFactory factory) : EndpointBaseTest<AccountDbContext>(factory), IClassFixture<AccountWebApplicationFactory>
 {
     [Fact]
     public async Task PurgeUser_WhenOwnerDeletesSoftDeletedUser_ShouldSucceed()

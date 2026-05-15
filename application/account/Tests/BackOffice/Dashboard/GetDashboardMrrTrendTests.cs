@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Account.Tests.BackOffice.Dashboard;
 
-public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
+public sealed class GetDashboardMrrTrendTests(BackOfficeWebApplicationFactory factory) : BackOfficeEndpointBaseTest(factory), IClassFixture<BackOfficeWebApplicationFactory>
 {
     [Fact]
     public async Task GetDashboardMrrTrend_WhenCalled_ShouldReturnDailyMrrSeriesForPeriod()

@@ -8,12 +8,12 @@ using Xunit;
 
 namespace Account.Tests.FeatureFlags;
 
-public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContext>
+public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContext>, IClassFixture<AccountWebApplicationFactory>
 {
     private readonly AccountDbContext _dbContext;
     private readonly PlanBasedFeatureFlagEvaluator _service;
 
-    public PlanBasedFeatureFlagEvaluatorTests()
+    public PlanBasedFeatureFlagEvaluatorTests(AccountWebApplicationFactory factory) : base(factory)
     {
         var scope = Provider.CreateScope();
         _service = scope.ServiceProvider.GetRequiredService<PlanBasedFeatureFlagEvaluator>();
