@@ -1,9 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
 using Account.Database;
+using Account.Features;
 using Account.Features.FeatureFlags.Domain;
+using Microsoft.ApplicationInsights;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.FeatureFlags;
+using SharedKernel.Telemetry;
 
 namespace Account.Workers;
 
@@ -33,6 +36,8 @@ public sealed class FeatureFlagDefinitionReconciler(
     IFeatureFlagRepository featureFlagRepository,
     AccountDbContext accountDbContext,
     TimeProvider timeProvider,
+    ITelemetryEventsCollector telemetryEventsCollector,
+    TelemetryClient telemetryClient,
     ILogger<FeatureFlagDefinitionReconciler> logger
 )
 {
@@ -115,6 +120,7 @@ public sealed class FeatureFlagDefinitionReconciler(
                 baseRow.Restore();
                 featureFlagRepository.Update(baseRow);
                 baseRowsRestored++;
+                telemetryEventsCollector.CollectEvent(new FeatureFlagRestoredByReconciler(definition.Key));
                 logger.LogInformation("Reconciler restored '{FlagKey}' after re-add to the C# definitions", definition.Key);
             }
 
@@ -127,6 +133,7 @@ public sealed class FeatureFlagDefinitionReconciler(
 
             if (baseRow.Source != expectedSource)
             {
+                var fromSource = baseRow.Source;
                 var staleTenantRows = await featureFlagRepository.GetTenantOverridesForFlagAsync(definition.Key, cancellationToken);
                 var staleTenantRowsToRemove = staleTenantRows.Where(r => r.Source != expectedSource).ToArray();
                 foreach (var staleRow in staleTenantRowsToRemove)
@@ -138,6 +145,10 @@ public sealed class FeatureFlagDefinitionReconciler(
                 baseRow.SetSource(expectedSource);
                 featureFlagRepository.Update(baseRow);
                 sourceTransitions++;
+                telemetryEventsCollector.CollectEvent(new FeatureFlagSourceTransitionedByReconciler(
+                        definition.Key, fromSource, expectedSource, staleTenantRowsToRemove.Length
+                    )
+                );
                 logger.LogInformation(
                     "Reconciler transitioned '{FlagKey}' source to '{Source}' and removed '{StaleCount}' stale tenant overrides",
                     definition.Key, expectedSource, staleTenantRowsToRemove.Length
@@ -154,10 +165,26 @@ public sealed class FeatureFlagDefinitionReconciler(
             row.MarkOrphaned(now);
             featureFlagRepository.Update(row);
             orphansMarked++;
+            // Only emit the structured event once per orphaned flag key (base row), not for every
+            // override row that happens to carry the same stale key.
+            if (row.TenantId is null && row.UserId is null)
+            {
+                telemetryEventsCollector.CollectEvent(new FeatureFlagOrphanedByReconciler(row.FlagKey));
+            }
+
             logger.LogInformation("Reconciler marked '{FlagKey}' (id '{Id}') as orphaned", row.FlagKey, row.Id);
         }
 
         await accountDbContext.SaveChangesAsync(cancellationToken);
+
+        // Publish AFTER the DB commit so we never emit telemetry for state that did not persist.
+        // The reconciler is idempotent — a crash between SaveChanges and publish means the next
+        // worker startup converges to the same state but does not re-emit (no work to do).
+        while (telemetryEventsCollector.HasEvents)
+        {
+            var telemetryEvent = telemetryEventsCollector.Dequeue();
+            telemetryClient.TrackEvent(telemetryEvent.GetType().Name, telemetryEvent.Properties);
+        }
 
         logger.LogInformation(
             "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsRestored} re-added rows restored, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",

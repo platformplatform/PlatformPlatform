@@ -1,6 +1,7 @@
 using Account.Features.Authentication.Domain;
 using Account.Features.EmailAuthentication.Domain;
 using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
@@ -74,8 +75,17 @@ public sealed class FeatureFlagDeactivated(string flagKey)
 public sealed class FeatureFlagDeleted(string flagKey)
     : TelemetryEvent(("flag_key", flagKey));
 
+public sealed class FeatureFlagOrphanedByReconciler(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
+public sealed class FeatureFlagRestoredByReconciler(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
 public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int rolloutPercentage)
     : TelemetryEvent(("flag_key", flagKey), ("rollout_percentage", rolloutPercentage));
+
+public sealed class FeatureFlagSourceTransitionedByReconciler(string flagKey, FeatureFlagSource fromSource, FeatureFlagSource toSource, int staleOverridesRemoved)
+    : TelemetryEvent(("flag_key", flagKey), ("from_source", fromSource), ("to_source", toSource), ("stale_overrides_removed", staleOverridesRemoved));
 
 public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, TenantId tenantId)
     : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
