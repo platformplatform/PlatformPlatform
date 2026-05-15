@@ -40,7 +40,9 @@ export function FeatureFlagInfoSection({
       { params: { path: { flagKey: featureFlag.key } } },
       {
         onSuccess: () => {
-          toast.success(checked ? t`Feature flag activated` : t`Feature flag deactivated`);
+          toast.success(checked ? t`Feature flag activated` : t`Feature flag deactivated`, {
+            description: t`It takes up to 5 minutes for changes to reach all users.`
+          });
         }
       }
     );
@@ -53,7 +55,12 @@ export function FeatureFlagInfoSection({
     if (value === (featureFlag.rolloutPercentage ?? 0)) return;
     rolloutMutation.mutate(
       { params: { path: { flagKey: featureFlag.key } }, body: { rolloutPercentage: value } },
-      { onSuccess: () => toast.success(t`Rollout percentage updated`) }
+      {
+        onSuccess: () =>
+          toast.success(t`Rollout percentage updated`, {
+            description: t`It takes up to 5 minutes for changes to reach all users.`
+          })
+      }
     );
   };
 

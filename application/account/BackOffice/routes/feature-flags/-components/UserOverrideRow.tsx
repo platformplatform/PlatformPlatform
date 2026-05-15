@@ -68,7 +68,9 @@ export function UserOverrideRow({
       { params: { path: { flagKey }, query: { userId: user.id, tenantId: user.tenantId } } },
       {
         onSuccess: () => {
-          toast.success(t`Override removed for ${user.email}`);
+          toast.success(t`Override removed for ${user.email}`, {
+            description: t`It takes up to 5 minutes for changes to reach all users.`
+          });
           refreshAfter();
         },
         onError: () => {
@@ -92,7 +94,8 @@ export function UserOverrideRow({
           toast.success(
             checked
               ? t`${featureFlagDescription} enabled for ${user.email}`
-              : t`${featureFlagDescription} disabled for ${user.email}`
+              : t`${featureFlagDescription} disabled for ${user.email}`,
+            { description: t`It takes up to 5 minutes for changes to reach all users.` }
           );
           refreshAfter();
         },

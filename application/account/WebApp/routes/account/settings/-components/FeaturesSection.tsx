@@ -30,7 +30,7 @@ export function FeaturesSection() {
       </h3>
       <Separator />
       <p className="text-sm text-muted-foreground">
-        <Trans>Toggle features available to your account. Changes can take up to 5 minutes to reach all users.</Trans>
+        <Trans>Toggle features available to your account.</Trans>
       </p>
       <div className="flex flex-col gap-2">
         {tenantFlags.map((f) => (
@@ -46,7 +46,12 @@ function TenantFlagToggle({ flagKey, enabled }: Readonly<TenantFlag>) {
 
   const toggleMutation = api.useMutation("put", "/api/account/feature-flags/{flagKey}/tenant-override", {
     onSuccess: () => {
-      toast.success(t`Feature updated successfully`, { description: label.name });
+      // Keep the title a static msgid (label.name is itself a translated value — interpolating it
+      // into a t-template would store the localized name inside the msgid and split the catalog
+      // per locale). The dynamic name + the 5-minute notice are joined outside Lingui.
+      toast.success(t`Feature updated successfully`, {
+        description: `${label.name}. ${t`It takes up to 5 minutes for changes to reach all users.`}`
+      });
     }
   });
 

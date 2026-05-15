@@ -1348,6 +1348,9 @@ msgstr "Er der andet, du gerne vil fortælle os? (valgfrit)"
 msgid "It may take up to 5 minutes before the device is logged out."
 msgstr "Det kan tage op til 5 minutter, før enheden er logget ud."
 
+msgid "It takes up to 5 minutes for changes to reach all users."
+msgstr "Det tager op til 5 minutter, før ændringer når alle brugere."
+
 msgid "Italian"
 msgstr "Italiensk"
 
@@ -2678,8 +2681,8 @@ msgstr "Skift fed"
 msgid "Toggle buttons"
 msgstr "Skifteknapper"
 
-msgid "Toggle features available to your account. Changes can take up to 5 minutes to reach all users."
-msgstr "Skift funktioner tilgængelige for din konto. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Toggle features available to your account."
+msgstr "Skift funktioner tilgængelige for din konto."
 
 msgid "Toggle group"
 msgstr "Skiftegruppe"

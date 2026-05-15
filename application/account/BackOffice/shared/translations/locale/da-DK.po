@@ -147,8 +147,8 @@ msgstr "Konti"
 msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
 msgstr "Konti aktiveres eller deaktiveres automatisk baseret på deres abonnement. Manuelle tilsidesættelser er ikke tilgængelige for abonnementsstyrede flag."
 
-msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts. Changes can take up to 5 minutes to reach all users."
-msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke konti. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgstr "Konti inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser for manuelt at inkludere eller udelukke specifikke konti."
 
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
@@ -442,8 +442,8 @@ msgstr "Feature flag-udrulninger nulstillet til standard for {entityLabel}"
 msgid "Feature flags"
 msgstr "Feature flags"
 
-msgid "Feature flags are defined in code. This view controls their activation and rollout."
-msgstr "Feature flags er defineret i koden. Dette view styrer deres aktivering og udrulning."
+msgid "Feature flags are defined in code. This view controls their activation and rollout. It takes up to 5 minutes for changes to reach all users."
+msgstr "Feature flags er defineret i koden. Denne visning styrer deres aktivering og udrulning. Det tager op til 5 minutter, før ændringer når alle brugere."
 
 msgid "First in feature flag rollouts"
 msgstr "Først i feature flag-udrulninger"
@@ -498,6 +498,9 @@ msgstr "Fakturaer vises her efterhånden som konti abonnerer, og Stripe-webhooks
 
 msgid "IP address"
 msgstr "IP-adresse"
+
+msgid "It takes up to 5 minutes for changes to reach all users."
+msgstr "Det tager op til 5 minutter, før ændringer når alle brugere."
 
 msgid "Just now"
 msgstr "Lige nu"
@@ -821,11 +824,11 @@ msgstr "pr. måned, faktureres månedligt"
 msgid "Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Konto-specifikke flag. Ejere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
-msgid "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
-msgstr "Konto-specifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne konto. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Per-account flags. Toggle the override switch to enable or disable for this account."
+msgstr "Per-konto flags. Skift tilsidesættelsesknappen for at aktivere eller deaktivere for denne konto."
 
-msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
-msgstr "Brugerspecifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne bruger. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user."
+msgstr "Per-bruger flags. Skift tilsidesættelsesknappen for at aktivere eller deaktivere for denne bruger."
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Brugerspecifikke flag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
@@ -1146,11 +1149,11 @@ msgstr "Denne bruger er ikke medlem af nogen konto."
 msgid "Toggle activation"
 msgstr "Skift aktivering"
 
-msgid "Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes to reach all users."
-msgstr "Skift tilsidesættelseskontakten for at aktivere denne funktion for specifikke konti. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Toggle the override switch to enable this feature for specific accounts."
+msgstr "Skift tilsidesættelsesknappen for at aktivere denne funktion for specifikke konti."
 
-msgid "Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to reach all users."
-msgstr "Skift tilsidesættelseskontakten for at aktivere denne funktion for specifikke brugere. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Toggle the override switch to enable this feature for specific users."
+msgstr "Skift tilsidesættelsesknappen for at aktivere denne funktion for specifikke brugere."
 
 msgid "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
 msgstr "Skift om dette feature flag er aktivt. Når inaktivt, modtager konti og brugere den deaktiverede tilstand uanset tilsidesættelser."
@@ -1212,8 +1215,8 @@ msgstr "Brugere"
 msgid "Users active"
 msgstr "Aktive brugere"
 
-msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users. Changes can take up to 5 minutes to reach all users."
-msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser til manuelt at inkludere eller udelukke specifikke brugere. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgstr "Brugere inkluderes automatisk baseret på deres udrulningsbucket. Brug tilsidesættelser for manuelt at inkludere eller udelukke specifikke brugere."
 
 msgid "Users will appear here as accounts are created."
 msgstr "Brugere vises her efterhånden som konti oprettes."

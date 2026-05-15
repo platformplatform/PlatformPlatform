@@ -147,8 +147,8 @@ msgstr "Accounts"
 msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
 msgstr "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
 
-msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts. Changes can take up to 5 minutes to reach all users."
-msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts. Changes can take up to 5 minutes to reach all users."
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
 
 msgid "Accounts will appear here as they are created."
 msgstr "Accounts will appear here as they are created."
@@ -442,8 +442,8 @@ msgstr "Feature flag rollouts reset to default for {entityLabel}"
 msgid "Feature flags"
 msgstr "Feature flags"
 
-msgid "Feature flags are defined in code. This view controls their activation and rollout."
-msgstr "Feature flags are defined in code. This view controls their activation and rollout."
+msgid "Feature flags are defined in code. This view controls their activation and rollout. It takes up to 5 minutes for changes to reach all users."
+msgstr "Feature flags are defined in code. This view controls their activation and rollout. It takes up to 5 minutes for changes to reach all users."
 
 msgid "First in feature flag rollouts"
 msgstr "First in feature flag rollouts"
@@ -498,6 +498,9 @@ msgstr "Invoices will appear here as accounts subscribe and Stripe webhooks are 
 
 msgid "IP address"
 msgstr "IP address"
+
+msgid "It takes up to 5 minutes for changes to reach all users."
+msgstr "It takes up to 5 minutes for changes to reach all users."
 
 msgid "Just now"
 msgstr "Just now"
@@ -821,11 +824,11 @@ msgstr "per month, billed monthly"
 msgid "Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts."
 
-msgid "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
-msgstr "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
+msgid "Per-account flags. Toggle the override switch to enable or disable for this account."
+msgstr "Per-account flags. Toggle the override switch to enable or disable for this account."
 
-msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
-msgstr "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user."
+msgstr "Per-user flags. Toggle the override switch to enable or disable for this user."
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
@@ -1146,11 +1149,11 @@ msgstr "This user is not a member of any account."
 msgid "Toggle activation"
 msgstr "Toggle activation"
 
-msgid "Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes to reach all users."
-msgstr "Toggle the override switch to enable this feature for specific accounts. Changes can take up to 5 minutes to reach all users."
+msgid "Toggle the override switch to enable this feature for specific accounts."
+msgstr "Toggle the override switch to enable this feature for specific accounts."
 
-msgid "Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to reach all users."
-msgstr "Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to reach all users."
+msgid "Toggle the override switch to enable this feature for specific users."
+msgstr "Toggle the override switch to enable this feature for specific users."
 
 msgid "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
 msgstr "Toggle whether this feature flag is currently active. When inactive, accounts and users receive the disabled state regardless of overrides."
@@ -1212,8 +1215,8 @@ msgstr "Users"
 msgid "Users active"
 msgstr "Users active"
 
-msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users. Changes can take up to 5 minutes to reach all users."
-msgstr "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users. Changes can take up to 5 minutes to reach all users."
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgstr "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
 
 msgid "Users will appear here as accounts are created."
 msgstr "Users will appear here as accounts are created."

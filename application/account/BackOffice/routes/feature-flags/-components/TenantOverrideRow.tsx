@@ -69,7 +69,9 @@ export function TenantOverrideRow({
       { params: { path: { flagKey }, query: { tenantId: tenant.id } } },
       {
         onSuccess: () => {
-          toast.success(t`Override removed for ${tenant.name}`);
+          toast.success(t`Override removed for ${tenant.name}`, {
+            description: t`It takes up to 5 minutes for changes to reach all users.`
+          });
           refreshAfter();
         },
         onError: () => {
@@ -90,7 +92,8 @@ export function TenantOverrideRow({
           toast.success(
             checked
               ? t`${featureFlagDescription} enabled for ${tenant.name}`
-              : t`${featureFlagDescription} disabled for ${tenant.name}`
+              : t`${featureFlagDescription} disabled for ${tenant.name}`,
+            { description: t`It takes up to 5 minutes for changes to reach all users.` }
           );
           refreshAfter();
         },

@@ -51,10 +51,7 @@ export function UserFeatureFlagsSection({ userId }: Readonly<UserFeatureFlagsSec
           <Trans>Feature flags</Trans>
         </h3>
         <p className="text-sm text-muted-foreground">
-          <Trans>
-            Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5
-            minutes to reach all users.
-          </Trans>
+          <Trans>Per-user flags. Toggle the override switch to enable or disable for this user.</Trans>
         </p>
       </div>
       <Table rowSize="compact" aria-label={t`Feature flags`} className="w-full table-fixed">

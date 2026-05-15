@@ -74,7 +74,7 @@ export default function FeatureFlagsPage() {
           variant="center"
           maxWidth="64rem"
           title={t`Feature flags`}
-          subtitle={t`Feature flags are defined in code. This view controls their activation and rollout.`}
+          subtitle={t`Feature flags are defined in code. This view controls their activation and rollout. It takes up to 5 minutes for changes to reach all users.`}
         >
           <div className="flex items-center justify-end gap-3 pb-2">
             <Label htmlFor="show-deleted-toggle" className="text-sm text-muted-foreground">

@@ -56,7 +56,7 @@ export function AccountFeatureFlagsTab({ tenantId }: Readonly<AccountFeatureFlag
           tenantId={tenantId}
           flags={accountFlags}
           title={t`Account flags`}
-          description={t`Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users.`}
+          description={t`Per-account flags. Toggle the override switch to enable or disable for this account.`}
           isPlanGroup={false}
         />
       )}

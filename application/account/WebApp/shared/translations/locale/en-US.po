@@ -1348,6 +1348,9 @@ msgstr "Is there anything else you would like us to know? (optional)"
 msgid "It may take up to 5 minutes before the device is logged out."
 msgstr "It may take up to 5 minutes before the device is logged out."
 
+msgid "It takes up to 5 minutes for changes to reach all users."
+msgstr "It takes up to 5 minutes for changes to reach all users."
+
 msgid "Italian"
 msgstr "Italian"
 
@@ -2678,8 +2681,8 @@ msgstr "Toggle bold"
 msgid "Toggle buttons"
 msgstr "Toggle buttons"
 
-msgid "Toggle features available to your account. Changes can take up to 5 minutes to reach all users."
-msgstr "Toggle features available to your account. Changes can take up to 5 minutes to reach all users."
+msgid "Toggle features available to your account."
+msgstr "Toggle features available to your account."
 
 msgid "Toggle group"
 msgstr "Toggle group"

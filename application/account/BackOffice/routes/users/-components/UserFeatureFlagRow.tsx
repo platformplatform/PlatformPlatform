@@ -41,7 +41,10 @@ export function UserFeatureFlagRow({
     removeMutation.mutate(
       { params: { path: { flagKey: flag.flagKey }, query: { userId, tenantId: flag.tenantId } } },
       {
-        onSuccess: () => toast.success(t`Override removed for ${flagName}`),
+        onSuccess: () =>
+          toast.success(t`Override removed for ${flagName}`, {
+            description: t`It takes up to 5 minutes for changes to reach all users.`
+          }),
         onError: () => {
           setOptimisticEnabled(flag.isEnabled);
           setOptimisticIsOverride(flag.source === "manual_override");
@@ -56,7 +59,10 @@ export function UserFeatureFlagRow({
     overrideMutation.mutate(
       { params: { path: { flagKey: flag.flagKey } }, body: { userId, tenantId: flag.tenantId, enabled: checked } },
       {
-        onSuccess: () => toast.success(checked ? t`${flagName} enabled` : t`${flagName} disabled`),
+        onSuccess: () =>
+          toast.success(checked ? t`${flagName} enabled` : t`${flagName} disabled`, {
+            description: t`It takes up to 5 minutes for changes to reach all users.`
+          }),
         onError: () => {
           setOptimisticEnabled(flag.isEnabled);
           setOptimisticIsOverride(flag.source === "manual_override");
