@@ -1,11 +1,13 @@
+using Account.Database;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
+using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 
 namespace Account.Features.FeatureFlags.Shared;
 
-public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository, TimeProvider timeProvider)
+public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository, AccountDbContext accountDbContext, TimeProvider timeProvider)
 {
     public async Task EvaluatePlanFlagsForTenantAsync(TenantId tenantId, SubscriptionPlan subscriptionPlan, CancellationToken cancellationToken)
     {
@@ -13,6 +15,15 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
         var planFeatureFlagDefinitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
 
         if (planFeatureFlagDefinitions.Length == 0) return;
+
+        // Serialize the read-then-insert window per tenant. `pg_advisory_xact_lock` auto-releases at
+        // commit, so the read-existing-overrides → conditional-insert pair is atomic per tenant.
+        // Required because this evaluator runs on every JWT refresh / login, and concurrent fan-in for
+        // the same tenant otherwise hits the unique index as a 500.
+        await accountDbContext.Database.ExecuteSqlAsync(
+            $"SELECT pg_advisory_xact_lock(hashtextextended('plan_flags:' || {tenantId.Value}, 0))",
+            cancellationToken
+        );
 
         var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId, cancellationToken);
         var overridesByKey = existingOverrides.ToDictionary(f => f.FlagKey);
@@ -46,6 +57,12 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                 }
             }
         }
+
+        // Commit so the subsequent FeatureFlagEvaluator.EvaluateAsync read (typically the very next
+        // call in UserInfoFactory) sees the rows this method just inserted. Without this commit, the
+        // EF query reads pre-insert state and the JWT ships missing the newly-eligible plan flags
+        // until the next refresh. The advisory_xact_lock acquired above releases here on commit.
+        await accountDbContext.SaveChangesAsync(cancellationToken);
     }
 
     private static PlanTier MapToPlanTier(SubscriptionPlan plan)
