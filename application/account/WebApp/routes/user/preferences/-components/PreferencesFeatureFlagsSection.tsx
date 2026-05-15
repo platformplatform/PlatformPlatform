@@ -44,7 +44,7 @@ function UserFlagToggle({ flagKey, enabled }: Readonly<UserFlag>) {
 
   const toggleMutation = api.useMutation("put", "/api/account/feature-flags/{flagKey}/user-override", {
     onSuccess: () => {
-      toast.success(t`${label.name} updated successfully`);
+      toast.success(t`Preference updated successfully`, { description: label.name });
     }
   });
 

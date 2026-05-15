@@ -46,7 +46,7 @@ function TenantFlagToggle({ flagKey, enabled }: Readonly<TenantFlag>) {
 
   const toggleMutation = api.useMutation("put", "/api/account/feature-flags/{flagKey}/tenant-override", {
     onSuccess: () => {
-      toast.success(t`${label.name} updated successfully`);
+      toast.success(t`Feature updated successfully`, { description: label.name });
     }
   });
 

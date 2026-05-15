@@ -41,10 +41,6 @@ msgstr "{0} af {totalCount} opskrifter valgt"
 msgid "{0} plan"
 msgstr "{0}-abonnement"
 
-#. placeholder {0}: label.name
-msgid "{0} updated successfully"
-msgstr "{0} opdateret succesfuldt"
-
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
@@ -1163,6 +1159,9 @@ msgstr "Kunne ikke indlæse betalingsprocessor."
 msgid "Feature preferences"
 msgstr "Funktionspræferencer"
 
+msgid "Feature updated successfully"
+msgstr "Funktion opdateret succesfuldt"
+
 msgid "Features"
 msgstr "Funktioner"
 
@@ -1964,6 +1963,9 @@ msgstr "Powered by"
 
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
+
+msgid "Preference updated successfully"
+msgstr "Præference opdateret succesfuldt"
 
 msgid "Preferences"
 msgstr "Præferencer"

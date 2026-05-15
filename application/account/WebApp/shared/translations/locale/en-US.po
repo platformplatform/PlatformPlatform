@@ -41,10 +41,6 @@ msgstr "{0} of {totalCount} recipes selected"
 msgid "{0} plan"
 msgstr "{0} plan"
 
-#. placeholder {0}: label.name
-msgid "{0} updated successfully"
-msgstr "{0} updated successfully"
-
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} users deleted successfully"
@@ -1163,6 +1159,9 @@ msgstr "Failed to load payment processor."
 msgid "Feature preferences"
 msgstr "Feature preferences"
 
+msgid "Feature updated successfully"
+msgstr "Feature updated successfully"
+
 msgid "Features"
 msgstr "Features"
 
@@ -1964,6 +1963,9 @@ msgstr "Powered by"
 
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
+
+msgid "Preference updated successfully"
+msgstr "Preference updated successfully"
 
 msgid "Preferences"
 msgstr "Preferences"
