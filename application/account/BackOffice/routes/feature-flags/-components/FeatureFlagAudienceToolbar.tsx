@@ -47,11 +47,14 @@ export function FeatureFlagAudienceToolbar({
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    if ((debouncedSearch || undefined) === search) {
-      return;
-    }
+    // Only push when the debounce has caught up with the current input. Without this guard a
+    // "Clear filters" navigation races the debounce: the prop-change effect below resets
+    // searchInput to "" but debouncedSearch still holds the stale typed value for ~500ms, and
+    // this effect would re-push it back into the URL.
+    if ((debouncedSearch || undefined) !== (searchInput || undefined)) return;
+    if ((debouncedSearch || undefined) === search) return;
     onSearchChange(debouncedSearch || undefined);
-  }, [debouncedSearch, onSearchChange, search]);
+  }, [debouncedSearch, searchInput, onSearchChange, search]);
 
   useEffect(() => {
     setSearchInput(search ?? "");
