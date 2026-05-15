@@ -25,11 +25,15 @@ public sealed class PlanBasedFeatureFlagEvaluator(
         // Serialize the read-then-insert window per tenant. `pg_advisory_xact_lock` auto-releases at
         // commit, so the read-existing-overrides → conditional-insert pair is atomic per tenant.
         // Required because this evaluator runs on every JWT refresh / login, and concurrent fan-in for
-        // the same tenant otherwise hits the unique index as a 500.
-        await accountDbContext.Database.ExecuteSqlAsync(
-            $"SELECT pg_advisory_xact_lock(hashtextextended('plan_flags:' || {tenantId.Value}, 0))",
-            cancellationToken
-        );
+        // the same tenant otherwise hits the unique index as a 500. The lock is PostgreSQL-specific;
+        // in-memory SQLite test runs cannot exhibit cross-process concurrency, so we skip it there.
+        if (accountDbContext.Database.IsNpgsql())
+        {
+            await accountDbContext.Database.ExecuteSqlAsync(
+                $"SELECT pg_advisory_xact_lock(hashtextextended('plan_flags:' || {tenantId.Value}, 0))",
+                cancellationToken
+            );
+        }
 
         var existingOverrides = await featureFlagRepository.GetPlanBasedOverridesForTenantAsync(tenantId, cancellationToken);
         var overridesByKey = existingOverrides.ToDictionary(f => f.FlagKey);

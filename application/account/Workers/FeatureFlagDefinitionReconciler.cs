@@ -50,10 +50,18 @@ public sealed class FeatureFlagDefinitionReconciler(
 
     public async Task ReconcileAsync(CancellationToken cancellationToken)
     {
-        await accountDbContext.Database.ExecuteSqlAsync(
-            $"SELECT pg_advisory_lock({AdvisoryLockKey})",
-            cancellationToken
-        );
+        // Session-scoped advisory locks are PostgreSQL-only. In-memory SQLite tests run the same code
+        // path and would otherwise blow up on `no such function: pg_advisory_lock` — the cross-replica
+        // race the lock guards against cannot happen in a single-process unit test anyway.
+        var isPostgres = accountDbContext.Database.IsNpgsql();
+
+        if (isPostgres)
+        {
+            await accountDbContext.Database.ExecuteSqlAsync(
+                $"SELECT pg_advisory_lock({AdvisoryLockKey})",
+                cancellationToken
+            );
+        }
 
         try
         {
@@ -61,10 +69,13 @@ public sealed class FeatureFlagDefinitionReconciler(
         }
         finally
         {
-            await accountDbContext.Database.ExecuteSqlAsync(
-                $"SELECT pg_advisory_unlock({AdvisoryLockKey})",
-                CancellationToken.None
-            );
+            if (isPostgres)
+            {
+                await accountDbContext.Database.ExecuteSqlAsync(
+                    $"SELECT pg_advisory_unlock({AdvisoryLockKey})",
+                    CancellationToken.None
+                );
+            }
         }
     }
 
@@ -73,13 +84,16 @@ public sealed class FeatureFlagDefinitionReconciler(
         var now = timeProvider.GetUtcNow();
         var definitions = FeatureFlags.GetAll().Where(d => d.Scope != FeatureFlagScope.System).ToArray();
 
-        // Load every base row up front so the per-definition reconcile loop is in-memory only. Avoids one
-        // round-trip per definition; the base-row count is bounded by the C# definitions, but a single
-        // query is still cheaper and matches how the rest of the codebase batches startup reads.
-        var baseRowsByKey = (await featureFlagRepository.GetAllBaseRowsAsync(cancellationToken)).ToDictionary(r => r.FlagKey);
+        // Load every row up front so the per-definition reconcile loop is in-memory only. The same set
+        // also drives the orphan-marking pass below, so a single read replaces both a per-definition
+        // tenant-override query and the trailing all-rows query.
+        var allRows = await featureFlagRepository.GetAllRowsUnfilteredAsync(cancellationToken);
+        var baseRowsByKey = allRows.Where(r => r.TenantId is null).ToDictionary(r => r.FlagKey);
+        var overrideRowsByKey = allRows.Where(r => r.TenantId is not null).ToLookup(r => r.FlagKey);
 
         var baseRowsCreated = 0;
         var baseRowsRestored = 0;
+        var overrideRowsRestored = 0;
         var sourceTransitions = 0;
         var staleRowsRemoved = 0;
 
@@ -114,14 +128,31 @@ public sealed class FeatureFlagDefinitionReconciler(
 
             // An orphaned (but not deleted) base row is back in code. This is the rollback / intentional
             // reintroduction path — clear the timestamp so the row participates as a live flag again,
-            // preserving historical telemetry on the same row instead of starting a new one.
+            // preserving historical telemetry on the same row instead of starting a new one. Tenant/user
+            // override rows that were orphaned in the same sweep are restored alongside the base row;
+            // without this, the rollback would leave their OrphanedAt set and the evaluator would treat
+            // every previously-enabled tenant/user as if they had no override.
             if (baseRow.OrphanedAt is not null)
             {
                 baseRow.Restore();
                 featureFlagRepository.Update(baseRow);
                 baseRowsRestored++;
-                telemetryEventsCollector.CollectEvent(new FeatureFlagRestoredByReconciler(definition.Key));
-                logger.LogInformation("Reconciler restored '{FlagKey}' after re-add to the C# definitions", definition.Key);
+
+                var overridesRestoredForFlag = 0;
+                foreach (var orphanedOverride in overrideRowsByKey[definition.Key].Where(r => r.OrphanedAt is not null))
+                {
+                    orphanedOverride.Restore();
+                    featureFlagRepository.Update(orphanedOverride);
+                    overridesRestoredForFlag++;
+                }
+
+                overrideRowsRestored += overridesRestoredForFlag;
+
+                telemetryEventsCollector.CollectEvent(new FeatureFlagRestoredByReconciler(definition.Key, overridesRestoredForFlag));
+                logger.LogInformation(
+                    "Reconciler restored '{FlagKey}' and {OverridesRestored} orphaned override rows after re-add to the C# definitions",
+                    definition.Key, overridesRestoredForFlag
+                );
             }
 
             // Converge if a definition changed scope (e.g., subtype renamed across scopes between deploys).
@@ -134,8 +165,9 @@ public sealed class FeatureFlagDefinitionReconciler(
             if (baseRow.Source != expectedSource)
             {
                 var fromSource = baseRow.Source;
-                var staleTenantRows = await featureFlagRepository.GetTenantOverridesForFlagAsync(definition.Key, cancellationToken);
-                var staleTenantRowsToRemove = staleTenantRows.Where(r => r.Source != expectedSource).ToArray();
+                var staleTenantRowsToRemove = overrideRowsByKey[definition.Key]
+                    .Where(r => r.UserId is null && r.Source != expectedSource)
+                    .ToArray();
                 foreach (var staleRow in staleTenantRowsToRemove)
                 {
                     featureFlagRepository.Remove(staleRow);
@@ -157,7 +189,6 @@ public sealed class FeatureFlagDefinitionReconciler(
         }
 
         var knownKeys = definitions.Select(d => d.Key).ToHashSet();
-        var allRows = await featureFlagRepository.GetAllRowsUnfilteredAsync(cancellationToken);
 
         var orphansMarked = 0;
         foreach (var row in allRows.Where(r => !knownKeys.Contains(r.FlagKey) && r.OrphanedAt is null))
@@ -187,8 +218,8 @@ public sealed class FeatureFlagDefinitionReconciler(
         }
 
         logger.LogInformation(
-            "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsRestored} re-added rows restored, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",
-            definitions.Length, baseRowsCreated, baseRowsRestored, sourceTransitions, staleRowsRemoved, orphansMarked
+            "Reconciler completed: {DefinitionCount} definitions reconciled, {BaseRowsCreated} base rows created, {BaseRowsRestored} re-added rows restored, {OverrideRowsRestored} orphaned override rows restored, {SourceTransitions} source transitions, {StaleRowsRemoved} stale tenant rows removed, {OrphansMarked} orphans marked",
+            definitions.Length, baseRowsCreated, baseRowsRestored, overrideRowsRestored, sourceTransitions, staleRowsRemoved, orphansMarked
         );
     }
 }

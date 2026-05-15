@@ -27,10 +27,15 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
     {
         // Arrange - simulate the production state after a Premium subscription: ProcessPendingStripeEvents
         // would have committed a Source=Plan tenant override via MediatR UnitOfWork. We pre-insert that row
-        // here to verify the reconciler's contract: when the override row exists in the DB, the resulting
-        // UserInfo MUST carry sso. The reconciler's job is to ensure the base row is active+Source=Plan so
-        // the evaluator doesn't short-circuit at the base-row gate (the original C1 bug).
+        // here to verify that when the override row exists in the DB, the resulting UserInfo carries sso.
+        // The reconciler's contract (C1 fix) is that the base row's IsActive state is owned by admins, not
+        // the reconciler, so the test activates sso explicitly to mirror real production where admins flip
+        // the base row on before plan-source overrides start landing.
         Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [("plan", nameof(SubscriptionPlan.Premium))]);
+        var ssoBaseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = 'sso' AND tenant_id IS NULL AND user_id IS NULL", []
+        );
+        Connection.Update("feature_flags", "id", ssoBaseRowId, [("enabled_at", TimeProvider.GetUtcNow()), ("source", "Plan")]);
         Connection.Insert("feature_flags", [
                 ("id", FeatureFlagId.NewId().ToString()),
                 ("created_at", TimeProvider.GetUtcNow()),
@@ -198,6 +203,77 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
             "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
         );
         orphanedAt.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task Reconciler_WhenOrphanedBaseRowKeyIsBackInDefinitions_ShouldAlsoClearOrphanedAtOnOverrides()
+    {
+        // Arrange - a prior reconciler sweep orphaned the base row and every override sharing the key. A
+        // rollback that re-adds the definition must restore the per-tenant/per-user state along with the
+        // base row, otherwise the previously-enabled tenant/user appear flag-less even though their rows
+        // still exist.
+        var orphanedAt = TimeProvider.GetUtcNow();
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = 'sso' AND tenant_id IS NULL AND user_id IS NULL", []
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("orphaned_at", orphanedAt)]);
+
+        var tenantOverrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", tenantOverrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", orphanedAt),
+                ("flag_key", "sso"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", null),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Plan"),
+                ("scope", "Tenant")
+            ]
+        );
+
+        var userOverrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", userOverrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", orphanedAt),
+                ("flag_key", "sso"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", DatabaseSeeder.Tenant1Owner.Id.Value),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Plan"),
+                ("scope", "Tenant")
+            ]
+        );
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        var baseOrphanedAt = Connection.ExecuteScalar<string>(
+            "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = baseRowId }]
+        );
+        baseOrphanedAt.Should().BeNullOrEmpty();
+
+        var tenantOverrideOrphanedAt = Connection.ExecuteScalar<string>(
+            "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = tenantOverrideId }]
+        );
+        tenantOverrideOrphanedAt.Should().BeNullOrEmpty("tenant overrides that were orphaned alongside the base row must be restored when the flag is re-added");
+
+        var userOverrideOrphanedAt = Connection.ExecuteScalar<string>(
+            "SELECT orphaned_at FROM feature_flags WHERE id = @id", [new { id = userOverrideId }]
+        );
+        userOverrideOrphanedAt.Should().BeNullOrEmpty("user overrides that were orphaned alongside the base row must be restored when the flag is re-added");
     }
 
     [Fact]

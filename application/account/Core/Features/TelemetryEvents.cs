@@ -84,8 +84,8 @@ public sealed class FeatureFlagPlanOverrideActivated(string flagKey, TenantId te
 public sealed class FeatureFlagPlanOverrideDeactivated(string flagKey, TenantId tenantId, PlanTier planTier)
     : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("plan_tier", planTier));
 
-public sealed class FeatureFlagRestoredByReconciler(string flagKey)
-    : TelemetryEvent(("flag_key", flagKey));
+public sealed class FeatureFlagRestoredByReconciler(string flagKey, int overridesRestored)
+    : TelemetryEvent(("flag_key", flagKey), ("overrides_restored", overridesRestored));
 
 public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int fromPercentage, int toPercentage)
     : TelemetryEvent(("flag_key", flagKey), ("from_percentage", fromPercentage), ("to_percentage", toPercentage));
