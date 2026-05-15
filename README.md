@@ -20,7 +20,9 @@
 
 # 👋 Welcome to PlatformPlatform
 
-Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security. Ships with signup and login via Google or email one-time password, Stripe-powered subscription and payment management with plan upgrades, downgrades, and invoicing, feature flags with A/B-rollout, plan-gating, and per-user/tenant overrides, and a back-office dashboard with MRR and revenue trends, plan distribution, and tenant growth.
+Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security.
+
+Ships with signup and login via Google or email one-time password, Stripe-powered subscription and payment management with plan upgrades, downgrades, and invoicing, feature flags with A/B-rollout, plan-gating, and per-user/tenant overrides, and a back-office dashboard with MRR and revenue trends, plan distribution, and tenant growth.
 
 Built to demonstrate seamless flow: backend contracts feed a fully-typed React UI, pipelines make fully automated deployments to Azure, and a multi-agent workflow built on Claude Code's native [Agent Teams](https://code.claude.com/docs/en/agent-teams) where PlatformPlatform-expert agents collaborate to deliver complete features following the opinionated architecture. Think of it as a ready-made blueprint, not a pile of parts to assemble.
 
@@ -31,7 +33,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS like Azure Container Apps and PostgreSQL
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
-* **AI rules** - 30+ rules & skills, battle-tested across a year of daily use to capture how we build here
+* **AI rules** - 30+ rules & skills, refined and battle-tested over a year of daily use, capturing our opinionated patterns
 * **Multi-agent development** - Agent Teams workflow where specialized Claude Code agents with deep PlatformPlatform expertise collaborate end-to-end
 
 Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2).
@@ -47,7 +49,7 @@ Operate the platform from a dedicated SPA on its own hostname, secured by Entra 
 * **Users** - Cross-tenant user list with role and last-seen filters; drill into per-user profile and tenant
 * **Invoices** - Paginated invoice ledger across every account with Stripe drift detection so finance can reconcile what's in Stripe vs. what landed in the database
 * **Billing events** - Authoritative event log of subscription, payment, and billing transitions, filterable by event type and account, with deep-link from dashboard cards
-* **Feature flags** - System / plan-gated / A/B-rollout / owner-configurable / user-configurable flags declared in C# and surfaced as a strongly-typed React hook; back-office UI for rollouts, overrides, and per-entity pins; flag state piggybacks on the JWT refresh so the SPA never polls
+* **Feature flags** - Four levers (System / Subscription plan / Account / User) plus A/B-rollout with rich telemetry; declared in C# and surfaced as a strongly-typed React hook; back-office UI for rollouts and overrides
 
 <img src="https://platformplatformgithub.blob.core.windows.net/BackOffice.gif" alt="PlatformPlatform Back Office" title="PlatformPlatform Back Office" />
 
@@ -58,19 +60,18 @@ Production-ready end-user surfaces — fully localized, accessible, and ready to
 * **Signup** - Tenant signup with email one-time password or Google OAuth (OpenID Connect with PKCE)
 * **Login** - Same OTP and Google sign-in flows, with `UNLOCK` shortcut on localhost so dev mail is optional
 * **Welcome** - First-run guided flow for naming the account, uploading a logo, and inviting colleagues
-* **Account overview** - At-a-glance dashboard of account activity, owner-toggleable so users land on Users instead
 * **Account settings** - Owner-editable account name, logo, and danger-zone account deletion
 * **User management** - Invite users, change roles (Owner/Admin/Member), bulk delete, and recycle-bin restore
-* **Subscription & billing** - Embedded Stripe Checkout & Payment Element, prorated plan upgrades/downgrades, billing-info editing, scheduled-downgrade banner, dunning, and a full payment history with downloadable invoices and credit notes
+* **Subscription & billing** - Embedded Stripe Checkout & Payment Element, prorated upgrades/downgrades, billing-info editing, scheduled-downgrade banner, dunning, and payment history with invoices and credit notes
 * **User profile** - Personal profile with avatar upload (Gravatar fallback), first/last name, email, and job title
-* **User preferences** - Theme (system/light/dark), language, and zoom — device-local for theme/zoom, profile for language
+* **User preferences** - Theme (light/dark/system) and zoom per device, language per profile
 * **Sessions** - Active session list with device type, browser, and OS, plus one-click revocation of any session
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/PlatformPlatformDemo.gif" alt="PlatformPlatform Demo" title="PlatformPlatform Demo" />
 
 # Getting Started
 
-TL;DR: Open the [PlatformPlatform](./application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](./application/AppHost/AppHost.csproj) project.
+TL;DR: Requires .NET 10, Node, and Docker. Clone the repo and `dotnet run` from `developer-cli/` to start Aspire.
 
 ### Prerequisites
 
@@ -300,8 +301,6 @@ Or without the CLI:
 cd application/AppHost
 dotnet run
 ```
-
-Alternatively, open the [PlatformPlatform](./application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](./application/AppHost/AppHost.csproj) project.
 
 On first startup, Aspire will prompt for `stripe-enabled` -- enter `true` to configure Stripe integration (see the optional Stripe setup section below) or `false` to skip.
 
