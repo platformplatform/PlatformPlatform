@@ -61,6 +61,23 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     }
 
     [Fact]
+    public async Task Evaluate_WhenManualOverrideEnabledAndBaseRowInactive_ShouldExcludeFlag()
+    {
+        // Arrange — base row is inactive (admin Deactivate); tenant has an active manual override.
+        // Per the documented precedence chain, an inactive base row is the global kill switch and
+        // short-circuits before the manual-override step is reached.
+        var now = TimeProvider.System.GetUtcNow();
+        InsertFeatureFlag("sso", null, null, null, null, null, null);
+        InsertFeatureFlag("sso", DatabaseSeeder.Tenant1.Id.Value, null, now, null, null, null);
+
+        // Act
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, null, null, CancellationToken.None);
+
+        // Assert
+        result.Should().NotContain("sso");
+    }
+
+    [Fact]
     public async Task Evaluate_WhenReactivated_EnabledAtAfterDisabledAt_ShouldReturnEnabled()
     {
         // Arrange

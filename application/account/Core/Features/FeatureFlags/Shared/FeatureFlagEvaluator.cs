@@ -4,6 +4,13 @@ using SharedKernel.FeatureFlags;
 
 namespace Account.Features.FeatureFlags.Shared;
 
+/// <summary>
+///     Resolves the enabled feature flags for a (tenant, user) context. Precedence runs base-row-active
+///     and parent-dependency as gates, then manual override > AB inclusion pin > rollout bucket > default
+///     off. Pins are unconditional: AlwaysOn forces inclusion even at 0% rollout, NeverOn forces exclusion
+///     even at 100%. Plan-gated flags participate as manual overrides because the Stripe pipeline writes
+///     them as Source=Plan tenant rows. The four BackOffice query mirrors apply the same ordering.
+/// </summary>
 public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository)
 {
     // The definitions source defaults to the reflected registry but is overridable for tests that need
