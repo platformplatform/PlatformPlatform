@@ -264,8 +264,8 @@ public sealed class TenantBillingDriftAcknowledged(SubscriptionId subscriptionId
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
-public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
-    : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState));
+public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState, int featureFlagRowsRemoved)
+    : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState), ("feature_flag_rows_removed", featureFlagRowsRemoved));
 
 public sealed class TenantLogoRemoved
     : TelemetryEvent;

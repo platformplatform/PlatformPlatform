@@ -40,7 +40,7 @@ public sealed class DeleteTenantHandler(
 
         tenantRepository.Remove(tenant);
 
-        events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State));
+        events.CollectEvent(new TenantDeleted(tenant.Id, tenant.State, tenantFlagRows.Length));
 
         return Result.Success();
     }
