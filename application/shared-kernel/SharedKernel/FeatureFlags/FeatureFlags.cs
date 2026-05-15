@@ -40,13 +40,15 @@ public static class FeatureFlags
     public static readonly FeatureFlagDefinition AccountOverview = new TenantOwnerConfigurableFlag(
         "account-overview",
         "Account overview page",
-        "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list."
+        "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list.",
+        isKillSwitchEnabled: true
     );
 
     public static readonly FeatureFlagDefinition CompactView = new UserConfigurableFlag(
         "compact-view",
         "Compact view",
-        "Reduce spacing between UI elements for a denser layout"
+        "Reduce spacing between UI elements for a denser layout",
+        isKillSwitchEnabled: true
     );
 
     public static readonly FeatureFlagDefinition ExperimentalUi = new UserAbTestFlag(
