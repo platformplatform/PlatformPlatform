@@ -50,6 +50,19 @@ async function activateAndPinRollout(page: Page, flagKey: string, rolloutPercent
   expect(rolloutResponse.ok()).toBe(true);
 }
 
+// Globally activate a kill-switch flag via the back-office API. The reconciler creates kill-switch
+// flags inactive on first sight, so an admin must Activate before tenants can evaluate them or
+// before owner-configurable flags surface in the /account/settings Features section. The PUT is
+// idempotent — calling it on an already-active flag just refreshes EnabledAt.
+async function activateKillSwitchFlag(page: Page, flagKey: string): Promise<void> {
+  const headers = await getAntiforgeryHeaders(page);
+  const activateResponse = await page.request.put(
+    `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/activate`,
+    { headers }
+  );
+  expect(activateResponse.ok()).toBe(true);
+}
+
 // Remove every tenant-override on `flagKey` across the entire database. The override toggles in
 // @smoke pick the first "Test Organization" row, but the back-office tables interleave every
 // worker's tenant (and stale rows from old runs), so the .first() row is unpredictable unless we
@@ -179,11 +192,17 @@ test.describe("@smoke", () => {
 
     // Both @smoke and @comprehensive mutate the shared beta-features rollout; both leave it at 100
     // and remove any tenant-override they created, so cross-test ordering is deterministic.
-    await step("Activate beta-features and pin rollout to 100 via back-office API & verify tenants evaluate enabled")(
-      async () => {
-        await activateAndPinRollout(page, "beta-features", 100);
-      }
-    )();
+    // account-overview and compact-view are kill-switch flags created inactive by the reconciler —
+    // activate them here so the Features section on /account/settings and the Feature preferences
+    // section on /user/preferences later in this test are non-empty (those sections are hidden when
+    // no tenant- or user-configurable flag has an active base row).
+    await step(
+      "Activate beta-features, account-overview, compact-view and pin beta-features rollout to 100 via back-office API & verify tenants evaluate enabled"
+    )(async () => {
+      await activateAndPinRollout(page, "beta-features", 100);
+      await activateKillSwitchFlag(page, "account-overview");
+      await activateKillSwitchFlag(page, "compact-view");
+    })();
 
     await step("Remove all leftover tenant overrides for beta-features & verify clean precondition")(async () => {
       await removeAllTenantOverrides(page, "beta-features");
