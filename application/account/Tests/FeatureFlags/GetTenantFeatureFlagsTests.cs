@@ -40,6 +40,7 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         // Arrange — plan-gated flag (sso) but the row Source column is "Manual" (admin manually toggled it on).
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var flagKey = "sso";
+        ActivateBaseRow(flagKey);
         InsertTenantOverride(tenantId, flagKey, "Manual", TimeProvider.System.GetUtcNow());
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
@@ -62,6 +63,7 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         // Arrange — plan-gated flag (sso) with Source="Plan" (the upgrade evaluator wrote it).
         var tenantId = DatabaseSeeder.Tenant1.Id;
         var flagKey = "sso";
+        ActivateBaseRow(flagKey);
         InsertTenantOverride(tenantId, flagKey, "Plan", TimeProvider.System.GetUtcNow());
         var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
         using var client = CreateBackOfficeClientForIdentity(identity);
@@ -108,6 +110,35 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
+    public async Task GetTenantFeatureFlags_WhenBaseRowInactiveAndOverrideActive_ShouldReportIsEnabledFalse()
+    {
+        // Arrange — globally Deactivate beta-features so the base row reads IsActive=false, but keep an
+        // active manual override row for the tenant. The runtime FeatureFlagEvaluator short-circuits on
+        // !baseRow.IsActive (FeatureFlagEvaluator.cs:48) so this query must mirror that contract.
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        var flagKey = "beta-features";
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("enabled_at", null)]);
+        InsertTenantOverride(tenantId, flagKey, "Manual", TimeProvider.System.GetUtcNow());
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/tenants/{tenantId}/feature-flags");
+
+        // Assert — the row Source stays Manual (the override is authoritative for that column), but
+        // IsEnabled must be false because the base row is globally deactivated.
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<GetTenantFeatureFlagsResponse>();
+        payload.Should().NotBeNull();
+        var betaFeatures = payload.Flags.Single(f => f.FlagKey == "beta-features");
+        betaFeatures.IsEnabled.Should().BeFalse();
+        betaFeatures.Source.Should().Be(FeatureFlagSource.Manual);
+    }
+
+    [Fact]
     public async Task GetTenantFeatureFlags_WhenTenantDoesNotExist_ShouldReturnNotFound()
     {
         // Arrange
@@ -141,6 +172,17 @@ public sealed class GetTenantFeatureFlagsTests : BackOfficeEndpointBaseTest
         payload.Flags.Should().NotContain(f => f.FlagKey == "subscriptions");
         payload.Flags.Should().NotContain(f => f.FlagKey == "compact-view");
         payload.Flags.Should().NotContain(f => f.FlagKey == "experimental-ui");
+    }
+
+    // The reconciler creates non-kill-switch base rows with EnabledAt=null until an admin Activates.
+    // Tests that exercise Source attribution over an existing override need the base row Active so
+    // the mirror query path is reached at all — FeatureFlagEvaluator.cs:48 short-circuits otherwise.
+    private void ActivateBaseRow(string flagKey)
+    {
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("enabled_at", TimeProvider.System.GetUtcNow())]);
     }
 
     private void InsertTenantOverride(TenantId tenantId, string flagKey, string source, DateTimeOffset? enabledAt)

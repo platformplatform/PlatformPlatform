@@ -792,6 +792,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
+        ActivateBaseRow(flagKey);
         InsertTenantOverride(flagKey, tenantId, true);
         using var client = CreateRegularBackOfficeClient();
 
@@ -858,6 +859,34 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var response = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/tenants");
 
         // Assert - manual override takes precedence over the A/B rollout.
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        var tenantResult = result.Tenants.Single(t => t.Id.Value == tenantId);
+        tenantResult.IsEnabled.Should().BeFalse();
+        tenantResult.Source.Should().Be(FeatureFlagSource.Manual);
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagTenants_WhenBaseRowInactiveAndOverrideActive_ShouldReportIsEnabledFalse()
+    {
+        // Arrange — globally Deactivate beta-features (base row enabled_at=null) but keep an active
+        // manual override row for the tenant. The runtime FeatureFlagEvaluator short-circuits on
+        // !baseRow.IsActive (FeatureFlagEvaluator.cs:48) so this bulk list must mirror that contract.
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("enabled_at", null)]);
+        InsertTenantOverride(flagKey, tenantId, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/tenants");
+
+        // Assert — row Source stays Manual (override is authoritative for that column), but
+        // IsEnabled must be false because the global kill switch is off.
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFeatureFlagTenantsResponse>();
         result.Should().NotBeNull();
@@ -946,6 +975,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange - tenant-1 gets a manual enable for `sso`; other tenants remain disabled.
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
+        ActivateBaseRow(flagKey);
         InsertTenantOverride(flagKey, tenantId, true);
         using var client = CreateRegularBackOfficeClient();
 
@@ -966,6 +996,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "sso";
         var tenantId = DatabaseSeeder.Tenant1.Id;
+        ActivateBaseRow(flagKey);
         InsertTenantOverride(flagKey, tenantId, true);
         using var client = CreateRegularBackOfficeClient();
 
@@ -1207,6 +1238,33 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         userResult.Source.Should().Be(FeatureFlagSource.Manual);
         userResult.Email.Should().NotBe("Unknown");
         userResult.TenantName.Should().NotBe("Unknown");
+    }
+
+    [Fact]
+    public async Task GetFeatureFlagUsers_WhenBaseRowInactiveAndOverrideActive_ShouldReportIsEnabledFalse()
+    {
+        // Arrange — globally Deactivate compact-view (base row enabled_at=null) but keep an active
+        // manual override row for the user. The runtime FeatureFlagEvaluator short-circuits on
+        // !baseRow.IsActive (FeatureFlagEvaluator.cs:48) so this bulk list must mirror that contract.
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("enabled_at", null)]);
+        InsertUserOverride(flagKey, DatabaseSeeder.Tenant1.Id, userId, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/feature-flags/{flagKey}/users?search=owner@tenant-1");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
+        result.Should().NotBeNull();
+        var userResult = result.Users.Single(u => u.Id.Value == userId);
+        userResult.IsEnabled.Should().BeFalse();
+        userResult.Source.Should().Be(FeatureFlagSource.Manual);
     }
 
     [Fact]
@@ -1715,6 +1773,17 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var result = await response.DeserializeResponse<GetFeatureFlagUsersResponse>();
         result.Should().NotBeNull();
         result.Users.Select(u => u.Role).Should().BeInAscendingOrder();
+    }
+
+    // The reconciler creates non-kill-switch base rows with EnabledAt=null until an admin Activates.
+    // Tests that exercise override-driven IsEnabled need the base row Active so the mirror query
+    // path is reached at all — FeatureFlagEvaluator.cs:48 short-circuits when baseRow.IsActive is false.
+    private void ActivateBaseRow(string flagKey)
+    {
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [("enabled_at", TimeProvider.System.GetUtcNow())]);
     }
 
     private void InsertOrphanedBaseRow(string flagKey, bool softDeleted = false)

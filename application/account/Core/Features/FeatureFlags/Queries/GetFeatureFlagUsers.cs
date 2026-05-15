@@ -246,7 +246,10 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
     {
         if (overridesByUserId.TryGetValue(user.Id, out var userOverride))
         {
-            var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
+            // Gate on baseRow.IsActive so a globally-Deactivated kill-switch flag reports as disabled even when
+            // an override row exists — matching the runtime FeatureFlagEvaluator.cs:48 short-circuit.
+            var isOverrideActive = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
+            var isEnabled = baseRow is { IsActive: true } && isOverrideActive;
             return (isEnabled, FeatureFlagSource.Manual);
         }
 

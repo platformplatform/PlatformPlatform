@@ -76,7 +76,9 @@ public sealed class GetTenantFeatureFlagsHandler(IFeatureFlagRepository featureF
 
         if (tenantOverride is not null)
         {
-            isEnabled = tenantOverride.IsActive;
+            // Gate on baseRow.IsActive so a globally-Deactivated kill-switch flag reports as disabled even when
+            // an override row exists — matching the runtime FeatureFlagEvaluator.cs:48 short-circuit.
+            isEnabled = isBaseRowActive && tenantOverride.IsActive;
             // The row's Source column is authoritative — a manually-toggled plan-gated flag must still surface as
             // Manual so admins see they overrode the plan-driven default, rather than the plan granting it.
             source = tenantOverride.Source == FeatureFlagSource.Plan ? FeatureFlagSource.Plan : FeatureFlagSource.Manual;

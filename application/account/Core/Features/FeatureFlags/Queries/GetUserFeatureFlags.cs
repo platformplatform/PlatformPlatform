@@ -77,7 +77,9 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
 
         if (userOverride is not null)
         {
-            isEnabled = userOverride.IsActive;
+            // Gate on baseRow.IsActive so a globally-Deactivated kill-switch flag reports as disabled even when
+            // an override row exists — matching the runtime FeatureFlagEvaluator.cs:48 short-circuit.
+            isEnabled = isBaseRowActive && userOverride.IsActive;
             source = FeatureFlagSource.Manual;
         }
         else if (definition.IsAbTestEligible)

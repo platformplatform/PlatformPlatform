@@ -267,7 +267,10 @@ public sealed class GetFeatureFlagTenantsHandler(
     {
         if (overridesByTenantId.TryGetValue(tenant.Id, out var tenantOverride))
         {
-            var isEnabled = tenantOverride.EnabledAt is not null && (tenantOverride.DisabledAt is null || tenantOverride.EnabledAt > tenantOverride.DisabledAt);
+            // Gate on baseRow.IsActive so a globally-Deactivated kill-switch flag reports as disabled even when
+            // an override row exists — matching the runtime FeatureFlagEvaluator.cs:48 short-circuit.
+            var isOverrideActive = tenantOverride.EnabledAt is not null && (tenantOverride.DisabledAt is null || tenantOverride.EnabledAt > tenantOverride.DisabledAt);
+            var isEnabled = baseRow is { IsActive: true } && isOverrideActive;
             // The override row's Source column distinguishes a manual admin toggle from a plan-driven row.
             var source = tenantOverride.Source == FeatureFlagSource.Plan ? FeatureFlagSource.Plan : FeatureFlagSource.Manual;
             return (isEnabled, source);
