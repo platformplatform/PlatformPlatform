@@ -20,7 +20,7 @@
 
 # 👋 Welcome to PlatformPlatform
 
-Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security.
+Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security. Ships with signup and login via Google or email one-time password, Stripe-powered subscription and payment management with plan upgrades, downgrades, and invoicing, feature flags with A/B-rollout, plan-gating, and per-user/tenant overrides, and a back-office dashboard with MRR and revenue trends, plan distribution, and tenant growth.
 
 Built to demonstrate seamless flow: backend contracts feed a fully-typed React UI, pipelines make fully automated deployments to Azure, and a multi-agent workflow built on Claude Code's native [Agent Teams](https://code.claude.com/docs/en/agent-teams) where PlatformPlatform-expert agents collaborate to deliver complete features following the opinionated architecture. Think of it as a ready-made blueprint, not a pile of parts to assemble.
 
@@ -33,21 +33,38 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 * **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
 * **Multi-agent development** - Agent Teams workflow where specialized Claude Code agents with deep PlatformPlatform expertise collaborate end-to-end
-* **Feature flags** - System / plan-gated / A/B-rollout / owner-configurable / user-configurable flags declared in C# and surfaced as a strongly-typed React hook; back-office UI for rollouts, overrides, and per-entity pins; flag state piggybacks on the JWT refresh so the SPA never polls
 
-Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like SSO, monitoring, alerts, multi-region, feature flags, back office for support, etc.
+Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2).
 
 Show your support for our project - give us a star on GitHub! It truly means a lot! ⭐
 
 ### Back office
 
-Operate the platform: manage account signups, users, and logins, and monitor revenue, MRR, churn, invoices, and Stripe drift.
+Operate the platform from a dedicated SPA on its own hostname, locked down with Entra ID Easy Auth and group-based admin checks:
+
+* **Dashboard** - KPI tiles for total accounts, blended MRR, all-time revenue, active users, and live sessions; trend cards for MRR, revenue, tenant growth, plan distribution, user logins; activity feeds for recent signups, payments, logins, and Stripe webhook events
+* **Accounts** - Search and filter every tenant, drill into account detail with owner, plan, signup activity, and per-account usage
+* **Users** - Cross-tenant user list with role and last-seen filters, drill into per-user profile, role, and tenant membership
+* **Invoices** - Paginated invoice ledger across every account with Stripe drift detection so finance can reconcile what's in Stripe vs. what landed in the database
+* **Billing events** - Authoritative event log of subscription, payment, and billing transitions, filterable by event type and account, with deep-link from dashboard cards
+* **Feature flags** - System / plan-gated / A/B-rollout / owner-configurable / user-configurable flags declared in C# and surfaced as a strongly-typed React hook; back-office UI for rollouts, overrides, and per-entity pins; flag state piggybacks on the JWT refresh so the SPA never polls
 
 <img src="https://platformplatformgithub.blob.core.windows.net/BackOffice.gif" alt="PlatformPlatform Back Office" title="PlatformPlatform Back Office" />
 
-### Product demo
+### User-facing SaaS product
 
-End-user flows: tenant signup, account settings, Google login, welcome flow, accessibility and localization, and Stripe-powered subscription signup and management.
+Production-ready end-user surfaces — fully localized, accessible, and ready to brand as your own product:
+
+* **Signup** - Tenant signup with email one-time password or Google OAuth (OpenID Connect with PKCE)
+* **Login** - Same OTP and Google sign-in flows, with `UNLOCK` shortcut on localhost so dev mail is optional
+* **Welcome** - First-run guided flow that walks new owners through naming the account, uploading a logo, and inviting their first teammates
+* **Account overview** - At-a-glance dashboard of account activity, owner-toggleable so signed-in users can land straight on Users instead
+* **Account settings** - Owner-editable account name, logo, and danger-zone account deletion
+* **User management** - Invite users, change roles (Owner/Admin/Member), bulk delete, and restore deleted users from a recycle bin
+* **Subscription & billing** - Embedded Stripe Checkout & Payment Element, prorated plan upgrades/downgrades, billing-info editing, scheduled-downgrade banner, dunning, and a full payment history with downloadable invoices and credit notes
+* **User profile** - Personal profile with avatar upload (Gravatar fallback), first/last name, email, and job title
+* **User preferences** - Theme (system/light/dark), language, and zoom level — device-local for theme and zoom, profile-level for language
+* **Sessions** - Active session list with device type, browser, and OS, plus one-click revocation of any session you don't recognise
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/PlatformPlatformDemo.gif" alt="PlatformPlatform Demo" title="PlatformPlatform Demo" />
 
