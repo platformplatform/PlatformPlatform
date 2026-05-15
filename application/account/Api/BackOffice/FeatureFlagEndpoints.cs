@@ -46,15 +46,15 @@ public sealed class FeatureFlagEndpoints : IEndpoints
 
         group.MapPut("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, SetTenantFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapPut("/{flagKey}/rollout-percentage", async Task<ApiResult> (string flagKey, SetFeatureFlagRolloutPercentageCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapDelete("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, TenantId tenantId, IMediator mediator)
             => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapGet("/{flagKey}/users", async Task<ApiResult<GetFeatureFlagUsersResponse>> (string flagKey, [AsParameters] GetFeatureFlagUsersQuery query, IMediator mediator)
             => await mediator.Send(query with { FlagKey = flagKey })
@@ -62,10 +62,10 @@ public sealed class FeatureFlagEndpoints : IEndpoints
 
         group.MapPut("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, SetUserFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
 
         group.MapDelete("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, UserId userId, TenantId tenantId, IMediator mediator)
             => await mediator.Send(new RemoveUserFeatureFlagOverrideCommand { FlagKey = flagKey, UserId = userId, TenantId = tenantId })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
     }
 }

@@ -18,8 +18,9 @@ using FeatureFlagScope = SharedKernel.FeatureFlags.FeatureFlagScope;
 namespace Account.Tests.BackOffice.FeatureFlags;
 
 // Exercises the back-office feature-flag endpoints at /api/back-office/feature-flags/*.
-// Activate/deactivate carry an extra AdminPolicyName requirement (fleet-wide kill-switch);
-// everything else uses the regular back-office identity policy.
+// All mutations (activate, deactivate, tenant/user overrides, rollout percentage, delete) carry the
+// AdminPolicyName requirement; GET queries use the regular back-office identity policy so support
+// staff can investigate state without being able to change it.
 public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 {
     private const string RegularBackOfficeIdentityId = "user";
@@ -176,15 +177,15 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         disabledAt.Should().BeNull("DisabledAt should be cleared on reactivation");
     }
 
-    // Tenant override (regular PolicyName)
+    // Tenant override (AdminPolicy)
 
     [Fact]
-    public async Task SetTenantOverride_WhenEnabledAsRegularBackOffice_ShouldCreateOverrideRow()
+    public async Task SetTenantOverride_WhenEnabledAsAdmin_ShouldCreateOverrideRow()
     {
         // Arrange
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
@@ -214,7 +215,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
         InsertTenantOverride(flagKey, tenantId, true);
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
 
         // Act
         var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
@@ -237,7 +238,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
 
         // Act
         var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
@@ -246,16 +247,61 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    // User override (regular PolicyName)
+    [Fact]
+    public async Task SetTenantOverride_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override", command);
+
+        // Assert - tenant-override mutations are gated by AdminPolicyName; a regular back-office identity
+        // without the admin group claim must be rejected before any repository write.
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId = tenantId.Value }]
+        );
+        rowCount.Should().Be(0, "the policy guard must run before any repository write");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
 
     [Fact]
-    public async Task SetUserOverride_WhenEnabledAsRegularBackOffice_ShouldCreateOverrideRow()
+    public async Task RemoveTenantOverride_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertTenantOverride(flagKey, tenantId, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId = tenantId.Value }]
+        );
+        rowCount.Should().Be(1, "the override must remain when a non-admin caller is rejected");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    // User override (AdminPolicy)
+
+    [Fact]
+    public async Task SetUserOverride_WhenEnabledAsAdmin_ShouldCreateOverrideRow()
     {
         // Arrange
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id;
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = true };
 
         // Act
@@ -281,7 +327,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
         var tenantId = DatabaseSeeder.Tenant1.Id;
         InsertUserOverride(flagKey, tenantId, userId, true);
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
 
         // Act
         var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
@@ -305,13 +351,59 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
 
         // Act
         var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task SetUserOverride_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id;
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        using var client = CreateRegularBackOfficeClient();
+        var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = true };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/user-override", command);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId = userId.Value }]
+        );
+        rowCount.Should().Be(0, "the policy guard must run before any repository write");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RemoveUserOverride_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id;
+        InsertUserOverride(flagKey, tenantId, userId, true);
+        using var client = CreateRegularBackOfficeClient();
+
+        // Act
+        var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId }]
+        );
+        rowCount.Should().Be(1, "the override must remain when a non-admin caller is rejected");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     // User/tenant verification guards — the back-office can target any tenant, so handlers verify the
@@ -325,7 +417,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id;
         var otherTenantId = new TenantId(999999);
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = otherTenantId, Enabled = true };
 
         // Act
@@ -353,7 +445,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var realTenantId = DatabaseSeeder.Tenant1.Id;
         var otherTenantId = new TenantId(999999);
         InsertUserOverride(flagKey, realTenantId, userId.Value, true);
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
 
         // Act
         var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={otherTenantId}");
@@ -377,7 +469,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var flagKey = "compact-view";
         var missingUserId = UserId.NewId();
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetUserFeatureFlagInternalCommand { UserId = missingUserId, TenantId = tenantId, Enabled = true };
 
         // Act
@@ -401,7 +493,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "beta-features";
         var missingTenantId = new TenantId(999999);
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = missingTenantId, Enabled = true };
 
         // Act
@@ -425,7 +517,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
 
         // Act
@@ -462,7 +554,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         var flagKey = "compact-view";
         var userId = DatabaseSeeder.Tenant1Owner.Id;
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = false };
 
         // Act
@@ -498,7 +590,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "beta-features";
         var missingTenantId = new TenantId(999999);
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
 
         // Act
         var response = await client.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={missingTenantId}");
@@ -509,14 +601,14 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
-    // Rollout percentage uses regular PolicyName (not admin-tier).
+    // Rollout percentage (AdminPolicy)
 
     [Fact]
-    public async Task SetRolloutPercentage_WhenValidPercentageAsRegularBackOffice_ShouldUpdateBucketRange()
+    public async Task SetRolloutPercentage_WhenValidPercentageAsAdmin_ShouldUpdateBucketRange()
     {
         // Arrange
         var flagKey = "beta-features";
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
         // Act
@@ -546,7 +638,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     {
         // Arrange
         var flagKey = "beta-features";
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = percentage };
 
         // Act
@@ -569,7 +661,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     {
         // Arrange
         var flagKey = "beta-features";
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 101 };
 
         // Act
@@ -584,7 +676,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     {
         // Arrange
         var flagKey = "sso";
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
         // Act
@@ -599,7 +691,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     {
         // Arrange
         var flagKey = "beta-features";
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/rollout-percentage", new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 });
         TelemetryEventsCollectorSpy.Reset();
 
@@ -620,11 +712,31 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     }
 
     [Fact]
-    public async Task SetRolloutPercentage_WhenHundredPercent_ShouldSetFullRange()
+    public async Task SetRolloutPercentage_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden()
     {
         // Arrange
         var flagKey = "beta-features";
         using var client = CreateRegularBackOfficeClient();
+        var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/rollout-percentage", command);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        var bucketStart = Connection.ExecuteScalar<long?>(
+            "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        bucketStart.Should().BeNull("the policy guard must run before any repository write");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SetRolloutPercentage_WhenHundredPercent_ShouldSetFullRange()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 100 };
 
         // Act
@@ -1390,7 +1502,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         // Arrange
         var flagKey = "beta-features";
         var tenantId = DatabaseSeeder.Tenant1.Id;
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
 
         // Act
@@ -1406,7 +1518,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
     {
         // Arrange
         var flagKey = "beta-features";
-        using var client = CreateRegularBackOfficeClient();
+        using var client = CreateAdminBackOfficeClient();
         var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
 
         // Act
