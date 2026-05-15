@@ -56,13 +56,14 @@ async function activateAndPinRollout(page: Page, flagKey: string, rolloutPercent
 // state symmetric without leaking implementation details (the cleanup endpoint is internal).
 async function removeAllTenantOverrides(page: Page, flagKey: string): Promise<void> {
   const headers = await getAntiforgeryHeaders(page);
-  // PageSize=100 covers the worst case we expect (100s of stale "Test Organization" workers); the
-  // query loops in case more pages exist.
+  // Always read page 0: every iteration deletes the current page, shifting the remaining records
+  // forward into the first page on the next query. Incrementing pageOffset against a shrinking
+  // result set would skip rows (e.g., with 250 overrides and pageSize=100, OFFSET=100 on the
+  // remaining 150 returns rows 200-249 of the original, leaving rows 100-199 untouched).
   const pageSize = 100;
-  let pageOffset = 0;
   while (true) {
     const response = await page.request.get(
-      `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/tenants?HasOverride=true&PageSize=${pageSize}&PageOffset=${pageOffset}`
+      `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/${flagKey}/tenants?HasOverride=true&PageSize=${pageSize}&PageOffset=0`
     );
     expect(response.ok()).toBe(true);
     const body = await response.json();
@@ -78,11 +79,25 @@ async function removeAllTenantOverrides(page: Page, flagKey: string): Promise<vo
       expect([200, 404]).toContain(deleteResponse.status());
     }
     if (tenants.length < pageSize) return;
-    pageOffset += 1;
   }
 }
 
 test.describe("@smoke", () => {
+  // Restore the idempotent end state (beta-features active, rollout=100, no Test Organization
+  // override) after every test, including failures. Without this hook a mid-test failure between
+  // the start-of-test scrub and the end-of-test scrub would leak the override into subsequent runs.
+  test.afterEach(async ({ browser }) => {
+    const cleanupContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
+    const cleanupPage = await cleanupContext.newPage();
+
+    await cleanupPage.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
+    await logInAsAdmin(cleanupPage, `${BACK_OFFICE_BASE_URL}/feature-flags`);
+    await removeAllTenantOverrides(cleanupPage, "beta-features");
+    await activateAndPinRollout(cleanupPage, "beta-features", 100);
+
+    await cleanupContext.close();
+  });
+
   /**
    * FEATURE FLAG SYSTEM E2E TEST
    *
@@ -305,20 +320,8 @@ test.describe("@smoke", () => {
       }
     )();
 
-    // === CLEANUP: re-activate + pin beta-features rollout to 100 (idempotent end state shared with @comprehensive) ===
-
-    const cleanupContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
-    const cleanupPage = await cleanupContext.newPage();
-    createTestContext(cleanupPage);
-
-    await step("Log in as Admin & re-activate beta-features with rollout=100 (idempotent end state)")(async () => {
-      await cleanupPage.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
-      await logInAsAdmin(cleanupPage, `${BACK_OFFICE_BASE_URL}/feature-flags`);
-
-      await activateAndPinRollout(cleanupPage, "beta-features", 100);
-    })();
-
-    await cleanupContext.close();
+    // Cleanup (remove overrides + re-activate with rollout=100) runs in test.afterEach so it
+    // executes on both success and failure paths.
   });
 });
 
