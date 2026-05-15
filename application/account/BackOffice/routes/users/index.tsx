@@ -1,10 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Button } from "@repo/ui/components/Button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { UsersIcon } from "lucide-react";
 import { z } from "zod";
 
@@ -66,19 +67,7 @@ function UsersSearchPage() {
           <UsersToolbar search={search} roles={roles ?? []} activity={activity} />
 
           {showNoResults ? (
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <UsersIcon />
-                </EmptyMedia>
-                <EmptyTitle>
-                  <Trans>No users match your search</Trans>
-                </EmptyTitle>
-                <EmptyDescription>
-                  <Trans>Try a different search term or clear the role and activity filters.</Trans>
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
+            <UsersNoResultsEmpty />
           ) : showEmpty ? (
             <Empty>
               <EmptyHeader>
@@ -106,5 +95,29 @@ function UsersSearchPage() {
         </AppLayout>
       </SidebarInset>
     </SidebarProvider>
+  );
+}
+
+function UsersNoResultsEmpty() {
+  const navigate = useNavigate();
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <UsersIcon />
+        </EmptyMedia>
+        <EmptyTitle>
+          <Trans>No users match your search</Trans>
+        </EmptyTitle>
+        <EmptyDescription>
+          <Trans>Try a different search term or clear the role and activity filters.</Trans>
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button variant="outline" size="sm" onClick={() => navigate({ to: "/users", search: () => ({}) })}>
+          <Trans>Clear filters</Trans>
+        </Button>
+      </EmptyContent>
+    </Empty>
   );
 }

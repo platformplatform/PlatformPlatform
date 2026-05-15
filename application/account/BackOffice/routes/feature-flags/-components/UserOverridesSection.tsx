@@ -1,11 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { UsersIcon } from "lucide-react";
 import { useCallback } from "react";
 
 import type { SortOrder, UserRole } from "@/shared/lib/api/client";
@@ -14,6 +12,7 @@ import { api, SortableFeatureFlagUserProperties } from "@/shared/lib/api/client"
 
 import type { StateFilter } from "./stateFilter";
 
+import { FeatureFlagUsersEmpty } from "./FeatureFlagUsersEmpty";
 import { FeatureFlagUsersToolbar } from "./FeatureFlagUsersToolbar";
 import { DEFAULT_STATE_FILTER, toApiState } from "./stateFilter";
 import { UserOverridesTable } from "./UserOverridesTable";
@@ -102,13 +101,10 @@ export function UserOverridesSection({
           {showRolloutBucket ? (
             <Trans>
               Users are automatically included based on their rollout bucket. Use overrides to manually include or
-              exclude specific users. Changes can take up to 5 minutes to reach all users.
+              exclude specific users.
             </Trans>
           ) : (
-            <Trans>
-              Toggle the override switch to enable this feature for specific users. Changes can take up to 5 minutes to
-              reach all users.
-            </Trans>
+            <Trans>Toggle the override switch to enable this feature for specific users.</Trans>
           )}
         </p>
       </div>
@@ -123,30 +119,34 @@ export function UserOverridesSection({
       {isLoading && users.length === 0 ? (
         <UserOverridesSkeleton />
       ) : users.length === 0 ? (
-        <UserOverridesEmpty hasFilters={hasFilters} />
+        <FeatureFlagUsersEmpty flagKey={flagKey} hasFilters={hasFilters} />
       ) : (
         <>
-          <UserOverridesTable
-            ariaLabel={t`Users`}
-            users={users}
-            flagKey={flagKey}
-            featureFlagDescription={featureFlagDescription}
-            showRolloutBucket={showRolloutBucket}
-            isFeatureFlagActive={isFeatureFlagActive}
-            orderBy={orderBy}
-            sortOrder={sortOrder}
-            defaultOrderBy={defaultOrderBy}
-          />
-          {totalPages > 1 && (
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              previousLabel={t`Previous`}
-              nextLabel={t`Next`}
-              trackingTitle="Feature flag users"
-              className="w-full"
+          <div className="flex-1 overflow-visible sm:min-h-48 sm:overflow-auto">
+            <UserOverridesTable
+              ariaLabel={t`Users`}
+              users={users}
+              flagKey={flagKey}
+              featureFlagDescription={featureFlagDescription}
+              showRolloutBucket={showRolloutBucket}
+              isFeatureFlagActive={isFeatureFlagActive}
+              orderBy={orderBy}
+              sortOrder={sortOrder}
+              defaultOrderBy={defaultOrderBy}
             />
+          </div>
+          {totalPages > 1 && (
+            <div className="shrink-0 pt-4">
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                previousLabel={t`Previous`}
+                nextLabel={t`Next`}
+                trackingTitle="Feature flag users"
+                className="w-full"
+              />
+            </div>
           )}
         </>
       )}
@@ -161,31 +161,5 @@ function UserOverridesSkeleton() {
       <Skeleton className="h-14 w-full rounded-md" />
       <Skeleton className="h-14 w-full rounded-md" />
     </div>
-  );
-}
-
-function UserOverridesEmpty({ hasFilters }: Readonly<{ hasFilters: boolean }>) {
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <UsersIcon />
-        </EmptyMedia>
-        <EmptyTitle>
-          {hasFilters ? (
-            <Trans>No users match your search</Trans>
-          ) : (
-            <Trans>No users qualify for this feature yet</Trans>
-          )}
-        </EmptyTitle>
-        <EmptyDescription>
-          {hasFilters ? (
-            <Trans>Try clearing the search or filters to see more results.</Trans>
-          ) : (
-            <Trans>Users will appear here as they qualify for this feature.</Trans>
-          )}
-        </EmptyDescription>
-      </EmptyHeader>
-    </Empty>
   );
 }

@@ -116,17 +116,8 @@ function InvoicesListPage() {
               </EmptyHeader>
               {hasSearch && (
                 <EmptyContent>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      navigate({
-                        to: "/invoices",
-                        search: () => ({ view: activeView === "all" ? undefined : activeView })
-                      })
-                    }
-                  >
-                    <Trans>Clear search</Trans>
+                  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/invoices", search: () => ({}) })}>
+                    <Trans>Clear filters</Trans>
                   </Button>
                 </EmptyContent>
               )}

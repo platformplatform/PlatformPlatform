@@ -1,13 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Building2Icon } from "lucide-react";
 import { useCallback } from "react";
 
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
@@ -16,6 +13,7 @@ import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import type { FeatureFlagInfo } from "./types";
 
+import { FeatureFlagTenantsEmpty } from "./FeatureFlagTenantsEmpty";
 import { FeatureFlagTenantsToolbar } from "./FeatureFlagTenantsToolbar";
 import { PlanFeatureFlagTenantTable } from "./PlanFeatureFlagTenantTable";
 
@@ -145,20 +143,24 @@ export function PlanFeatureFlagTenantsSection({
       {isLoading && tenants.length === 0 ? (
         <PlanFeatureFlagTenantsSkeleton />
       ) : tenants.length === 0 ? (
-        <PlanFeatureFlagTenantsEmpty flagKey={flagKey} hasFilters={hasFilters} />
+        <FeatureFlagTenantsEmpty flagKey={flagKey} hasFilters={hasFilters} />
       ) : (
         <>
-          <PlanFeatureFlagTenantTable ariaLabel={t`Accounts`} tenants={tenants} />
+          <div className="flex-1 overflow-visible sm:min-h-48 sm:overflow-auto">
+            <PlanFeatureFlagTenantTable ariaLabel={t`Accounts`} tenants={tenants} />
+          </div>
           {totalPages > 1 && (
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              previousLabel={t`Previous`}
-              nextLabel={t`Next`}
-              trackingTitle="Plan feature flag tenants"
-              className="w-full"
-            />
+            <div className="shrink-0 pt-4">
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                previousLabel={t`Previous`}
+                nextLabel={t`Next`}
+                trackingTitle="Plan feature flag tenants"
+                className="w-full"
+              />
+            </div>
           )}
         </>
       )}
@@ -173,49 +175,5 @@ function PlanFeatureFlagTenantsSkeleton() {
       <Skeleton className="h-14 w-full rounded-md" />
       <Skeleton className="h-14 w-full rounded-md" />
     </div>
-  );
-}
-
-function PlanFeatureFlagTenantsEmpty({ flagKey, hasFilters }: Readonly<{ flagKey: string; hasFilters: boolean }>) {
-  const navigate = useNavigate();
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <Building2Icon />
-        </EmptyMedia>
-        <EmptyTitle>
-          {hasFilters ? (
-            <Trans>No accounts match your filters</Trans>
-          ) : (
-            <Trans>No accounts qualify for this feature yet</Trans>
-          )}
-        </EmptyTitle>
-        <EmptyDescription>
-          {hasFilters ? (
-            <Trans>Try clearing the search or filters to see more results.</Trans>
-          ) : (
-            <Trans>Accounts will appear here as they qualify for this feature.</Trans>
-          )}
-        </EmptyDescription>
-      </EmptyHeader>
-      {hasFilters && (
-        <EmptyContent>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              navigate({
-                to: "/feature-flags/$flagKey",
-                params: { flagKey },
-                search: () => ({})
-              })
-            }
-          >
-            <Trans>Clear filters</Trans>
-          </Button>
-        </EmptyContent>
-      )}
-    </Empty>
   );
 }
