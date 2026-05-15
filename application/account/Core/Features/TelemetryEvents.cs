@@ -78,6 +78,12 @@ public sealed class FeatureFlagDeleted(string flagKey)
 public sealed class FeatureFlagOrphanedByReconciler(string flagKey)
     : TelemetryEvent(("flag_key", flagKey));
 
+public sealed class FeatureFlagPlanOverrideActivated(string flagKey, TenantId tenantId, PlanTier planTier)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("plan_tier", planTier));
+
+public sealed class FeatureFlagPlanOverrideDeactivated(string flagKey, TenantId tenantId, PlanTier planTier)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("plan_tier", planTier));
+
 public sealed class FeatureFlagRestoredByReconciler(string flagKey)
     : TelemetryEvent(("flag_key", flagKey));
 

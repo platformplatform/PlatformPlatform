@@ -4,10 +4,16 @@ using Account.Features.Subscriptions.Domain;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
+using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Shared;
 
-public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository, AccountDbContext accountDbContext, TimeProvider timeProvider)
+public sealed class PlanBasedFeatureFlagEvaluator(
+    IFeatureFlagRepository featureFlagRepository,
+    AccountDbContext accountDbContext,
+    TimeProvider timeProvider,
+    ITelemetryEventsCollector telemetryEventsCollector
+)
 {
     public async Task EvaluatePlanFlagsForTenantAsync(TenantId tenantId, SubscriptionPlan subscriptionPlan, CancellationToken cancellationToken)
     {
@@ -41,11 +47,13 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                     var featureFlag = FeatureFlag.CreateTenantOverride(definition.Key, tenantId, definition.Scope, FeatureFlagSource.Plan);
                     featureFlag.Activate(now);
                     await featureFlagRepository.AddAsync(featureFlag, cancellationToken);
+                    telemetryEventsCollector.CollectEvent(new FeatureFlagPlanOverrideActivated(definition.Key, tenantId, subscriptionPlanTier));
                 }
                 else if (!existingOverride.IsActive)
                 {
                     existingOverride.Activate(now);
                     featureFlagRepository.Update(existingOverride);
+                    telemetryEventsCollector.CollectEvent(new FeatureFlagPlanOverrideActivated(definition.Key, tenantId, subscriptionPlanTier));
                 }
             }
             else
@@ -54,6 +62,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
                 {
                     existingOverride.Deactivate(now);
                     featureFlagRepository.Update(existingOverride);
+                    telemetryEventsCollector.CollectEvent(new FeatureFlagPlanOverrideDeactivated(definition.Key, tenantId, subscriptionPlanTier));
                 }
             }
         }
