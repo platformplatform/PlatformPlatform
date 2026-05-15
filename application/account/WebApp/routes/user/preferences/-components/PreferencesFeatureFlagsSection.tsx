@@ -49,11 +49,10 @@ function UserFlagToggle({ flagKey, enabled }: Readonly<UserFlag>) {
   });
 
   const handleToggle = (checked: boolean) => {
-    trackInteraction(
-      "User preferences",
-      "interaction",
-      `Change ${label.name} to "${checked ? "enabled" : "disabled"}"`
-    );
+    // Use the kebab-case `flagKey` (not the localized `label.name`) so the App Insights event
+    // action stays a stable identifier across locales — dashboards group by it without splitting
+    // per language.
+    trackInteraction("User preferences", "interaction", `Change ${flagKey} to "${checked ? "enabled" : "disabled"}"`);
     toggleMutation.mutate({ params: { path: { flagKey } }, body: { enabled: checked } });
   };
 

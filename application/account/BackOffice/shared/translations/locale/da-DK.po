@@ -825,7 +825,7 @@ msgid "Per-account flags. Toggle the override switch to enable or disable for th
 msgstr "Konto-specifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne konto. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
-msgstr ""
+msgstr "Brugerspecifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne bruger. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Brugerspecifikke flag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
