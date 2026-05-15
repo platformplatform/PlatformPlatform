@@ -93,17 +93,26 @@ public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int from
 public sealed class FeatureFlagSourceTransitionedByReconciler(string flagKey, FeatureFlagSource fromSource, FeatureFlagSource toSource, int staleOverridesRemoved)
     : TelemetryEvent(("flag_key", flagKey), ("from_source", fromSource), ("to_source", toSource), ("stale_overrides_removed", staleOverridesRemoved));
 
-public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, TenantId tenantId)
-    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
+// Attributes Set/Removed override events to the actor that invoked the mutation. Plan-source
+// override transitions have their own FeatureFlagPlanOverride* events and are not represented here.
+public enum FeatureFlagOverrideTrigger
+{
+    Internal,
+    Owner,
+    Self
+}
 
-public sealed class FeatureFlagTenantOverrideSet(string flagKey, TenantId tenantId)
-    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
+public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, TenantId tenantId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("trigger", trigger));
 
-public sealed class FeatureFlagUserOverrideRemoved(string flagKey, UserId userId)
-    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
+public sealed class FeatureFlagTenantOverrideSet(string flagKey, TenantId tenantId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("trigger", trigger));
 
-public sealed class FeatureFlagUserOverrideSet(string flagKey, UserId userId)
-    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
+public sealed class FeatureFlagUserOverrideRemoved(string flagKey, UserId userId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId), ("trigger", trigger));
+
+public sealed class FeatureFlagUserOverrideSet(string flagKey, UserId userId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId), ("trigger", trigger));
 
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));

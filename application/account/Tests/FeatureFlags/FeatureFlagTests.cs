@@ -34,6 +34,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagTenantOverrideSet");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Owner");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -105,6 +106,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagUserOverrideSet");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Self");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 

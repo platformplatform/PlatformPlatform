@@ -65,7 +65,7 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
                 featureFlagRepository.Update(tenantOverride);
             }
 
-            events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FlagKey, tenantId));
+            events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FlagKey, tenantId, FeatureFlagOverrideTrigger.Owner));
         }
         else
         {
@@ -74,7 +74,7 @@ public sealed class SetTenantFeatureFlagOwnerHandler(IFeatureFlagRepository feat
             {
                 tenantOverride.Deactivate(now);
                 featureFlagRepository.Update(tenantOverride);
-                events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, tenantId));
+                events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, tenantId, FeatureFlagOverrideTrigger.Owner));
             }
         }
 

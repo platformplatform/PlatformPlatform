@@ -206,6 +206,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         enabledAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideSet");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Internal");
     }
 
     [Fact]
@@ -230,6 +231,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         rowCount.Should().Be(0);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideRemoved");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Internal");
     }
 
     [Fact]
@@ -317,6 +319,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         rowCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagUserOverrideSet");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Internal");
     }
 
     [Fact]
@@ -342,6 +345,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         rowCount.Should().Be(0);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagUserOverrideRemoved");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Internal");
     }
 
     [Fact]
@@ -545,6 +549,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         enabledAt.Should().Be(disabledAt, "EnabledAt and DisabledAt at the same instant make FeatureFlag.IsActive evaluate to false");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideRemoved");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Internal");
     }
 
     [Fact]
@@ -582,6 +587,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         enabledAt.Should().Be(disabledAt, "EnabledAt and DisabledAt at the same instant make FeatureFlag.IsActive evaluate to false");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagUserOverrideRemoved");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.trigger"].Should().Be("Internal");
     }
 
     [Fact]

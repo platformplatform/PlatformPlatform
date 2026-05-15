@@ -47,7 +47,7 @@ public sealed class RemoveUserFeatureFlagOverrideHandler(IFeatureFlagRepository 
 
         featureFlagRepository.Remove(userOverride);
 
-        events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId));
+        events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId, FeatureFlagOverrideTrigger.Internal));
 
         return Result.Success();
     }

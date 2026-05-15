@@ -60,7 +60,7 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
                 featureFlagRepository.Update(tenantOverride);
             }
 
-            events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FlagKey, command.TenantId));
+            events.CollectEvent(new FeatureFlagTenantOverrideSet(command.FlagKey, command.TenantId, FeatureFlagOverrideTrigger.Internal));
         }
         else
         {
@@ -81,7 +81,7 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
                 featureFlagRepository.Update(tenantOverride);
             }
 
-            events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId));
+            events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId, FeatureFlagOverrideTrigger.Internal));
         }
 
         return Result.Success();
