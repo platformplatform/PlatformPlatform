@@ -94,11 +94,13 @@ public static class FeatureFlags
     }
 
     // Subtype hierarchy in FeatureFlagDefinition.cs enforces all cross-property invariants at compile
-    // time. This method now validates only what subtypes cannot: key format and parent-dependency
-    // existence + depth (parent must exist in the registry and itself have no parent).
+    // time. This method now validates only what subtypes cannot: key format, parent-dependency
+    // existence + depth (parent must exist in the registry and itself have no parent), and
+    // TelemetryName uniqueness (since telemetry property names must remain stable for forever).
     private static void ValidateFlags()
     {
         var featureFlagsByKey = AllFeatureFlags.ToDictionary(f => f.Key);
+        var telemetryNamesSeen = new Dictionary<string, string>();
 
         foreach (var featureFlag in AllFeatureFlags)
         {
@@ -123,6 +125,16 @@ public static class FeatureFlags
                 {
                     throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' has parent '{featureFlag.ParentDependency}' which itself has a parent dependency. Only one level of dependency is allowed.");
                 }
+            }
+
+            if (featureFlag.TelemetryName is not null)
+            {
+                if (telemetryNamesSeen.TryGetValue(featureFlag.TelemetryName, out var existingKey))
+                {
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' uses TelemetryName '{featureFlag.TelemetryName}' which is already used by '{existingKey}'. TelemetryName must be unique across all flags so historical telemetry stays unambiguous.");
+                }
+
+                telemetryNamesSeen[featureFlag.TelemetryName] = featureFlag.Key;
             }
         }
     }
