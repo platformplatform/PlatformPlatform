@@ -56,6 +56,27 @@ public sealed class EndpointMetadataTests : IDisposable
         "OPTIONS:/internal-api/{**_}"
     ];
 
+    // Back-office write endpoints that must require AdminPolicyName. Adding a new mutation here forces
+    // the implementer to explicitly opt into either the admin set or the regular set — the assertion
+    // below catches the case where a refactor swaps PolicyName for AdminPolicyName or vice versa on a
+    // hand-listed route, which the previous "any allowed policy" check let through silently.
+    private static readonly string[] AdminPolicyBackOfficeRoutes =
+    [
+        "PUT:/api/back-office/feature-flags/{flagKey}/activate",
+        "PUT:/api/back-office/feature-flags/{flagKey}/deactivate",
+        "DELETE:/api/back-office/feature-flags/{flagKey}",
+        "PUT:/api/back-office/feature-flags/{flagKey}/tenant-override",
+        "PUT:/api/back-office/feature-flags/{flagKey}/rollout-percentage",
+        "DELETE:/api/back-office/feature-flags/{flagKey}/tenant-override",
+        "PUT:/api/back-office/feature-flags/{flagKey}/user-override",
+        "DELETE:/api/back-office/feature-flags/{flagKey}/user-override",
+        "POST:/api/back-office/tenants/{id}/reconcile-with-stripe",
+        "POST:/api/back-office/tenants/{id}/replay-archived-stripe-events",
+        "POST:/api/back-office/tenants/{id}/drift/acknowledge",
+        "PUT:/api/back-office/tenants/{id}/ab-inclusion-pin",
+        "PUT:/api/back-office/users/{id}/ab-inclusion-pin"
+    ];
+
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
 
     public EndpointMetadataTests()
@@ -181,7 +202,7 @@ public sealed class EndpointMetadataTests : IDisposable
     }
 
     [Fact]
-    public void BackOfficeWriteEndpoints_ShouldDeclareExplicitAuthorizationPolicy()
+    public void BackOfficeWriteEndpoints_ShouldDeclareExpectedAuthorizationPolicy()
     {
         // Arrange
         var routeEndpoints = GetRouteEndpoints();
@@ -192,13 +213,23 @@ public sealed class EndpointMetadataTests : IDisposable
         backOfficeWriteEndpoints.Should().NotBeEmpty("the back-office route group must register at least one write endpoint");
 
         // Assert
-        string[] allowedPolicies = [BackOfficeIdentityDefaults.PolicyName, BackOfficeIdentityDefaults.AdminPolicyName];
-        var violations = backOfficeWriteEndpoints
-            .Where(endpoint => endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().All(data => data.Policy is null || !allowedPolicies.Contains(data.Policy)))
-            .Select(BuildEndpointKey)
-            .ToList();
+        var violations = new List<string>();
+        foreach (var endpoint in backOfficeWriteEndpoints)
+        {
+            var endpointKey = BuildEndpointKey(endpoint);
+            var declaredPolicies = endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().Select(data => data.Policy).ToArray();
+            var expectedPolicy = AdminPolicyBackOfficeRoutes.Contains(endpointKey)
+                ? BackOfficeIdentityDefaults.AdminPolicyName
+                : BackOfficeIdentityDefaults.PolicyName;
+
+            if (!declaredPolicies.Contains(expectedPolicy))
+            {
+                violations.Add($"{endpointKey} (expected '{expectedPolicy}', declared [{string.Join(", ", declaredPolicies)}])");
+            }
+        }
+
         violations.Should().BeEmpty(
-            $"every back-office write endpoint must declare RequireAuthorization with either '{BackOfficeIdentityDefaults.PolicyName}' (regular back-office) or '{BackOfficeIdentityDefaults.AdminPolicyName}' (admin-only, e.g. kill-switches). New endpoints inherit the group-level PolicyName by default; the test catches accidental .AllowAnonymous() or missing-policy regressions."
+            $"every back-office write endpoint must declare its expected RequireAuthorization policy: routes listed in {nameof(AdminPolicyBackOfficeRoutes)} require '{BackOfficeIdentityDefaults.AdminPolicyName}' (admin-only), every other write endpoint requires '{BackOfficeIdentityDefaults.PolicyName}' (regular back-office). Add new admin-gated mutations to the allowlist and add a `_WhenNonAdminBackOfficeIdentity_ShouldReturnForbidden` test alongside the mutation."
         );
     }
 
