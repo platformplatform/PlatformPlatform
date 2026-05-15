@@ -42,7 +42,8 @@ internal static class FeatureFlagsManifestEmitter
                 featureFlag.SystemConfigKey,
                 featureFlag.SystemConfigExpectedValue,
                 featureFlag.FrontendEnvVar,
-                featureFlag.IsKillSwitchEnabled
+                featureFlag.IsKillSwitchEnabled,
+                featureFlag.IsStableModule
             )
         ).ToArray();
 
@@ -66,6 +67,7 @@ internal static class FeatureFlagsManifestEmitter
         string? SystemConfigKey,
         string? SystemConfigExpectedValue,
         string? FrontendEnvVar,
-        bool IsKillSwitchEnabled
+        bool IsKillSwitchEnabled,
+        bool IsStableModule
     );
 }
