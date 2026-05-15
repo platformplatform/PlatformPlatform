@@ -1,13 +1,23 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { isFeatureFlagEnabled } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { LinkCard } from "@repo/ui/components/LinkCard";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { api, UserStatus } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/account/")({
+  beforeLoad: () => {
+    // The /account dashboard is gated by the account-overview feature flag. When the flag is off
+    // the AccountSideMenu hides the entry, but the route remains reachable by typing the URL or
+    // following a stale bookmark. Redirect to /account/users so direct navigation lands on a
+    // surface the user can actually use.
+    if (!isFeatureFlagEnabled("account-overview")) {
+      throw redirect({ to: "/account/users" });
+    }
+  },
   staticData: { trackingTitle: "Account overview" },
   component: Home
 });

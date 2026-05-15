@@ -32,3 +32,23 @@ export function useFeatureFlag(flagKey: FeatureFlagKey): FeatureFlagResult {
   const enabledFlags = userInfo.featureFlags ?? [];
   return enabledFlags.includes(flagKey) ? ENABLED : DISABLED;
 }
+
+// Synchronous flag check for non-React callers (TanStack Router `beforeLoad` guards, fetch
+// interceptors, etc.). Reads from the initial UserInfo embedded in the HTML meta tag; for
+// dynamically toggled flags during a session, prefer the `useFeatureFlag` hook which re-renders
+// when the `x-user-feature-flags` header updates.
+export function isFeatureFlagEnabled(flagKey: FeatureFlagKey): boolean {
+  const definition = getFlag(flagKey);
+
+  if (definition.scope === "system") {
+    const { envVar } = definition;
+    if (!(envVar in import.meta.runtime_env)) return false;
+    return import.meta.runtime_env[envVar as keyof RuntimeEnv] === "true";
+  }
+
+  const userInfo = import.meta.user_info_env;
+  if (!userInfo.isAuthenticated) return false;
+
+  const enabledFlags = userInfo.featureFlags ?? [];
+  return enabledFlags.includes(flagKey);
+}
