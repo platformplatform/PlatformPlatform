@@ -42,10 +42,28 @@ jobs:
       version: ${{ steps.generate_version.outputs.version }}
       deploy_staging: ${{ steps.determine_deployment.outputs.deploy_staging }}
       deploy_production: ${{ steps.determine_deployment.outputs.deploy_production }}
+      migrations_changed: ${{ steps.detect_migrations.outputs.migrations_changed }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
+        with:
+          # Full history is required to diff base..head for migration-change detection.
+          fetch-depth: 0
+
+      - name: Detect Migration Changes
+        id: detect_migrations
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || format('{0}~1', github.sha) }}
+          HEAD_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if git diff --name-only "$BASE_REF" "$HEAD_REF" | grep -q "^application/main/Core/Database/Migrations/"; then
+            echo "migrations_changed=true" >> $GITHUB_OUTPUT
+            echo "Migration changes detected — Database Staging will run."
+          else
+            echo "migrations_changed=false" >> $GITHUB_OUTPUT
+            echo "No migration changes — Database Staging will be skipped on pull requests."
+          fi
 
       - name: Generate Version
         id: generate_version
@@ -106,7 +124,7 @@ jobs:
           dotnet test main/Main.slnf --no-build
 
       - name: Save Backend Build Artifacts for Migration Plan
-        if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+        if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && (github.event_name != 'pull_request' || steps.detect_migrations.outputs.migrations_changed == 'true') }}
         uses: actions/upload-artifact@v7
         with:
           name: main-build
@@ -153,7 +171,7 @@ jobs:
 
   database-migrations-stage:
     name: Database Staging
-    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' && (github.event_name != 'pull_request' || needs.build-and-test.outputs.migrations_changed == 'true') }}
     needs: build-and-test
     uses: ./.github/workflows/_migrate-database.yml
     secrets: inherit
