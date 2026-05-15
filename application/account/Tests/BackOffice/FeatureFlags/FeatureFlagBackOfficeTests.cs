@@ -536,7 +536,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         CountBucketsInRange((int)rolloutBucketStart.Value, (int)rolloutBucketEnd.Value).Should().Be(50);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagRolloutPercentageUpdated");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.rollout_percentage"].Should().Be("50");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.to_percentage"].Should().Be("50");
     }
 
     [Theory]

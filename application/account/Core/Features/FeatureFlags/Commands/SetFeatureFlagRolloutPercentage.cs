@@ -38,6 +38,8 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
         if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
 
+        var fromPercentage = RolloutBucketHasher.ComputeRolloutPercentage(featureFlag.BucketStart, featureFlag.BucketEnd) ?? 0;
+
         int? rolloutBucketStart;
         int? rolloutBucketEnd;
 
@@ -60,7 +62,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         featureFlag.SetRolloutRange(rolloutBucketStart, rolloutBucketEnd);
         featureFlagRepository.Update(featureFlag);
 
-        events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FlagKey, command.RolloutPercentage));
+        events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FlagKey, fromPercentage, command.RolloutPercentage));
 
         return Result.Success();
     }
