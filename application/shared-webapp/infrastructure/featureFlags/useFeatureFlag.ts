@@ -2,10 +2,10 @@ import { type FeatureFlagKey, getFlag } from "@repo/ui/featureFlags/registry.gen
 
 import { useUserInfo } from "../auth/hooks";
 
-type FeatureFlagResult = { enabled: boolean; isLoading: boolean };
+type FeatureFlagResult = { enabled: boolean };
 
-const DISABLED: FeatureFlagResult = { enabled: false, isLoading: false };
-const ENABLED: FeatureFlagResult = { enabled: true, isLoading: false };
+const DISABLED: FeatureFlagResult = { enabled: false };
+const ENABLED: FeatureFlagResult = { enabled: true };
 
 // `flagKey: FeatureFlagKey` is the codegen-emitted union of every key in FeatureFlags.cs. Passing a
 // string that isn't a current backend flag is a TS compile error, so deleting or renaming a flag
