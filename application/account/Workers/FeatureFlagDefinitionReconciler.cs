@@ -165,10 +165,16 @@ public sealed class FeatureFlagDefinitionReconciler(
             if (baseRow.Source != expectedSource)
             {
                 var fromSource = baseRow.Source;
-                var staleTenantRowsToRemove = overrideRowsByKey[definition.Key]
-                    .Where(r => r.UserId is null && r.Source != expectedSource)
+                // Walk both tenant- and user-scoped overrides: a flag whose scope was flipped (e.g.
+                // UserAbTestFlag retired, re-added as PlanGatedTenantFlag with the same key) would
+                // otherwise leave Source=Manual user overrides behind that surface as drift in the
+                // back-office. The evaluator routes by (TenantId, UserId), so user overrides keyed to
+                // a now-tenant-scoped flag are inert today — but the reconciler advertises convergence
+                // for both sides and the symmetric cleanup is one extra predicate.
+                var staleRowsToRemove = overrideRowsByKey[definition.Key]
+                    .Where(r => r.Source != expectedSource)
                     .ToArray();
-                foreach (var staleRow in staleTenantRowsToRemove)
+                foreach (var staleRow in staleRowsToRemove)
                 {
                     featureFlagRepository.Remove(staleRow);
                     staleRowsRemoved++;
@@ -178,12 +184,12 @@ public sealed class FeatureFlagDefinitionReconciler(
                 featureFlagRepository.Update(baseRow);
                 sourceTransitions++;
                 telemetryEventsCollector.CollectEvent(new FeatureFlagSourceTransitionedByReconciler(
-                        definition.Key, fromSource, expectedSource, staleTenantRowsToRemove.Length
+                        definition.Key, fromSource, expectedSource, staleRowsToRemove.Length
                     )
                 );
                 logger.LogInformation(
-                    "Reconciler transitioned '{FlagKey}' source to '{Source}' and removed '{StaleCount}' stale tenant overrides",
-                    definition.Key, expectedSource, staleTenantRowsToRemove.Length
+                    "Reconciler transitioned '{FlagKey}' source to '{Source}' and removed '{StaleCount}' stale override rows",
+                    definition.Key, expectedSource, staleRowsToRemove.Length
                 );
             }
         }

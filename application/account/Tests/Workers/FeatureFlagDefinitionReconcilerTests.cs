@@ -122,6 +122,38 @@ public sealed class FeatureFlagDefinitionReconcilerTests : EndpointBaseTest<Acco
     }
 
     [Fact]
+    public async Task Reconciler_WhenFlagFlipsFromManualToPlan_ShouldRemoveStaleManualUserOverride()
+    {
+        // Arrange - a user-scoped override with Source=Manual survives if the flag is later redefined as
+        // PlanGatedTenantFlag with the same key. The reconciler must converge both tenant- and user-scoped
+        // override rows when the source transitions, not just tenant ones.
+        var staleUserOverrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", staleUserOverrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("orphaned_at", null),
+                ("flag_key", "sso"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", DatabaseSeeder.Tenant1Owner.Id.Value),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Manual"),
+                ("scope", "User")
+            ]
+        );
+
+        // Act
+        await RunReconcilerAsync();
+
+        // Assert
+        Connection.RowExists("feature_flags", staleUserOverrideId).Should().BeFalse("the reconciler must remove Manual-source user-scoped rows for a flag whose definition now requires Plan source");
+    }
+
+    [Fact]
     public async Task Reconciler_WhenRunTwice_ShouldBeIdempotent()
     {
         // Arrange - first pass converges the seeder rows
