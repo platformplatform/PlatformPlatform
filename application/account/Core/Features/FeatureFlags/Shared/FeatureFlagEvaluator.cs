@@ -22,7 +22,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var definitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
 
         // Sort feature flags so parents are evaluated before children
-        var sorted = TopologicalSort(definitions);
+        var sorted = SortByParentDependencyFirst(definitions);
 
         var enabledFeatureFlagSet = new HashSet<string>();
 
@@ -71,7 +71,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var effectiveBucket = tenantAbInclusionPin switch
         {
             AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
             _ => tenantRolloutBucket
         };
 
@@ -94,14 +94,18 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var effectiveBucket = userAbInclusionPin switch
         {
             AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
             _ => userRolloutBucket.Value
         };
 
         return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
-    private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] definitions)
+    // Two-pass parent-first ordering: parentless flags first, then flags with a parent. This relies on
+    // the one-level dependency invariant enforced by FeatureFlags.ValidateFlags — a parent can never
+    // itself have a parent, so a single pass over each bucket is sufficient (no full topological sort
+    // is needed).
+    private static FeatureFlagDefinition[] SortByParentDependencyFirst(FeatureFlagDefinition[] definitions)
     {
         var result = new List<FeatureFlagDefinition>(definitions.Length);
 

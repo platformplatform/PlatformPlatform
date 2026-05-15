@@ -1,32 +1,10 @@
 import type { components } from "@/shared/lib/api/client";
 
-export type FeatureFlagScope = "System" | "Tenant" | "User";
+export type FeatureFlagInfo = components["schemas"]["FeatureFlagInfo"];
 
-export interface FeatureFlagInfo {
-  key: string;
-  scope: FeatureFlagScope;
-  adminLevel: string;
-  description: string;
-  isAbTestEligible: boolean;
-  configurableByTenant: boolean;
-  configurableByUser: boolean;
-  enabledAt: string | null;
-  disabledAt: string | null;
-  rolloutBucketStart: number | null;
-  rolloutBucketEnd: number | null;
-  rolloutPercentage: number | null;
-  isActive: boolean;
-  createdAt: string | null;
-  requiredPlan: string | null;
-  orphanedAt: string | null;
-  deletedAt: string | null;
-  isKillSwitchEnabled: boolean;
-  isStableModule: boolean;
-}
+export type FeatureFlagScope = components["schemas"]["FeatureFlagScope"];
 
-export interface GetFeatureFlagsResponse {
-  flags: FeatureFlagInfo[];
-}
+export type GetFeatureFlagsResponse = components["schemas"]["GetFeatureFlagsResponse"];
 
 export type FeatureFlagTenantInfo = components["schemas"]["FeatureFlagTenantInfo"];
 

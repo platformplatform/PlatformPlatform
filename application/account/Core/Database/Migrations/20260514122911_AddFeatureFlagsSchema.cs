@@ -25,8 +25,6 @@ public sealed class AddFeatureFlagsSchema : Migration
                 disabled_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 bucket_start = table.Column<int>("integer", nullable: true),
                 bucket_end = table.Column<int>("integer", nullable: true),
-                configurable_by_tenant = table.Column<bool>("boolean", nullable: false),
-                configurable_by_user = table.Column<bool>("boolean", nullable: false),
                 source = table.Column<string>("text", nullable: false),
                 scope = table.Column<string>("text", nullable: false)
             },

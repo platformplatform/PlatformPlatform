@@ -16,11 +16,15 @@ export function useFeatureFlag(flagKey: FeatureFlagKey): FeatureFlagResult {
   const userInfo = useUserInfo();
 
   const definition = getFlag(flagKey);
-  if (!definition) return DISABLED;
 
   if (definition.scope === "system") {
-    const envVar = definition.envVar as keyof RuntimeEnv;
-    return import.meta.runtime_env[envVar] === "true" ? ENABLED : DISABLED;
+    // `RuntimeEnv` is hand-maintained in shared-webapp/build/environment.d.ts, but
+    // `definition.envVar` is sourced from the C# `FrontendEnvVar` field via codegen. Guard at
+    // runtime so a system flag whose env var hasn't been declared on `RuntimeEnv` returns DISABLED
+    // explicitly instead of silently reading `undefined` through an unchecked cast.
+    const { envVar } = definition;
+    if (!(envVar in import.meta.runtime_env)) return DISABLED;
+    return import.meta.runtime_env[envVar as keyof RuntimeEnv] === "true" ? ENABLED : DISABLED;
   }
 
   if (!userInfo?.isAuthenticated) return DISABLED;

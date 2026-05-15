@@ -53,7 +53,7 @@ export function UserFeatureFlagsSection({ userId }: Readonly<UserFeatureFlagsSec
         <p className="text-sm text-muted-foreground">
           <Trans>
             Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5
-            minutes to take effect.
+            minutes to reach all users.
           </Trans>
         </p>
       </div>

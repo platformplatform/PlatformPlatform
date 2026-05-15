@@ -11,7 +11,7 @@ interface OverrideSwitchProps {
   ariaLabel: string;
 }
 
-// Shared switch for feature-flag override toggling. Renders an amber-colored switch wrapped in a tooltip
+// Shared switch for feature-flag override toggling. Renders a warning-colored switch wrapped in a tooltip
 // when the row currently has a manual override (signals "this row deviates from the default and a third
 // click will clear the override"); otherwise renders the plain switch.
 export function OverrideSwitch({

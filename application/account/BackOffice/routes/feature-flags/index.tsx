@@ -12,7 +12,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
-import { api } from "@/shared/lib/api/client";
+import { api, type SubscriptionPlan } from "@/shared/lib/api/client";
+import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import type { FeatureFlagInfo, FeatureFlagScope, GetFeatureFlagsResponse } from "./-components/types";
 
@@ -147,9 +149,11 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
                         </span>
                       </div>
                     </TableCell>
-                    {isPlanGroup && (
+                    {isPlanGroup && featureFlag.requiredPlan !== null && (
                       <TableCell className="hidden text-center sm:table-cell">
-                        <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
+                        <Badge className={getSubscriptionPlanBadgeClass(featureFlag.requiredPlan as SubscriptionPlan)}>
+                          {getSubscriptionPlanLabel(featureFlag.requiredPlan as SubscriptionPlan)}
+                        </Badge>
                       </TableCell>
                     )}
                     {showRollout && (
@@ -182,7 +186,7 @@ function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] 
 function FeatureFlagGroupSubtitle({ groupKey }: Readonly<{ groupKey: FeatureFlagGroupKey }>) {
   switch (groupKey) {
     case "Tenant":
-      return <Trans>Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts.</Trans>;
+      return <Trans>Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts.</Trans>;
     case "Plan":
       return <Trans>Gated by subscription plan and recomputed when the plan changes. Configured only in code.</Trans>;
     case "User":

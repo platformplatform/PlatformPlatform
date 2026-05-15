@@ -11,6 +11,8 @@ import { Building2Icon } from "lucide-react";
 import { useCallback } from "react";
 
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
+import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import type { FeatureFlagInfo } from "./types";
 
@@ -37,7 +39,12 @@ export function PlanFeatureFlagInfoSection({ featureFlag }: Readonly<{ featureFl
             <Trans>Name:</Trans> <span className="font-mono">{featureFlag.key}</span>
           </span>
           <span>
-            <Trans>Required plan:</Trans> <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
+            <Trans>Required plan:</Trans>{" "}
+            {featureFlag.requiredPlan !== null && (
+              <Badge className={getSubscriptionPlanBadgeClass(featureFlag.requiredPlan as SubscriptionPlan)}>
+                {getSubscriptionPlanLabel(featureFlag.requiredPlan as SubscriptionPlan)}
+              </Badge>
+            )}
           </span>
         </div>
         <Badge variant={featureFlag.isActive ? "default" : "outline"}>

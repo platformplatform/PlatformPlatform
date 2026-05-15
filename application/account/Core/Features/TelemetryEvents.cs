@@ -77,16 +77,16 @@ public sealed class FeatureFlagDeleted(string flagKey)
 public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int rolloutPercentage)
     : TelemetryEvent(("flag_key", flagKey), ("rollout_percentage", rolloutPercentage));
 
-public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, string tenantId)
+public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, TenantId tenantId)
     : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
 
-public sealed class FeatureFlagTenantOverrideSet(string flagKey, string tenantId)
+public sealed class FeatureFlagTenantOverrideSet(string flagKey, TenantId tenantId)
     : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
 
-public sealed class FeatureFlagUserOverrideRemoved(string flagKey, string userId)
+public sealed class FeatureFlagUserOverrideRemoved(string flagKey, UserId userId)
     : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
 
-public sealed class FeatureFlagUserOverrideSet(string flagKey, string userId)
+public sealed class FeatureFlagUserOverrideSet(string flagKey, UserId userId)
     : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
 
 public sealed class GravatarUpdated(long size)

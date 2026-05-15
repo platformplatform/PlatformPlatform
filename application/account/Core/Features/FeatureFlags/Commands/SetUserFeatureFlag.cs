@@ -60,7 +60,7 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
                 featureFlagRepository.Update(userOverride);
             }
 
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, userId.Value));
+            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, userId));
         }
         else
         {
@@ -69,7 +69,7 @@ public sealed class SetUserFeatureFlagHandler(IFeatureFlagRepository featureFlag
             {
                 userOverride.Deactivate(now);
                 featureFlagRepository.Update(userOverride);
-                events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, userId.Value));
+                events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, userId));
             }
         }
 

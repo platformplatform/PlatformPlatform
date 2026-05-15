@@ -818,14 +818,14 @@ msgstr "Pending"
 msgid "per month, billed monthly"
 msgstr "per month, billed monthly"
 
+msgid "Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts."
+msgstr "Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts."
+
 msgid "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
 msgstr "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
 
-msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
-msgstr "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
-
-msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to take effect."
-msgstr "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to take effect."
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
+msgstr "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
 msgstr "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
@@ -937,9 +937,6 @@ msgstr "Refunds and credit notes across all accounts."
 
 msgid "Removed"
 msgstr "Removed"
-
-msgid "Removed from definitions"
-msgstr "Removed from definitions"
 
 msgid "Renewal"
 msgstr "Renewal"
@@ -1128,14 +1125,8 @@ msgstr "This flag has been deleted. It is retained for historical telemetry. Add
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 
-msgid "This flag no longer exists in code as of {formatted}. Account and user state is preserved but no longer evaluated. Use the delete action to remove the flag and all overrides."
-msgstr "This flag no longer exists in code as of {formatted}. Account and user state is preserved but no longer evaluated. Use the delete action to remove the flag and all overrides."
-
 msgid "This flag no longer exists in code. Delete it to remove all account and user overrides."
 msgstr "This flag no longer exists in code. Delete it to remove all account and user overrides."
-
-msgid "This flag was deleted on {formatted}. It is retained for historical telemetry; account and user overrides have been removed. Adding a new feature flag with the same name will fail deployment."
-msgstr "This flag was deleted on {formatted}. It is retained for historical telemetry; account and user overrides have been removed. Adding a new feature flag with the same name will fail deployment."
 
 msgid "This is a stable module. It is always on and cannot be deactivated."
 msgstr "This is a stable module. It is always on and cannot be deactivated."

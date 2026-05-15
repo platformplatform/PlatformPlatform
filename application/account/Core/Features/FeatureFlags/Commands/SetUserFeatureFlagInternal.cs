@@ -61,7 +61,7 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
                 featureFlagRepository.Update(userOverride);
             }
 
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, command.UserId.Value));
+            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, command.UserId));
         }
         else
         {
@@ -82,7 +82,7 @@ public sealed class SetUserFeatureFlagInternalHandler(IFeatureFlagRepository fea
                 featureFlagRepository.Update(userOverride);
             }
 
-            events.CollectEvent(new FeatureFlagUserOverrideSet(command.FlagKey, command.UserId.Value));
+            events.CollectEvent(new FeatureFlagUserOverrideRemoved(command.FlagKey, command.UserId));
         }
 
         return Result.Success();

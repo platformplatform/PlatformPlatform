@@ -242,7 +242,7 @@ public sealed class GetFeatureFlagTenantsHandler(
         var effectiveBucket = abInclusionPin switch
         {
             AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
             _ => rolloutBucket
         };
         return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
@@ -278,7 +278,7 @@ public sealed class GetFeatureFlagTenantsHandler(
             var effectiveBucket = tenant.AbInclusionPin switch
             {
                 AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-                AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+                AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
                 _ => tenant.RolloutBucket
             };
             var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);

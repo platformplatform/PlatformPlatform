@@ -17,7 +17,7 @@ public sealed class SetUserAbInclusionPinTests : BackOfficeEndpointBaseTest
     public async Task SetUserAbInclusionPin_WhenAlwaysOn_ShouldPersistPin()
     {
         // Arrange
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
         var command = new SetUserAbInclusionPinCommand { AbInclusionPin = AbInclusionPin.AlwaysOn };
 
@@ -39,7 +39,7 @@ public sealed class SetUserAbInclusionPinTests : BackOfficeEndpointBaseTest
     {
         // Arrange
         Connection.Update("users", "id", DatabaseSeeder.Tenant1Owner.Id.ToString(), [("ab_inclusion_pin", nameof(AbInclusionPin.NeverOn))]);
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
         var command = new SetUserAbInclusionPinCommand { AbInclusionPin = null };
 
@@ -58,7 +58,7 @@ public sealed class SetUserAbInclusionPinTests : BackOfficeEndpointBaseTest
     public async Task SetUserAbInclusionPin_WhenUserNotFound_ShouldReturnNotFound()
     {
         // Arrange
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
         var unknownUserId = UserId.NewId();
         var command = new SetUserAbInclusionPinCommand { AbInclusionPin = AbInclusionPin.AlwaysOn };
@@ -83,7 +83,7 @@ public sealed class SetUserAbInclusionPinTests : BackOfficeEndpointBaseTest
             ]
         );
 
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "admin");
         using var client = CreateBackOfficeClientForIdentity(identity);
 
         // Act - flag is enabled without pin
@@ -104,6 +104,21 @@ public sealed class SetUserAbInclusionPinTests : BackOfficeEndpointBaseTest
         var afterBody = await afterResponse.Content.ReadAsStringAsync();
         afterBody.Should().Contain("\"flagKey\":\"experimental-ui\"");
         afterBody.Should().Contain("\"isEnabled\":false");
+    }
+
+    [Fact]
+    public async Task SetUserAbInclusionPin_WhenNonAdminBackOfficeUser_ShouldReturnForbidden()
+    {
+        // Arrange
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        var command = new SetUserAbInclusionPinCommand { AbInclusionPin = AbInclusionPin.AlwaysOn };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/users/{DatabaseSeeder.Tenant1Owner.Id}/ab-inclusion-pin", command);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

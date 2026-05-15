@@ -39,7 +39,7 @@ export function PlanFeatureFlagTenantTable({
             <Trans>Status</Trans>
           </TableHead>
           <TableHead className="w-[6rem] text-right">
-            <Trans>Status</Trans>
+            <Trans>State</Trans>
           </TableHead>
         </TableRow>
       </TableHeader>

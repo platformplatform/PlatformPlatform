@@ -97,23 +97,22 @@ function SetAbInclusionPinDialogBody({
 
   const handleSubmit = () => {
     const pin: AbInclusionPin | null = selected === "default" ? null : selected;
-    mutation.mutate(
-      // The two endpoints share the same path/body shape, so the cast lets us reuse this handler.
-      { params: { path: { id: entityId } }, body: { abInclusionPin: pin } } as never,
-      {
-        onSuccess: () => {
-          const message =
-            pin === AbInclusionPin.AlwaysOn
-              ? t`${entityLabel} is now first in feature flag rollouts`
-              : pin === AbInclusionPin.NeverOn
-                ? t`${entityLabel} is now last in feature flag rollouts`
-                : t`Feature flag rollouts reset to default for ${entityLabel}`;
-          toast.success(message);
-          invalidate();
-          onClose();
-        }
-      }
-    );
+    const onSuccess = () => {
+      const message =
+        pin === AbInclusionPin.AlwaysOn
+          ? t`${entityLabel} is now first in feature flag rollouts`
+          : pin === AbInclusionPin.NeverOn
+            ? t`${entityLabel} is now last in feature flag rollouts`
+            : t`Feature flag rollouts reset to default for ${entityLabel}`;
+      toast.success(message);
+      invalidate();
+      onClose();
+    };
+    if (entity === "tenant") {
+      tenantMutation.mutate({ params: { path: { id: entityId } }, body: { abInclusionPin: pin } }, { onSuccess });
+    } else {
+      userMutation.mutate({ params: { path: { id: entityId } }, body: { abInclusionPin: pin } }, { onSuccess });
+    }
   };
 
   return (
@@ -137,7 +136,7 @@ function SetAbInclusionPinDialogBody({
         >
           <FieldLabel>
             <Field orientation="horizontal">
-              <RadioGroupItem value="default" id="pin-default" aria-label={t`Default`} autoFocus={true} />
+              <RadioGroupItem value="default" id="pin-default" autoFocus={true} />
               <FieldContent>
                 <FieldTitle>
                   <Trans>Default</Trans>
@@ -150,11 +149,7 @@ function SetAbInclusionPinDialogBody({
           </FieldLabel>
           <FieldLabel>
             <Field orientation="horizontal">
-              <RadioGroupItem
-                value={AbInclusionPin.AlwaysOn}
-                id="pin-always"
-                aria-label={t`First in feature flag rollouts`}
-              />
+              <RadioGroupItem value={AbInclusionPin.AlwaysOn} id="pin-always" />
               <FieldContent>
                 <FieldTitle>
                   <Trans>First in feature flag rollouts</Trans>
@@ -167,11 +162,7 @@ function SetAbInclusionPinDialogBody({
           </FieldLabel>
           <FieldLabel>
             <Field orientation="horizontal">
-              <RadioGroupItem
-                value={AbInclusionPin.NeverOn}
-                id="pin-never"
-                aria-label={t`Last in feature flag rollouts`}
-              />
+              <RadioGroupItem value={AbInclusionPin.NeverOn} id="pin-never" />
               <FieldContent>
                 <FieldTitle>
                   <Trans>Last in feature flag rollouts</Trans>

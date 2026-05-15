@@ -458,6 +458,44 @@ export async function clickSelectOption(page: Page, optionName: string): Promise
 }
 
 /**
+ * Click a Playwright locator and assert that the resulting authenticated response carries the
+ * `x-user-feature-flags` header containing (or not containing) the supplied flag key.
+ *
+ * AppGateway emits `x-user-feature-flags` on every authenticated response; self-service toggles
+ * call `AddRefreshAuthenticationTokens` so the same response cycle already carries the updated
+ * flag set. Using this helper avoids a `Promise.all` / `waitForResponse` idiom in test files and
+ * keeps the assertion focused on the propagation contract.
+ *
+ * @param page Playwright page that issues the mutation request
+ * @param trigger Locator that, when clicked, triggers the mutation (e.g. a switch)
+ * @param options.urlSubstring Substring that must appear in the response URL (e.g. the route)
+ * @param options.method HTTP method of the mutation request (default: "PUT")
+ * @param options.expectedFlag Flag key that must be present in the `x-user-feature-flags` header
+ * @param options.shouldContain Whether the flag should be present (true) or absent (false)
+ */
+export async function expectFeatureFlagHeaderResponse(
+  page: Page,
+  trigger: Locator,
+  options: { urlSubstring: string; method?: string; expectedFlag: string; shouldContain: boolean }
+): Promise<void> {
+  const { urlSubstring, method = "PUT", expectedFlag, shouldContain } = options;
+
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      (response) => response.url().includes(urlSubstring) && response.request().method() === method
+    ),
+    trigger.click()
+  ]);
+
+  const headerValue = response.headers()["x-user-feature-flags"];
+  if (shouldContain) {
+    expect(headerValue).toContain(expectedFlag);
+  } else {
+    expect(headerValue).not.toContain(expectedFlag);
+  }
+}
+
+/**
  * Type an OTP verification code into the one-time-code inputs.
  *
  * This function uses the native HTMLInputElement value setter to properly trigger

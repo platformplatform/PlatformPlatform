@@ -2,6 +2,7 @@ import { expect, request } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { getBackOfficeBaseUrl, getBaseUrl } from "@shared/e2e/utils/constants";
 import { createTestContext } from "@shared/e2e/utils/test-assertions";
+import { logInAsAdmin } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
@@ -26,11 +27,7 @@ test.describe("@smoke", () => {
     await step("Log in as Admin via MockEasyAuth & verify redirect to back-office dashboard")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
-      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
-      await page.getByRole("button", { name: "Log in" }).click();
-
-      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/`);
+      await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/`);
       await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
     })();
 
@@ -96,11 +93,7 @@ test.describe("@comprehensive", () => {
     await step("Log in as Admin via MockEasyAuth & verify dashboard loads")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
-      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
-      await page.getByRole("button", { name: "Log in" }).click();
-
-      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/`);
+      await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/`);
     })();
 
     // === DRIFT BANNER ===

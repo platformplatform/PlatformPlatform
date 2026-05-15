@@ -42,12 +42,6 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
 
     public int? BucketEnd { get; private set; }
 
-    [UsedImplicitly]
-    public bool ConfigurableByTenant { get; private set; }
-
-    [UsedImplicitly]
-    public bool ConfigurableByUser { get; private set; }
-
     public FeatureFlagSource Source { get; private set; }
 
     // Persisted on every row so orphaned and soft-deleted base rows can still be grouped correctly in
@@ -68,9 +62,9 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         return new FeatureFlag(flagKey, tenantId, null, source, scope);
     }
 
-    public static FeatureFlag CreateUserOverride(string flagKey, TenantId tenantId, UserId userId, FeatureFlagScope scope)
+    public static FeatureFlag CreateUserOverride(string flagKey, TenantId tenantId, UserId userId, FeatureFlagScope scope, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
-        return new FeatureFlag(flagKey, tenantId, userId, FeatureFlagSource.Manual, scope);
+        return new FeatureFlag(flagKey, tenantId, userId, source, scope);
     }
 
     public void Activate(DateTimeOffset now)
@@ -134,14 +128,14 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
             throw new ArgumentException("Bucket start and bucket end must both be set or both be null.");
         }
 
-        if (rolloutBucketStart is not null && (rolloutBucketStart < 0 || rolloutBucketStart > 99))
+        if (rolloutBucketStart is not null && (rolloutBucketStart < 0 || rolloutBucketStart > RolloutBucketHasher.MaxBucketInclusive))
         {
-            throw new ArgumentOutOfRangeException(nameof(rolloutBucketStart), "Bucket start must be between 0 and 99.");
+            throw new ArgumentOutOfRangeException(nameof(rolloutBucketStart), $"Bucket start must be between 0 and {RolloutBucketHasher.MaxBucketInclusive}.");
         }
 
-        if (rolloutBucketEnd is not null && (rolloutBucketEnd < 0 || rolloutBucketEnd > 99))
+        if (rolloutBucketEnd is not null && (rolloutBucketEnd < 0 || rolloutBucketEnd > RolloutBucketHasher.MaxBucketInclusive))
         {
-            throw new ArgumentOutOfRangeException(nameof(rolloutBucketEnd), "Bucket end must be between 0 and 99.");
+            throw new ArgumentOutOfRangeException(nameof(rolloutBucketEnd), $"Bucket end must be between 0 and {RolloutBucketHasher.MaxBucketInclusive}.");
         }
 
         BucketStart = rolloutBucketStart;

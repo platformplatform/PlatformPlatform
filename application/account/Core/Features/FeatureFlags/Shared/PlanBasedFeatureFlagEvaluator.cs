@@ -55,7 +55,7 @@ public sealed class PlanBasedFeatureFlagEvaluator(IFeatureFlagRepository feature
             SubscriptionPlan.Basis => PlanTier.Free,
             SubscriptionPlan.Standard => PlanTier.Standard,
             SubscriptionPlan.Premium => PlanTier.Premium,
-            _ => PlanTier.Free
+            _ => throw new UnreachableException($"Unknown subscription plan '{plan}'.")
         };
     }
 }

@@ -12,7 +12,12 @@ namespace Account.Features.Users.Shared;
 ///     Factory for creating UserInfo instances with tenant information.
 ///     Centralizes the logic for creating UserInfo to follow SRP and avoid duplication.
 /// </summary>
-public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, FeatureFlagEvaluator featureFlagEvaluator, PlanBasedFeatureFlagEvaluator planBasedFeatureFlagEvaluator)
+public sealed class UserInfoFactory(
+    ITenantRepository tenantRepository,
+    ISubscriptionRepository subscriptionRepository,
+    FeatureFlagEvaluator featureFlagEvaluator,
+    PlanBasedFeatureFlagEvaluator planBasedFeatureFlagEvaluator
+)
 {
     /// <summary>
     ///     Creates a UserInfo instance from a User entity, including tenant name.
@@ -23,9 +28,10 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
         var tenant = await tenantRepository.GetByIdAsync(user.TenantId, cancellationToken);
         if (tenant is null) return Result<UserInfo>.BadRequest("Tenant has been deleted.");
 
-        var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(user.TenantId, cancellationToken);
+        var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(user.TenantId, cancellationToken)
+                           ?? throw new InvalidOperationException($"Subscription not found for tenant '{user.TenantId}'.");
 
-        await planBasedFeatureFlagEvaluator.EvaluatePlanFlagsForTenantAsync(tenant.Id, subscription!.Plan, cancellationToken);
+        await planBasedFeatureFlagEvaluator.EvaluatePlanFlagsForTenantAsync(tenant.Id, subscription.Plan, cancellationToken);
 
         var enabledFlags = await featureFlagEvaluator.EvaluateAsync(
             tenant.Id, user.Id, tenant.RolloutBucket, user.RolloutBucket, tenant.AbInclusionPin, user.AbInclusionPin, cancellationToken

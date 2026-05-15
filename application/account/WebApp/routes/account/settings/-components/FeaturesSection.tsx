@@ -1,18 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Switch } from "@repo/ui/components/Switch";
 import { getFeatureFlagLabel } from "@repo/ui/featureFlags/labels";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { api } from "@/shared/lib/api/client";
+import { api, type Schemas } from "@/shared/lib/api/client";
 
-interface TenantFlag {
-  flagKey: string;
-  enabled: boolean;
-}
+type TenantFlag = Schemas["TenantConfigurableFeatureFlag"];
 
 export function FeaturesSection() {
   const { data, isLoading } = api.useQuery("get", "/api/account/feature-flags/tenant-configurable");
@@ -45,17 +42,20 @@ export function FeaturesSection() {
 }
 
 function TenantFlagToggle({ flagKey, enabled }: Readonly<TenantFlag>) {
-  const queryClient = useQueryClient();
   const label = getFeatureFlagLabel(flagKey);
 
   const toggleMutation = api.useMutation("put", "/api/account/feature-flags/{flagKey}/tenant-override", {
-    onSuccess: async () => {
-      toast.success(t`Feature updated`);
-      await queryClient.invalidateQueries({ queryKey: ["get", "/api/account/feature-flags/tenant-configurable"] });
+    onSuccess: () => {
+      toast.success(t`${label.name} updated successfully`);
     }
   });
 
   const handleToggle = (checked: boolean) => {
+    trackInteraction(
+      "Account settings",
+      "interaction",
+      `Change ${label.name} to "${checked ? "enabled" : "disabled"}"`
+    );
     toggleMutation.mutate({ params: { path: { flagKey } }, body: { enabled: checked } });
   };
 

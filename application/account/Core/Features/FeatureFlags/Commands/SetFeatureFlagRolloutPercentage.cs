@@ -26,7 +26,7 @@ public sealed class SetFeatureFlagRolloutPercentageValidator : AbstractValidator
             .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.IsAbTestEligible == true).WithMessage("Feature flag must be eligible for A/B testing.");
 
         RuleFor(x => x.RolloutPercentage)
-            .InclusiveBetween(0, 100).WithMessage("Rollout percentage must be between 0 and 100.");
+            .InclusiveBetween(0, RolloutBucketHasher.BucketCount).WithMessage($"Rollout percentage must be between 0 and {RolloutBucketHasher.BucketCount}.");
     }
 }
 
@@ -36,7 +36,7 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
     public async Task<Result> Handle(SetFeatureFlagRolloutPercentageCommand command, CancellationToken cancellationToken)
     {
         var featureFlag = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, null, null, cancellationToken);
-        if (featureFlag is null) return Result.NotFound($"Feature featureFlag with key '{command.FlagKey}' not found.");
+        if (featureFlag is null) return Result.NotFound($"Feature flag with key '{command.FlagKey}' not found.");
 
         int? rolloutBucketStart;
         int? rolloutBucketEnd;
@@ -46,15 +46,15 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
             rolloutBucketStart = null;
             rolloutBucketEnd = null;
         }
-        else if (command.RolloutPercentage == 100)
+        else if (command.RolloutPercentage == RolloutBucketHasher.BucketCount)
         {
             rolloutBucketStart = 0;
-            rolloutBucketEnd = 99;
+            rolloutBucketEnd = RolloutBucketHasher.MaxBucketInclusive;
         }
         else
         {
             rolloutBucketStart = RolloutBucketHasher.ComputeStartingRolloutBucket(command.FlagKey);
-            rolloutBucketEnd = (rolloutBucketStart.Value + command.RolloutPercentage - 1) % 100;
+            rolloutBucketEnd = (rolloutBucketStart.Value + command.RolloutPercentage - 1) % RolloutBucketHasher.BucketCount;
         }
 
         featureFlag.SetRolloutRange(rolloutBucketStart, rolloutBucketEnd);

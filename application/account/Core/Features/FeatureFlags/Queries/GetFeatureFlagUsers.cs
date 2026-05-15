@@ -122,7 +122,6 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FlagKey, cancellationToken);
         var overridesByUserId = userOverrides.ToDictionary(f => f.UserId!);
 
-
         var baseRow = await featureFlagRepository.GetByKeyAndScopeAsync(query.FlagKey, null, null, cancellationToken);
 
         var tenantIds = users.Select(u => u.TenantId).Distinct().ToArray();
@@ -221,7 +220,7 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
         var effectiveBucket = abInclusionPin switch
         {
             AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
             _ => rolloutBucket
         };
         return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
@@ -253,7 +252,7 @@ public sealed class GetFeatureFlagUsersHandler(IFeatureFlagRepository featureFla
             var effectiveBucket = user.AbInclusionPin switch
             {
                 AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-                AbInclusionPin.NeverOn => (baseRow.BucketStart.Value - 1 + 100) % 100,
+                AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
                 _ => user.RolloutBucket
             };
             var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);

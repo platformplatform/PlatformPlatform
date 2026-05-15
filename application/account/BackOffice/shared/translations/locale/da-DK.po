@@ -818,17 +818,17 @@ msgstr "Afventer"
 msgid "per month, billed monthly"
 msgstr "pr. måned, faktureres månedligt"
 
+msgid "Per-account flags. Owners can toggle configurable flags. Admins control A/B rollouts."
+msgstr "Konto-specifikke flag. Ejere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
+
 msgid "Per-account flags. Toggle the override switch to enable or disable for this account. Changes can take up to 5 minutes to reach all users."
 msgstr "Konto-specifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne konto. Ændringer kan tage op til 5 minutter at nå ud til alle brugere."
 
-msgid "Per-tenant flags. Owners can toggle configurable flags. Admins control A/B rollouts."
-msgstr "Tenant-flag. Ejere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
-
-msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to take effect."
-msgstr "Brugerspecifikke flag. Skift tilsidesættelseskontakten for at aktivere eller deaktivere for denne bruger. Ændringer kan tage op til 5 minutter at træde i kraft."
+msgid "Per-user flags. Toggle the override switch to enable or disable for this user. Changes can take up to 5 minutes to reach all users."
+msgstr ""
 
 msgid "Per-user flags. Users can toggle configurable flags. Admins control A/B rollouts."
-msgstr "Brugerflag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
+msgstr "Brugerspecifikke flag. Brugere kan slå konfigurerbare flag til og fra. Admins styrer A/B-udrulninger."
 
 msgid "Percentage of accounts or users included in the A/B rollout. Buckets are assigned consistently per account or user."
 msgstr "Procentdel af konti eller brugere inkluderet i A/B-udrulningen. Buckets tildeles konsekvent pr. konto eller bruger."
@@ -937,9 +937,6 @@ msgstr "Refunderinger og kreditnotaer på tværs af alle konti."
 
 msgid "Removed"
 msgstr "Fjernet"
-
-msgid "Removed from definitions"
-msgstr "Fjernet fra definitioner"
 
 msgid "Renewal"
 msgstr "Fornyelse"
@@ -1128,14 +1125,8 @@ msgstr "Dette feature flag er blevet slettet. Det bevares til historisk telemetr
 msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 msgstr "Dette flag styres af abonnementet. Det aktiveres automatisk for konti på det krævede abonnement eller højere."
 
-msgid "This flag no longer exists in code as of {formatted}. Account and user state is preserved but no longer evaluated. Use the delete action to remove the flag and all overrides."
-msgstr "Dette feature flag findes ikke længere i koden pr. {formatted}. Konto- og brugertilstand bevares, men evalueres ikke længere. Brug sletteknappen for at fjerne feature flagget og alle overrides."
-
 msgid "This flag no longer exists in code. Delete it to remove all account and user overrides."
-msgstr "Dette feature flag findes ikke længere i koden. Slet det for at fjerne alle konto- og brugeroverrides."
-
-msgid "This flag was deleted on {formatted}. It is retained for historical telemetry; account and user overrides have been removed. Adding a new feature flag with the same name will fail deployment."
-msgstr "Dette feature flag blev slettet den {formatted}. Det bevares til historisk telemetri; konto- og brugeroverrides er fjernet. Tilføjelse af et nyt feature flag med samme navn vil få deployment til at fejle."
+msgstr "Dette feature flag findes ikke længere i koden. Slet det for at fjerne alle konto- og brugertilsidesættelser."
 
 msgid "This is a stable module. It is always on and cannot be deactivated."
 msgstr "Dette er et stabilt modul. Det er altid aktiveret og kan ikke slås fra."

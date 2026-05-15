@@ -67,6 +67,6 @@ public sealed class TenantsEndpoints : IEndpoints
 
         group.MapPut("/{id}/ab-inclusion-pin", async Task<ApiResult> (TenantId id, SetTenantAbInclusionPinCommand command, IMediator mediator)
             => await mediator.Send(command with { TenantId = id })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
     }
 }

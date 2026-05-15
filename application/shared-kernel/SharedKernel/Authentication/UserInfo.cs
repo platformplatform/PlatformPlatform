@@ -87,7 +87,7 @@ public class UserInfo
         var tenantId = user.FindFirstValue("tenant_id");
         var sessionId = user.FindFirstValue("session_id");
         var email = user.FindFirstValue(ClaimTypes.Email);
-        var featureFlagsClaim = user.FindFirstValue("feature_flags");
+        var featureFlagsClaim = user.FindFirstValue(AuthenticationTokenHttpKeys.FeatureFlagsClaimName);
         var tenantRolloutBucketClaim = user.FindFirstValue("tenant_rollout_bucket");
         var userRolloutBucketClaim = user.FindFirstValue("user_rollout_bucket");
         return new UserInfo

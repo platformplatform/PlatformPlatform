@@ -96,7 +96,8 @@ public sealed class FeatureFlagDefinitionReconciler(
             if (baseRow.Source != expectedSource)
             {
                 var staleTenantRows = await featureFlagRepository.GetTenantOverridesForFlagAsync(definition.Key, cancellationToken);
-                foreach (var staleRow in staleTenantRows.Where(r => r.Source != expectedSource))
+                var staleTenantRowsToRemove = staleTenantRows.Where(r => r.Source != expectedSource).ToArray();
+                foreach (var staleRow in staleTenantRowsToRemove)
                 {
                     featureFlagRepository.Remove(staleRow);
                     staleRowsRemoved++;
@@ -107,7 +108,7 @@ public sealed class FeatureFlagDefinitionReconciler(
                 sourceTransitions++;
                 logger.LogInformation(
                     "Reconciler transitioned '{FlagKey}' source to '{Source}' and removed '{StaleCount}' stale tenant overrides",
-                    definition.Key, expectedSource, staleTenantRows.Length
+                    definition.Key, expectedSource, staleTenantRowsToRemove.Length
                 );
             }
 

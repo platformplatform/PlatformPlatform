@@ -17,9 +17,8 @@ using FeatureFlagScope = SharedKernel.FeatureFlags.FeatureFlagScope;
 
 namespace Account.Tests.BackOffice.FeatureFlags;
 
-// Exercises the back-office feature-flag endpoints at /api/back-office/feature-flags/*. These used to
-// live on the unauthenticated /internal-api/account/feature-flags/* group and were deleted by
-// PP-1251. Activate/deactivate carry an extra AdminPolicyName requirement (fleet-wide kill-switch);
+// Exercises the back-office feature-flag endpoints at /api/back-office/feature-flags/*.
+// Activate/deactivate carry an extra AdminPolicyName requirement (fleet-wide kill-switch);
 // everything else uses the regular back-office identity policy.
 public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
 {
@@ -451,7 +450,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         disabledAt.Should().NotBeNullOrEmpty();
         enabledAt.Should().Be(disabledAt, "EnabledAt and DisabledAt at the same instant make FeatureFlag.IsActive evaluate to false");
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideSet");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagTenantOverrideRemoved");
     }
 
     [Fact]
@@ -488,7 +487,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         disabledAt.Should().NotBeNullOrEmpty();
         enabledAt.Should().Be(disabledAt, "EnabledAt and DisabledAt at the same instant make FeatureFlag.IsActive evaluate to false");
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagUserOverrideSet");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().ContainSingle(e => e.GetType().Name == "FeatureFlagUserOverrideRemoved");
     }
 
     [Fact]
@@ -508,7 +507,7 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
-    // Rollout percentage (regular PolicyName per PP-1251 — not admin-tier)
+    // Rollout percentage uses regular PolicyName (not admin-tier).
 
     [Fact]
     public async Task SetRolloutPercentage_WhenValidPercentageAsRegularBackOffice_ShouldUpdateBucketRange()
@@ -1620,8 +1619,6 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("disabled_at", null),
                 ("bucket_start", null),
                 ("bucket_end", null),
-                ("configurable_by_tenant", false),
-                ("configurable_by_user", false),
                 ("source", "Manual"),
                 ("scope", scope.ToString())
             ]
@@ -1643,8 +1640,6 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("disabled_at", enabled ? null : now),
                 ("bucket_start", null),
                 ("bucket_end", null),
-                ("configurable_by_tenant", false),
-                ("configurable_by_user", false),
                 ("source", "Manual"),
                 ("scope", "Tenant")
             ]
@@ -1666,8 +1661,6 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
                 ("disabled_at", enabled ? null : now),
                 ("bucket_start", null),
                 ("bucket_end", null),
-                ("configurable_by_tenant", false),
-                ("configurable_by_user", false),
                 ("source", "Manual"),
                 ("scope", "User")
             ]

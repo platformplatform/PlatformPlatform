@@ -17,9 +17,9 @@ import { TenantStatusBadge } from "../../accounts/-components/TenantStatusBadge"
 import { getUserDisplayName } from "../../users/-components/userDisplay";
 import { OverrideSwitch } from "./OverrideSwitch";
 
-// Mutations skip the global auto-invalidate so we can delay invalidation by 500ms — without it,
-// sort reordering, pagination totals, or filter drops fire instantly and hide the cause/effect of
-// the user's click.
+// Mutations skip the global auto-invalidate and refetch is deferred 500ms so the user sees the
+// optimistic switch flip before the table refetches — without it, sort reordering, pagination
+// totals, or filter drops happen instantly and make the toggle feel unresponsive.
 const TENANTS_QUERY_KEY = ["get", "/api/back-office/feature-flags/{flagKey}/tenants"] as const;
 const SKIP_AUTO_INVALIDATE = { meta: { skipQueryInvalidation: true } };
 
@@ -58,9 +58,6 @@ export function TenantOverrideRow({
     setOptimisticIsOverride(tenant.source === "manual_override");
   }, [tenant.isEnabled, tenant.source]);
 
-  // Always delay invalidation by 500ms so the user sees the optimistic switch flip before the table
-  // refetches — without it, sort reordering, pagination totals, or filter drops happen instantly and
-  // make the toggle feel unresponsive.
   const refreshAfter = () => {
     setTimeout(() => queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY }), 500);
   };

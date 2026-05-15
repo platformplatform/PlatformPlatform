@@ -2,10 +2,24 @@ namespace SharedKernel.FeatureFlags;
 
 public static class RolloutBucketHasher
 {
+    // Total number of buckets in the rollout space. A 1% rollout covers exactly one bucket; a 100%
+    // rollout covers BucketCount buckets (indices 0..MaxBucketInclusive).
+    public const int BucketCount = 100;
+
+    public const int MaxBucketInclusive = BucketCount - 1;
+
+    // Effective bucket for an AB.NeverOn pin: the bucket immediately before BucketStart, wrapping around
+    // the [0, BucketCount) range. This is the bucket that gets included only when rollout reaches 100%,
+    // i.e., the last one in the rollout sequence for this flag.
+    public static int ComputeNeverOnBucket(int bucketStart)
+    {
+        return (bucketStart - 1 + BucketCount) % BucketCount;
+    }
+
     public static int ComputeRolloutBucket(int sequenceNumber)
     {
         var value = VanDerCorput(sequenceNumber);
-        return (int)(value * 100);
+        return (int)(value * BucketCount);
     }
 
     public static bool IsInRolloutBucketRange(int bucket, int rolloutBucketStart, int rolloutBucketEnd)
@@ -33,7 +47,7 @@ public static class RolloutBucketHasher
                 hash *= 16777619u;
             }
 
-            return (int)(hash % 100);
+            return (int)(hash % BucketCount);
         }
     }
 
@@ -42,7 +56,7 @@ public static class RolloutBucketHasher
     public static int ComputeInclusionThresholdPercentage(int bucket, string flagKey)
     {
         var start = ComputeStartingRolloutBucket(flagKey);
-        return (bucket - start + 100) % 100 + 1;
+        return (bucket - start + BucketCount) % BucketCount + 1;
     }
 
     // How many buckets are covered by a [start, end] rollout range, handling the wrap-around case
@@ -51,7 +65,7 @@ public static class RolloutBucketHasher
     public static int? ComputeRolloutPercentage(int? bucketStart, int? bucketEnd)
     {
         if (bucketStart is null || bucketEnd is null) return null;
-        return (bucketEnd.Value - bucketStart.Value + 100) % 100 + 1;
+        return (bucketEnd.Value - bucketStart.Value + BucketCount) % BucketCount + 1;
     }
 
     private static double VanDerCorput(int n)

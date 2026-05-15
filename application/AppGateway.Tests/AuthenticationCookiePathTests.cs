@@ -82,7 +82,7 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         var middleware = scope.ServiceProvider.GetRequiredService<AuthenticationCookieMiddleware>();
         var signingClient = scope.ServiceProvider.GetRequiredService<ITokenSigningClient>();
         var refreshToken = CreateSignedToken(signingClient, 60, []);
-        var accessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "account-overview,compact-view")]);
+        var accessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, "account-overview,compact-view")]);
         var context = CreateHttpContext("/api/account/me");
         context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={refreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={accessToken}";
 
@@ -95,6 +95,47 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
     }
 
     [Fact]
+    public async Task InvokeAsync_WhenAccessTokenHasNoFeatureFlagsClaim_ShouldOmitUserFeatureFlagsHeader()
+    {
+        // Arrange
+        await using var scope = factory.Services.CreateAsyncScope();
+        var middleware = scope.ServiceProvider.GetRequiredService<AuthenticationCookieMiddleware>();
+        var signingClient = scope.ServiceProvider.GetRequiredService<ITokenSigningClient>();
+        var refreshToken = CreateSignedToken(signingClient, 60, []);
+        var accessToken = CreateSignedToken(signingClient, 5, []);
+        var context = CreateHttpContext("/api/account/me");
+        context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={refreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={accessToken}";
+
+        // Act
+        await middleware.InvokeAsync(context, _ => Task.CompletedTask);
+        await TriggerOnStartingAsync(context);
+
+        // Assert
+        context.Response.Headers.Should().NotContainKey(AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_WhenAccessTokenHasEmptyFeatureFlagsClaim_ShouldEmitEmptyUserFeatureFlagsHeader()
+    {
+        // Arrange
+        await using var scope = factory.Services.CreateAsyncScope();
+        var middleware = scope.ServiceProvider.GetRequiredService<AuthenticationCookieMiddleware>();
+        var signingClient = scope.ServiceProvider.GetRequiredService<ITokenSigningClient>();
+        var refreshToken = CreateSignedToken(signingClient, 60, []);
+        var accessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, string.Empty)]);
+        var context = CreateHttpContext("/api/account/me");
+        context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={refreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={accessToken}";
+
+        // Act
+        await middleware.InvokeAsync(context, _ => Task.CompletedTask);
+        await TriggerOnStartingAsync(context);
+
+        // Assert
+        context.Response.Headers.Should().ContainKey(AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey);
+        context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey].ToString().Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task InvokeAsync_WhenUpstreamSetsRefreshAuthenticationTokensHeader_ShouldEmitHeaderReflectingPostRefreshJwt()
     {
         // Arrange
@@ -102,8 +143,8 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         var middleware = stubFactory.Services.GetRequiredService<AuthenticationCookieMiddleware>();
         var signingClient = stubFactory.Services.GetRequiredService<ITokenSigningClient>();
         var inboundRefreshToken = CreateSignedToken(signingClient, 60, []);
-        var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "stale-flag")]);
-        var postRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "account-overview")]);
+        var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, "stale-flag")]);
+        var postRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, "account-overview")]);
         var postRefreshRefreshToken = CreateSignedToken(signingClient, 60, []);
         RefreshStubAppGatewayApplicationFactory.SetStubResponse(postRefreshRefreshToken, postRefreshAccessToken);
         var context = CreateHttpContext("/api/account/feature-flags/account-overview/tenant-override");
@@ -134,7 +175,7 @@ public sealed class AuthenticationCookiePathTests(AppGatewayApplicationFactory f
         var middleware = stubFactory.Services.GetRequiredService<AuthenticationCookieMiddleware>();
         var signingClient = stubFactory.Services.GetRequiredService<ITokenSigningClient>();
         var inboundRefreshToken = CreateSignedToken(signingClient, 60, []);
-        var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim("feature_flags", "stale-flag")]);
+        var preRefreshAccessToken = CreateSignedToken(signingClient, 5, [new Claim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, "stale-flag")]);
         RefreshStubAppGatewayApplicationFactory.SetStubRevoked("ReplayAttackDetected");
         var context = CreateHttpContext("/api/account/feature-flags/account-overview/tenant-override");
         context.Request.Headers.Cookie = $"{AuthenticationTokenHttpKeys.RefreshTokenCookieName}={inboundRefreshToken}; {AuthenticationTokenHttpKeys.AccessTokenCookieName}={preRefreshAccessToken}";

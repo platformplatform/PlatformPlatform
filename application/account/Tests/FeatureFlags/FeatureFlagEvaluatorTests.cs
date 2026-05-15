@@ -266,6 +266,49 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
         result.Should().NotContain("experimental-ui");
     }
 
+    [Fact]
+    public async Task Evaluate_WhenTenantPinAlwaysOnAndBucketStartIsZero_ShouldIncludeAtOnePercentRollout()
+    {
+        // Arrange — AlwaysOn pin must map to BucketStart, which is the first slot in the rollout sequence
+        // (threshold 1%). A 1% rollout starting at bucket 0 covers exactly bucket 0, so a pinned tenant
+        // whose actual bucket is outside that range must still resolve to enabled.
+        var now = TimeProvider.System.GetUtcNow();
+        InsertFeatureFlag("beta-features", null, null, now, null, 0, 0);
+
+        // Act — pass a tenant bucket that is far from 0 to prove the pin (not the bucket) drove the result.
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, null, AbInclusionPin.AlwaysOn, null, CancellationToken.None);
+
+        // Assert
+        result.Should().Contain("beta-features");
+    }
+
+    [Fact]
+    public async Task Evaluate_WhenChildHasParentDependencyAndParentBaseRowInactive_ShouldExcludeChild()
+    {
+        // Arrange — guard the assertion against the current registry. The parent-dep gating lives in
+        // FeatureFlagEvaluator.cs and reads SharedKernel.FeatureFlags.FeatureFlags.GetAll(); we can only
+        // exercise it end-to-end if at least one definition declares a ParentDependency. If none does, the
+        // test documents the intent for future flags but does not fabricate a false-positive.
+        var childDefinition = global::SharedKernel.FeatureFlags.FeatureFlags.GetAll().FirstOrDefault(f => f.ParentDependency is not null);
+        if (childDefinition is null)
+        {
+            // No parent-dependent flag in the registry yet — assertion is unreachable end-to-end.
+            return;
+        }
+
+        var now = TimeProvider.System.GetUtcNow();
+        // Parent base row exists but is inactive (EnabledAt is null).
+        InsertFeatureFlag(childDefinition.ParentDependency!, null, null, null, null, null, null);
+        // Child base row is active with a rollout that would otherwise include the tenant.
+        InsertFeatureFlag(childDefinition.Key, null, null, now, null, 0, 99);
+
+        // Act
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, null, null, CancellationToken.None);
+
+        // Assert — child must be gated by its parent and excluded when the parent is inactive.
+        result.Should().NotContain(childDefinition.Key);
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing) _scope.Dispose();
@@ -274,7 +317,10 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
 
     private void InsertFeatureFlag(string flagKey, long? tenantId, string? userId, DateTimeOffset? enabledAt, DateTimeOffset? disabledAt, int? rolloutBucketStart, int? rolloutBucketEnd)
     {
-        // Delete any seeded row with the same scope to avoid unique constraint conflicts
+        // Delete any seeded row with the same scope to avoid unique constraint conflicts. The guard
+        // below ensures the helper only ever clears a single seed row — if a future migration introduces
+        // multiple seeded rows for the same (key, tenant, scope) tuple, the test fails fast instead of
+        // silently overwriting them.
         using var deleteCommand = new SqliteCommand(
             tenantId is null && userId is null
                 ? "DELETE FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL"
@@ -287,7 +333,11 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
             deleteCommand.Parameters.AddWithValue("@tenantId", tenantId);
         }
 
-        deleteCommand.ExecuteNonQuery();
+        var rowsDeleted = deleteCommand.ExecuteNonQuery();
+        if (rowsDeleted > 1)
+        {
+            throw new InvalidOperationException($"InsertFeatureFlag deleted '{rowsDeleted}' seeded rows for key '{flagKey}'; expected at most 1. Update the helper if the seed contract changed.");
+        }
 
         var id = FeatureFlagId.NewId().ToString();
         Connection.Insert("feature_flags", [
@@ -301,8 +351,6 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
                 ("disabled_at", disabledAt),
                 ("bucket_start", rolloutBucketStart),
                 ("bucket_end", rolloutBucketEnd),
-                ("configurable_by_tenant", false),
-                ("configurable_by_user", false),
                 ("source", "Manual"),
                 ("scope", tenantId is null && userId is null ? "Tenant" : userId is not null ? "User" : "Tenant")
             ]

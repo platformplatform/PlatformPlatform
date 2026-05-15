@@ -47,6 +47,6 @@ public sealed class UsersEndpoints : IEndpoints
 
         group.MapPut("/{id}/ab-inclusion-pin", async Task<ApiResult> (UserId id, SetUserAbInclusionPinCommand command, IMediator mediator)
             => await mediator.Send(command with { UserId = id })
-        );
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
     }
 }

@@ -1,7 +1,13 @@
 import { expect, type Page } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { getBackOfficeBaseUrl } from "@shared/e2e/utils/constants";
-import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import {
+  blurActiveElement,
+  createTestContext,
+  expectFeatureFlagHeaderResponse,
+  expectToastMessage
+} from "@shared/e2e/utils/test-assertions";
+import { logInAsAdmin } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
@@ -24,7 +30,7 @@ test.describe("@smoke", () => {
    * Tests the full feature flag management flow:
    * - Back-office flag list: view flags grouped by scope (Account, Plan, User, System)
    * - Back-office flag detail: navigate into account-scoped flag, search by name, toggle override pair, set A/B rollout percentage
-   * - Account settings: verify Features section, toggle account-scoped account overview flag
+   * - Account settings: verify Features section, toggle account-scoped account-overview flag
    * - User preferences: verify Beta features section, toggle user-scoped compact view flag
    * - x-user-feature-flags propagation: AppGateway emits the header on every authenticated response;
    *   owner and user self-toggles trigger AddRefreshAuthenticationTokens so the same response cycle
@@ -42,11 +48,7 @@ test.describe("@smoke", () => {
     await step("Log in as Admin via MockEasyAuth & verify redirect to feature flags page")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
 
-      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
-      await page.getByRole("button", { name: "Log in" }).click();
-
-      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags`);
+      await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/feature-flags`);
     })();
 
     // === BACK-OFFICE FLAG LIST ===
@@ -56,7 +58,7 @@ test.describe("@smoke", () => {
 
       const accountTable = page.getByRole("table", { name: "Account flags" });
       await expect(accountTable.getByText("Beta features")).toBeVisible();
-      await expect(accountTable.getByText("Custom branding")).toBeVisible();
+      await expect(accountTable.getByText("Account overview page")).toBeVisible();
 
       const planTable = page.getByRole("table", { name: "Plan flags" });
       await expect(planTable.getByText("Single sign-on")).toBeVisible();
@@ -71,6 +73,9 @@ test.describe("@smoke", () => {
 
     // === BACK-OFFICE FLAG DETAIL ===
 
+    const accountsTable = page.getByRole("table", { name: "Accounts" });
+    const testOrgRow = accountsTable.getByRole("row").filter({ hasText: "Test Organization" }).first();
+
     await step("Click into beta-features flag detail & verify detail page loads")(async () => {
       const accountTable = page.getByRole("table", { name: "Account flags" });
       const betaRow = accountTable.locator("tr").filter({ hasText: "Beta features" });
@@ -80,6 +85,8 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
     })();
 
+    // Both @smoke and @comprehensive mutate the shared beta-features rollout; @smoke restores it to 0
+    // at the end and @comprehensive does the same, so cross-test ordering is deterministic.
     await step("Pin beta-features rollout to 100 via back-office API & verify tenants evaluate enabled")(async () => {
       const response = await page.request.put(
         `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
@@ -91,55 +98,41 @@ test.describe("@smoke", () => {
 
     await step("Switch to the All state filter and search by Test Organization & verify a matching row renders")(
       async () => {
-        // Switch to the All filter so the row set is independent of cross-worker rollout-percentage races
-        // on the shared beta-features global state. Without this, parallel test runs from other browser
-        // workers can flip rollout to 0 mid-test, emptying the default Enabled view.
         await page.getByRole("group", { name: "State" }).getByRole("button", { name: "All" }).click();
         await page.getByRole("searchbox", { name: "Search" }).fill("Test Organization");
 
-        // Wait for the search-debounce query to settle AND for a matching row to render. Without the row
-        // assertion, downstream `.first()` targeting can bind to a row from a parallel test's tenant
-        // ("Mobile Nav Test" etc.) that happens to slip through the search match, or to a stale row
-        // from the pre-debounce result set that becomes detached when the new query resolves.
         await expect(page).toHaveURL((url) => url.searchParams.get("tenantsSearch") === "Test Organization");
-        await expect(
-          page
-            .getByRole("table", { name: "Accounts" })
-            .getByRole("row")
-            .filter({ hasText: "Test Organization" })
-            .first()
-        ).toBeVisible();
+        await expect(testOrgRow).toBeVisible();
       }
     )();
 
-    await step("Toggle the first Test Organization override & verify toast confirms state change")(async () => {
-      const testOrgRow = page
-        .getByRole("table", { name: "Accounts" })
-        .getByRole("row")
-        .filter({ hasText: "Test Organization" })
-        .first();
-      await testOrgRow.getByRole("switch").click();
+    await step("Toggle the first Test Organization override ON & verify toast and switch flips to checked")(
+      async () => {
+        const overrideSwitch = testOrgRow.getByRole("switch");
+        await overrideSwitch.click();
 
-      await expectToastMessage(context, "Beta features");
-    })();
+        await expectToastMessage(context, "Beta features");
+        await expect(overrideSwitch).toBeChecked();
+      }
+    )();
 
-    await step("Toggle the same Test Organization override back & verify toast confirms state change")(async () => {
-      const testOrgRow = page
-        .getByRole("table", { name: "Accounts" })
-        .getByRole("row")
-        .filter({ hasText: "Test Organization" })
-        .first();
-      await testOrgRow.getByRole("switch").click();
+    await step("Toggle the same Test Organization override OFF & verify toast and switch flips to unchecked")(
+      async () => {
+        const overrideSwitch = testOrgRow.getByRole("switch");
+        await overrideSwitch.click();
 
-      await expectToastMessage(context, "Beta features");
-    })();
+        await expectToastMessage(context, "Beta features");
+        await expect(overrideSwitch).not.toBeChecked();
+      }
+    )();
 
-    await step("Set A/B rollout percentage via the spinbutton & verify success toast on blur")(async () => {
+    await step("Set A/B rollout percentage to 42 via the spinbutton & verify toast and spinbutton value")(async () => {
       const percentageInput = page.getByRole("spinbutton", { name: "Rollout %" });
-      await percentageInput.fill(String((Date.now() % 99) + 1));
+      await percentageInput.fill("42");
       await blurActiveElement(page);
 
       await expectToastMessage(context, "Rollout percentage updated");
+      await expect(percentageInput).toHaveValue("42");
     })();
 
     await step("Navigate back to flag list & verify return to list page")(async () => {
@@ -149,22 +142,28 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Feature flags" })).toBeVisible();
     })();
 
-    await step("Activate account overview flag globally via back-office API for downstream checks")(async () => {
-      const response = await page.request.put(
-        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/account-overview/activate`,
-        { headers: await getAntiforgeryHeaders(page) }
-      );
+    await step("Activate account-overview flag globally via back-office API & verify the toggle reads Active")(
+      async () => {
+        const response = await page.request.put(
+          `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/account-overview/activate`,
+          { headers: await getAntiforgeryHeaders(page) }
+        );
+        expect(response.ok()).toBe(true);
 
-      expect(response.ok()).toBe(true);
-    })();
+        await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/account-overview`);
+        await expect(page.getByRole("switch", { name: "Toggle activation" })).toBeChecked();
+      }
+    )();
 
-    await step("Activate compact view flag globally via back-office API for downstream checks")(async () => {
+    await step("Activate compact-view flag globally via back-office API & verify the toggle reads Active")(async () => {
       const response = await page.request.put(
         `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/compact-view/activate`,
         { headers: await getAntiforgeryHeaders(page) }
       );
-
       expect(response.ok()).toBe(true);
+
+      await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/compact-view`);
+      await expect(page.getByRole("switch", { name: "Toggle activation" })).toBeChecked();
     })();
 
     await backOfficeContext.close();
@@ -175,44 +174,36 @@ test.describe("@smoke", () => {
       await ownerPage.goto("/account/settings");
 
       await expect(ownerPage.getByRole("heading", { name: "Features" })).toBeVisible();
-      await expect(ownerPage.getByText("Custom branding")).toBeVisible();
+      await expect(ownerPage.getByText("Account overview page")).toBeVisible();
     })();
 
-    await step("Toggle account overview flag ON & verify response carries x-user-feature-flags with account-overview")(
+    await step("Toggle account-overview flag ON & verify response carries x-user-feature-flags with account-overview")(
       async () => {
-        const toggle = ownerPage.getByRole("switch", { name: "Custom branding" });
+        const toggle = ownerPage.getByRole("switch", { name: "Account overview page" });
 
-        const [tenantOverrideResponse] = await Promise.all([
-          ownerPage.waitForResponse(
-            (response) =>
-              response.url().includes("/api/account/feature-flags/account-overview/tenant-override") &&
-              response.request().method() === "PUT"
-          ),
-          toggle.click()
-        ]);
-
-        expect(tenantOverrideResponse.headers()["x-user-feature-flags"]).toContain("account-overview");
+        await expectFeatureFlagHeaderResponse(ownerPage, toggle, {
+          urlSubstring: "/api/account/feature-flags/account-overview/tenant-override",
+          expectedFlag: "account-overview",
+          shouldContain: true
+        });
 
         await expectToastMessage(ownerContext, "Feature updated");
+        await expect(toggle).toBeChecked();
       }
     )();
 
-    await step("Toggle account overview flag OFF & verify response x-user-feature-flags no longer contains it")(
+    await step("Toggle account-overview flag OFF & verify response x-user-feature-flags no longer contains it")(
       async () => {
-        const toggle = ownerPage.getByRole("switch", { name: "Custom branding" });
+        const toggle = ownerPage.getByRole("switch", { name: "Account overview page" });
 
-        const [tenantOverrideResponse] = await Promise.all([
-          ownerPage.waitForResponse(
-            (response) =>
-              response.url().includes("/api/account/feature-flags/account-overview/tenant-override") &&
-              response.request().method() === "PUT"
-          ),
-          toggle.click()
-        ]);
-
-        expect(tenantOverrideResponse.headers()["x-user-feature-flags"]).not.toContain("account-overview");
+        await expectFeatureFlagHeaderResponse(ownerPage, toggle, {
+          urlSubstring: "/api/account/feature-flags/account-overview/tenant-override",
+          expectedFlag: "account-overview",
+          shouldContain: false
+        });
 
         await expectToastMessage(ownerContext, "Feature updated");
+        await expect(toggle).not.toBeChecked();
       }
     )();
 
@@ -229,18 +220,14 @@ test.describe("@smoke", () => {
       async () => {
         const toggle = ownerPage.getByRole("switch", { name: "Compact view" });
 
-        const [userOverrideResponse] = await Promise.all([
-          ownerPage.waitForResponse(
-            (response) =>
-              response.url().includes("/api/account/feature-flags/compact-view/user-override") &&
-              response.request().method() === "PUT"
-          ),
-          toggle.click()
-        ]);
-
-        expect(userOverrideResponse.headers()["x-user-feature-flags"]).toContain("compact-view");
+        await expectFeatureFlagHeaderResponse(ownerPage, toggle, {
+          urlSubstring: "/api/account/feature-flags/compact-view/user-override",
+          expectedFlag: "compact-view",
+          shouldContain: true
+        });
 
         await expectToastMessage(ownerContext, "Preference updated");
+        await expect(toggle).toBeChecked();
       }
     )();
 
@@ -248,20 +235,36 @@ test.describe("@smoke", () => {
       async () => {
         const toggle = ownerPage.getByRole("switch", { name: "Compact view" });
 
-        const [userOverrideResponse] = await Promise.all([
-          ownerPage.waitForResponse(
-            (response) =>
-              response.url().includes("/api/account/feature-flags/compact-view/user-override") &&
-              response.request().method() === "PUT"
-          ),
-          toggle.click()
-        ]);
-
-        expect(userOverrideResponse.headers()["x-user-feature-flags"]).not.toContain("compact-view");
+        await expectFeatureFlagHeaderResponse(ownerPage, toggle, {
+          urlSubstring: "/api/account/feature-flags/compact-view/user-override",
+          expectedFlag: "compact-view",
+          shouldContain: false
+        });
 
         await expectToastMessage(ownerContext, "Preference updated");
+        await expect(toggle).not.toBeChecked();
       }
     )();
+
+    // === CLEANUP: reset beta-features rollout so other tests/workers see the pre-test state ===
+
+    const cleanupContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
+    const cleanupPage = await cleanupContext.newPage();
+    createTestContext(cleanupPage);
+
+    await step("Log in as Admin & reset beta-features rollout to 0 to restore shared state")(async () => {
+      await cleanupPage.goto(`${BACK_OFFICE_BASE_URL}/feature-flags`);
+      await logInAsAdmin(cleanupPage, `${BACK_OFFICE_BASE_URL}/feature-flags`);
+
+      const response = await cleanupPage.request.put(
+        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
+        { data: { rolloutPercentage: 0 }, headers: await getAntiforgeryHeaders(cleanupPage) }
+      );
+
+      expect(response.ok()).toBe(true);
+    })();
+
+    await cleanupContext.close();
   });
 });
 
@@ -295,14 +298,12 @@ test.describe("@comprehensive", () => {
     await step("Log in as Admin via MockEasyAuth & verify redirect to beta-features detail")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
 
-      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
-      await page.getByRole("button", { name: "Log in" }).click();
-
-      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
+      await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
       await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
     })();
 
+    // Both @smoke and @comprehensive mutate the shared beta-features rollout; both restore it to 0
+    // at the end so cross-test ordering is deterministic.
     await step("Pin beta-features rollout to 100 via back-office API & verify tenants evaluate enabled")(async () => {
       const response = await page.request.put(
         `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
@@ -387,8 +388,6 @@ test.describe("@comprehensive", () => {
       async () => {
         // Re-pin rollout=100 so cross-browser parallel runs that may have reset rollout to 0 during
         // their cleanup can't empty the default Enabled view out from under this step's assertion.
-        // Reload so the tenants query refetches with the new rollout in effect (the prior cached
-        // result from before this re-pin would otherwise win until natural invalidation).
         const rolloutResponse = await page.request.put(
           `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
           { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
@@ -430,24 +429,16 @@ test.describe("@comprehensive", () => {
     )();
 
     // === TENANTS: RE-PIN ROLLOUT TO REFRESH ENABLED VIEW ===
-    // Re-pin rollout=100 so cross-browser parallel `@comprehensive` runs that may have reset rollout
-    // to 0 during their cleanup can't empty the default Enabled view out from under us. The Next page
-    // assertion was removed because totalPages depends on the tenant count in the dev DB, which on a
-    // fresh worktree may only contain this worker's own tenant (below the 25-row PageSize). The
-    // TablePagination control is exercised by other tests that operate on stable, fixture-provisioned
-    // table sizes.
 
     await step("Re-pin beta-features rollout to 100 & verify the worker tenant renders in the Enabled view")(
       async () => {
+        // Re-pin rollout=100 so cross-browser parallel runs can't empty the default Enabled view.
         const rolloutResponse = await page.request.put(
           `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
           { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
         );
         expect(rolloutResponse.ok()).toBe(true);
 
-        // Reload so the tenants query refetches with the new rollout in effect. Without this, the prior
-        // query result (with whatever rollout cross-worker cleanup left in place) wins until natural
-        // invalidation, and the table may be empty if that prior result was filtered down to nothing.
         await page.reload();
         await expect(accountsTable.locator("tbody tr").first()).toBeVisible();
       }

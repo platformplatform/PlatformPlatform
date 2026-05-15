@@ -46,7 +46,7 @@ public sealed class RemoveTenantFeatureFlagOverrideHandler(IFeatureFlagRepositor
 
         featureFlagRepository.Remove(tenantOverride);
 
-        events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
+        events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId));
 
         return Result.Success();
     }

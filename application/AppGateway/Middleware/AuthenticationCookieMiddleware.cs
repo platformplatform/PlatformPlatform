@@ -118,9 +118,10 @@ public sealed class AuthenticationCookieMiddleware(
             tokenState.CurrentAccessToken = newAccessToken;
         }
 
-        if (tokenState.CurrentAccessToken is { } currentAccessToken)
+        if (tokenState.CurrentAccessToken is { } currentAccessToken &&
+            ExtractFeatureFlagsClaim(currentAccessToken) is { } featureFlagsClaim)
         {
-            context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey] = ExtractFeatureFlagsClaim(currentAccessToken);
+            context.Response.Headers[AuthenticationTokenHttpKeys.UserFeatureFlagsHeaderKey] = featureFlagsClaim;
         }
     }
 
@@ -300,11 +301,11 @@ public sealed class AuthenticationCookieMiddleware(
         return DateTimeOffset.FromUnixTimeSeconds(long.Parse(expires));
     }
 
-    private static string ExtractFeatureFlagsClaim(string accessToken)
+    private static string? ExtractFeatureFlagsClaim(string accessToken)
     {
-        if (!TokenHandler.CanReadToken(accessToken)) return string.Empty;
+        if (!TokenHandler.CanReadToken(accessToken)) return null;
         var jwt = TokenHandler.ReadJsonWebToken(accessToken);
-        return jwt.TryGetClaim("feature_flags", out var claim) ? claim.Value : string.Empty;
+        return jwt.TryGetClaim(AuthenticationTokenHttpKeys.FeatureFlagsClaimName, out var claim) ? claim.Value : null;
     }
 
     /// <summary>
