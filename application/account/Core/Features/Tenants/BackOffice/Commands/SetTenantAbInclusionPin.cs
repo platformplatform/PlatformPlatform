@@ -24,10 +24,11 @@ public sealed class SetTenantAbInclusionPinHandler(ITenantRepository tenantRepos
         var tenant = await tenantRepository.GetByIdUnfilteredAsync(command.TenantId, cancellationToken);
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.TenantId}' not found.");
 
+        var fromPin = tenant.AbInclusionPin;
         tenant.SetAbInclusionPin(command.AbInclusionPin);
         tenantRepository.Update(tenant);
 
-        events.CollectEvent(new TenantAbInclusionPinUpdated(tenant.Id, command.AbInclusionPin));
+        events.CollectEvent(new TenantAbInclusionPinUpdated(tenant.Id, fromPin, command.AbInclusionPin));
 
         return Result.Success();
     }
