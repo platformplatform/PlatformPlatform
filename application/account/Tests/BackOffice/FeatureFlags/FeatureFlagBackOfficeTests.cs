@@ -11,6 +11,7 @@ using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Domain;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
+using SharedKernel.Validation;
 using Xunit;
 using FeatureFlagRegistry = SharedKernel.FeatureFlags.FeatureFlags;
 using FeatureFlagScope = SharedKernel.FeatureFlags.FeatureFlagScope;
@@ -83,6 +84,46 @@ public sealed class FeatureFlagBackOfficeTests : BackOfficeEndpointBaseTest
             "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         updatedEnabledAt.Should().NotBe(originalEnabledAt);
+    }
+
+    [Fact]
+    public async Task ActivateFeatureFlag_WhenFlagIsNotKillSwitch_ShouldReturnBadRequest()
+    {
+        // Arrange — sso is a PlanGatedTenantFlag without IsKillSwitchEnabled set; the validator
+        // must reject global Activate so the panic-button contract is enforced.
+        var flagKey = "sso";
+        using var client = CreateAdminBackOfficeClient();
+
+        // Act
+        var response = await client.PutAsync($"/api/back-office/feature-flags/{flagKey}/activate", null);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("FlagKey", "Only kill-switch-enabled feature flags can be globally activated.")
+        };
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DeactivateFeatureFlag_WhenFlagIsNotKillSwitch_ShouldReturnBadRequest()
+    {
+        // Arrange — sso is a PlanGatedTenantFlag without IsKillSwitchEnabled set; the validator
+        // must reject global Deactivate so the panic-button contract is enforced.
+        var flagKey = "sso";
+        using var client = CreateAdminBackOfficeClient();
+
+        // Act
+        var response = await client.PutAsync($"/api/back-office/feature-flags/{flagKey}/deactivate", null);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("FlagKey", "Only kill-switch-enabled feature flags can be globally deactivated.")
+        };
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]
