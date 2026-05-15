@@ -12,6 +12,12 @@ import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
 
+// Both tests in this file mutate the shared `beta-features` rollout pin. Running them in parallel
+// across workers would race the smoke test's cleanup-to-0 against the comprehensive test's
+// expectations of rollout=100. Serial mode within the file (still parallel with other files)
+// removes the race without test-only production scaffolding.
+test.describe.configure({ mode: "serial" });
+
 // SPA shells inject the antiforgery token into a `<meta name="antiforgeryToken">` tag at runtime.
 // Back-office mutation endpoints removed `.DisableAntiforgery()`, so Playwright API calls now have to
 // send `x-xsrf-token` just like the SPA's fetch middleware does. The antiforgery cookie ships with
@@ -386,15 +392,6 @@ test.describe("@comprehensive", () => {
 
     await step("Type into search box & verify URL contains debounced search term and the table re-renders")(
       async () => {
-        // Re-pin rollout=100 so cross-browser parallel runs that may have reset rollout to 0 during
-        // their cleanup can't empty the default Enabled view out from under this step's assertion.
-        const rolloutResponse = await page.request.put(
-          `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-          { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
-        );
-        expect(rolloutResponse.ok()).toBe(true);
-
-        await page.reload();
         await searchBox.fill("Test Organization");
 
         await expect(page).toHaveURL((url) => url.searchParams.get("tenantsSearch") === "Test Organization");
@@ -428,21 +425,11 @@ test.describe("@comprehensive", () => {
       }
     )();
 
-    // === TENANTS: RE-PIN ROLLOUT TO REFRESH ENABLED VIEW ===
+    await step("Reload accounts table & verify the worker tenant renders in the Enabled view")(async () => {
+      await page.reload();
 
-    await step("Re-pin beta-features rollout to 100 & verify the worker tenant renders in the Enabled view")(
-      async () => {
-        // Re-pin rollout=100 so cross-browser parallel runs can't empty the default Enabled view.
-        const rolloutResponse = await page.request.put(
-          `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/beta-features/rollout-percentage`,
-          { data: { rolloutPercentage: 100 }, headers: await getAntiforgeryHeaders(page) }
-        );
-        expect(rolloutResponse.ok()).toBe(true);
-
-        await page.reload();
-        await expect(accountsTable.locator("tbody tr").first()).toBeVisible();
-      }
-    )();
+      await expect(accountsTable.locator("tbody tr").first()).toBeVisible();
+    })();
 
     // === USERS: ROLE FILTER ===
 

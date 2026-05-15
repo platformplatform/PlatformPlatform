@@ -6,6 +6,11 @@ namespace Account.Features.FeatureFlags.Shared;
 
 public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository)
 {
+    // The definitions source defaults to the reflected registry but is overridable for tests that need
+    // to exercise specific topologies (e.g., parent-dependency gating) without contributing test-only
+    // flags to the production registry.
+    public Func<FeatureFlagDefinition[]> DefinitionsProvider { get; init; } = SharedKernel.FeatureFlags.FeatureFlags.GetAll;
+
     public async Task<IReadOnlyList<string>> EvaluateAsync(
         TenantId tenantId,
         UserId userId,
@@ -19,7 +24,7 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
         var enabledFeatureFlags = new List<string>();
 
-        var definitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
+        var definitions = DefinitionsProvider();
 
         // Sort feature flags so parents are evaluated before children
         var sorted = SortByParentDependencyFirst(definitions);

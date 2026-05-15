@@ -285,28 +285,28 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     [Fact]
     public async Task Evaluate_WhenChildHasParentDependencyAndParentBaseRowInactive_ShouldExcludeChild()
     {
-        // Arrange — guard the assertion against the current registry. The parent-dep gating lives in
-        // FeatureFlagEvaluator.cs and reads SharedKernel.FeatureFlags.FeatureFlags.GetAll(); we can only
-        // exercise it end-to-end if at least one definition declares a ParentDependency. If none does, the
-        // test documents the intent for future flags but does not fabricate a false-positive.
-        var childDefinition = global::SharedKernel.FeatureFlags.FeatureFlags.GetAll().FirstOrDefault(f => f.ParentDependency is not null);
-        if (childDefinition is null)
+        // Arrange — override the evaluator's definitions provider with a stub topology that pairs a
+        // parent flag with a parent-dependent child. The production registry does not currently declare
+        // any parent-dep relationship, so this exercises the gating in FeatureFlagEvaluator without
+        // contributing test-only flags to the real registry.
+        var parent = new TenantAbTestFlag("test-parent", "Test parent", "Parent flag for evaluator test");
+        var child = new TenantAbTestFlag("test-child", "Test child", "Child flag for evaluator test", "test-parent");
+        var evaluator = new FeatureFlagEvaluator(_scope.ServiceProvider.GetRequiredService<IFeatureFlagRepository>())
         {
-            // No parent-dependent flag in the registry yet — assertion is unreachable end-to-end.
-            return;
-        }
+            DefinitionsProvider = () => [parent, child]
+        };
 
         var now = TimeProvider.System.GetUtcNow();
         // Parent base row exists but is inactive (EnabledAt is null).
-        InsertFeatureFlag(childDefinition.ParentDependency!, null, null, null, null, null, null);
+        InsertFeatureFlag(parent.Key, null, null, null, null, null, null);
         // Child base row is active with a rollout that would otherwise include the tenant.
-        InsertFeatureFlag(childDefinition.Key, null, null, now, null, 0, 99);
+        InsertFeatureFlag(child.Key, null, null, now, null, 0, 99);
 
         // Act
-        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, null, null, CancellationToken.None);
+        var result = await evaluator.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, null, null, CancellationToken.None);
 
         // Assert — child must be gated by its parent and excluded when the parent is inactive.
-        result.Should().NotContain(childDefinition.Key);
+        result.Should().NotContain(child.Key);
     }
 
     protected override void Dispose(bool disposing)

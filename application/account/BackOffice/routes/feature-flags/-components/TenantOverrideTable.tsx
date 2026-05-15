@@ -1,12 +1,12 @@
 import { Trans } from "@lingui/react/macro";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { SortableFeatureFlagTenantProperties, SortOrder } from "@/shared/lib/api/client";
 
 import type { FeatureFlagTenantInfo } from "./types";
 
+import { SortableHead } from "./SortableHead";
 import { TenantOverrideRow } from "./TenantOverrideRow";
 
 export interface TenantOverrideTableProps {
@@ -19,40 +19,6 @@ export interface TenantOverrideTableProps {
   orderBy: SortableFeatureFlagTenantProperties | undefined;
   sortOrder: SortOrder | undefined;
   defaultOrderBy: SortableFeatureFlagTenantProperties;
-}
-
-function SortableHead({
-  column,
-  effectiveOrderBy,
-  effectiveSortOrder,
-  onSort,
-  className,
-  children
-}: Readonly<{
-  column: SortableFeatureFlagTenantProperties;
-  effectiveOrderBy: SortableFeatureFlagTenantProperties;
-  effectiveSortOrder: SortOrder;
-  onSort: (column: SortableFeatureFlagTenantProperties) => void;
-  className?: string;
-  children: React.ReactNode;
-}>) {
-  const isActive = effectiveOrderBy === column;
-  const isDescending = isActive && effectiveSortOrder === SortOrder.Descending;
-  const ariaSort = isActive ? (isDescending ? "descending" : "ascending") : "none";
-
-  return (
-    <TableHead className={className} aria-sort={ariaSort} onClick={() => onSort(column)}>
-      <span className="inline-flex cursor-pointer items-center gap-1 select-none">
-        {children}
-        {isActive &&
-          (isDescending ? (
-            <ChevronDownIcon className="size-3 shrink-0" aria-hidden={true} />
-          ) : (
-            <ChevronUpIcon className="size-3 shrink-0" aria-hidden={true} />
-          ))}
-      </span>
-    </TableHead>
-  );
 }
 
 export function TenantOverrideTable({
