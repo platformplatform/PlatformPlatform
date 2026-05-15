@@ -1,15 +1,17 @@
 using Account.Features.Subscriptions.Domain;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Tenants.Domain;
 
 public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 {
-    private Tenant() : base(TenantId.NewId())
+    private Tenant(int rolloutBucket) : base(TenantId.NewId())
     {
         State = TenantState.Active;
         Plan = SubscriptionPlan.Basis;
         Logo = new Logo();
+        RolloutBucket = rolloutBucket;
     }
 
     public string Name { get; private set; } = string.Empty;
@@ -24,9 +26,13 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 
     public Logo Logo { get; private set; }
 
-    public static Tenant Create(string email)
+    public int RolloutBucket { get; private set; }
+
+    public AbInclusionPin? AbInclusionPin { get; private set; }
+
+    public static Tenant Create(string email, int existingCount)
     {
-        var tenant = new Tenant();
+        var tenant = new Tenant(RolloutBucketHasher.ComputeRolloutBucket(existingCount));
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }
@@ -63,6 +69,11 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     public void UpdatePlan(SubscriptionPlan plan)
     {
         Plan = plan;
+    }
+
+    public void SetAbInclusionPin(AbInclusionPin? abInclusionPin)
+    {
+        AbInclusionPin = abInclusionPin;
     }
 }
 

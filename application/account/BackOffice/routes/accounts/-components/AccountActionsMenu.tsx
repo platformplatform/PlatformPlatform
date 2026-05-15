@@ -22,9 +22,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Too
 import { AlertTriangleIcon, ExternalLinkIcon, MoreVerticalIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
+import type { AbInclusionPin } from "@/shared/lib/api/client";
+
 import { useMe } from "@/shared/hooks/useMe";
 import { api } from "@/shared/lib/api/client";
 
+import { AbInclusionPinMenuItems } from "../../-shared/AbInclusionPinMenuItems";
+import { SetAbInclusionPinDialog } from "../../-shared/SetAbInclusionPinDialog";
 import { ReconcileResultDialog, type ReconcileResult } from "./ReconcileResultDialog";
 import {
   type ArchivedAwaitingConfirmation,
@@ -35,14 +39,21 @@ import {
 
 interface AccountActionsMenuProps {
   tenantId: string;
+  tenantName: string | undefined;
   stripeCustomerUrl: string | null | undefined;
+  abInclusionPin: AbInclusionPin | null | undefined;
 }
 
 interface ReconcileApiResult extends ReconcileResult {
   archivedEventsAwaitingConfirmation: ArchivedAwaitingConfirmation | null;
 }
 
-export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<AccountActionsMenuProps>) {
+export function AccountActionsMenu({
+  tenantId,
+  tenantName,
+  stripeCustomerUrl,
+  abInclusionPin
+}: Readonly<AccountActionsMenuProps>) {
   const { data: me } = useMe();
   const [result, setResult] = useState<ReconcileApiResult | null>(null);
   const [replayResult, setReplayResult] = useState<ReplayArchivedResult | null>(null);
@@ -51,6 +62,7 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
   const [archivedAwaiting, setArchivedAwaiting] = useState<ArchivedAwaitingConfirmation | null>(null);
   const [isReplayConfirmOpen, setIsReplayConfirmOpen] = useState(false);
   const [isReplayResultOpen, setIsReplayResultOpen] = useState(false);
+  const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
 
   const reconcileMutation = api.useMutation("post", "/api/back-office/tenants/{id}/reconcile-with-stripe", {
     onSuccess: (data) => {
@@ -140,6 +152,7 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
               <Trans>Open in Stripe</Trans>
             </DropdownMenuItem>
           )}
+          <AbInclusionPinMenuItems withLeadingSeparator={true} onSelect={() => setIsPinDialogOpen(true)} />
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -190,6 +203,15 @@ export function AccountActionsMenu({ tenantId, stripeCustomerUrl }: Readonly<Acc
         isOpen={isReplayResultOpen}
         onOpenChange={setIsReplayResultOpen}
         result={replayResult}
+      />
+
+      <SetAbInclusionPinDialog
+        entity="tenant"
+        entityId={tenantId}
+        entityLabel={tenantName ?? t`This account`}
+        currentPin={abInclusionPin ?? null}
+        isOpen={isPinDialogOpen}
+        onOpenChange={setIsPinDialogOpen}
       />
     </>
   );

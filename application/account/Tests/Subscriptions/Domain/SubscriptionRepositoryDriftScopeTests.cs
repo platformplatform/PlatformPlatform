@@ -77,7 +77,8 @@ public sealed class SubscriptionRepositoryDriftScopeTests : EndpointBaseTest<Acc
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", plan),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 0)
             ]
         );
         return tenantId;

@@ -20,6 +20,18 @@ msgstr "{0, plural, one {for # dag siden} other {for # dage siden}}"
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {Om # dag} other {Om # dage}}"
 
+msgid "A/B rollout"
+msgstr "A/B-udrulning"
+
+msgid "Account overview page"
+msgstr "Kontooversigtsside"
+
+msgid "Allow users to authenticate using enterprise identity providers"
+msgstr "Tillad brugere at logge ind via virksomhedsidentitetsudbydere"
+
+msgid "Beta features"
+msgstr "Beta-funktioner"
+
 msgid "Breadcrumb"
 msgstr "Brødkrumme"
 
@@ -38,20 +50,35 @@ msgstr "Luk menu"
 msgid "Close sidebar"
 msgstr "Luk sidemenu"
 
+msgid "Compact view"
+msgstr "Kompakt visning"
+
 msgid "Create <0>{search}</0>"
 msgstr "Opret <0>{search}</0>"
 
 msgid "Decrease"
 msgstr "Formindsk"
 
+msgid "Default"
+msgstr "Standard"
+
 msgid "Drop files here, or click to browse"
 msgstr "Slip filer her, eller klik for at vælge"
+
+msgid "Early access to experimental features before general availability"
+msgstr "Tidlig adgang til eksperimentelle funktioner inden generel tilgængelighed"
+
+msgid "Experimental UI"
+msgstr "Eksperimentel UI"
 
 msgid "Go to next page"
 msgstr "Gå til næste side"
 
 msgid "Go to previous page"
 msgstr "Gå til forrige side"
+
+msgid "Google OAuth"
+msgstr "Google OAuth"
 
 msgid "Increase"
 msgstr "Forøg"
@@ -64,6 +91,9 @@ msgstr "Indlæser"
 
 msgid "Main content"
 msgstr "Hovedindhold"
+
+msgid "Manual override"
+msgstr "Manuel tilsidesættelse"
 
 msgid "Mobile navigation menu"
 msgstr "Mobilnavigationsmenu"
@@ -86,8 +116,14 @@ msgstr "Åbn navigationsmenu"
 msgid "Pagination"
 msgstr "Paginering"
 
+msgid "Plan"
+msgstr "Plan"
+
 msgid "Previous"
 msgstr "Forrige"
+
+msgid "Reduce spacing between UI elements for a denser layout"
+msgstr "Reducér afstanden mellem UI-elementer for et tættere layout"
 
 msgid "Resize sidebar"
 msgstr "Ændr bredde på sidepanel"
@@ -101,11 +137,26 @@ msgstr "Vælg tidszone"
 msgid "Show more"
 msgstr "Vis flere"
 
+msgid "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list."
+msgstr "Vis kontooversigten med brugerstatistik på /account. Når deaktiveret, sendes loggede brugere direkte til brugerlisten."
+
+msgid "Sign in with Google using OpenID Connect"
+msgstr "Log ind med Google via OpenID Connect"
+
+msgid "Single sign-on"
+msgstr "Single sign-on"
+
 msgid "Skip to main content"
 msgstr "Spring til hovedindhold"
 
 msgid "Stay"
 msgstr "Bliv"
+
+msgid "Stripe-powered subscription billing and plan management"
+msgstr "Stripe-drevet abonnementsfakturering og abonnementsstyring"
+
+msgid "Subscriptions"
+msgstr "Abonnementer"
 
 msgid "Today"
 msgstr "I dag"
@@ -115,6 +166,9 @@ msgstr "Skift sidepanel"
 
 msgid "Tomorrow"
 msgstr "I morgen"
+
+msgid "Try out experimental user interface components"
+msgstr "Afprøv eksperimentelle brugergrænsefladekomponenter"
 
 msgid "Unsaved changes"
 msgstr "Ugemte ændringer"

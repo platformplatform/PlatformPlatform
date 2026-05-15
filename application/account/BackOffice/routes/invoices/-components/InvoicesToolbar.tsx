@@ -22,9 +22,8 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    if ((debouncedSearch || undefined) === search) {
-      return;
-    }
+    // See UsersToolbar.tsx for the rationale on omitting `search` from this effect's deps.
+    if ((debouncedSearch || undefined) === search) return;
     navigate({
       to: "/invoices",
       search: (previous) => ({
@@ -35,7 +34,8 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
         pageOffset: undefined
       })
     });
-  }, [debouncedSearch, navigate, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, navigate]);
 
   useEffect(() => {
     setSearchInput(search ?? "");

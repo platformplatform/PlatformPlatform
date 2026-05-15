@@ -813,6 +813,9 @@ msgstr "Current plan"
 msgid "Customer deleted"
 msgstr "Customer deleted"
 
+msgid "Customize which optional features are enabled for your account."
+msgstr "Customize which optional features are enabled for your account."
+
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Customize your theme, language, and zoom settings."
 
@@ -1153,6 +1156,12 @@ msgstr "Failed"
 msgid "Failed to load payment processor."
 msgstr "Failed to load payment processor."
 
+msgid "Feature preferences"
+msgstr "Feature preferences"
+
+msgid "Feature updated successfully"
+msgstr "Feature updated successfully"
+
 msgid "Features"
 msgstr "Features"
 
@@ -1338,6 +1347,9 @@ msgstr "Is there anything else you would like us to know? (optional)"
 
 msgid "It may take up to 5 minutes before the device is logged out."
 msgstr "It may take up to 5 minutes before the device is logged out."
+
+msgid "It takes up to 5 minutes for changes to reach all users."
+msgstr "It takes up to 5 minutes for changes to reach all users."
 
 msgid "Italian"
 msgstr "Italian"
@@ -1954,6 +1966,9 @@ msgstr "Powered by"
 
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
+
+msgid "Preference updated successfully"
+msgstr "Preference updated successfully"
 
 msgid "Preferences"
 msgstr "Preferences"
@@ -2665,6 +2680,9 @@ msgstr "Toggle bold"
 
 msgid "Toggle buttons"
 msgstr "Toggle buttons"
+
+msgid "Toggle features available to your account."
+msgstr "Toggle features available to your account."
 
 msgid "Toggle group"
 msgstr "Toggle group"

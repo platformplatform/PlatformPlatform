@@ -28,6 +28,18 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
 
     Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Retrieves users by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Searches users by email without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<User[]> SearchByEmailUnfilteredAsync(string search, CancellationToken cancellationToken);
+
     Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
@@ -104,6 +116,15 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     ///     so the time filter runs in memory; the user count is bounded by the dashboard's audience.
     /// </summary>
     Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the next monotonic rollout index for a new user, used by the low-discrepancy bucket
+    ///     function in <see cref="User" /> to assign a well-spread rollout bucket. The Postgres sequence
+    ///     guarantees uniqueness under concurrent CreateUserCommand calls; SQLite (test database) falls
+    ///     back to COUNT(*) which preserves the previous behavior.
+    ///     Tenant query filter is ignored because user creation can occur before tenant context is established.
+    /// </summary>
+    Task<int> GetNextRolloutIndexUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 public sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
@@ -163,6 +184,32 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
     public async Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(u => ids.AsEnumerable().Contains(u.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves users by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u => ids.AsEnumerable().Contains(u.Id))
+            .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Searches users by email without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<User[]> SearchByEmailUnfilteredAsync(string search, CancellationToken cancellationToken)
+    {
+        var lowerSearch = search.ToLowerInvariant();
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u => u.Email.Contains(lowerSearch))
+            .OrderBy(u => u.Id)
+            .ToArrayAsync(cancellationToken);
     }
 
     public async Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken)
@@ -508,7 +555,35 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
     /// </summary>
     public async Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .OrderBy(u => u.Id)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Returns the next monotonic rollout index for a new user, used by the low-discrepancy bucket
+    ///     function in <see cref="User" /> to assign a well-spread rollout bucket. The Postgres sequence
+    ///     guarantees uniqueness under concurrent CreateUserCommand calls; SQLite (test database) falls
+    ///     back to COUNT(*) which preserves the previous behavior.
+    ///     Tenant query filter is ignored because user creation can occur before tenant context is established.
+    /// </summary>
+    public async Task<int> GetNextRolloutIndexUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(cancellationToken);
+        }
+
+        var nextSequenceValue = await accountDbContext.Database
+            .SqlQueryRaw<long>("SELECT nextval('user_rollout_index_sequence') AS \"Value\"")
+            .SingleAsync(cancellationToken);
+
+        // Sequence is seeded at COUNT(*)+1, so the first nextval after migration equals the previous COUNT+1.
+        // Subtracting 1 preserves the original count-based contract used by User.Create. The mask keeps
+        // the cast non-negative past 2.1B cumulative inserts (including rolled-back/leaked values) while
+        // preserving int.MaxValue itself (the `% int.MaxValue` form silently collapses that value to 0).
+        return (int)((nextSequenceValue - 1) & 0x7FFF_FFFF);
     }
 
     /// <summary>

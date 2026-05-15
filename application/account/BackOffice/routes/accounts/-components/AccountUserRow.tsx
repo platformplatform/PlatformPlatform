@@ -47,9 +47,9 @@ export function AccountUserRow({
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <span className="inline-flex items-center gap-1.5">
+        <span className="flex min-w-0 items-center gap-1.5">
           <MailIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden={true} />
-          <span>{user.email}</span>
+          <span className="truncate">{user.email}</span>
         </span>
       </TableCell>
       <TableCell className="hidden lg:table-cell">

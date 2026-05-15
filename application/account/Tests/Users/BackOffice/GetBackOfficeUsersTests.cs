@@ -286,7 +286,8 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", plan.ToString()),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 50)
             ]
         );
 
@@ -343,7 +344,8 @@ public sealed class GetBackOfficeUsersTests : BackOfficeEndpointBaseTest
                 ("title", null),
                 ("role", role.ToString()),
                 ("locale", "en-US"),
-                ("avatar", JsonSerializer.Serialize(new Avatar()))
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("rollout_bucket", 50)
             ]
         );
     }

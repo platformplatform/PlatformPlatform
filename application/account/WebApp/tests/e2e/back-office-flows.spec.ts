@@ -2,6 +2,7 @@ import { expect, request } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { getBackOfficeBaseUrl, getBaseUrl } from "@shared/e2e/utils/constants";
 import { createTestContext } from "@shared/e2e/utils/test-assertions";
+import { logInAsAdmin } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
@@ -15,7 +16,10 @@ test.describe("@smoke", () => {
    * the accounts route, and the tenant detail route in one journey so any regression to the back-office
    * shell trips this test on every deployment.
    */
-  test("should log in to back-office, render dashboard, and load tenant detail", async ({ browser }) => {
+  test("should log in to back-office, render dashboard, and load tenant detail", async ({ ownerPage, browser }) => {
+    // ownerPage fixture provisions a tenant for this worker so the back-office Accounts list is non-empty
+    // even when this test runs before signup-driven tests on a fresh database.
+    createTestContext(ownerPage);
     const backOfficeContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
     const page = await backOfficeContext.newPage();
     createTestContext(page);
@@ -23,11 +27,7 @@ test.describe("@smoke", () => {
     await step("Log in as Admin via MockEasyAuth & verify redirect to back-office dashboard")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
-      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
-      await page.getByRole("button", { name: "Log in" }).click();
-
-      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/`);
+      await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/`);
       await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
     })();
 
@@ -93,11 +93,7 @@ test.describe("@comprehensive", () => {
     await step("Log in as Admin via MockEasyAuth & verify dashboard loads")(async () => {
       await page.goto(`${BACK_OFFICE_BASE_URL}/`);
 
-      await expect(page.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
-      await page.getByRole("button", { name: "Log in" }).click();
-
-      await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/`);
+      await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/`);
     })();
 
     // === DRIFT BANNER ===

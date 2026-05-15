@@ -120,6 +120,87 @@ public sealed class OpenTelemetryEnricherTests
     }
 
     [Fact]
+    public void Apply_WhenTrackableFeatureFlagsEnabled_ShouldEmitScopedPerFlagTags()
+    {
+        // Arrange - beta-features (Tenant) and experimental-ui (User) are the registry's
+        // two TrackInTelemetry=true flags with different scopes.
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = UserId.NewId(),
+            TenantId = new TenantId(12345),
+            Locale = "en-US",
+            Role = "Admin",
+            FeatureFlags = new HashSet<string> { "experimental-ui", "beta-features" }
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns(userInfo.TenantId);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        var enricher = new OpenTelemetryEnricher(executionContext);
+
+        using var activitySource = new ActivitySource("TestSource");
+        var listener = new ActivityListener { ShouldListenTo = _ => true, Sample = SampleAllData };
+        using (listener)
+        {
+            ActivitySource.AddActivityListener(listener);
+
+            using var activity = activitySource.StartActivity();
+            activity.Should().NotBeNull();
+
+            // Act
+            enricher.Apply();
+
+            // Assert - per-flag tags scoped by who carries the setting, value is "enabled",
+            // and the OTel-reserved feature_flag.* namespace is never emitted.
+            activity.Tags.Should().Contain(t => t.Key == "tenant.feature_flags.beta-features" && t.Value == "enabled");
+            activity.Tags.Should().Contain(t => t.Key == "user.feature_flags.experimental-ui" && t.Value == "enabled");
+            activity.Tags.Should().NotContain(t => t.Key.StartsWith("feature_flag.", StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
+    public void Apply_WhenNoTrackableFeatureFlagsEnabled_ShouldOmitFeatureFlagsTag()
+    {
+        // Arrange
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = UserId.NewId(),
+            TenantId = new TenantId(12345),
+            Locale = "en-US",
+            Role = "Admin",
+            FeatureFlags = new HashSet<string>()
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns(userInfo.TenantId);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        var enricher = new OpenTelemetryEnricher(executionContext);
+
+        using var activitySource = new ActivitySource("TestSource");
+        var listener = new ActivityListener { ShouldListenTo = _ => true, Sample = SampleAllData };
+        using (listener)
+        {
+            ActivitySource.AddActivityListener(listener);
+
+            using var activity = activitySource.StartActivity();
+            activity.Should().NotBeNull();
+
+            // Act
+            enricher.Apply();
+
+            // Assert
+            activity.Tags.Should().NotContain(t => t.Key.StartsWith("user.feature_flags.", StringComparison.Ordinal));
+            activity.Tags.Should().NotContain(t => t.Key.StartsWith("tenant.feature_flags.", StringComparison.Ordinal));
+        }
+    }
+
+    [Fact]
     public void Apply_WhenNoCurrentActivity_ShouldNotThrow()
     {
         // Arrange

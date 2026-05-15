@@ -13,7 +13,7 @@ import {
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { Building2Icon, HomeIcon, ReceiptIcon, UsersIcon, ZapIcon } from "lucide-react";
+import { Building2Icon, FlagIcon, HomeIcon, ReceiptIcon, UsersIcon, ZapIcon } from "lucide-react";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
@@ -28,6 +28,7 @@ export function BackOfficeSideMenu() {
   const isUsersActive = currentPath === "/users" || currentPath.startsWith("/users/");
   const isBillingEventsActive = currentPath === "/billing-events" || currentPath.startsWith("/billing-events/");
   const isInvoicesActive = currentPath === "/invoices" || currentPath.startsWith("/invoices/");
+  const isFeatureFlagsActive = currentPath === "/feature-flags" || currentPath.startsWith("/feature-flags/");
 
   return (
     <Sidebar collapsible="icon">
@@ -106,6 +107,25 @@ export function BackOfficeSideMenu() {
               </SidebarGroupContent>
             </SidebarGroup>
           )}
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <Trans>Platform</Trans>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild={true} isActive={isFeatureFlagsActive} tooltip={t`Feature flags`}>
+                    <RouterLink to="/feature-flags">
+                      <FlagIcon />
+                      <span>
+                        <Trans>Feature flags</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
       </nav>
       <SidebarRail />

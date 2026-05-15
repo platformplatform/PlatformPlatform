@@ -18,7 +18,7 @@ Run `build` first, then `format`, `lint`, `test` in parallel with `--no-build`.
 
 **Slow:** Aspire restart, backend format, backend lint, end-to-end tests. **Fast:** frontend format/lint, backend test.
 
-**Aspire**: The `aspire-restart` skill manages the AppHost - always use it; never `aspire run`, `aspire restart`, or the developer CLI's `run` command. Use the Aspire MCP `list_resources` tool to look up service URLs (or read `.workspace/port.txt` if you only need the base port). In the agentic workflow, only the Guardian agent restarts Aspire. All other agents must notify the Guardian if they need it restarted.
+**Aspire**: The `aspire-restart` skill manages the AppHost - always use it; never `aspire run`, `aspire restart`, or the developer CLI's `run` command. Port = `.workspace/port.txt` base + 2. Never trust Aspire MCP for the port — a common critical failure that silently runs SQL on another worktree's database. If you need other Aspire MCP data, call `mcp__aspire__select_apphost` with the cwd path first. In the agentic workflow, only the Guardian agent restarts Aspire. All other agents must notify the Guardian if they need it restarted.
 
 Never commit, amend, or revert without explicit user instruction each time. Commit messages: one descriptive line in imperative form, no description body.
 

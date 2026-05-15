@@ -1,6 +1,7 @@
 using System.Data;
 using System.Globalization;
 using Account.Database;
+using Account.Features.FeatureFlags.Shared;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Integrations.Stripe;
@@ -30,6 +31,7 @@ public sealed class ProcessPendingStripeEvents(
     StripeClientFactory stripeClientFactory,
     TimeProvider timeProvider,
     ITelemetryEventsCollector events,
+    PlanBasedFeatureFlagEvaluator planBasedFeatureFlagEvaluator,
     TelemetryClient telemetryClient,
     ILogger<ProcessPendingStripeEvents> logger
 )
@@ -78,6 +80,8 @@ public sealed class ProcessPendingStripeEvents(
 
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
 
+        var previousPlan = subscription.Plan;
+
         // The hot path runs whenever a webhook just landed (justAcknowledgedEvent is not null), an admin
         // reconcile click sets forceSync, or accumulated Pending stripe_events rows from a prior partial
         // delivery need a self-heal sync (the tenant-side process-pending-events polling endpoint
@@ -104,6 +108,11 @@ public sealed class ProcessPendingStripeEvents(
                 var now = timeProvider.GetUtcNow();
                 await stripeEventRepository.MarkPendingProcessedByStripeCustomerIdAsync(stripeCustomerId, now, subscription.TenantId, subscription.StripeSubscriptionId, cancellationToken);
             }
+        }
+
+        if (subscription.Plan != previousPlan)
+        {
+            await planBasedFeatureFlagEvaluator.EvaluatePlanFlagsForTenantAsync(subscription.TenantId, subscription.Plan, cancellationToken);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);

@@ -42,6 +42,30 @@
     </ItemGroup>
 
     <!--
+        Emit the feature flag manifest JSON for the frontend codegen step. Runs after Build by
+        invoking Account.Api.dll with the emit-feature-flags-manifest argument. The frontend script
+        application/shared-webapp/ui/scripts/generateFeatureFlagArtifacts.mjs reads this JSON and
+        produces application/shared-webapp/ui/featureFlags/labels.generated.ts and
+        registry.generated.ts with Lingui macros and runtime metadata for every flag declared in
+        FeatureFlags.cs. Inputs/Outputs let MSBuild skip the target when nothing has changed.
+    -->
+    <PropertyGroup>
+        <_FeatureFlagsManifestPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\shared-webapp\ui\featureFlags\featureFlags.generated.json'))</_FeatureFlagsManifestPath>
+        <_FeatureFlagsLabelsPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\shared-webapp\ui\featureFlags\labels.generated.ts'))</_FeatureFlagsLabelsPath>
+        <_FeatureFlagsRegistryPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\shared-webapp\ui\featureFlags\registry.generated.ts'))</_FeatureFlagsRegistryPath>
+        <_FeatureFlagsSourcePath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\shared-kernel\SharedKernel\FeatureFlags\FeatureFlags.cs'))</_FeatureFlagsSourcePath>
+        <_FeatureFlagsCodegenScriptPath>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\shared-webapp\ui\scripts\generateFeatureFlagArtifacts.mjs'))</_FeatureFlagsCodegenScriptPath>
+    </PropertyGroup>
+    <Target Name="GenerateFeatureFlagsManifest" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true'"
+            Inputs="$(_FeatureFlagsSourcePath);$(_FeatureFlagsCodegenScriptPath);$(TargetPath)"
+            Outputs="$(_FeatureFlagsManifestPath);$(_FeatureFlagsLabelsPath);$(_FeatureFlagsRegistryPath)">
+        <Message Importance="high" Text="%0AGenerateFeatureFlagsManifest:" />
+        <Message Importance="high" Text="  Writing $(_FeatureFlagsManifestPath)" />
+        <Exec Command="dotnet &quot;$(TargetPath)&quot; --emit-feature-flags-manifest &quot;$(_FeatureFlagsManifestPath)&quot;" LogStandardErrorAsError="true" />
+        <Exec Command="node &quot;$(_FeatureFlagsCodegenScriptPath)&quot;" LogStandardErrorAsError="true" />
+    </Target>
+
+    <!--
         Emit the 'back-office' OpenAPI document to account/BackOffice so the BackOffice SPA
         can run openapi-typescript on it. Runs after the built-in GenerateOpenApiDocuments target
         which emits the 'account' document. Mirrors the dotnet-getdocument invocation defined in

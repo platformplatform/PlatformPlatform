@@ -19,6 +19,7 @@ builder.Services
 
 builder.Services.AddTransient<DatabaseMigrationService<AccountDbContext>>();
 builder.Services.AddTransient<DataMigrationRunner<AccountDbContext>>();
+builder.Services.AddTransient<FeatureFlagDefinitionReconciler>();
 
 builder.Services.AddHostedService<BillingDriftWorker>();
 
@@ -37,5 +38,11 @@ if (!SharedInfrastructureConfiguration.IsRunningInAzure)
 
 var dataMigrationRunner = scope.ServiceProvider.GetRequiredService<DataMigrationRunner<AccountDbContext>>();
 await dataMigrationRunner.RunMigrationsAsync(lifetime.ApplicationStopping);
+
+// Converge the feature_flags table to the C# definitions on every Worker startup. Must complete
+// successfully before the worker accepts traffic - if reconciliation throws, the process exits
+// non-zero so the orchestrator notices, which is preferable to running with inconsistent flag state.
+var featureFlagDefinitionReconciler = scope.ServiceProvider.GetRequiredService<FeatureFlagDefinitionReconciler>();
+await featureFlagDefinitionReconciler.ReconcileAsync(lifetime.ApplicationStopping);
 
 await host.RunAsync();

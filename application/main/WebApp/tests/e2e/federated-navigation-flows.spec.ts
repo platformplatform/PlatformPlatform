@@ -64,12 +64,14 @@ test.describe("@smoke", () => {
     })();
 
     // === ACCOUNT AREA NAVIGATION ===
-    await step("Navigate to account page & verify dashboard renders")(async () => {
+    await step("Navigate to /account & verify redirect to /account/users")(async () => {
+      // The /account dashboard route is gated by the account-overview feature flag, which is off
+      // for new tenants. The route's beforeLoad guard redirects to /account/users so direct
+      // navigation lands on a surface the user can actually use.
       await page.goto("/account");
 
-      await expect(page).toHaveURL("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "View users" })).toBeVisible();
+      await expect(page).toHaveURL("/account/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     await step("Navigate to users page & verify account users page renders")(async () => {

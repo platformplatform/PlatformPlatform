@@ -189,6 +189,10 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         PaymentMethod = paymentMethod;
     }
 
+    // ENTITLEMENT POLICY: Failed payments do NOT immediately revoke plan-tier entitlements.
+    // Stripe Smart Retries handle recovery during the dunning window (typically ~3 weeks).
+    // If all retries fail, Stripe cancels the subscription server-side and subscriptionSuspended
+    // flips Plan to Basis. During the retry window the customer keeps premium features by design.
     public void SetPaymentFailed(DateTimeOffset failedAt)
     {
         FirstPaymentFailedAt = failedAt;

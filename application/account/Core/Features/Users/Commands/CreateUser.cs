@@ -48,7 +48,8 @@ internal sealed class CreateUserHandler(
         var locale = SinglePageAppConfiguration.SupportedLocalizations.Contains(command.PreferredLocale)
             ? command.PreferredLocale
             : string.Empty;
-        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, locale);
+        var rolloutIndex = await userRepository.GetNextRolloutIndexUnfilteredAsync(cancellationToken);
+        var user = User.Create(command.TenantId, command.Email, command.UserRole, command.EmailConfirmed, locale, rolloutIndex);
 
         await userRepository.AddAsync(user, cancellationToken);
         var gravatar = await gravatarClient.GetGravatar(user.Id, user.Email, cancellationToken);

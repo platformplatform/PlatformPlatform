@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using SharedKernel.Configuration;
 using SharedKernel.ExecutionContext;
+using SharedKernel.FeatureFlags;
 
 namespace SharedKernel.Telemetry;
 
@@ -68,6 +69,11 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.theme", executionContext.UserInfo.Theme);
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
         AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
+
+        foreach (var (name, value) in FeatureFlagTelemetryProperties.GetEnabledFeatureFlagTags(executionContext.UserInfo.FeatureFlags))
+        {
+            AddCustomProperty(telemetry, name, value);
+        }
     }
 
     public static void SetContext(IExecutionContext executionContext)

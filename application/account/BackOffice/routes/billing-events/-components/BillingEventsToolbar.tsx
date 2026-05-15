@@ -25,9 +25,8 @@ export function BillingEventsToolbar({ search, view }: Readonly<BillingEventsToo
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    if ((debouncedSearch || undefined) === search) {
-      return;
-    }
+    // See UsersToolbar.tsx for the rationale on omitting `search` from this effect's deps.
+    if ((debouncedSearch || undefined) === search) return;
     navigate({
       to: "/billing-events",
       search: (previous) => ({
@@ -38,7 +37,8 @@ export function BillingEventsToolbar({ search, view }: Readonly<BillingEventsToo
         pageOffset: undefined
       })
     });
-  }, [debouncedSearch, navigate, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, navigate]);
 
   useEffect(() => {
     setSearchInput(search ?? "");

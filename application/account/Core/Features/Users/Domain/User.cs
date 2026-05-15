@@ -1,12 +1,14 @@
 using System.Collections.Immutable;
 using Account.Features.ExternalAuthentication.Domain;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
+using SharedKernel.Platform;
 
 namespace Account.Features.Users.Domain;
 
 public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEntity
 {
-    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
+    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int rolloutBucket)
         : base(UserId.NewId())
     {
         Email = email;
@@ -16,6 +18,7 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
         Locale = locale ?? string.Empty;
         Avatar = new Avatar();
         ExternalIdentities = [];
+        RolloutBucket = rolloutBucket;
     }
 
     public string Email
@@ -38,15 +41,21 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
 
     public string Locale { get; private set; }
 
+    public bool IsInternalUser => Email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
+
     public DateTimeOffset? LastSeenAt { get; private set; }
 
     public ImmutableArray<ExternalIdentity> ExternalIdentities { get; private set; }
 
+    public int RolloutBucket { get; private set; }
+
+    public AbInclusionPin? AbInclusionPin { get; private set; }
+
     public TenantId TenantId { get; }
 
-    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
+    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int existingCount)
     {
-        return new User(tenantId, email, role, emailConfirmed, locale);
+        return new User(tenantId, email, role, emailConfirmed, locale, RolloutBucketHasher.ComputeRolloutBucket(existingCount));
     }
 
     public void Update(string firstName, string lastName, string title)
@@ -104,6 +113,11 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
     public ExternalIdentity? GetExternalIdentity(ExternalProviderType provider)
     {
         return ExternalIdentities.FirstOrDefault(e => e.Provider == provider);
+    }
+
+    public void SetAbInclusionPin(AbInclusionPin? abInclusionPin)
+    {
+        AbInclusionPin = abInclusionPin;
     }
 }
 

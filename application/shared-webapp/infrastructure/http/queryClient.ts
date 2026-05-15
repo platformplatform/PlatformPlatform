@@ -16,6 +16,7 @@ import createClient from "openapi-react-query";
 
 import { createAuthenticationMiddleware } from "../auth/AuthenticationMiddleware";
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
+import { dispatchUserFeatureFlagsFromResponse } from "../featureFlags/userFeatureFlagsHeader";
 import { preferredLocaleKey } from "../translations/constants";
 import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT } from "./httpClient";
@@ -71,6 +72,8 @@ function createHttpMiddleware() {
       return new Request(request, { signal });
     },
     onResponse: async ({ response }: { request: Request; response: Response }) => {
+      dispatchUserFeatureFlagsFromResponse(response);
+
       if (!response.ok) {
         // Normalize error and re-throw, so failed requests are handled via error handling
         throw await normalizeError(response);

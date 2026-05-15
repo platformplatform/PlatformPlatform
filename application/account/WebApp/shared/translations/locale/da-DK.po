@@ -813,6 +813,9 @@ msgstr "Nuværende plan"
 msgid "Customer deleted"
 msgstr "Kunde slettet"
 
+msgid "Customize which optional features are enabled for your account."
+msgstr "Tilpas hvilke valgfri funktioner der er aktiveret for din konto."
+
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Tilpas dit tema, sprog og zoomindstillinger."
 
@@ -1153,6 +1156,12 @@ msgstr "Mislykket"
 msgid "Failed to load payment processor."
 msgstr "Kunne ikke indlæse betalingsprocessor."
 
+msgid "Feature preferences"
+msgstr "Funktionspræferencer"
+
+msgid "Feature updated successfully"
+msgstr "Funktion opdateret succesfuldt"
+
 msgid "Features"
 msgstr "Funktioner"
 
@@ -1338,6 +1347,9 @@ msgstr "Er der andet, du gerne vil fortælle os? (valgfrit)"
 
 msgid "It may take up to 5 minutes before the device is logged out."
 msgstr "Det kan tage op til 5 minutter, før enheden er logget ud."
+
+msgid "It takes up to 5 minutes for changes to reach all users."
+msgstr "Det tager op til 5 minutter, før ændringer når alle brugere."
 
 msgid "Italian"
 msgstr "Italiensk"
@@ -1954,6 +1966,9 @@ msgstr "Powered by"
 
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
+
+msgid "Preference updated successfully"
+msgstr "Præference opdateret succesfuldt"
 
 msgid "Preferences"
 msgstr "Præferencer"
@@ -2665,6 +2680,9 @@ msgstr "Skift fed"
 
 msgid "Toggle buttons"
 msgstr "Skifteknapper"
+
+msgid "Toggle features available to your account."
+msgstr "Skift funktioner tilgængelige for din konto."
 
 msgid "Toggle group"
 msgstr "Skiftegruppe"

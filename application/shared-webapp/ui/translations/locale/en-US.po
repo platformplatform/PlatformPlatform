@@ -20,6 +20,18 @@ msgstr "{0, plural, one {# day ago} other {# days ago}}"
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {In # day} other {In # days}}"
 
+msgid "A/B rollout"
+msgstr "A/B rollout"
+
+msgid "Account overview page"
+msgstr "Account overview page"
+
+msgid "Allow users to authenticate using enterprise identity providers"
+msgstr "Allow users to authenticate using enterprise identity providers"
+
+msgid "Beta features"
+msgstr "Beta features"
+
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
 
@@ -38,20 +50,35 @@ msgstr "Close menu"
 msgid "Close sidebar"
 msgstr "Close sidebar"
 
+msgid "Compact view"
+msgstr "Compact view"
+
 msgid "Create <0>{search}</0>"
 msgstr "Create <0>{search}</0>"
 
 msgid "Decrease"
 msgstr "Decrease"
 
+msgid "Default"
+msgstr "Default"
+
 msgid "Drop files here, or click to browse"
 msgstr "Drop files here, or click to browse"
+
+msgid "Early access to experimental features before general availability"
+msgstr "Early access to experimental features before general availability"
+
+msgid "Experimental UI"
+msgstr "Experimental UI"
 
 msgid "Go to next page"
 msgstr "Go to next page"
 
 msgid "Go to previous page"
 msgstr "Go to previous page"
+
+msgid "Google OAuth"
+msgstr "Google OAuth"
 
 msgid "Increase"
 msgstr "Increase"
@@ -64,6 +91,9 @@ msgstr "Loading"
 
 msgid "Main content"
 msgstr "Main content"
+
+msgid "Manual override"
+msgstr "Manual override"
 
 msgid "Mobile navigation menu"
 msgstr "Mobile navigation menu"
@@ -86,8 +116,14 @@ msgstr "Open navigation menu"
 msgid "Pagination"
 msgstr "Pagination"
 
+msgid "Plan"
+msgstr "Plan"
+
 msgid "Previous"
 msgstr "Previous"
+
+msgid "Reduce spacing between UI elements for a denser layout"
+msgstr "Reduce spacing between UI elements for a denser layout"
 
 msgid "Resize sidebar"
 msgstr "Resize sidebar"
@@ -101,11 +137,26 @@ msgstr "Select time zone"
 msgid "Show more"
 msgstr "Show more"
 
+msgid "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list."
+msgstr "Show the account overview dashboard with user statistics at /account. When disabled, signed-in users go straight to the users list."
+
+msgid "Sign in with Google using OpenID Connect"
+msgstr "Sign in with Google using OpenID Connect"
+
+msgid "Single sign-on"
+msgstr "Single sign-on"
+
 msgid "Skip to main content"
 msgstr "Skip to main content"
 
 msgid "Stay"
 msgstr "Stay"
+
+msgid "Stripe-powered subscription billing and plan management"
+msgstr "Stripe-powered subscription billing and plan management"
+
+msgid "Subscriptions"
+msgstr "Subscriptions"
 
 msgid "Today"
 msgstr "Today"
@@ -115,6 +166,9 @@ msgstr "Toggle sidebar"
 
 msgid "Tomorrow"
 msgstr "Tomorrow"
+
+msgid "Try out experimental user interface components"
+msgstr "Try out experimental user interface components"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"

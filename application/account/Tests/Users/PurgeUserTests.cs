@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Account.Database;
+using Account.Features.FeatureFlags.Domain;
 using Account.Features.Users.Domain;
 using FluentAssertions;
 using SharedKernel.Domain;
@@ -31,7 +32,8 @@ public sealed class PurgeUserTests : EndpointBaseTest<AccountDbContext>
                 ("email_confirmed", true),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -92,7 +94,8 @@ public sealed class PurgeUserTests : EndpointBaseTest<AccountDbContext>
                 ("email_confirmed", true),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -101,5 +104,78 @@ public sealed class PurgeUserTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, $"Deleted user with id '{activeUserId}' not found.");
+    }
+
+    [Fact]
+    public async Task PurgeUser_WhenUserHasFeatureFlagOverrides_ShouldCascadeDeleteOverrideRows()
+    {
+        // Arrange - soft-deleted user with two user-scoped feature-flag override rows. Purge must cascade
+        // them to keep the feature_flags table free of orphans pointing at a removed user.
+        var deletedUserId = UserId.NewId();
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", deletedUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddDays(-10)),
+                ("modified_at", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("deleted_at", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Former Employee"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
+            ]
+        );
+
+        var now = TimeProvider.GetUtcNow();
+        var flagRowId1 = FeatureFlagId.NewId().ToString();
+        var flagRowId2 = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", flagRowId1),
+                ("created_at", now),
+                ("modified_at", null),
+                ("flag_key", "compact-view"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", deletedUserId.ToString()),
+                ("enabled_at", now),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Manual"),
+                ("scope", "User")
+            ]
+        );
+        Connection.Insert("feature_flags", [
+                ("id", flagRowId2),
+                ("created_at", now),
+                ("modified_at", null),
+                ("flag_key", "experimental-ui"),
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("user_id", deletedUserId.ToString()),
+                ("enabled_at", now),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("source", "Manual"),
+                ("scope", "User")
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account/users/{deletedUserId}/purge");
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        Connection.RowExists("users", deletedUserId.ToString()).Should().BeFalse();
+
+        var orphanCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE user_id = @userId",
+            [new { userId = deletedUserId.ToString() }]
+        );
+        orphanCount.Should().Be(0, "feature_flags rows for the purged user must cascade-delete");
     }
 }

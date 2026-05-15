@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
 import { typeOneTimeCode } from "./test-assertions";
@@ -82,6 +82,25 @@ export function testUser() {
     jobTitle: jobTitle(),
     company: companyName()
   };
+}
+
+/**
+ * Log in as Admin via MockEasyAuth on the back-office host.
+ *
+ * Selects the Admin radio, submits the login form, and waits for the back-office
+ * page to land on its expected URL. The caller is responsible for navigating to
+ * the desired back-office route before calling this helper, since MockEasyAuth
+ * redirects to whichever back-office URL initiated the auth challenge.
+ *
+ * @param backOfficePage Playwright page bound to the back-office baseURL
+ * @param expectedUrl The full back-office URL that should be active after login
+ */
+export async function logInAsAdmin(backOfficePage: Page, expectedUrl: string): Promise<void> {
+  await expect(backOfficePage.getByRole("radio", { name: "Admin Log in with admin rights" })).toBeVisible();
+  await backOfficePage.getByRole("radio", { name: "Admin Log in with admin rights" }).click();
+  await backOfficePage.getByRole("button", { name: "Log in" }).click();
+
+  await expect(backOfficePage).toHaveURL(expectedUrl);
 }
 
 /**

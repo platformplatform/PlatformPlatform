@@ -18,11 +18,13 @@ test.describe("@comprehensive", () => {
   test("should handle theme switching with persistence across viewport sizes", async ({ ownerPage }) => {
     createTestContext(ownerPage);
 
-    await step("Navigate to admin dashboard & verify default light theme and CSP nonce")(async () => {
-      const response = await ownerPage.goto("/account");
+    await step("Navigate to users page & verify default light theme and CSP nonce")(async () => {
+      // The /account dashboard route is gated by the account-overview flag (off by default for
+      // new tenants). Land on /account/users directly so this test isn't coupled to the flag.
+      const response = await ownerPage.goto("/account/users");
 
-      // Verify dashboard loads with default light theme
-      await expect(ownerPage.getByRole("heading", { name: "Overview" })).toBeVisible();
+      // Verify page loads with default light theme
+      await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
 
       // Verify CSP nonce is configured in meta tag and response headers
@@ -38,7 +40,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences page & select dark theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Dark" }).click();
 
@@ -48,7 +50,7 @@ test.describe("@comprehensive", () => {
     await step("Reload page & verify dark theme persists")(async () => {
       await ownerPage.reload();
 
-      await expect(ownerPage.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -62,7 +64,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences & select system theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "System" }).click();
 
@@ -81,7 +83,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences at 4K & select dark theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Dark" }).click();
 
@@ -121,7 +123,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences on mobile & switch to light theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Light" }).click();
 
@@ -140,7 +142,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences & set dark theme before session test")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Dark" }).click();
 
@@ -150,9 +152,9 @@ test.describe("@comprehensive", () => {
     await step("Open new browser tab & verify dark theme persists across sessions")(async () => {
       // Open a new tab in the same context to verify theme persistence
       const newPage = await ownerPage.context().newPage();
-      await newPage.goto("/account");
+      await newPage.goto("/account/users");
 
-      await expect(newPage.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(newPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(newPage.locator("html")).toHaveClass("dark");
 
       await newPage.close();
@@ -188,20 +190,22 @@ test.describe("@comprehensive", () => {
       await expect(page).toHaveURL("/dashboard");
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      // The /account dashboard is gated by the account-overview feature flag (off by default for
+      // new tenants); land on /account/users directly so this test is decoupled from the flag.
+      await page.goto("/account/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     await step("Navigate to preferences & select dark theme")(async () => {
       await page.goto("/user/preferences");
-      await expect(page.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await page.getByRole("button", { name: "Dark" }).click();
 
       await expect(page.locator("html")).toHaveClass("dark");
 
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await page.goto("/account/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     await step("Log out via User menu & verify dark theme persists on login page")(async () => {
@@ -218,7 +222,9 @@ test.describe("@comprehensive", () => {
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");
 
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      // After logout the returnPath reflects the last visited /account/users page (the dashboard
+      // route would have redirected here anyway with the account-overview flag off).
+      await expect(page).toHaveURL("/login?returnPath=%2Faccount%2Fusers");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Dark theme should persist after logout
@@ -237,15 +243,16 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await page.getByRole("button", { name: "Log in with email" }).click();
 
-      await expect(page).toHaveURL("/login/verify?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login/verify?returnPath=%2Faccount%2Fusers");
       await typeOneTimeCode(page, getVerificationCode());
 
       // Wait for redirect after OTP verification
-      await expect(page).not.toHaveURL("/login/verify?returnPath=%2Faccount");
+      await expect(page).not.toHaveURL("/login/verify?returnPath=%2Faccount%2Fusers");
 
-      // Navigate to account
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      // Verify the user lands on /account/users (the dashboard route is gated by the
+      // account-overview flag which is off by default for new tenants).
+      await page.goto("/account/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     await step("Navigate to non-existent admin route & verify 404 page displays")(async () => {
@@ -263,9 +270,9 @@ test.describe("@comprehensive", () => {
     })();
 
     // === ERROR PAGE VIA KONAMI CODE ===
-    await step("Navigate to admin dashboard & enter Konami code to trigger error page")(async () => {
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+    await step("Navigate to users page & enter Konami code to trigger error page")(async () => {
+      await page.goto("/account/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("ArrowUp");
@@ -288,12 +295,12 @@ test.describe("@comprehensive", () => {
       await expect(page.getByText("Error triggered via Konami code.", { exact: true })).toBeVisible();
     })();
 
-    await step("Click Try again button & verify error page resets to admin dashboard")(async () => {
+    await step("Click Try again button & verify error page resets to users page")(async () => {
       context.monitoring.consoleMessages = [];
 
       await page.getByRole("button", { name: "Try again" }).click();
 
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
   });
 });

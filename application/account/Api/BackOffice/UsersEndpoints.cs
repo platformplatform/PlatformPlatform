@@ -1,3 +1,5 @@
+using Account.Features.FeatureFlags.Queries;
+using Account.Features.Users.BackOffice.Commands;
 using Account.Features.Users.BackOffice.Queries;
 using Microsoft.Extensions.Options;
 using SharedKernel.ApiResults;
@@ -38,5 +40,13 @@ public sealed class UsersEndpoints : IEndpoints
         group.MapGet("/{id}/login-history", async Task<ApiResult<BackOfficeUserLoginHistoryResponse>> (UserId id, [AsParameters] GetBackOfficeUserLoginHistoryQuery query, IMediator mediator)
             => await mediator.Send(query with { Id = id })
         ).Produces<BackOfficeUserLoginHistoryResponse>();
+
+        group.MapGet("/{id}/feature-flags", async Task<ApiResult<GetUserFeatureFlagsResponse>> (UserId id, IMediator mediator)
+            => await mediator.Send(new GetUserFeatureFlagsQuery { UserId = id })
+        ).Produces<GetUserFeatureFlagsResponse>();
+
+        group.MapPut("/{id}/ab-inclusion-pin", async Task<ApiResult> (UserId id, SetUserAbInclusionPinCommand command, IMediator mediator)
+            => await mediator.Send(command with { UserId = id })
+        ).RequireAuthorization(BackOfficeIdentityDefaults.AdminPolicyName);
     }
 }

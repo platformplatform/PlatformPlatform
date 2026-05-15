@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import {
   collapsedContext,
   Sidebar,
@@ -43,13 +44,15 @@ export function AccountSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
   const { navigateToMain } = useMainNavigation();
+  const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
+  const { enabled: isAccountOverviewEnabled } = useFeatureFlag("account-overview");
 
   const isActive = (target: string, matchPrefix = false) => {
     const normalized = normalizePath(target);
     return matchPrefix ? currentPath.startsWith(normalized) : currentPath === normalized;
   };
 
-  const showBilling = userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+  const showBilling = userInfo?.role === "Owner" && isSubscriptionEnabled;
 
   return (
     <Sidebar collapsible="icon" mobileContent={<MobileMenu onNavigate={navigateToMain ?? undefined} />}>
@@ -108,16 +111,18 @@ export function AccountSideMenu() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild={true} isActive={isActive("/account")} tooltip={t`Overview`}>
-                    <RouterLink to="/account">
-                      <HomeIcon />
-                      <span>
-                        <Trans>Overview</Trans>
-                      </span>
-                    </RouterLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {isAccountOverviewEnabled && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild={true} isActive={isActive("/account")} tooltip={t`Overview`}>
+                      <RouterLink to="/account">
+                        <HomeIcon />
+                        <span>
+                          <Trans>Overview</Trans>
+                        </span>
+                      </RouterLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild={true} isActive={isActive("/account/settings")} tooltip={t`Settings`}>
                     <RouterLink to="/account/settings">

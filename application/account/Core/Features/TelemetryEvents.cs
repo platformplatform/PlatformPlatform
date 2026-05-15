@@ -1,11 +1,13 @@
 using Account.Features.Authentication.Domain;
 using Account.Features.EmailAuthentication.Domain;
 using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features;
@@ -63,6 +65,54 @@ public sealed class ExternalSignupFailed(ExternalLoginId? externalLoginId, Exter
 
 public sealed class ExternalSignupStarted(ExternalProviderType providerType)
     : TelemetryEvent(("provider_type", providerType));
+
+public sealed class FeatureFlagActivated(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
+public sealed class FeatureFlagDeactivated(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
+public sealed class FeatureFlagDeleted(string flagKey, int overridesRemoved, int daysSinceOrphaned)
+    : TelemetryEvent(("flag_key", flagKey), ("overrides_removed", overridesRemoved), ("days_since_orphaned", daysSinceOrphaned));
+
+public sealed class FeatureFlagOrphanedByReconciler(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
+public sealed class FeatureFlagPlanOverrideActivated(string flagKey, TenantId tenantId, PlanTier planTier)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("plan_tier", planTier));
+
+public sealed class FeatureFlagPlanOverrideDeactivated(string flagKey, TenantId tenantId, PlanTier planTier)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("plan_tier", planTier));
+
+public sealed class FeatureFlagRestoredByReconciler(string flagKey, int overridesRestored)
+    : TelemetryEvent(("flag_key", flagKey), ("overrides_restored", overridesRestored));
+
+public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int fromPercentage, int toPercentage)
+    : TelemetryEvent(("flag_key", flagKey), ("from_percentage", fromPercentage), ("to_percentage", toPercentage));
+
+public sealed class FeatureFlagSourceTransitionedByReconciler(string flagKey, FeatureFlagSource fromSource, FeatureFlagSource toSource, int staleOverridesRemoved)
+    : TelemetryEvent(("flag_key", flagKey), ("from_source", fromSource), ("to_source", toSource), ("stale_overrides_removed", staleOverridesRemoved));
+
+// Attributes Set/Removed override events to the actor that invoked the mutation. Plan-source
+// override transitions have their own FeatureFlagPlanOverride* events and are not represented here.
+public enum FeatureFlagOverrideTrigger
+{
+    Internal,
+    Owner,
+    Self
+}
+
+public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, TenantId tenantId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("trigger", trigger));
+
+public sealed class FeatureFlagTenantOverrideSet(string flagKey, TenantId tenantId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId), ("trigger", trigger));
+
+public sealed class FeatureFlagUserOverrideRemoved(string flagKey, UserId userId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId), ("trigger", trigger));
+
+public sealed class FeatureFlagUserOverrideSet(string flagKey, UserId userId, FeatureFlagOverrideTrigger trigger)
+    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId), ("trigger", trigger));
 
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));
@@ -214,14 +264,17 @@ public sealed class SubscriptionUpgraded(
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
+public sealed class TenantAbInclusionPinUpdated(TenantId tenantId, AbInclusionPin? fromPin, AbInclusionPin? toPin)
+    : TelemetryEvent(("tenant_id", tenantId), ("from_pin", fromPin as object ?? "none"), ("to_pin", toPin as object ?? "none"));
+
 public sealed class TenantBillingDriftAcknowledged(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
-public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
-    : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState));
+public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState, int featureFlagRowsRemoved)
+    : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState), ("feature_flag_rows_removed", featureFlagRowsRemoved));
 
 public sealed class TenantLogoRemoved
     : TelemetryEvent;
@@ -240,6 +293,9 @@ public sealed class TenantSwitched(TenantId fromTenantId, TenantId toTenantId, U
 
 public sealed class TenantUpdated
     : TelemetryEvent;
+
+public sealed class UserAbInclusionPinUpdated(UserId userId, AbInclusionPin? fromPin, AbInclusionPin? toPin)
+    : TelemetryEvent(("user_id", userId), ("from_pin", fromPin as object ?? "none"), ("to_pin", toPin as object ?? "none"));
 
 public sealed class UserAvatarRemoved
     : TelemetryEvent;

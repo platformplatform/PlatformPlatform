@@ -17,6 +17,12 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Retrieves tenants by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Retrieves a tenant by ID without applying tenant query filters.
     ///     This method should only be used in webhook processing where tenant context is not established.
     /// </summary>
@@ -32,13 +38,6 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Dictionary<TenantId, string>> GetNamesByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Loads tenants by id without applying tenant query filters.
-    ///     Used by back-office cross-tenant queries that need full tenant data (logo, plan, ...) where
-    ///     tenant context is not established.
-    /// </summary>
-    Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
-
-    /// <summary>
     ///     Returns every tenant created at or after <paramref name="since" /> without applying tenant query filters.
     ///     Used by the back-office dashboard to compute new-tenant trend buckets across all tenants.
     /// </summary>
@@ -47,6 +46,7 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     /// <summary>
     ///     Returns every tenant without applying tenant query filters.
     ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
+    ///     Also used by internal API endpoints where tenant context is not established.
     /// </summary>
     Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 
@@ -55,6 +55,15 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     Used by the back-office dashboard "Recent signups" list.
     /// </summary>
     Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns the next monotonic rollout index for a new tenant, used by the low-discrepancy bucket
+    ///     function in <see cref="Tenant" /> to assign a well-spread rollout bucket. The Postgres sequence
+    ///     guarantees uniqueness under concurrent CreateTenantCommand calls; SQLite (test database) falls
+    ///     back to COUNT(*) which preserves the previous behavior.
+    ///     Tenant query filter is ignored because tenant creation predates tenant context.
+    /// </summary>
+    Task<int> GetNextRolloutIndexUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 public sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -69,6 +78,17 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     public async Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves tenants by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
+    {
+        if (ids.Length == 0) return [];
+
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -116,18 +136,6 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Loads tenants by id without applying tenant query filters.
-    ///     Used by back-office cross-tenant queries that need full tenant data (logo, plan, ...) where
-    ///     tenant context is not established.
-    /// </summary>
-    public async Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
-    {
-        if (ids.Length == 0) return [];
-
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
-    }
-
-    /// <summary>
     ///     Returns every tenant created at or after <paramref name="since" /> without applying tenant query filters.
     ///     Used by the back-office dashboard to compute new-tenant trend buckets across all tenants.
     ///     SQLite cannot translate DateTimeOffset comparisons in WHERE, so the time filter runs in memory; the
@@ -142,10 +150,11 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     /// <summary>
     ///     Returns every tenant without applying tenant query filters.
     ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
+    ///     Also used by internal API endpoints where tenant context is not established.
     /// </summary>
     public async Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).OrderBy(t => t.Id).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -158,5 +167,30 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     {
         var tenants = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return tenants.OrderByDescending(t => t.CreatedAt).Take(limit).ToArray();
+    }
+
+    /// <summary>
+    ///     Returns the next monotonic rollout index for a new tenant, used by the low-discrepancy bucket
+    ///     function in <see cref="Tenant" /> to assign a well-spread rollout bucket. The Postgres sequence
+    ///     guarantees uniqueness under concurrent CreateTenantCommand calls; SQLite (test database) falls
+    ///     back to COUNT(*) which preserves the previous behavior.
+    ///     Tenant query filter is ignored because tenant creation predates tenant context.
+    /// </summary>
+    public async Task<int> GetNextRolloutIndexUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).CountAsync(cancellationToken);
+        }
+
+        var nextSequenceValue = await accountDbContext.Database
+            .SqlQueryRaw<long>("SELECT nextval('tenant_rollout_index_sequence') AS \"Value\"")
+            .SingleAsync(cancellationToken);
+
+        // Sequence is seeded at COUNT(*)+1, so the first nextval after migration equals the previous COUNT+1.
+        // Subtracting 1 preserves the original count-based contract used by Tenant.Create. The mask keeps
+        // the cast non-negative past 2.1B cumulative inserts (including rolled-back/leaked values) while
+        // preserving int.MaxValue itself (the `% int.MaxValue` form silently collapses that value to 0).
+        return (int)((nextSequenceValue - 1) & 0x7FFF_FFFF);
     }
 }

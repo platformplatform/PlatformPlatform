@@ -82,7 +82,8 @@ public sealed class GetDashboardRecentSignupsTests : BackOfficeEndpointBaseTest
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 50)
             ]
         );
     }

@@ -89,7 +89,8 @@ public sealed class GetDashboardPlanDistributionTests : BackOfficeEndpointBaseTe
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", plan.ToString()),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 50)
             ]
         );
         return tenantId;

@@ -119,8 +119,10 @@ test.describe("@comprehensive", () => {
 
       await page.getByRole("button", { name: "English" }).click();
 
-      // Language change triggers page reload
-      await expect(page.getByRole("heading", { name: "Preferences" })).toBeVisible();
+      // Language change triggers page reload. The User preferences screen now renders both a "User
+      // preferences" h1 and a "Feature preferences" h3, so match the exact h1 to avoid strict-mode
+      // collisions on the substring "Preferences".
+      await expect(page.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
 
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
     })();

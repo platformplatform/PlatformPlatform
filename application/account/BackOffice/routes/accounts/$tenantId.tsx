@@ -4,7 +4,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/Tabs";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ActivityIcon, LayoutGridIcon, ReceiptIcon, UsersIcon } from "lucide-react";
+import { ActivityIcon, FlagIcon, LayoutGridIcon, ReceiptIcon, UsersIcon } from "lucide-react";
 import { useCallback } from "react";
 import { z } from "zod";
 
@@ -14,16 +14,17 @@ import { api } from "@/shared/lib/api/client";
 import { AccountBillingTab } from "./-components/AccountBillingTab";
 import { AccountCurrentPlanCard } from "./-components/AccountCurrentPlanCard";
 import { AccountDetailHeader } from "./-components/AccountDetailHeader";
+import { AccountFeatureFlagsTab } from "./-components/AccountFeatureFlagsTab";
 import { AccountHealthTiles } from "./-components/AccountHealthTiles";
 import { AccountOverviewTab } from "./-components/AccountOverviewTab";
 import { AccountUsersTab } from "./-components/AccountUsersTab";
 
-type AccountDetailTab = "overview" | "users" | "invoices" | "billing-events";
+type AccountDetailTab = "overview" | "users" | "invoices" | "billing-events" | "feature-flags";
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
 
 const accountDetailSearchSchema = z.object({
-  tab: z.enum(["overview", "users", "invoices", "billing-events"]).optional()
+  tab: z.enum(["overview", "users", "invoices", "billing-events", "feature-flags"]).optional()
 });
 
 export const Route = createFileRoute("/accounts/$tenantId")({
@@ -86,6 +87,10 @@ function AccountDetailPage() {
                     <Trans>Billing events</Trans>
                   </TabsTrigger>
                 )}
+                <TabsTrigger value="feature-flags">
+                  <FlagIcon className="size-4" aria-hidden={true} />
+                  <Trans>Feature flags</Trans>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="overview" className="flex flex-col gap-6">
                 <AccountOverviewTab tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
@@ -118,6 +123,9 @@ function AccountDetailPage() {
                   <AccountBillingTab tenantId={tenantId} variant="events-full" />
                 </TabsContent>
               )}
+              <TabsContent value="feature-flags">
+                <AccountFeatureFlagsTab tenantId={tenantId} />
+              </TabsContent>
             </Tabs>
           </div>
         </AppLayout>

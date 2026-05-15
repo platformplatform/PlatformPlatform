@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
+using SharedKernel.Platform;
 using SharedKernel.SinglePageApp;
 
 namespace SharedKernel.Authentication;
@@ -12,6 +13,8 @@ namespace SharedKernel.Authentication;
 public class UserInfo
 {
     private const string DefaultLocale = "en-US";
+
+    private static readonly IReadOnlySet<string> EmptyFeatureFlags = new HashSet<string>();
 
     /// <summary>
     ///     Represents the system user, typically used for background tasks or where no user is directly authenticated.
@@ -54,6 +57,19 @@ public class UserInfo
 
     public SessionId? SessionId { get; init; }
 
+    public bool IsInternalUser { get; init; }
+
+    public IReadOnlySet<string> FeatureFlags { get; init; } = EmptyFeatureFlags;
+
+    public int TenantRolloutBucket { get; init; }
+
+    public int? UserRolloutBucket { get; init; }
+
+    public bool IsFeatureFlagEnabled(string flagKey)
+    {
+        return FeatureFlags.Contains(flagKey);
+    }
+
     public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale, string? zoomLevel = null, string? theme = null)
     {
         if (user?.Identity?.IsAuthenticated != true)
@@ -70,6 +86,10 @@ public class UserInfo
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         var tenantId = user.FindFirstValue("tenant_id");
         var sessionId = user.FindFirstValue("session_id");
+        var email = user.FindFirstValue(ClaimTypes.Email);
+        var featureFlagsClaim = user.FindFirstValue(AuthenticationTokenHttpKeys.FeatureFlagsClaimName);
+        var tenantRolloutBucketClaim = user.FindFirstValue("tenant_rollout_bucket");
+        var userRolloutBucketClaim = user.FindFirstValue("user_rollout_bucket");
         return new UserInfo
         {
             IsAuthenticated = true,
@@ -87,8 +107,24 @@ public class UserInfo
             SubscriptionPlan = user.FindFirstValue("subscription_plan"),
             Locale = GetValidLocale(user.FindFirstValue("locale")),
             ZoomLevel = zoomLevel,
-            Theme = theme
+            Theme = theme,
+            IsInternalUser = IsInternalUserEmail(email),
+            FeatureFlags = ParseFeatureFlags(featureFlagsClaim),
+            TenantRolloutBucket = !string.IsNullOrEmpty(tenantRolloutBucketClaim) ? int.Parse(tenantRolloutBucketClaim) : 0,
+            UserRolloutBucket = !string.IsNullOrEmpty(userRolloutBucketClaim) ? int.Parse(userRolloutBucketClaim) : null
         };
+    }
+
+    private static IReadOnlySet<string> ParseFeatureFlags(string? claim)
+    {
+        if (string.IsNullOrEmpty(claim)) return EmptyFeatureFlags;
+        return new HashSet<string>(claim.Split(',', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static bool IsInternalUserEmail(string? email)
+    {
+        if (string.IsNullOrEmpty(email)) return false;
+        return email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GetValidLocale(string? locale)

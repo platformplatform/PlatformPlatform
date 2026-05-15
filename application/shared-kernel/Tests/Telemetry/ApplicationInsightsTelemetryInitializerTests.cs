@@ -91,6 +91,75 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
     }
 
     [Fact]
+    public void Initialize_WhenTrackableFeatureFlagsEnabled_ShouldEmitScopedPerFlagProperties()
+    {
+        // Arrange - beta-features (Tenant) and experimental-ui (User) are the registry's two
+        // TrackInTelemetry=true flags with different scopes. Symmetric with OpenTelemetryEnricherTests.
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = UserId.NewId(),
+            TenantId = new TenantId(12345),
+            Locale = "en-US",
+            Role = "Admin",
+            FeatureFlags = new HashSet<string> { "experimental-ui", "beta-features" }
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns(userInfo.TenantId);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        ApplicationInsightsTelemetryInitializer.SetContext(executionContext);
+
+        var telemetry = new RequestTelemetry();
+        var initializer = new ApplicationInsightsTelemetryInitializer();
+
+        // Act
+        initializer.Initialize(telemetry);
+
+        // Assert - per-flag dimensions scoped by who carries the setting, value is "enabled",
+        // and the OTel-reserved feature_flag.* namespace is never emitted.
+        telemetry.Context.GlobalProperties.Should().ContainKey("tenant.feature_flags.beta-features");
+        telemetry.Context.GlobalProperties["tenant.feature_flags.beta-features"].Should().Be("enabled");
+        telemetry.Context.GlobalProperties.Should().ContainKey("user.feature_flags.experimental-ui");
+        telemetry.Context.GlobalProperties["user.feature_flags.experimental-ui"].Should().Be("enabled");
+        telemetry.Context.GlobalProperties.Keys.Should().NotContain(k => k.StartsWith("feature_flag.", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Initialize_WhenNoTrackableFeatureFlagsEnabled_ShouldOmitFeatureFlagProperties()
+    {
+        // Arrange
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = UserId.NewId(),
+            TenantId = new TenantId(12345),
+            Locale = "en-US",
+            Role = "Admin",
+            FeatureFlags = new HashSet<string>()
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns(userInfo.TenantId);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        ApplicationInsightsTelemetryInitializer.SetContext(executionContext);
+
+        var telemetry = new RequestTelemetry();
+        var initializer = new ApplicationInsightsTelemetryInitializer();
+
+        // Act
+        initializer.Initialize(telemetry);
+
+        // Assert
+        telemetry.Context.GlobalProperties.Keys.Should().NotContain(k => k.StartsWith("user.feature_flags.", StringComparison.Ordinal));
+        telemetry.Context.GlobalProperties.Keys.Should().NotContain(k => k.StartsWith("tenant.feature_flags.", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Initialize_WhenSessionIdIsNull_ShouldNotSetSessionIdInTelemetry()
     {
         // Arrange
