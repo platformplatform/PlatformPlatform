@@ -47,14 +47,15 @@ export function FeatureFlagAudienceToolbar({
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
-    // `search` is intentionally NOT a dep here so external URL changes (Clear filters) don't fire
-    // this effect with a stale debouncedSearch and immediately re-push the old typed value back
-    // into the URL. The companion sync effect below handles URL → input. This effect only runs
-    // when the user types something new and the debounce settles.
+    // `search` and `onSearchChange` are intentionally NOT deps. `search` would fire this effect on
+    // external URL changes (Clear filters) with a stale debouncedSearch and immediately re-push the
+    // old typed value. `onSearchChange` is a fresh inline arrow on every parent render, so keeping
+    // it in deps causes the same regression. The companion sync effect below handles URL → input.
+    // This effect only runs when the user types something new and the debounce settles.
     if ((debouncedSearch || undefined) === search) return;
     onSearchChange(debouncedSearch || undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, onSearchChange]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     setSearchInput(search ?? "");
