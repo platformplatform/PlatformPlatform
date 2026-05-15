@@ -121,7 +121,7 @@ export function PlanFeatureFlagTenantsSection({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div>
         <h3>
           <Trans>Account status</Trans>

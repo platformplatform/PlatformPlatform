@@ -119,7 +119,10 @@ export default function FeatureFlagDetailPage() {
           {isLoading ? (
             <FeatureFlagDetailSkeleton />
           ) : featureFlag ? (
-            <div className="flex flex-col gap-8">
+            // min-h-0 + flex-1 lets the trailing list section claim the remaining vertical space so
+            // its Empty state renders centred — matches the /users, /accounts, /invoices, and
+            // /billing-events layouts where Empty is a direct child of AppLayout's flex-1 body.
+            <div className="flex min-h-0 flex-1 flex-col gap-8">
               {isPlanFeatureFlag ? (
                 <PlanFeatureFlagInfoSection featureFlag={featureFlag} />
               ) : (
