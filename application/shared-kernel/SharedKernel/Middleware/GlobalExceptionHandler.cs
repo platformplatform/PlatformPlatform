@@ -35,7 +35,7 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
             // PG 23505 unique_violation wraps as DbUpdateException with a PostgresException inner.
             // EF Core does not auto-map this to DbUpdateConcurrencyException (which is reserved for
             // zero-row UPDATE). Treat the race as a 409 so SPA retry/error handling can act on it.
-            case DbUpdateException ex when ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation }:
+            case DbUpdateException { InnerException: PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } }:
                 statusCode = StatusCodes.Status409Conflict;
                 title = "Conflict";
                 detail = "The resource was modified by another process. Please try again.";
