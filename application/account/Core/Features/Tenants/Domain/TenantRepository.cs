@@ -188,9 +188,9 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
             .SingleAsync(cancellationToken);
 
         // Sequence is seeded at COUNT(*)+1, so the first nextval after migration equals the previous COUNT+1.
-        // Subtracting 1 preserves the original count-based contract used by Tenant.Create. Modulo int.MaxValue
-        // keeps the cast from overflowing to a negative value past 2.1B cumulative inserts (including
-        // failed/rolled-back inserts that leak sequence values).
-        return (int)((nextSequenceValue - 1) % int.MaxValue);
+        // Subtracting 1 preserves the original count-based contract used by Tenant.Create. The mask keeps
+        // the cast non-negative past 2.1B cumulative inserts (including rolled-back/leaked values) while
+        // preserving int.MaxValue itself (the `% int.MaxValue` form silently collapses that value to 0).
+        return (int)((nextSequenceValue - 1) & 0x7FFF_FFFF);
     }
 }
