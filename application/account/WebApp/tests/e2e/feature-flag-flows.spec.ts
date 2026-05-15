@@ -18,7 +18,8 @@ const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
 // rollout=100 + no override on the worker tenant): each test activates the flag and pins rollout to
 // 100 at the start, removes any leftover Test Organization override before driving the toggle steps,
 // and at cleanup re-pins rollout to 100 and removes the override rather than resetting to 0.
-// Concurrent runs converge to the same state and never observe an empty Enabled view.
+// Concurrent runs converge to the same activate/rollout end state; the override-toggle steps must
+// remain reload-free between clicks so a concurrent cleanup can't DELETE an override mid-sequence.
 
 // SPA shells inject the antiforgery token into a `<meta name="antiforgeryToken">` tag at runtime.
 // Back-office mutation endpoints removed `.DisableAntiforgery()`, so Playwright API calls now have to
@@ -83,10 +84,23 @@ async function removeAllTenantOverrides(page: Page, flagKey: string): Promise<vo
 }
 
 test.describe("@smoke", () => {
+  // Holds the already-logged-in back-office page from the test body so the afterEach can reuse it
+  // for the cleanup PUTs (one MockEasyAuth roundtrip instead of two). Falls back to spinning up a
+  // fresh context if the test failed before the back-office login completed.
+  let backOfficePageForCleanup: Page | null = null;
+
   // Restore the idempotent end state (beta-features active, rollout=100, no Test Organization
   // override) after every test, including failures. Without this hook a mid-test failure between
   // the start-of-test scrub and the end-of-test scrub would leak the override into subsequent runs.
   test.afterEach(async ({ browser }) => {
+    if (backOfficePageForCleanup) {
+      await removeAllTenantOverrides(backOfficePageForCleanup, "beta-features");
+      await activateAndPinRollout(backOfficePageForCleanup, "beta-features", 100);
+      await backOfficePageForCleanup.context().close();
+      backOfficePageForCleanup = null;
+      return;
+    }
+
     const cleanupContext = await browser.newContext({ baseURL: BACK_OFFICE_BASE_URL, ignoreHTTPSErrors: true });
     const cleanupPage = await cleanupContext.newPage();
 
@@ -124,6 +138,10 @@ test.describe("@smoke", () => {
 
       await logInAsAdmin(page, `${BACK_OFFICE_BASE_URL}/feature-flags`);
     })();
+
+    // Hand the logged-in back-office page to afterEach so the cleanup PUTs reuse this session
+    // rather than spinning up a third browser context.
+    backOfficePageForCleanup = page;
 
     // === BACK-OFFICE FLAG LIST ===
 
@@ -185,10 +203,9 @@ test.describe("@smoke", () => {
       }
     )();
 
-    // With rollout=100 and no leftover override the switch starts ON (default-enabled via rollout).
-    // First click creates a disable-override; second click flips it to an enable-override (skipping
-    // the "single-click clears redundant override" branch because the override state differs from
-    // the default). Cleanup deletes the override so the next run starts from the same precondition.
+    // Tenant override toggle starts ON because rollout=100; first click writes a disable-override,
+    // second flips to enable-override. Cleanup deletes the override so the next run starts from the
+    // same precondition.
     await step(
       "Click the Test Organization switch from default-enabled to disabled & verify disable toast and switch off"
     )(async () => {
@@ -216,9 +233,7 @@ test.describe("@smoke", () => {
     )();
 
     await step("Set A/B rollout percentage to 42 via the rollout input & verify toast and input value")(async () => {
-      // NumberField renders an `<input type="text">` (not number), so it exposes the `textbox` role
-      // rather than `spinbutton`. Match the label via aria-labelledby on the input.
-      const percentageInput = page.getByRole("textbox", { name: "Rollout %" });
+      const percentageInput = page.getByLabel("Rollout %");
       await percentageInput.fill("42");
       await blurActiveElement(page);
 
@@ -237,8 +252,7 @@ test.describe("@smoke", () => {
     // tested here, but the ActivateFeatureFlagValidator now rejects flags whose definition has
     // `IsKillSwitchEnabled: false` with a 400. The activation surface for those flags is the
     // owner-scoped tenant-override and the user-scoped user-override toggles exercised below.
-
-    await backOfficeContext.close();
+    // The back-office context stays open so afterEach reuses its logged-in admin session.
 
     // === ACCOUNT SETTINGS: ACCOUNT FEATURE FLAGS ===
 
@@ -264,6 +278,19 @@ test.describe("@smoke", () => {
       }
     )();
 
+    await step("Navigate to /account with account-overview ON & verify the dashboard heading renders")(async () => {
+      await ownerPage.goto("/account");
+
+      await expect(ownerPage).toHaveURL("/account/");
+      await expect(ownerPage.getByRole("heading", { name: "Account overview" })).toBeVisible();
+    })();
+
+    await step("Return to account settings & verify Features section ready for next toggle")(async () => {
+      await ownerPage.goto("/account/settings");
+
+      await expect(ownerPage.getByRole("heading", { name: "Features" })).toBeVisible();
+    })();
+
     await step("Toggle account-overview flag OFF & verify response x-user-feature-flags no longer contains it")(
       async () => {
         const toggle = ownerPage.getByRole("switch", { name: "Account overview page" });
@@ -278,6 +305,13 @@ test.describe("@smoke", () => {
         await expect(toggle).not.toBeChecked();
       }
     )();
+
+    await step("Navigate to /account with account-overview OFF & verify redirect to /account/users")(async () => {
+      await ownerPage.goto("/account");
+
+      await expect(ownerPage).toHaveURL("/account/users");
+      await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
+    })();
 
     // === USER PREFERENCES: USER FEATURE FLAGS ===
 
@@ -507,13 +541,15 @@ test.describe("@comprehensive", () => {
       await expect(ownerChip).toHaveAttribute("aria-pressed", "true");
     })();
 
-    // === CLEANUP: re-activate + pin beta-features rollout to 100 (idempotent end state shared with @smoke) ===
+    // === CLEANUP: remove any tenant overrides + re-activate + pin beta-features rollout to 100 ===
+    // (idempotent end state shared with @smoke — enforced inside this step, not by earlier step ordering)
 
-    await step("Re-activate beta-features and pin rollout to 100 via back-office API & verify idempotent end state")(
-      async () => {
-        await activateAndPinRollout(page, "beta-features", 100);
-      }
-    )();
+    await step(
+      "Remove all beta-features tenant overrides and re-pin rollout to 100 via back-office API & verify idempotent end state"
+    )(async () => {
+      await removeAllTenantOverrides(page, "beta-features");
+      await activateAndPinRollout(page, "beta-features", 100);
+    })();
 
     await backOfficeContext.close();
   });

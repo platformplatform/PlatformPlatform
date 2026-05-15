@@ -40,7 +40,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences page & select dark theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Dark" }).click();
 
@@ -50,7 +50,7 @@ test.describe("@comprehensive", () => {
     await step("Reload page & verify dark theme persists")(async () => {
       await ownerPage.reload();
 
-      await expect(ownerPage.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -64,7 +64,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences & select system theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "System" }).click();
 
@@ -83,7 +83,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences at 4K & select dark theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Dark" }).click();
 
@@ -123,7 +123,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences on mobile & switch to light theme")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Light" }).click();
 
@@ -142,7 +142,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences & set dark theme before session test")(async () => {
       await ownerPage.goto("/user/preferences");
-      await expect(ownerPage.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await ownerPage.getByRole("button", { name: "Dark" }).click();
 
@@ -198,7 +198,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences & select dark theme")(async () => {
       await page.goto("/user/preferences");
-      await expect(page.getByRole("heading", { name: "User preferences", exact: true })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "User preferences", level: 1 })).toBeVisible();
 
       await page.getByRole("button", { name: "Dark" }).click();
 
