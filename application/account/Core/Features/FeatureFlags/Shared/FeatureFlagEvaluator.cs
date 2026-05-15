@@ -61,49 +61,36 @@ public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepos
     private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, int tenantRolloutBucket, AbInclusionPin? tenantAbInclusionPin)
     {
         var tenantOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId is null);
-        if (tenantOverride is not null)
-        {
-            return tenantOverride.IsActive;
-        }
+        if (tenantOverride is not null) return tenantOverride.IsActive;
 
         if (!definition.IsAbTestEligible) return false;
 
+        // Precedence (matches .claude/rules/backend/backend.md): manual override (above) > pin > rollout.
+        // Pins are unconditional: AlwaysOn includes the tenant even when rollout is at 0%/unset, and
+        // NeverOn excludes the tenant even at 100% rollout. This is what the project-level precedence
+        // story documents and what admins expect from a pin labelled "always on".
+        if (tenantAbInclusionPin is AbInclusionPin.AlwaysOn) return true;
+        if (tenantAbInclusionPin is AbInclusionPin.NeverOn) return false;
+
         if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
 
-        // Pin precedence: manual override (above) > pin-as-synthetic-bucket > regular bucket. Pins make
-        // the entity behave as if its bucket were the first (AlwaysOn -> threshold 1%) or last
-        // (NeverOn -> threshold 100%) in the rollout sequence, so 0% rollout still excludes everyone.
-        var effectiveBucket = tenantAbInclusionPin switch
-        {
-            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
-            _ => tenantRolloutBucket
-        };
-
-        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        return RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
     private static bool EvaluateUserScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, TenantId tenantId, UserId userId, int? userRolloutBucket, AbInclusionPin? userAbInclusionPin)
     {
         var userOverride = allRows.FirstOrDefault(f => f.FlagKey == definition.Key && f.TenantId == tenantId && f.UserId == userId);
-        if (userOverride is not null)
-        {
-            return userOverride.IsActive;
-        }
+        if (userOverride is not null) return userOverride.IsActive;
 
         if (!definition.IsAbTestEligible) return false;
+
+        if (userAbInclusionPin is AbInclusionPin.AlwaysOn) return true;
+        if (userAbInclusionPin is AbInclusionPin.NeverOn) return false;
 
         if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
         if (userRolloutBucket is null) return false;
 
-        var effectiveBucket = userAbInclusionPin switch
-        {
-            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
-            _ => userRolloutBucket.Value
-        };
-
-        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
     }
 
     // Two-pass parent-first ordering: parentless flags first, then flags with a parent. This relies on

@@ -267,6 +267,66 @@ public sealed class FeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContex
     }
 
     [Fact]
+    public async Task Evaluate_WhenTenantPinAlwaysOnAndRolloutZeroPercent_ShouldStillIncludeTenant()
+    {
+        // Arrange — 0% rollout writes BucketStart=BucketEnd=NULL. Pre-fix, the rollout-null short-circuit
+        // would silently disable an AlwaysOn-pinned tenant. Pins must trump rollout: an admin who pins a
+        // tenant ahead of launch and leaves the rollout at 0% must still see the flag for that tenant.
+        var now = TimeProvider.System.GetUtcNow();
+        InsertFeatureFlag("beta-features", null, null, now, null, null, null);
+
+        // Act
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, null, AbInclusionPin.AlwaysOn, null, CancellationToken.None);
+
+        // Assert
+        result.Should().Contain("beta-features");
+    }
+
+    [Fact]
+    public async Task Evaluate_WhenTenantPinNeverOnAndRolloutHundredPercent_ShouldStillExcludeTenant()
+    {
+        // Arrange — 100% rollout (BucketStart=0, BucketEnd=99) covers every bucket. Pre-fix, the
+        // pin-as-synthetic-bucket logic landed NeverOn in the covered range and the tenant was included
+        // anyway. Pins must trump rollout: NeverOn excludes the tenant regardless of rollout percentage.
+        var now = TimeProvider.System.GetUtcNow();
+        InsertFeatureFlag("beta-features", null, null, now, null, 0, 99);
+
+        // Act
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, null, AbInclusionPin.NeverOn, null, CancellationToken.None);
+
+        // Assert
+        result.Should().NotContain("beta-features");
+    }
+
+    [Fact]
+    public async Task Evaluate_WhenUserPinAlwaysOnAndRolloutZeroPercent_ShouldStillIncludeUser()
+    {
+        // Arrange
+        var now = TimeProvider.System.GetUtcNow();
+        InsertFeatureFlag("experimental-ui", null, null, now, null, null, null);
+
+        // Act
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, null, AbInclusionPin.AlwaysOn, CancellationToken.None);
+
+        // Assert
+        result.Should().Contain("experimental-ui");
+    }
+
+    [Fact]
+    public async Task Evaluate_WhenUserPinNeverOnAndRolloutHundredPercent_ShouldStillExcludeUser()
+    {
+        // Arrange
+        var now = TimeProvider.System.GetUtcNow();
+        InsertFeatureFlag("experimental-ui", null, null, now, null, 0, 99);
+
+        // Act
+        var result = await _evaluationService.EvaluateAsync(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, 50, 50, null, AbInclusionPin.NeverOn, CancellationToken.None);
+
+        // Assert
+        result.Should().NotContain("experimental-ui");
+    }
+
+    [Fact]
     public async Task Evaluate_WhenTenantPinAlwaysOnAndBucketStartIsZero_ShouldIncludeAtOnePercentRollout()
     {
         // Arrange — AlwaysOn pin must map to BucketStart, which is the first slot in the rollout sequence

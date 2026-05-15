@@ -231,30 +231,30 @@ public sealed class GetFeatureFlagTenantsHandler(
         };
     }
 
-    // The state a tenant would have if no manual override existed. AlwaysOn makes the entity behave as if
-    // its bucket were the first slot of the rollout (included when rollout >= 1%); NeverOn behaves as the
-    // last slot (included only when rollout = 100%). Mirrors FeatureFlagEvaluator.
+    // The state a tenant would have if no manual override existed. Pins are unconditional: AlwaysOn includes
+    // the tenant regardless of rollout, NeverOn excludes them regardless of rollout. Mirrors FeatureFlagEvaluator.
     private static bool ComputeDefaultEnabled(FeatureFlagDefinition definition, FeatureFlag? baseRow, int rolloutBucket, AbInclusionPin? abInclusionPin)
     {
         if (baseRow is null || !baseRow.IsActive) return false;
         if (!definition.IsAbTestEligible) return false;
-        if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
-        var effectiveBucket = abInclusionPin switch
-        {
-            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
-            _ => rolloutBucket
-        };
-        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        return EvaluateAbRollout(baseRow, rolloutBucket, abInclusionPin);
     }
 
-    // Pinned entities are rendered as "included at 1%" (AlwaysOn — first to be included in any rollout) or
-    // "included at 100%" (NeverOn — only included if the rollout reaches 100%, effectively never).
+    private static bool EvaluateAbRollout(FeatureFlag baseRow, int rolloutBucket, AbInclusionPin? abInclusionPin)
+    {
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return true;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return false;
+        if (baseRow.BucketStart is null || baseRow.BucketEnd is null) return false;
+        return RolloutBucketHasher.IsInRolloutBucketRange(rolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+    }
+
+    // Pinned entities bypass the rollout: AlwaysOn → 0 (always included) and NeverOn → null (never included
+    // by rollout). Without a pin we fall back to the per-key threshold.
     private static int? ComputeInclusionThresholdPercentage(FeatureFlagDefinition definition, int rolloutBucket, AbInclusionPin? abInclusionPin, string flagKey)
     {
         if (!definition.IsAbTestEligible) return null;
-        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 1;
-        if (abInclusionPin is AbInclusionPin.NeverOn) return 100;
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 0;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return null;
         return RolloutBucketHasher.ComputeInclusionThresholdPercentage(rolloutBucket, flagKey);
     }
 
@@ -276,16 +276,9 @@ public sealed class GetFeatureFlagTenantsHandler(
         // Gate by baseRow.IsActive so a globally-deactivated flag never shows as Enabled in the
         // bulk admin view — matches FeatureFlagEvaluator.EvaluateAsync which skips entirely when
         // the base row is inactive.
-        if (definition.IsAbTestEligible && baseRow is { IsActive: true, BucketStart: not null, BucketEnd: not null })
+        if (definition.IsAbTestEligible && baseRow is { IsActive: true })
         {
-            var effectiveBucket = tenant.AbInclusionPin switch
-            {
-                AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-                AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
-                _ => tenant.RolloutBucket
-            };
-            var isInRange = RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-            return (isInRange, FeatureFlagSource.AbRollout);
+            return (EvaluateAbRollout(baseRow, tenant.RolloutBucket, tenant.AbInclusionPin), FeatureFlagSource.AbRollout);
         }
 
         return (false, FeatureFlagSource.Default);

@@ -80,16 +80,9 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
             isEnabled = userOverride.IsActive;
             source = FeatureFlagSource.Manual;
         }
-        else if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
+        else if (definition.IsAbTestEligible)
         {
-            var effectiveBucket = abInclusionPin switch
-            {
-                AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-                AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
-                _ => userRolloutBucket
-            };
-            isEnabled = isBaseRowActive
-                        && RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            isEnabled = isBaseRowActive && EvaluateAbRollout(baseRow, userRolloutBucket, abInclusionPin);
             source = FeatureFlagSource.AbRollout;
         }
         else
@@ -124,21 +117,24 @@ public sealed class GetUserFeatureFlagsHandler(IFeatureFlagRepository featureFla
     {
         if (!isBaseRowActive) return false;
         if (!definition.IsAbTestEligible) return false;
-        if (baseRow?.BucketStart is null || baseRow.BucketEnd is null) return false;
-        var effectiveBucket = abInclusionPin switch
-        {
-            AbInclusionPin.AlwaysOn => baseRow.BucketStart.Value,
-            AbInclusionPin.NeverOn => RolloutBucketHasher.ComputeNeverOnBucket(baseRow.BucketStart.Value),
-            _ => rolloutBucket
-        };
-        return RolloutBucketHasher.IsInRolloutBucketRange(effectiveBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+        return EvaluateAbRollout(baseRow, rolloutBucket, abInclusionPin);
     }
 
+    private static bool EvaluateAbRollout(FeatureFlag? baseRow, int rolloutBucket, AbInclusionPin? abInclusionPin)
+    {
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return true;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return false;
+        if (baseRow?.BucketStart is null || baseRow.BucketEnd is null) return false;
+        return RolloutBucketHasher.IsInRolloutBucketRange(rolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+    }
+
+    // Pins are unconditional and bypass the rollout, so AlwaysOn → 0 (always included) and
+    // NeverOn → null (never included by rollout). Without a pin we fall back to the per-key threshold.
     private static int? ComputeInclusionThresholdPercentage(FeatureFlagDefinition definition, int rolloutBucket, AbInclusionPin? abInclusionPin)
     {
         if (!definition.IsAbTestEligible) return null;
-        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 1;
-        if (abInclusionPin is AbInclusionPin.NeverOn) return 100;
+        if (abInclusionPin is AbInclusionPin.AlwaysOn) return 0;
+        if (abInclusionPin is AbInclusionPin.NeverOn) return null;
         return RolloutBucketHasher.ComputeInclusionThresholdPercentage(rolloutBucket, definition.Key);
     }
 
