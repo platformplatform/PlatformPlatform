@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.EntityFramework;
 using SharedKernel.ExecutionContext;
 
 namespace Main.Database;
