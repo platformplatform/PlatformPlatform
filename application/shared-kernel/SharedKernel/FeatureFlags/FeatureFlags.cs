@@ -6,6 +6,12 @@ namespace SharedKernel.FeatureFlags;
 // PlanGatedTenantFlag, TenantOwnerConfigurableFlag, UserAbTestFlag, UserConfigurableFlag) that
 // matches how the flag should be evaluated and who is allowed to change it.
 //
+// On startup, the Account Worker's FeatureFlagDefinitionReconciler upserts a row in the
+// feature_flags table for every non-System flag declared here, so it shows up in the Back Office
+// immediately after deployment — no migration, no seed script. SystemFeatureFlag definitions are
+// evaluated from config and env vars instead, so they never get a DB row. Removing a flag marks
+// its row as orphaned but keeps it visible until you hard-delete it from the Back Office.
+//
 // The label and description below are also surfaced in the frontend: `build --backend` runs the
 // GenerateFeatureFlagsManifest MSBuild target which emits featureFlags.generated.json, and the
 // shared-webapp generateFeatureFlagArtifacts.mjs script turns that into labels.generated.ts with
