@@ -141,11 +141,29 @@ jobs:
       - name: Run Backend Linting
         working-directory: developer-cli
         run: |
-          set -o pipefail
-          dotnet run lint --backend ${{ needs.detect-scope.outputs.backend_scope }} --no-build | tee lint-output.log
+          set +e
+          dotnet run lint --backend ${{ needs.detect-scope.outputs.backend_scope }} --no-build
+          LINT_EXIT_CODE=$?
+          set -e
 
-          if ! grep -q "No backend issues found!" lint-output.log; then
-            echo "Code linting issues found."
+          if [ $LINT_EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "::error::Code linting issues found."
+            echo ""
+
+            RESULT_FILE=$(find ${GITHUB_WORKSPACE}/application -maxdepth 2 -name result.json -type f 2>/dev/null | head -n 1)
+
+            if [ -n "$RESULT_FILE" ] && [ -f "$RESULT_FILE" ]; then
+              cat "$RESULT_FILE"
+              echo ""
+              echo "### Code Inspection Issues" >> $GITHUB_STEP_SUMMARY
+              echo '```json' >> $GITHUB_STEP_SUMMARY
+              cat "$RESULT_FILE" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Result file not found in application/"
+            fi
             exit 1
           fi
 
