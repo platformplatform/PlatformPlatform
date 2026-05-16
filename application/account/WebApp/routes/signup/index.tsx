@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import logoMarkUrl from "@repo/ui/images/logo-mark.svg";
-import logoWrapUrl from "@repo/ui/images/logo-wrap.svg";
+import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-wrap.svg";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -199,7 +199,7 @@ export function StartSignupForm() {
           <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
-          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+          <img src={platformPlatformLogoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
         </Link>
       </div>
     </Form>

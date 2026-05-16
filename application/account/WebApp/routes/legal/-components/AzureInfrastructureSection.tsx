@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardDescription, CardTitle } from "@repo/ui/components/Card";
 import { Link } from "@repo/ui/components/Link";
-import platformLogo from "@repo/ui/images/logo-mark.svg";
+import platformPlatformLogoMark from "@repo/ui/images/platformplatform-logo-mark.svg";
 import {
   DatabaseIcon,
   ExternalLinkIcon,
@@ -141,7 +141,7 @@ function SecurityFeaturesGrid() {
 function PlatformPlatformCredit() {
   return (
     <div className="flex items-center justify-center gap-3">
-      <img src={platformLogo} alt={t`PlatformPlatform logo`} className="size-10" loading="lazy" />
+      <img src={platformPlatformLogoMark} alt={t`PlatformPlatform logo`} className="size-10" loading="lazy" />
       <p className="text-sm text-muted-foreground">
         <Trans>
           Built on{" "}

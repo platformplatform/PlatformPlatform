@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import logoWrapUrl from "@repo/ui/images/logo-wrap.svg";
+import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-wrap.svg";
 
 interface VerificationFooterProps {
   showRequestLink: boolean;
@@ -53,7 +53,7 @@ export function VerificationFooter({
           <Trans>Powered by</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
-          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
+          <img src={platformPlatformLogoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
         </Link>
       </div>
     </div>
