@@ -4,6 +4,7 @@ import { trackInteraction, useTrackOpen } from "@repo/infrastructure/application
 import { authSyncService, type TenantSwitchedMessage } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import {
   overlayContext,
@@ -142,7 +143,7 @@ export default function MobileMenu({ onNavigate }: Readonly<MobileMenuProps>) {
   };
 
   const currentTenant = tenants.find((tenant) => tenant.tenantId === userInfo?.tenantId);
-  const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || "PlatformPlatform";
+  const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || productName;
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo?.tenantName || "";
   const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo?.tenantLogoUrl;
 

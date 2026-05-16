@@ -64,14 +64,14 @@ msgstr "Replace this sample page with your own product information and branding.
 msgid "This is where your personalized dashboard content will appear. Stay tuned for updates."
 msgstr "This is where your personalized dashboard content will appear. Stay tuned for updates."
 
-msgid "Welcome to PlatformPlatform"
-msgstr "Welcome to PlatformPlatform"
+msgid "Welcome to {productName}"
+msgstr "Welcome to {productName}"
 
-msgid "You successfully deployed PlatformPlatform! 🎉"
-msgstr "You successfully deployed PlatformPlatform! 🎉"
+msgid "You successfully deployed {productName}! 🎉"
+msgstr "You successfully deployed {productName}! 🎉"
 
-msgid "You successfully installed PlatformPlatform! 🎉"
-msgstr "You successfully installed PlatformPlatform! 🎉"
+msgid "You successfully installed {productName}! 🎉"
+msgstr "You successfully installed {productName}! 🎉"
 
 msgid "Your dashboard is empty"
 msgstr "Your dashboard is empty"

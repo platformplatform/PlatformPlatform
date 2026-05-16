@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
+import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { ArrowRightLeftIcon, ChevronDownIcon, CircleUserIcon, CreditCardIcon, HomeIcon, UsersIcon } from "lucide-react";
@@ -30,7 +31,7 @@ export function TenantMenuSection({
   const hasSubscription = userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
   const hasTenantActions = hasMultipleTenants || canAccessAccountSettings || hasSubscription;
   const currentTenant = tenants.find((tenant) => tenant.tenantId === currentTenantId);
-  const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || "PlatformPlatform";
+  const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || productName;
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo?.tenantName || "";
   const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo?.tenantLogoUrl;
 

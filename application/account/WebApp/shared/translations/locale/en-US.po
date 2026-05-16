@@ -63,8 +63,11 @@ msgstr "{deletedCount} users permanently deleted"
 msgid "{price}/month"
 msgstr "{price}/month"
 
-msgid "© {currentYear} PlatformPlatform. All rights reserved."
-msgstr "© {currentYear} PlatformPlatform. All rights reserved."
+msgid "{productName} logo"
+msgstr "{productName} logo"
+
+msgid "© {currentYear} {productName}. All rights reserved."
+msgstr "© {currentYear} {productName}. All rights reserved."
 
 msgid "+39 06 555 0000"
 msgstr "+39 06 555 0000"
@@ -2416,8 +2419,8 @@ msgstr "Sign in without a password using your device."
 msgid "Sign up"
 msgstr "Sign up"
 
-msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+msgid "Sign up in seconds to start building on {productName} – just like thousands of others."
+msgstr "Sign up in seconds to start building on {productName} – just like thousands of others."
 
 msgid "Sign up with email"
 msgstr "Sign up with email"

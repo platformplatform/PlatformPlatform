@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { productName, socialLinks, supportEmail } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { MailIcon } from "lucide-react";
@@ -44,13 +45,13 @@ export default function PublicFooter() {
           <div className="shrink-0">
             <img
               src={logoWrap}
-              alt={t`PlatformPlatform logo`}
+              alt={t`${productName} logo`}
               className="h-10 w-[17.5rem] opacity-90 transition-opacity hover:opacity-100 sm:hidden"
               loading="lazy"
             />
             <img
               src={logoMark}
-              alt={t`PlatformPlatform logo`}
+              alt={t`${productName} logo`}
               className="hidden size-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
               loading="lazy"
             />
@@ -60,9 +61,7 @@ export default function PublicFooter() {
           <div className="flex flex-1 flex-col gap-8 text-center sm:text-left">
             {/* Description */}
             <div className="space-y-3">
-              <h3 className="hidden sm:block">
-                <Trans>PlatformPlatform</Trans>
-              </h3>
+              <h3 className="hidden sm:block">{productName}</h3>
               <p className="leading-relaxed text-muted-foreground">
                 <Trans>Free, open-source .NET and React starter kit for building modern SaaS applications.</Trans>
               </p>
@@ -75,7 +74,9 @@ export default function PublicFooter() {
           {/* Left: Copyright and Legal Links */}
           <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground sm:justify-start sm:text-left">
             <div>
-              <Trans>© {currentYear} PlatformPlatform. All rights reserved.</Trans>
+              <Trans>
+                © {currentYear} {productName}. All rights reserved.
+              </Trans>
             </div>
             <span className="hidden sm:inline">·</span>
             <Link href="/legal/" className="text-muted-foreground hover:text-foreground">
@@ -100,12 +101,7 @@ export default function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
-                    href="mailto:support@platformplatform.net"
-                    aria-label={t`Email`}
-                    variant="icon"
-                    underline={false}
-                  >
+                  <Link href={`mailto:${supportEmail}`} aria-label={t`Email`} variant="icon" underline={false}>
                     <MailIcon className="size-5" />
                   </Link>
                 }
@@ -117,12 +113,7 @@ export default function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
-                    href="https://www.linkedin.com/company/platformplatform/"
-                    aria-label="LinkedIn"
-                    variant="icon"
-                    underline={false}
-                  >
+                  <Link href={socialLinks.linkedIn} aria-label="LinkedIn" variant="icon" underline={false}>
                     <LinkedinIcon className="size-5" />
                   </Link>
                 }
@@ -134,12 +125,7 @@ export default function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
-                    href="https://www.youtube.com/@PlatformPlatform"
-                    aria-label="YouTube"
-                    variant="icon"
-                    underline={false}
-                  >
+                  <Link href={socialLinks.youTube} aria-label="YouTube" variant="icon" underline={false}>
                     <YoutubeIcon className="size-5" />
                   </Link>
                 }
@@ -151,12 +137,7 @@ export default function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
-                    href="https://github.com/platformplatform/PlatformPlatform"
-                    aria-label="GitHub"
-                    variant="icon"
-                    underline={false}
-                  >
+                  <Link href={socialLinks.gitHub} aria-label="GitHub" variant="icon" underline={false}>
                     <GithubIcon className="size-5" />
                   </Link>
                 }

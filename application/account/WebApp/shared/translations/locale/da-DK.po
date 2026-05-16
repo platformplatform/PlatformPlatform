@@ -63,8 +63,11 @@ msgstr "{deletedCount} brugere slettet permanent"
 msgid "{price}/month"
 msgstr "{price}/måned"
 
-msgid "© {currentYear} PlatformPlatform. All rights reserved."
-msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
+msgid "{productName} logo"
+msgstr "{productName} logo"
+
+msgid "© {currentYear} {productName}. All rights reserved."
+msgstr "© {currentYear} {productName}. Alle rettigheder forbeholdes."
 
 msgid "+39 06 555 0000"
 msgstr "+39 06 555 0000"
@@ -2416,8 +2419,8 @@ msgstr "Log ind uden adgangskode ved hjælp af din enhed."
 msgid "Sign up"
 msgstr "Tilmeld dig"
 
-msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på sekunder og begynd at bygge på PlatformPlatform – ligesom tusindvis af andre."
+msgid "Sign up in seconds to start building on {productName} – just like thousands of others."
+msgstr "Tilmeld dig på sekunder og begynd at bygge på {productName} – ligesom tusindvis af andre."
 
 msgid "Sign up with email"
 msgstr "Tilmeld dig med e-mail"

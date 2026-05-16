@@ -7,6 +7,7 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/routeGuards";
+import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
@@ -60,8 +61,8 @@ function ErrorNavigation() {
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       <Link href="/" variant="logo" underline={false}>
-        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} />
-        <img className="size-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} />
+        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`${productName} logo`} />
+        <img className="size-10 sm:hidden" src={logoMark} alt={t`${productName} logo`} />
       </Link>
 
       <div className="flex items-center gap-6">

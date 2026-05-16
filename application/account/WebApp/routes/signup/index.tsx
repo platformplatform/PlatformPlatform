@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
+import { productName } from "@repo/infrastructure/branding";
 import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
@@ -101,7 +102,7 @@ export function StartSignupForm() {
         <Trans>Create your account</Trans>
       </h2>
       <div className="text-center text-sm text-muted-foreground">
-        <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
+        <Trans>Sign up in seconds to start building on {productName} – just like thousands of others.</Trans>
       </div>
       <Field className="flex w-full flex-col">
         <FieldLabel>
