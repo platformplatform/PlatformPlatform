@@ -47,7 +47,7 @@ Required logo assets (user provides absolute paths to eight files):
 | Favicon, multi-res 16/32/48 | `application/main/WebApp/public/favicon.ico` AND `application/account/BackOffice/public/favicon.ico` |
 | Apple touch icon, light variant, 180x180, solid background | `application/main/WebApp/public/apple-touch-icon.png` AND `application/account/BackOffice/public/apple-touch-icon.png` |
 | Apple touch icon, dark variant, 180x180, solid background (iOS 13+ picks this when the user is in dark mode via the `media="(prefers-color-scheme: dark)"` link in index.html) | `application/main/WebApp/public/apple-touch-icon-dark.png` AND `application/account/BackOffice/public/apple-touch-icon-dark.png` |
-| Email header, solid background, 2x retina (so the source is twice the rendered size). 640x88 is the upstream default if the brand fits a wide lockup; pick a taller or narrower aspect (e.g. 800x110, 480x180) if the brand needs it. | `application/main/WebApp/public/email/logo-<WIDTH>x<HEIGHT>.png` (filename carries the dimensions; old emails in users' inboxes resolve to the old filename, so a different aspect means a new file and a Header.tsx update — see step 4) |
+| Email banner, 1200x184, transparent PNG, logo centered (the logo occupies a 640x88 area with 280px transparent padding left/right and 48px top/bottom). Renders full-bleed at 600x92 and scales down on mobile; the email header background shows through the transparent areas. | `application/main/WebApp/public/email/logo-1200x184.png` |
 
 The favicon and apple-touch inputs each fan out to two destination paths.
 
@@ -57,25 +57,14 @@ Open `application/platform-settings.jsonc` and replace values in `identity`, `br
 
 ## STEP 4: Replace logo assets
 
-Copy each of the seven user-supplied files to its canonical path. Filenames never change except for the email header (see below). Favicon and apple-touch fan out to both `WebApp` and `BackOffice` paths — copy the same source file to both destinations.
+Copy each of the eight user-supplied files to its canonical path. Filenames never change. Favicon and apple-touch fan out to both `WebApp` and `BackOffice` paths — copy the same source file to both destinations.
 
-**Email header special case.** The email asset's dimensions are baked into its filename by design (`logo-640x88.png`, `logo-800x110.png`, etc.) so old emails already in users' inboxes keep resolving to the file they were sent with. If the downstream brand uses the same 640x88 aspect, overwrite `logo-640x88.png` in place. If the brand needs a different aspect:
-
-1. Write the new file at `application/main/WebApp/public/email/logo-<WIDTH>x<HEIGHT>.png`.
-2. Edit `application/shared-webapp/emails/components/Header.tsx`:
-   - `src="{{PublicUrl}}/email/logo-<WIDTH>x<HEIGHT>.png"`
-   - `width="<WIDTH/2>"`
-   - `height="<HEIGHT/2>"`
-3. Decide what to do with the old PlatformPlatform file:
-   - **Fresh rebrand** (new project, no production emails sent yet): delete `logo-640x88.png` — it's an upstream artifact with no downstream equivalent.
-   - **Re-rebrand of a live project** (users already received emails referencing the old filename): keep the old file so legacy inbox copies still resolve.
-
-This is the only `.tsx` edit the skill ever performs. It is required, not optional, when the email aspect changes.
+The email banner is a plain drop-in: overwrite `logo-1200x184.png` in place. It is a fixed 1200x184 transparent slot rendered by `Header.tsx` — no `.tsx` edit, no filename change.
 
 Verify each destination exists and is the size the user supplied:
 
 ```bash
-ls -la application/shared-webapp/ui/images/logo-*.png application/main/WebApp/public/favicon.ico application/main/WebApp/public/apple-touch-icon.png application/account/BackOffice/public/favicon.ico application/account/BackOffice/public/apple-touch-icon.png application/main/WebApp/public/email/logo-640x88.png
+ls -la application/shared-webapp/ui/images/logo-*.png application/main/WebApp/public/favicon.ico application/main/WebApp/public/apple-touch-icon.png application/account/BackOffice/public/favicon.ico application/account/BackOffice/public/apple-touch-icon.png application/main/WebApp/public/email/logo-1200x184.png
 ```
 
 ## STEP 5: Rename the solution
@@ -193,7 +182,7 @@ The diff should only touch:
 - `application/account/BackOffice/public/favicon.ico`
 - `application/account/BackOffice/public/apple-touch-icon.png`
 - `application/account/BackOffice/public/apple-touch-icon-dark.png`
-- `application/main/WebApp/public/email/logo-<WIDTH>x<HEIGHT>.png` (filename must match the dimensions; if the aspect changed, the email template that references it must be updated to point at the new filename)
+- `application/main/WebApp/public/email/logo-1200x184.png`
 - `application/<SolutionName>.slnx` (renamed from PlatformPlatform.slnx)
 - `application/<SolutionName>.slnx.DotSettings` (renamed)
 - `application/main/Main.slnf`
