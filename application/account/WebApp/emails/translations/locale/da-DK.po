@@ -13,8 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid "<0/> invited you to join PlatformPlatform."
-msgstr "<0/> har inviteret dig til at deltage i PlatformPlatform."
+msgid "'{{'ProductName'}}' login verification code"
+msgstr "'{{'ProductName'}}'-bekræftelseskode til login"
+
+msgid "<0/> invited you to join '{{'ProductName'}}'."
+msgstr "<0/> har inviteret dig til at deltage i '{{'ProductName'}}'."
 
 msgid "An open-source platform for building enterprise-grade, multi-tenant B2B SaaS products."
 msgstr "Open source-platform til at bygge enterprise-grade, multi-tenant B2B-SaaS-produkter."
@@ -52,14 +55,11 @@ msgstr "Hvis du ikke kender afsenderen, kan du roligt ignorere denne e-mail."
 msgid "Is this the right email address?"
 msgstr "Er det den rigtige e-mailadresse?"
 
-msgid "It looks like there isn't a PlatformPlatform account tied to <0><1/></0>."
-msgstr "Det ser ud til, at der ikke er en PlatformPlatform-konto knyttet til <0><1/></0>."
+msgid "It looks like there isn't a '{{'ProductName'}}' account tied to <0><1/></0>."
+msgstr "Det ser ud til, at der ikke er en '{{'ProductName'}}'-konto knyttet til <0><1/></0>."
 
 msgid "No account found"
 msgstr "Ingen konto fundet"
-
-msgid "PlatformPlatform login verification code"
-msgstr "PlatformPlatform-bekræftelseskode til login"
 
 msgid "Privacy"
 msgstr "Privatliv"
@@ -82,8 +82,8 @@ msgstr "Vi sender denne kode igen, som du anmodede om."
 msgid "You can try again with a different email, or sign up for a new account."
 msgstr "Du kan prøve igen med en anden e-mailadresse eller oprette en ny konto."
 
-msgid "You have been invited to join '{{'TenantName'}}' on PlatformPlatform"
-msgstr "Du er inviteret til at deltage i '{{'TenantName'}}' på PlatformPlatform"
+msgid "You have been invited to join '{{'TenantName'}}' on '{{'ProductName'}}'"
+msgstr "Du er inviteret til at deltage i '{{'TenantName'}}' på '{{'ProductName'}}'"
 
 msgid "Your confirmation code is below"
 msgstr "Din bekræftelseskode står herunder"

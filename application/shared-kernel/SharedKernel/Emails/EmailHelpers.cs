@@ -1,6 +1,7 @@
 using System.Globalization;
 using Humanizer;
 using Scriban.Runtime;
+using SharedKernel.Platform;
 
 namespace SharedKernel.Emails;
 
@@ -14,9 +15,9 @@ namespace SharedKernel.Emails;
 // Scriban performs parameter binding and type coercion based on the C# signatures below — no manual
 // argument unpacking is needed (in contrast to Handlebars.Net's untyped Arguments dictionary).
 //
-// Templates can also reference globals exposed alongside the helpers — currently `{{ PublicUrl }}`,
-// the trimmed PUBLIC_URL of the running deploy, used by shared components like <Footer> to
-// construct environment-correct links (localhost / staging / production all get their own host).
+// Templates can also reference globals exposed alongside the helpers — `{{ PublicUrl }}`, the
+// trimmed PUBLIC_URL of the running deploy used to construct environment-correct links, and
+// `{{ ProductName }}`, the brand name from platform-settings.jsonc used for brand identity.
 internal static class EmailHelpers
 {
     public static ScriptObject CreateScriptObject(string publicUrl)
@@ -26,6 +27,7 @@ internal static class EmailHelpers
         scriptObject.Import("format_date", FormatDate);
         scriptObject.Import("pluralize", Pluralize);
         scriptObject.SetValue("PublicUrl", publicUrl.TrimEnd('/'), true);
+        scriptObject.SetValue("ProductName", Settings.Current.Branding.ProductName, true);
         return scriptObject;
     }
 

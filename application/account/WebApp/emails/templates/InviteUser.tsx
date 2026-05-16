@@ -12,14 +12,14 @@ type InviteUserProps = {
 
 export default function InviteUser({ locale }: Readonly<InviteUserProps>) {
   return (
-    <TransactionalEmail locale={locale} preview="You have been invited to PlatformPlatform">
+    <TransactionalEmail locale={locale} preview="You have been invited to {{ProductName}}">
       <Subject>
-        <Trans>{`You have been invited to join '{{'TenantName'}}' on PlatformPlatform`}</Trans>
+        <Trans>{`You have been invited to join '{{'TenantName'}}' on '{{'ProductName'}}'`}</Trans>
       </Subject>
 
       <Heading level={1} className="text-center">
         <Trans>
-          <Value path="InviterName" sample="Alex Taylor" /> invited you to join PlatformPlatform.
+          <Value path="InviterName" sample="Alex Taylor" /> invited you to join {"'{{'ProductName'}}'"}.
         </Trans>
       </Heading>
 

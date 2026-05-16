@@ -19,7 +19,7 @@ export function Header() {
     <Section className="email-header bg-[#11161f] px-[32px] py-[24px] text-center">
       <Img
         src="{{PublicUrl}}/email/logo-640x88.png"
-        alt="PlatformPlatform"
+        alt="{{ProductName}}"
         width="320"
         height="44"
         className="mx-auto"

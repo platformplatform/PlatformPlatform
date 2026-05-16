@@ -12,7 +12,7 @@ type UnknownUserProps = {
 
 export default function UnknownUser({ locale }: Readonly<UnknownUserProps>) {
   return (
-    <TransactionalEmail locale={locale} preview="No PlatformPlatform account found">
+    <TransactionalEmail locale={locale} preview="No {{ProductName}} account found">
       <Subject>
         <Trans>No account found</Trans>
       </Subject>
@@ -23,7 +23,7 @@ export default function UnknownUser({ locale }: Readonly<UnknownUserProps>) {
 
       <Text className="m-[0px] mb-[16px] text-center text-[14px] leading-[24px]">
         <Trans>
-          It looks like there isn't a PlatformPlatform account tied to{" "}
+          It looks like there isn't a {"'{{'ProductName'}}'"} account tied to{" "}
           <strong>
             <Value path="Email" sample="alex@example.com" />
           </strong>
