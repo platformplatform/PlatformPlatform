@@ -9,10 +9,10 @@ import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
 import { LabelWithTooltip } from "@repo/ui/components/LabelWithTooltip";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
 import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-88.png";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
@@ -96,7 +96,7 @@ export function StartSignupForm() {
       className="flex w-full max-w-[22rem] flex-col items-center gap-4 rounded-lg pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+        <Logo variant="mark" className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Create your account</Trans>

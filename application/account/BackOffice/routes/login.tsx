@@ -4,8 +4,8 @@ import { NotFoundError } from "@repo/infrastructure/auth/routeGuards";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
-import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -49,7 +49,7 @@ function MockLoginPage() {
         className="flex w-full max-w-[22rem] flex-col items-center gap-4 pt-8 pb-4"
       >
         <Link href="/" className="cursor-pointer">
-          <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+          <Logo variant="mark" className="size-12" alt={t`Logo`} />
         </Link>
         <h2>
           <Trans>Back Office - Localhost</Trans>

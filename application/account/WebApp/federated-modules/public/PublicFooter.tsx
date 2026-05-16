@@ -5,9 +5,8 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { contactEmail, productName, socialLinks, webTaglines } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import logoMark from "@repo/ui/images/logo-mark-light-512.png";
-import logoWrap from "@repo/ui/images/logo-light-88.png";
 import { MailIcon } from "lucide-react";
 
 // Brand icons removed from lucide-react v1 for trademark reasons; inlined here as SVGs.
@@ -94,17 +93,15 @@ export default function PublicFooter() {
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-6">
           {/* Logo - Full logo on mobile, mark on desktop */}
           <div className="shrink-0">
-            <img
-              src={logoWrap}
+            <Logo
+              variant="wordmark"
               alt={t`${productName} logo`}
               className="h-10 w-auto opacity-90 transition-opacity hover:opacity-100 sm:hidden"
-              loading="lazy"
             />
-            <img
-              src={logoMark}
+            <Logo
+              variant="mark"
               alt={t`${productName} logo`}
               className="hidden size-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
-              loading="lazy"
             />
           </div>
 

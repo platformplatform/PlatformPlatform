@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardDescription, CardTitle } from "@repo/ui/components/Card";
 import { Link } from "@repo/ui/components/Link";
-import platformPlatformLogoMark from "@repo/ui/images/platformplatform-logo-mark-512.png";
+import platformPlatformLogoMark from "@repo/ui/images/platformplatform-logo-mark-192.png";
 import {
   DatabaseIcon,
   ExternalLinkIcon,

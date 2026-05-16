@@ -7,9 +7,9 @@ import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useContext, useState } from "react";
@@ -98,7 +98,7 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
       className="flex w-full max-w-[25rem] flex-col items-center gap-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+        <Logo variant="mark" className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Let's set up your account</Trans>
@@ -188,7 +188,7 @@ function ProfileSetupForm() {
       className="flex w-full max-w-[25rem] flex-col items-center gap-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+        <Logo variant="mark" className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Let's set up your profile</Trans>

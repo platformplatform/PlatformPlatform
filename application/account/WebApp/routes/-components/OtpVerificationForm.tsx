@@ -6,7 +6,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { InputOtp, InputOtpGroup, InputOtpSlot } from "@repo/ui/components/InputOtp";
 import { Link } from "@repo/ui/components/Link";
-import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
+import { Logo } from "@repo/ui/components/Logo";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 
 interface OtpVerificationFormProps {
@@ -46,7 +46,7 @@ export function OtpVerificationForm({
       <div className="flex w-full flex-col gap-3 rounded-lg pt-6 pb-4 sm:gap-4 sm:pt-8">
         <div className="flex justify-center">
           <Link href="/" className="cursor-pointer">
-            <img src={logoMarkUrl} alt={t`Logo`} className="size-12" />
+            <Logo variant="mark" alt={t`Logo`} className="size-12" />
           </Link>
         </div>
         <h2 className="mb-3 text-center">

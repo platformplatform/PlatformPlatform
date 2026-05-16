@@ -7,8 +7,7 @@ import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/
 import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
-import logoMark from "@repo/ui/images/logo-mark-light-512.png";
-import logoWrap from "@repo/ui/images/logo-light-88.png";
+import { Logo } from "@repo/ui/components/Logo";
 import { AlertTriangleIcon, HomeIcon, RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -19,8 +18,8 @@ function ErrorNavigation() {
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       <Link href="/" variant="logo" underline={false}>
-        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`${productName} logo`} />
-        <img className="size-10 sm:hidden" src={logoMark} alt={t`${productName} logo`} />
+        <Logo variant="wordmark" className="hidden h-10 w-[17.5rem] sm:block" alt={t`${productName} logo`} />
+        <Logo variant="mark" className="size-10 sm:hidden" alt={t`${productName} logo`} />
       </Link>
     </nav>
   );

@@ -6,9 +6,9 @@ import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
 import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-88.png";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -105,7 +105,7 @@ export function LoginForm() {
       className="flex w-full max-w-[22rem] flex-col items-center gap-4 pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+        <Logo variant="mark" className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Hi! Welcome back</Trans>
