@@ -20,14 +20,21 @@
     // Product/platform name displayed throughout the application.
     "productName": "PlatformPlatform",
 
-    // Support email address shown in the landing page footer and the in-app support dialog.
-    "supportEmail": "support@platformplatform.net"
+    // Contact email shown as a mail icon in the landing page footer (empty = hidden).
+    "contactEmail": "",
+
+    // Support email shown to signed-in users in the in-app support dialog.
+    "supportEmail": ""
   },
 
   // Public social media / community profile links shown in the landing page footer.
+  // Set any link to an empty string to hide its icon in the footer.
   "socialLinks": {
     "gitHub": "https://github.com/platformplatform/PlatformPlatform",
     "linkedIn": "https://www.linkedin.com/company/platformplatform/",
-    "youTube": "https://www.youtube.com/@PlatformPlatform"
+    "youTube": "https://www.youtube.com/@PlatformPlatform",
+    "x": "",
+    "facebook": "",
+    "instagram": ""
   }
 }

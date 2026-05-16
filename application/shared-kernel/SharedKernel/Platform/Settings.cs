@@ -41,6 +41,8 @@ public sealed class Settings
     {
         public required string ProductName { get; init; }
 
+        public required string ContactEmail { get; init; }
+
         public required string SupportEmail { get; init; }
     }
 
@@ -51,5 +53,11 @@ public sealed class Settings
         public required string LinkedIn { get; init; }
 
         public required string YouTube { get; init; }
+
+        public required string X { get; init; }
+
+        public required string Facebook { get; init; }
+
+        public required string Instagram { get; init; }
     }
 }

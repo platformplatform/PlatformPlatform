@@ -4,17 +4,25 @@ import path from "node:path";
 export interface PlatformBranding {
   /** Product/platform name displayed throughout the application */
   productName: string;
-  /** Support email address shown in the landing page footer and the in-app support dialog */
+  /** Contact email shown as a mail icon in the landing page footer (empty = hidden) */
+  contactEmail: string;
+  /** Support email shown to signed-in users in the in-app support dialog */
   supportEmail: string;
 }
 
 export interface PlatformSocialLinks {
-  /** Public GitHub profile / repository URL */
+  /** Public GitHub profile / repository URL (empty string hides the icon) */
   gitHub: string;
-  /** Public LinkedIn profile URL */
+  /** Public LinkedIn profile URL (empty string hides the icon) */
   linkedIn: string;
-  /** Public YouTube channel URL */
+  /** Public YouTube channel URL (empty string hides the icon) */
   youTube: string;
+  /** Public X (formerly Twitter) profile URL (empty string hides the icon) */
+  x: string;
+  /** Public Facebook page URL (empty string hides the icon) */
+  facebook: string;
+  /** Public Instagram profile URL (empty string hides the icon) */
+  instagram: string;
 }
 
 export interface PlatformSettings {

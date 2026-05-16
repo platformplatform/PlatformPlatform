@@ -12,26 +12,25 @@ export declare global {
        */
       productName: string;
       /**
-       * Support email address shown in the landing page footer and the in-app support dialog
+       * Contact email shown as a mail icon in the landing page footer (empty hides the icon)
+       */
+      contactEmail: string;
+      /**
+       * Support email shown to signed-in users in the in-app support dialog
        */
       supportEmail: string;
     };
     /**
-     * Public social media / community profile links injected from platform-settings.jsonc
+     * Public social media / community profile links injected from platform-settings.jsonc.
+     * Each field is a URL or an empty string; the footer hides any icon whose URL is empty.
      */
     socialLinks: {
-      /**
-       * Public GitHub profile / repository URL
-       */
       gitHub: string;
-      /**
-       * Public LinkedIn profile URL
-       */
       linkedIn: string;
-      /**
-       * Public YouTube channel URL
-       */
       youTube: string;
+      x: string;
+      facebook: string;
+      instagram: string;
     };
   }
   /**

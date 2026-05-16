@@ -1153,6 +1153,9 @@ msgstr "Ekstra stor"
 msgid "Extra small"
 msgstr "Ekstra lille"
 
+msgid "Facebook"
+msgstr "Facebook"
+
 msgid "Failed"
 msgstr "Mislykket"
 
@@ -1320,6 +1323,9 @@ msgstr "Inline tastaturhint. Brug det til at fremhæve genveje i værktøjstips,
 
 msgid "Inline tip:"
 msgstr "Inline tip:"
+
+msgid "Instagram"
+msgstr "Instagram"
 
 msgid "Invalid request"
 msgstr "Ugyldig anmodning"
@@ -2981,6 +2987,9 @@ msgstr "Med ikoner"
 
 msgid "Workday picker"
 msgstr "Hverdagsvælger"
+
+msgid "X"
+msgstr "X"
 
 msgid "Yakitori skewers"
 msgstr "Yakitori-spyd"

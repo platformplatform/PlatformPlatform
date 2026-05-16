@@ -1153,6 +1153,9 @@ msgstr "Extra large"
 msgid "Extra small"
 msgstr "Extra small"
 
+msgid "Facebook"
+msgstr "Facebook"
+
 msgid "Failed"
 msgstr "Failed"
 
@@ -1320,6 +1323,9 @@ msgstr "Inline keyboard hint. Use it to call out shortcuts in tooltips, menus, a
 
 msgid "Inline tip:"
 msgstr "Inline tip:"
+
+msgid "Instagram"
+msgstr "Instagram"
 
 msgid "Invalid request"
 msgstr "Invalid request"
@@ -2981,6 +2987,9 @@ msgstr "With icons"
 
 msgid "Workday picker"
 msgstr "Workday picker"
+
+msgid "X"
+msgstr "X"
 
 msgid "Yakitori skewers"
 msgstr "Yakitori skewers"
