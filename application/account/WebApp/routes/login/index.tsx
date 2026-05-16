@@ -8,8 +8,8 @@ import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import logoMarkUrl from "@repo/ui/images/logo-mark.svg";
-import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-wrap.svg";
+import logoMarkUrl from "@repo/ui/images/logo-mark.png";
+import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-wrap.png";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 

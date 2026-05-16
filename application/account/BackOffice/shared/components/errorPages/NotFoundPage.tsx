@@ -3,8 +3,8 @@ import { Trans } from "@lingui/react/macro";
 import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
-import logoMark from "@repo/ui/images/logo-mark.svg";
-import logoWrap from "@repo/ui/images/logo-wrap.svg";
+import logoMark from "@repo/ui/images/logo-mark.png";
+import logoWrap from "@repo/ui/images/logo-wrap.png";
 import { FileQuestionIcon, HomeIcon } from "lucide-react";
 
 function NotFoundNavigation() {

@@ -6,8 +6,8 @@ import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks
 import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
-import logoMark from "@repo/ui/images/logo-mark.svg";
-import logoWrap from "@repo/ui/images/logo-wrap.svg";
+import logoMark from "@repo/ui/images/logo-mark.png";
+import logoWrap from "@repo/ui/images/logo-wrap.png";
 import { LogIn, LogOut, UserPlus } from "lucide-react";
 import { useContext, useState } from "react";
 
