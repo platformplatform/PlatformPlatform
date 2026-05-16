@@ -7,8 +7,8 @@ import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import logoMark from "@repo/ui/images/logo-mark.png";
-import logoWrap from "@repo/ui/images/logo-wrap.png";
+import logoMark from "@repo/ui/images/logo-mark-light-512.png";
+import logoWrap from "@repo/ui/images/logo-wrap-light-88.png";
 import { FileQuestion, Home, LogOut } from "lucide-react";
 import { useContext, useState } from "react";
 

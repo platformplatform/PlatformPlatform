@@ -7,8 +7,8 @@ import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/
 import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
-import logoMark from "@repo/ui/images/logo-mark.png";
-import logoWrap from "@repo/ui/images/logo-wrap.png";
+import logoMark from "@repo/ui/images/logo-mark-light-512.png";
+import logoWrap from "@repo/ui/images/logo-wrap-light-88.png";
 import { AlertTriangleIcon, HomeIcon, RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 

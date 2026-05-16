@@ -9,7 +9,7 @@ import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import logoMarkUrl from "@repo/ui/images/logo-mark.png";
+import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useContext, useState } from "react";

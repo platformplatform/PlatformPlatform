@@ -4,8 +4,8 @@ import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { productName } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
-import logoMark from "@repo/ui/images/logo-mark.png";
-import logoWrap from "@repo/ui/images/logo-wrap.png";
+import logoMark from "@repo/ui/images/logo-mark-light-512.png";
+import logoWrap from "@repo/ui/images/logo-wrap-light-88.png";
 import { Suspense } from "react";
 
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";

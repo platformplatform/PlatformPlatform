@@ -5,7 +5,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
 import { Link } from "@repo/ui/components/Link";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
-import logoMarkUrl from "@repo/ui/images/logo-mark.png";
+import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
