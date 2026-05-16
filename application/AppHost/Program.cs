@@ -7,7 +7,7 @@ using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Configuration;
 
 // Prefix for Docker volume names. Rename in downstream forks to isolate volumes from upstream.
-const string DockerVolumePrefix = "platformplatform";
+const string dockerVolumePrefix = "platformplatform";
 
 // Read the port allocation before CreateBuilder so we can set Aspire's dashboard env vars
 // (ASPNETCORE_URLS, DOTNET_DASHBOARD_OTLP_ENDPOINT_URL, etc.) before Aspire reads them.
@@ -38,7 +38,7 @@ var stripeFullyConfigured = stripeConfigured && builder.Configuration["Parameter
 
 var postgresPassword = builder.CreateStablePassword("postgres-password");
 var postgres = builder.AddPostgres("postgres", password: postgresPassword, port: ports.Postgres)
-    .WithDataVolume($"{DockerVolumePrefix}{ports.VolumeNameInfix}-postgres-data")
+    .WithDataVolume($"{dockerVolumePrefix}{ports.VolumeNameInfix}-postgres-data")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithArgs("-c", "wal_level=logical");
 
@@ -46,7 +46,7 @@ var azureStorage = builder
     .AddAzureStorage("azure-storage")
     .RunAsEmulator(resourceBuilder =>
         {
-            resourceBuilder.WithDataVolume($"{DockerVolumePrefix}{ports.VolumeNameInfix}-azure-storage-data");
+            resourceBuilder.WithDataVolume($"{dockerVolumePrefix}{ports.VolumeNameInfix}-azure-storage-data");
             resourceBuilder.WithBlobPort(ports.Blob);
             resourceBuilder.WithLifetime(ContainerLifetime.Persistent);
         }
