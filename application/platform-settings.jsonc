@@ -1,27 +1,33 @@
 {
-  // Platform-wide configuration settings
-  // This file is prepared for sharing between backend (.NET), frontend (TypeScript), and tests
+  // Platform-wide brand configuration -- the single source of truth for rebranding.
+  // Shared by the backend (.NET, embedded resource) and the frontend (TypeScript, injected at build time).
   //
-  // IMPORTANT: This configuration is embedded in the backend and injected at build time in the frontend
-  // Not all values are currently used - some are placeholders for future functionality
+  // To rebrand a downstream fork, edit the values in this file. Comments must stay on their own
+  // lines: the frontend build strips whole-line // comments, so a trailing comment after a value
+  // would not be removed and could corrupt the JSON.
   //
-  // Security Note: Only include non-sensitive configuration here
-  // Sensitive values (like API keys) should be stored in environment variables or key vaults
+  // Security Note: Only include non-sensitive configuration here.
+  // Sensitive values (like API keys) should be stored in environment variables or key vaults.
 
   "identity": {
-    // Email domain suffix that identifies internal users
-    // Users with this domain get access to BackOffice and other internal features
-    // Currently used by backend only - frontend relies on isInternalUser flag from backend
+    // Email domain suffix that identifies internal users.
+    // Users with this domain get access to BackOffice and other internal features.
+    // Used by backend only - frontend relies on the isInternalUser flag from the backend.
     "internalEmailDomain": "@platformplatform.net"
   },
 
   "branding": {
-    // Product/platform name used throughout the application
-    // Placeholder for future use - currently hardcoded in various places
+    // Product/platform name displayed throughout the application.
     "productName": "PlatformPlatform",
 
-    // Support email address for user inquiries
-    // Placeholder for future use - not currently referenced in the codebase
+    // Support email address shown in the landing page footer and the in-app support dialog.
     "supportEmail": "support@platformplatform.net"
+  },
+
+  // Public social media / community profile links shown in the landing page footer.
+  "socialLinks": {
+    "gitHub": "https://github.com/platformplatform/PlatformPlatform",
+    "linkedIn": "https://www.linkedin.com/company/platformplatform/",
+    "youTube": "https://www.youtube.com/@PlatformPlatform"
   }
 }

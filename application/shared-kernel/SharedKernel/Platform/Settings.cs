@@ -12,6 +12,8 @@ public sealed class Settings
 
     public required BrandingConfig Branding { get; init; }
 
+    public required SocialLinksConfig SocialLinks { get; init; }
+
     private static Settings LoadFromEmbeddedResource()
     {
         var assembly = Assembly.GetExecutingAssembly();
@@ -40,5 +42,14 @@ public sealed class Settings
         public required string ProductName { get; init; }
 
         public required string SupportEmail { get; init; }
+    }
+
+    public sealed class SocialLinksConfig
+    {
+        public required string GitHub { get; init; }
+
+        public required string LinkedIn { get; init; }
+
+        public required string YouTube { get; init; }
     }
 }

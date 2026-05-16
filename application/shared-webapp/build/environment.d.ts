@@ -2,7 +2,38 @@ export declare global {
   /**
    * Custom build environment variables
    */
-  interface CustomBuildEnv {}
+  interface CustomBuildEnv {
+    /**
+     * Brand configuration injected from platform-settings.jsonc at build time
+     */
+    branding: {
+      /**
+       * Product/platform name displayed throughout the application
+       */
+      productName: string;
+      /**
+       * Support email address shown in the landing page footer and the in-app support dialog
+       */
+      supportEmail: string;
+    };
+    /**
+     * Public social media / community profile links injected from platform-settings.jsonc
+     */
+    socialLinks: {
+      /**
+       * Public GitHub profile / repository URL
+       */
+      gitHub: string;
+      /**
+       * Public LinkedIn profile URL
+       */
+      linkedIn: string;
+      /**
+       * Public YouTube channel URL
+       */
+      youTube: string;
+    };
+  }
   /**
    * Build Environment Variables
    */
