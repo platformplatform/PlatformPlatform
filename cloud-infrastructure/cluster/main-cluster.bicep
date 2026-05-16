@@ -14,7 +14,8 @@ param accountVersion string
 param mainVersion string
 param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
-param mailSenderDisplayName string = 'PlatformPlatform'
+param productName string = 'PlatformPlatform'
+param mailSenderDisplayName string = productName
 param useCustomEmailDomain bool = false
 param revisionSuffix string
 
@@ -108,6 +109,7 @@ module keyVault '../modules/key-vault.bicep' = {
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
     workspaceId: existingLogAnalyticsWorkspace.id
     domainName: domainName
+    productName: productName
   }
 }
 

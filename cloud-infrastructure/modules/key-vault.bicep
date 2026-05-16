@@ -6,6 +6,7 @@ param subnetId string
 param storageAccountId string
 param workspaceId string
 param domainName string = ''
+param productName string = 'PlatformPlatform'
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: name
@@ -120,7 +121,7 @@ resource authenticationTokenSigningKey 'Microsoft.KeyVault/vaults/keys@2023-07-0
   }
 }
 
-var tokenIssuerAndAudience = domainName != '' ? 'https://${domainName}' : 'PlatformPlatform'
+var tokenIssuerAndAudience = domainName != '' ? 'https://${domainName}' : productName
 
 resource authenticationTokenIssuer 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: keyVault

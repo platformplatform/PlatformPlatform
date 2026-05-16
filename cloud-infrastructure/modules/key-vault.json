@@ -1,0 +1,202 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.42.1.51946",
+      "templateHash": "16434250582183311412"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "object"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "storageAccountId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "productName": {
+      "type": "string",
+      "defaultValue": "PlatformPlatform"
+    }
+  },
+  "variables": {
+    "tokenIssuerAndAudience": "[if(not(equals(parameters('domainName'), '')), format('https://{0}', parameters('domainName')), parameters('productName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2023-07-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "tenantId": "[parameters('tenantId')]",
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny",
+          "ipRules": [],
+          "virtualNetworkRules": [
+            {
+              "id": "[parameters('subnetId')]"
+            }
+          ]
+        },
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 7,
+        "enableRbacAuthorization": true,
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2021-05-01-preview",
+      "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]",
+      "name": "key-vault-audit",
+      "properties": {
+        "storageAccountId": "[parameters('storageAccountId')]",
+        "logs": [
+          {
+            "categoryGroup": "audit",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          },
+          {
+            "categoryGroup": "allLogs",
+            "enabled": false,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": false,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2021-05-01-preview",
+      "scope": "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]",
+      "name": "key-vault-metrics",
+      "properties": {
+        "workspaceId": "[parameters('workspaceId')]",
+        "logs": [
+          {
+            "category": "AuditEvent",
+            "enabled": false,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          },
+          {
+            "category": "AzurePolicyEvaluationDetails",
+            "enabled": false,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 0
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/keys",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'authentication-token-signing-key')]",
+      "properties": {
+        "keySize": 2048,
+        "kty": "RSA"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'authentication-token-issuer')]",
+      "properties": {
+        "value": "[variables('tokenIssuerAndAudience')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2023-07-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'authentication-token-audience')]",
+      "properties": {
+        "value": "[variables('tokenIssuerAndAudience')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "name": {
+      "type": "string",
+      "value": "[parameters('name')]"
+    },
+    "keyVaultId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('name'))]"
+    }
+  }
+}
