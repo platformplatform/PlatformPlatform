@@ -1,6 +1,7 @@
 using AppGateway.Filters;
 using Microsoft.OpenApi;
 using SharedKernel.Configuration;
+using SharedKernel.Platform;
 using Yarp.ReverseProxy.Configuration;
 
 namespace AppGateway.ApiAggregation;
@@ -25,7 +26,7 @@ public sealed class ApiAggregationService(
     {
         var aggregatedOpenApiDocument = new OpenApiDocument
         {
-            Info = new OpenApiInfo { Title = "PlatformPlatform API", Version = "v1" },
+            Info = new OpenApiInfo { Title = $"{Settings.Current.Branding.ProductName} API", Version = "v1" },
             Paths = new OpenApiPaths(),
             Components = new OpenApiComponents
             {

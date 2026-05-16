@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using SharedKernel.Configuration;
+using SharedKernel.Platform;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,7 +105,7 @@ app.MapScalarApiReference("/openapi", options =>
         options
             .WithOpenApiRoutePattern("/openapi/v1.json")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-            .WithTitle("PlatformPlatform API");
+            .WithTitle($"{Settings.Current.Branding.ProductName} API");
     }
 );
 

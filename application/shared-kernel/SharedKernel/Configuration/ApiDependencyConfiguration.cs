@@ -17,6 +17,7 @@ using SharedKernel.Endpoints;
 using SharedKernel.ExecutionContext;
 using SharedKernel.Middleware;
 using SharedKernel.OpenApi;
+using SharedKernel.Platform;
 using SharedKernel.SinglePageApp;
 using SharedKernel.StronglyTypedIds;
 using SharedKernel.Telemetry;
@@ -229,7 +230,7 @@ public static class ApiDependencyConfiguration
                 services.AddOpenApiDocument((settings, _) =>
                     {
                         settings.DocumentName = "v1";
-                        settings.Title = "PlatformPlatform API";
+                        settings.Title = $"{Settings.Current.Branding.ProductName} API";
                         settings.Version = "v1";
 
                         var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
@@ -244,7 +245,7 @@ public static class ApiDependencyConfiguration
             services.AddOpenApiDocument((settings, _) =>
                 {
                     settings.DocumentName = OpenApiDocumentNames.Account;
-                    settings.Title = "PlatformPlatform Account API";
+                    settings.Title = $"{Settings.Current.Branding.ProductName} Account API";
                     settings.Version = "v1";
                     settings.ApiGroupNames = [OpenApiDocumentNames.Account];
 
@@ -258,7 +259,7 @@ public static class ApiDependencyConfiguration
             services.AddOpenApiDocument((settings, _) =>
                 {
                     settings.DocumentName = OpenApiDocumentNames.BackOffice;
-                    settings.Title = "PlatformPlatform Back Office API";
+                    settings.Title = $"{Settings.Current.Branding.ProductName} Back Office API";
                     settings.Version = "v1";
                     settings.ApiGroupNames = [OpenApiDocumentNames.BackOffice];
 
