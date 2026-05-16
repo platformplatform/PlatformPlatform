@@ -18,7 +18,7 @@ export default function PublicNavigation() {
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       <Link href="/" variant="logo" underline={false}>
-        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`${productName} logo`} />
+        <img className="hidden h-10 w-auto sm:block" src={logoWrap} alt={t`${productName} logo`} />
         <img className="size-10 sm:hidden" src={logoMark} alt={t`${productName} logo`} />
       </Link>
 

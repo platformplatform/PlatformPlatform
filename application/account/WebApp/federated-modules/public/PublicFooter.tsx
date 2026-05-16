@@ -97,7 +97,7 @@ export default function PublicFooter() {
             <img
               src={logoWrap}
               alt={t`${productName} logo`}
-              className="h-10 w-[17.5rem] opacity-90 transition-opacity hover:opacity-100 sm:hidden"
+              className="h-10 w-auto opacity-90 transition-opacity hover:opacity-100 sm:hidden"
               loading="lazy"
             />
             <img
