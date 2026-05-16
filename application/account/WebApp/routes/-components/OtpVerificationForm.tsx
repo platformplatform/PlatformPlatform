@@ -6,9 +6,8 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { InputOtp, InputOtpGroup, InputOtpSlot } from "@repo/ui/components/InputOtp";
 import { Link } from "@repo/ui/components/Link";
+import logoMarkUrl from "@repo/ui/images/logo-mark.svg";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
 
 interface OtpVerificationFormProps {
   otpInputRef: RefObject<HTMLInputElement | null>;

@@ -5,10 +5,10 @@ import { Button } from "@repo/ui/components/Button";
 import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
 import { Link } from "@repo/ui/components/Link";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
+import logoMarkUrl from "@repo/ui/images/logo-mark.svg";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 
 const MOCK_IDENTITY_IDS = ["admin", "user"] as const;

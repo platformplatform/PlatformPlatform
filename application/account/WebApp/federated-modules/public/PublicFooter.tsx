@@ -6,10 +6,9 @@ import { Trans } from "@lingui/react/macro";
 import { contactEmail, productName, socialLinks, webTaglines } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import logoMark from "@repo/ui/images/logo-mark.svg";
+import logoWrap from "@repo/ui/images/logo-wrap.svg";
 import { MailIcon } from "lucide-react";
-
-import logoMark from "@/shared/images/logo-mark.svg";
-import logoWrap from "@/shared/images/logo-wrap.svg";
 
 // Brand icons removed from lucide-react v1 for trademark reasons; inlined here as SVGs.
 function GithubIcon({ className }: { readonly className?: string }) {

@@ -7,11 +7,10 @@ import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import logoMark from "@repo/ui/images/logo-mark.svg";
+import logoWrap from "@repo/ui/images/logo-wrap.svg";
 import { FileQuestion, Home, LogOut } from "lucide-react";
 import { useContext, useState } from "react";
-
-import logoMark from "@/shared/images/logo-mark.svg";
-import logoWrap from "@/shared/images/logo-wrap.svg";
 
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import SupportButton from "../common/SupportButton";

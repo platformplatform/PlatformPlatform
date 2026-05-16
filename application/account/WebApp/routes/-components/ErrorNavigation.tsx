@@ -6,14 +6,14 @@ import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks
 import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
+import logoMark from "@repo/ui/images/logo-mark.svg";
+import logoWrap from "@repo/ui/images/logo-wrap.svg";
 import { LogIn, LogOut, UserPlus } from "lucide-react";
 import { useContext, useState } from "react";
 
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
-import logoMark from "@/shared/images/logo-mark.svg";
-import logoWrap from "@/shared/images/logo-wrap.svg";
 
 import type { ErrorAction } from "./errorDisplay";
 

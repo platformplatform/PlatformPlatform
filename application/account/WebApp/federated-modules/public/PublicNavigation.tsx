@@ -4,13 +4,13 @@ import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { productName } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
+import logoMark from "@repo/ui/images/logo-mark.svg";
+import logoWrap from "@repo/ui/images/logo-wrap.svg";
 import { Suspense } from "react";
 
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
 import UserMenu from "@/federated-modules/userMenu/UserMenu";
-import logoMark from "@/shared/images/logo-mark.svg";
-import logoWrap from "@/shared/images/logo-wrap.svg";
 
 export default function PublicNavigation() {
   const isAuthenticated = useIsAuthenticated();

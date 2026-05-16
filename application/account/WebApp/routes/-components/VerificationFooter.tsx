@@ -6,8 +6,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-
-import logoWrapUrl from "@/shared/images/logo-wrap.svg";
+import logoWrapUrl from "@repo/ui/images/logo-wrap.svg";
 
 interface VerificationFooterProps {
   showRequestLink: boolean;

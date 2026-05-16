@@ -9,6 +9,7 @@ import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import logoMarkUrl from "@repo/ui/images/logo-mark.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useContext, useState } from "react";
@@ -16,7 +17,6 @@ import { useContext, useState } from "react";
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api, type Schemas } from "@/shared/lib/api/client";
 

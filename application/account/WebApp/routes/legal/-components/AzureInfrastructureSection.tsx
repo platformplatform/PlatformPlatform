@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardDescription, CardTitle } from "@repo/ui/components/Card";
 import { Link } from "@repo/ui/components/Link";
+import platformLogo from "@repo/ui/images/logo-mark.svg";
 import {
   DatabaseIcon,
   ExternalLinkIcon,
@@ -13,7 +14,6 @@ import {
 } from "lucide-react";
 
 import gdprBadge from "@/shared/images/compliance/gdpr.png";
-import platformLogo from "@/shared/images/logo-mark.svg";
 
 export function AzureInfrastructureSection() {
   return (
