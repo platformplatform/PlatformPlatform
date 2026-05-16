@@ -25,7 +25,7 @@ public static class Configuration
         : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".PlatformPlatform");
 
     public static readonly string SourceCodeFolder = IsDebugMode
-        // In debug mode, the ProcessPath is in /developer-cli/artifacts/bin/DeveloperCli/debug/pp.exe
+        // In debug mode, the ProcessPath is in /developer-cli/artifacts/bin/DeveloperCli/debug/{Configuration.AliasName}.exe
         ? new DirectoryInfo(Environment.ProcessPath!).Parent!.Parent!.Parent!.Parent!.Parent!.Parent!.FullName
         : new DirectoryInfo(GetConfigurationSetting().CliSourceCodeFolder!).Parent!.FullName;
 
