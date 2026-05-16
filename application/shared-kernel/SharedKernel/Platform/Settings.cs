@@ -15,7 +15,7 @@ public sealed class Settings
     private static Settings LoadFromEmbeddedResource()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "SharedKernel.Platform.platform-settings.jsonc";
+        var resourceName = "platform-settings.jsonc";
 
         using var stream = assembly.GetManifestResourceStream(resourceName)
                            ?? throw new InvalidOperationException($"Could not find embedded resource: {resourceName}");
