@@ -1201,9 +1201,6 @@ msgstr "Found an alternative"
 msgid "Free"
 msgstr "Free"
 
-msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
-msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
-
 msgid "French"
 msgstr "French"
 

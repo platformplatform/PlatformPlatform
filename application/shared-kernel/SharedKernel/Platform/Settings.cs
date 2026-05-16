@@ -28,8 +28,29 @@ public sealed class Settings
             ReadCommentHandling = JsonCommentHandling.Skip
         };
 
-        return JsonSerializer.Deserialize<Settings>(stream, options)
-               ?? throw new InvalidOperationException("Failed to deserialize platform settings");
+        var settings = JsonSerializer.Deserialize<Settings>(stream, options)
+                       ?? throw new InvalidOperationException("Failed to deserialize platform settings");
+
+        ValidateTaglineLocaleParity(settings.Branding.Tagline);
+        return settings;
+    }
+
+    private static void ValidateTaglineLocaleParity(TaglineConfig tagline)
+    {
+        var webLocales = tagline.Web.Keys.OrderBy(locale => locale, StringComparer.Ordinal).ToArray();
+        var mailLocales = tagline.Mail.Keys.OrderBy(locale => locale, StringComparer.Ordinal).ToArray();
+
+        if (webLocales.Length == 0)
+        {
+            throw new InvalidOperationException("platform-settings.jsonc: branding.tagline.web must contain at least one locale.");
+        }
+
+        if (!webLocales.SequenceEqual(mailLocales, StringComparer.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"platform-settings.jsonc: branding.tagline.web and branding.tagline.mail must define the same locales. Web has [{string.Join(", ", webLocales)}], mail has [{string.Join(", ", mailLocales)}]."
+            );
+        }
     }
 
     public sealed class IdentityConfig
@@ -41,9 +62,18 @@ public sealed class Settings
     {
         public required string ProductName { get; init; }
 
+        public required TaglineConfig Tagline { get; init; }
+
         public required string ContactEmail { get; init; }
 
         public required string SupportEmail { get; init; }
+    }
+
+    public sealed class TaglineConfig
+    {
+        public required IReadOnlyDictionary<string, string> Web { get; init; }
+
+        public required IReadOnlyDictionary<string, string> Mail { get; init; }
     }
 
     public sealed class SocialLinksConfig

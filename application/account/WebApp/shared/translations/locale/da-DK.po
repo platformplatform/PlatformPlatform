@@ -1201,9 +1201,6 @@ msgstr "Fandt et alternativ"
 msgid "Free"
 msgstr "Gratis"
 
-msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
-msgstr "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
-
 msgid "French"
 msgstr "Fransk"
 

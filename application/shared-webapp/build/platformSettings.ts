@@ -4,6 +4,14 @@ import path from "node:path";
 export interface PlatformBranding {
   /** Product/platform name displayed throughout the application */
   productName: string;
+  /**
+   * One-line product description per channel and locale. The frontend reads `tagline.web[locale]`;
+   * emails read `tagline.mail[locale]` server-side. Locale keys in `web` and `mail` must match.
+   */
+  tagline: {
+    web: Record<string, string>;
+    mail: Record<string, string>;
+  };
   /** Contact email shown as a mail icon in the landing page footer (empty = hidden) */
   contactEmail: string;
   /** Support email shown to signed-in users in the in-app support dialog */

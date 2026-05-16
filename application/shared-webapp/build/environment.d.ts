@@ -12,6 +12,15 @@ export declare global {
        */
       productName: string;
       /**
+       * One-line product description per channel and locale. The frontend reads
+       * tagline.web[locale]; emails read tagline.mail[locale] server-side. Locale keys in web and
+       * mail must match (the backend fails loud at startup if they diverge).
+       */
+      tagline: {
+        web: Record<string, string>;
+        mail: Record<string, string>;
+      };
+      /**
        * Contact email shown as a mail icon in the landing page footer (empty hides the icon)
        */
       contactEmail: string;

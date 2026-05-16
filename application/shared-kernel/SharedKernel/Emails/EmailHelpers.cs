@@ -15,9 +15,12 @@ namespace SharedKernel.Emails;
 // Scriban performs parameter binding and type coercion based on the C# signatures below — no manual
 // argument unpacking is needed (in contrast to Handlebars.Net's untyped Arguments dictionary).
 //
-// Templates can also reference globals exposed alongside the helpers — `{{ PublicUrl }}`, the
-// trimmed PUBLIC_URL of the running deploy used to construct environment-correct links, and
-// `{{ ProductName }}`, the brand name from platform-settings.jsonc used for brand identity.
+// Templates can also reference globals exposed alongside the helpers — `{{ PublicUrl }}` (the
+// trimmed PUBLIC_URL of the running deploy used to construct environment-correct links) and
+// `{{ ProductName }}` (brand name). `{{ Tagline }}` (one-line product description shown in the
+// email footer) is also a global, but it is locale-dependent and is therefore pushed onto the
+// per-render Scriban context by the renderer (see ScribanEmailRenderer). The brand strings come
+// from platform-settings.jsonc.
 internal static class EmailHelpers
 {
     public static ScriptObject CreateScriptObject(string publicUrl)

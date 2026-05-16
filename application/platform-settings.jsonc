@@ -20,6 +20,21 @@
     // Product/platform name displayed throughout the application.
     "productName": "PlatformPlatform",
 
+    // One-line product description shown in the landing page footer and the email footer.
+    // Two channels (web, mail) each carry a per-locale map -- the email tagline can lean toward the
+    // recipient context (e.g. "your AI accountant") while the web one stays marketing. Every locale
+    // listed under "web" must also be listed under "mail" (Settings.cs fails loud at startup if not).
+    "tagline": {
+      "web": {
+        "en-US": "Free, open-source .NET and React starter kit for building modern SaaS applications.",
+        "da-DK": "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
+      },
+      "mail": {
+        "en-US": "Free, open-source .NET and React starter kit for building modern SaaS applications.",
+        "da-DK": "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
+      }
+    },
+
     // Contact email shown as a mail icon in the landing page footer (empty = hidden).
     "contactEmail": "",
 

@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { contactEmail, productName, socialLinks } from "@repo/infrastructure/branding";
+import { contactEmail, productName, socialLinks, webTaglines } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { MailIcon } from "lucide-react";
@@ -84,6 +85,8 @@ function SocialLinkButton({ href, ariaLabel, tooltip, children }: SocialLinkButt
 
 export default function PublicFooter() {
   const currentYear = new Date().getFullYear();
+  const { i18n } = useLingui();
+  const tagline = webTaglines[i18n.locale];
 
   return (
     <footer className="w-full bg-input-background">
@@ -111,9 +114,7 @@ export default function PublicFooter() {
             {/* Description */}
             <div className="space-y-3">
               <h3 className="hidden sm:block">{productName}</h3>
-              <p className="leading-relaxed text-muted-foreground">
-                <Trans>Free, open-source .NET and React starter kit for building modern SaaS applications.</Trans>
-              </p>
+              {tagline && <p className="leading-relaxed text-muted-foreground">{tagline}</p>}
             </div>
           </div>
         </div>

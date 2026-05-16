@@ -19,9 +19,6 @@ msgstr "'{{'ProductName'}}' login verification code"
 msgid "<0/> invited you to join '{{'ProductName'}}'."
 msgstr "<0/> invited you to join '{{'ProductName'}}'."
 
-msgid "An open-source platform for building enterprise-grade, multi-tenant B2B SaaS products."
-msgstr "An open-source platform for building enterprise-grade, multi-tenant B2B SaaS products."
-
 msgid "Compliance"
 msgstr "Compliance"
 

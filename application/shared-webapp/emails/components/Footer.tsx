@@ -23,7 +23,15 @@ export function Footer() {
           <Value path="ProductName" sample="PlatformPlatform" />
         </Text>
         <Text className="email-muted m-[0px] mt-[4px] text-[13px] leading-[20px] text-[#64748b]">
-          <Trans>An open-source platform for building enterprise-grade, multi-tenant B2B SaaS products.</Trans>
+          <Value
+            path="Tagline"
+            sample="Free, open-source .NET and React starter kit for building modern SaaS applications."
+          />
+          {/*
+            {{Tagline}} is pushed onto the Scriban context per render by ScribanEmailRenderer using
+            Settings.Current.Branding.Tagline.Mail[locale] (see platform-settings.jsonc). The sample
+            here is only used in the dev preview; production substitution is locale-specific.
+          */}
         </Text>
       </Section>
 
