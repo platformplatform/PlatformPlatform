@@ -1,4 +1,5 @@
 import { loadPlatformSettings } from "@repo/build/platformSettings";
+import { BrandSubstitutionPlugin } from "@repo/build/plugin/BrandSubstitutionPlugin";
 import { DevelopmentServerPlugin } from "@repo/build/plugin/DevelopmentServerPlugin";
 import { FileSystemRouterPlugin } from "@repo/build/plugin/FileSystemRouterPlugin";
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
@@ -34,6 +35,11 @@ export default defineConfig({
   security: {
     nonce: "{{cspNonce}}"
   },
+  html: {
+    templateParameters: {
+      productName: customBuildEnv.branding.productName
+    }
+  },
   plugins: [
     TailwindPlugin("#main"),
     pluginReact(),
@@ -50,6 +56,7 @@ export default defineConfig({
       remotes: {
         account: { port: accountStaticPort }
       }
-    })
+    }),
+    BrandSubstitutionPlugin(customBuildEnv.branding.productName, ["manifest.json"])
   ]
 });

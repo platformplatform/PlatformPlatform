@@ -1,7 +1,7 @@
 {
-  "name": "PlatformPlatform",
-  "short_name": "PlatformPlatform",
-  "description": "PlatformPlatform Application",
+  "name": "__PRODUCT_NAME__",
+  "short_name": "__PRODUCT_NAME__",
+  "description": "__PRODUCT_NAME__ Application",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

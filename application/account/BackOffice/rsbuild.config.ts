@@ -1,4 +1,5 @@
 import { loadPlatformSettings } from "@repo/build/platformSettings";
+import { BrandSubstitutionPlugin } from "@repo/build/plugin/BrandSubstitutionPlugin";
 import { DevelopmentServerPlugin } from "@repo/build/plugin/DevelopmentServerPlugin";
 import { FileSystemRouterPlugin } from "@repo/build/plugin/FileSystemRouterPlugin";
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
@@ -43,6 +44,7 @@ export default defineConfig({
     FileSystemRouterPlugin(),
     RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),
-    DevelopmentServerPlugin({ port: backOfficeStaticPort })
+    DevelopmentServerPlugin({ port: backOfficeStaticPort }),
+    BrandSubstitutionPlugin(customBuildEnv.branding.productName, ["manifest.json"])
   ]
 });
