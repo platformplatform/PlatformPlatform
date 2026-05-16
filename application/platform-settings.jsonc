@@ -10,9 +10,8 @@
   // Sensitive values (like API keys) should be stored in environment variables or key vaults.
 
   "identity": {
-    // Email domain suffix that identifies internal users.
-    // Users with this domain get access to BackOffice and other internal features.
-    // Used by backend only - frontend relies on the isInternalUser flag from the backend.
+    // Email domain suffix used to classify users as internal (e.g. for telemetry segmentation).
+    // BackOffice access is controlled by Entra ID, not by this setting.
     "internalEmailDomain": "@platformplatform.net"
   },
 
