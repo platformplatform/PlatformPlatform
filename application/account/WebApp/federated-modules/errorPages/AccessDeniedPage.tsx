@@ -8,7 +8,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import logoMark from "@repo/ui/images/logo-mark-light-512.png";
-import logoWrap from "@repo/ui/images/logo-wrap-light-88.png";
+import logoWrap from "@repo/ui/images/logo-light-88.png";
 import { Home, LogOut, ShieldX } from "lucide-react";
 import { useContext, useState } from "react";
 

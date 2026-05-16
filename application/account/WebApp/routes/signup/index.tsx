@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import logoMarkUrl from "@repo/ui/images/logo-mark-light-512.png";
-import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-wrap-88.png";
+import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-88.png";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useEffect, useState } from "react";

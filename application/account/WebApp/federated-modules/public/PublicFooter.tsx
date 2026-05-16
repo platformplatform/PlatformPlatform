@@ -7,7 +7,7 @@ import { contactEmail, productName, socialLinks, webTaglines } from "@repo/infra
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import logoMark from "@repo/ui/images/logo-mark-light-512.png";
-import logoWrap from "@repo/ui/images/logo-wrap-light-88.png";
+import logoWrap from "@repo/ui/images/logo-light-88.png";
 import { MailIcon } from "lucide-react";
 
 // Brand icons removed from lucide-react v1 for trademark reasons; inlined here as SVGs.
