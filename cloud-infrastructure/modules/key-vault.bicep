@@ -6,7 +6,8 @@ param subnetId string
 param storageAccountId string
 param workspaceId string
 param domainName string = ''
-param productName string = 'PlatformPlatform'
+@minLength(1)
+param productName string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: name

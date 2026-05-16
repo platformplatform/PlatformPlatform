@@ -27,7 +27,7 @@ Guidelines for authoring transactional email templates that ship as Scriban-subs
    - `<OtpAutofill code="otpCode" domain="domain" />` emits the iOS-compatible `@{domain} #{code}` autofill suffix; place it once at the end of the template body so it lands on the last line of the plaintext output
    - **Exception — HTML attributes and Trans strings.** `<Value>` renders a `<span>`, so it cannot live inside attributes like `href` or inside the literal text of a `<Trans>` marker. In those two cases, hand-write the Scriban placeholder verbatim:
      - Attribute: `<Link href="{{LoginUrl}}">…</Link>` (the entire attribute value is a single placeholder)
-     - Trans string: `<Trans>{`You have been invited to join '{{'TenantName'}}' on PlatformPlatform`}</Trans>` — the ICU single-quote escape `'{{'…'}}'` is required so Lingui doesn't mistake `{{TenantName}}` for an ICU placeholder. The same escaped form lands verbatim in the `.po` files
+     - Trans string: `<Trans>{`You have been invited to join '{{'TenantName'}}' on '{{'ProductName'}}'`}</Trans>` — the ICU single-quote escape `'{{'…'}}'` is required so Lingui doesn't mistake `{{TenantName}}` for an ICU placeholder. The same escaped form lands verbatim in the `.po` files
 
 4. Use the Scriban helpers registered in `SharedKernel/Emails/EmailHelpers.cs` for value formatting (called with Scriban pipe syntax):
    - `amount | format_currency "USD" "en-US"` — both currency code and locale are required
@@ -68,9 +68,9 @@ import { Value } from "@repo/emails/helpers/Value";
 
 export default function Welcome({ locale }: { locale: string }) {
   return (
-    <TransactionalEmail locale={locale} preview="Welcome to PlatformPlatform">
+    <TransactionalEmail locale={locale} preview="Welcome to {{ProductName}}">
       <Subject>
-        <Trans>Welcome to PlatformPlatform</Trans>
+        <Trans>{`Welcome to '{{'ProductName'}}'`}</Trans>
       </Subject>
       <Heading level={1}>
         <Trans>Hi <Value path="user.firstName" sample="Alex" /></Trans>

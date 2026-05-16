@@ -10,6 +10,7 @@ using NSubstitute;
 using SharedKernel.Authentication;
 using SharedKernel.Domain;
 using SharedKernel.Integrations.Email;
+using SharedKernel.Platform;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using SharedKernel.Validation;
@@ -65,11 +66,11 @@ public sealed class InviteUserTests(AccountWebApplicationFactory factory) : Endp
         await EmailClient.Received(1).SendAsync(
             Arg.Is<EmailMessage>(m =>
                 m.Recipient == email.ToLower() &&
-                m.Subject == $"You have been invited to join {tenantName} on PlatformPlatform" &&
-                m.HtmlBody.Contains("invited you to join PlatformPlatform.") &&
+                m.Subject == $"You have been invited to join {tenantName} on {Settings.Current.Branding.ProductName}" &&
+                m.HtmlBody.Contains($"invited you to join {Settings.Current.Branding.ProductName}.") &&
                 m.HtmlBody.Contains("To gain access") &&
                 m.HtmlBody.Contains("go to this page in your open browser") &&
-                m.PlainTextBody.Contains("invited you to join PlatformPlatform.") &&
+                m.PlainTextBody.Contains($"invited you to join {Settings.Current.Branding.ProductName}.") &&
                 m.PlainTextBody.Contains(email.ToLower())
             ),
             Arg.Any<CancellationToken>()
@@ -108,9 +109,9 @@ public sealed class InviteUserTests(AccountWebApplicationFactory factory) : Endp
         await EmailClient.Received(1).SendAsync(
             Arg.Is<EmailMessage>(m =>
                 m.Recipient == email.ToLower() &&
-                m.Subject == $"Du er inviteret til at deltage i {tenantName} på PlatformPlatform" &&
-                m.HtmlBody.Contains("har inviteret dig til at deltage i PlatformPlatform.") &&
-                m.PlainTextBody.Contains("har inviteret dig til at deltage i PlatformPlatform.") &&
+                m.Subject == $"Du er inviteret til at deltage i {tenantName} på {Settings.Current.Branding.ProductName}" &&
+                m.HtmlBody.Contains($"har inviteret dig til at deltage i {Settings.Current.Branding.ProductName}.") &&
+                m.PlainTextBody.Contains($"har inviteret dig til at deltage i {Settings.Current.Branding.ProductName}.") &&
                 m.PlainTextBody.Contains(email.ToLower())
             ),
             Arg.Any<CancellationToken>()

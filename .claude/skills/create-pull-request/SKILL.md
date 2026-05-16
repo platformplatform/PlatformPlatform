@@ -66,7 +66,7 @@ Stash the answers; consumed in STEP 6, 7, 8, 11.
 
 Look up `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for [Task] ID format and MCP tools.
 
-1. **Parse [Task] ID from branch name** (e.g. `pp-(\d+)` for PlatformPlatform; strip `worktree-` first).
+1. **Parse [Task] ID from branch name** (e.g. `<cli-alias>-(\d+)` where `<cli-alias>` matches the developer CLI binary name configured by your project; strip `worktree-` first).
 
 2. **If [Task] detected**, fetch via MCP. Use its title, description, and parent [Feature] to validate the draft in STEP 6 and spot drift.
 
@@ -221,17 +221,17 @@ These changes make the system more robust and maintainable. # DON'T: closing sum
 
 ### Example 3 - Branch with `worktree-` prefix
 
-Local: `worktree-pp-1208-add-pre-push-hook` -> propose `pp-1208-add-pre-push-hook` (rename in STEP 8, push in STEP 9).
+Local: `worktree-<cli-alias>-1208-add-pre-push-hook` -> propose `<cli-alias>-1208-add-pre-push-hook` (rename in STEP 8, push in STEP 9).
 
 ### Example 4 - Branch drift
 
-Local: `pp-1208-add-pre-push-hook`. Actual work: refactored install command and added auto-sync.
+Local: `<cli-alias>-1208-add-pre-push-hook`. Actual work: refactored install command and added auto-sync.
 
-Propose `pp-1208-auto-install-git-hooks-on-pp-install`. Confirm in STEP 4; rename in STEP 8.
+Propose `<cli-alias>-1208-auto-install-git-hooks-on-install`. Confirm in STEP 4; rename in STEP 8.
 
 ### Example 5 - Unrelated commits
 
-Branch: `pp-1208-add-pre-push-hook`. Commits: hook + an unrelated typo fix in README.
+Branch: `<cli-alias>-1208-add-pre-push-hook`. Commits: hook + an unrelated typo fix in README.
 
 Surface the typo commit. Offer to create a new [Task]: "Fix typo in README troubleshooting section" (problem statement, future tense). The pull request continues with both commits.
 
@@ -240,8 +240,8 @@ Surface the typo commit. Offer to create a new [Task]: "Fix typo in README troub
 ```
 Pull request opened: https://github.com/<owner>/<repo>/pull/123
 
-Title:        Auto-install committed git hooks into .git/hooks/ via pp install
+Title:        Auto-install committed git hooks into .git/hooks/ via <cli-alias> install
 Labels:       Enhancement, Deploy to Staging
-[Task]:       linked via branch name pp-1208 (auto-detected by [PRODUCT_MANAGEMENT_TOOL])
-Description:  /absolute/path/to/repo/.workspace/pp-1208-add-pre-push-hook/pull-request.md
+[Task]:       linked via branch name <cli-alias>-1208 (auto-detected by [PRODUCT_MANAGEMENT_TOOL])
+Description:  /absolute/path/to/repo/.workspace/<cli-alias>-1208-add-pre-push-hook/pull-request.md
 ```

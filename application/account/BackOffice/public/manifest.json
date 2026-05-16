@@ -1,7 +1,7 @@
 {
-  "name": "Back Office",
-  "short_name": "Back Office",
-  "description": "__PRODUCT_NAME__ Application",
+  "name": "__PRODUCT_NAME__ Back Office",
+  "short_name": "__PRODUCT_NAME__",
+  "description": "__PRODUCT_NAME__ Back Office",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

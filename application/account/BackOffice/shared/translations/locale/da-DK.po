@@ -69,6 +69,9 @@ msgstr "{inactiveUsers} inaktive"
 msgid "{pendingUsers} pending"
 msgstr "{pendingUsers} afventer"
 
+msgid "{productName} logo"
+msgstr "{productName} logo"
+
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# medlemskab} other {# medlemskaber}}"
 
@@ -865,9 +868,6 @@ msgstr "Platform"
 
 msgid "Platform-wide capabilities set at deployment via environment variables. Configured only in code."
 msgstr "Platformomspændende funktioner sat ved udrulning via miljøvariabler. Konfigureres kun i koden."
-
-msgid "PlatformPlatform logo"
-msgstr "PlatformPlatform logo"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."

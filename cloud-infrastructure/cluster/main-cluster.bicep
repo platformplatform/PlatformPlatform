@@ -14,7 +14,9 @@ param accountVersion string
 param mainVersion string
 param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
-param productName string = 'PlatformPlatform'
+@minLength(1)
+param productName string
+@minLength(1)
 param mailSenderDisplayName string = productName
 param useCustomEmailDomain bool = false
 param revisionSuffix string

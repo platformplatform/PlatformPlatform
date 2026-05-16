@@ -14,7 +14,7 @@ Use `developer-cli` exactly as written - do not expand to an absolute worktree p
 Stops the Aspire AppHost **and** its associated Docker containers (postgres, azurite, mailpit, stripe-cli) - not just the Aspire process. Persistent containers survive a plain `aspire stop` by design, so this skill cleans them up too.
 
 - (no flag) - stop the current worktree's stack
-- `--all` - stop every PlatformPlatform worktree (via `git worktree list`). Only use when the user explicitly asks to stop everything - never as a default
+- `--all` - stop every worktree of this repository (via `git worktree list`). Only use when the user explicitly asks to stop everything - never as a default
 - `--port <basePort>` - stop the worktree on that base port (e.g. `9000`, `9100`, `9200`); also cleans up Docker containers for that port even if the worktree was deleted
 
 The flags are mutually exclusive.

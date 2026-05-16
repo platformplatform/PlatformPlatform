@@ -11,6 +11,7 @@ using NSubstitute;
 using SharedKernel.Authentication;
 using SharedKernel.Domain;
 using SharedKernel.Integrations.Email;
+using SharedKernel.Platform;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
 using SharedKernel.Validation;
@@ -44,7 +45,7 @@ public sealed class StartEmailLoginTests(AccountWebApplicationFactory factory) :
         await EmailClient.Received(1).SendAsync(
             Arg.Is<EmailMessage>(m =>
                 m.Recipient == email.ToLower() &&
-                m.Subject == "PlatformPlatform login verification code" &&
+                m.Subject == $"{Settings.Current.Branding.ProductName} login verification code" &&
                 m.HtmlBody.Contains("Your confirmation code is below") &&
                 m.HtmlBody.Contains("Enter it in your open browser window. It is only valid for a few minutes.") &&
                 m.PlainTextBody.Contains("Your confirmation code is below") &&
@@ -89,7 +90,7 @@ public sealed class StartEmailLoginTests(AccountWebApplicationFactory factory) :
         await EmailClient.Received(1).SendAsync(
             Arg.Is<EmailMessage>(m =>
                 m.Recipient == email &&
-                m.Subject == "PlatformPlatform-bekræftelseskode til login" &&
+                m.Subject == $"{Settings.Current.Branding.ProductName}-bekræftelseskode til login" &&
                 m.HtmlBody.Contains("Din bekræftelseskode står herunder") &&
                 m.PlainTextBody.Contains("Din bekræftelseskode står herunder") &&
                 m.PlainTextBody.TrimEnd().Contains("@localhost #")
@@ -166,7 +167,7 @@ public sealed class StartEmailLoginTests(AccountWebApplicationFactory factory) :
                 m.Recipient == email.ToLower() &&
                 m.Subject == "No account found" &&
                 m.HtmlBody.Contains("Is this the right email address?") &&
-                m.HtmlBody.Contains("PlatformPlatform account tied to") &&
+                m.HtmlBody.Contains($"{Settings.Current.Branding.ProductName} account tied to") &&
                 m.PlainTextBody.Contains("Is this the right email address?") &&
                 m.PlainTextBody.Contains(email.ToLower())
             ),
@@ -251,7 +252,7 @@ public sealed class StartEmailLoginTests(AccountWebApplicationFactory factory) :
                 m.Recipient == email.ToLower() &&
                 m.Subject == "No account found" &&
                 m.HtmlBody.Contains("Is this the right email address?") &&
-                m.HtmlBody.Contains("PlatformPlatform account tied to") &&
+                m.HtmlBody.Contains($"{Settings.Current.Branding.ProductName} account tied to") &&
                 m.PlainTextBody.Contains("Is this the right email address?") &&
                 m.PlainTextBody.Contains(email.ToLower())
             ),
