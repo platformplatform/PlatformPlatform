@@ -218,8 +218,8 @@ jobs:
                 # Azure returns absolute names for apex records (Domain TXT, SPF TXT) and relative names
                 # for subdomain records (DKIM CNAMEs). DNS UIs (Microsoft 365, Azure DNS, Cloudflare,
                 # Route 53, ...) want "@" as shorthand for the apex - typing the literal full domain
-                # often causes the panel to append the zone again (e.g., "platformplatform.net" becomes
-                # "platformplatform.net.platformplatform.net"). Translate apex hits to "@" so the
+                # often causes the panel to append the zone again (e.g., "example.com" becomes
+                # "example.com.example.com"). Translate apex hits to "@" so the
                 # operator can paste verbatim into M365's DNS panel.
                 normalize_name() {
                   if [[ "$1" == "$email_domain_name" ]]; then echo "@"; else echo "$1"; fi
