@@ -49,7 +49,14 @@ Required logo assets (user provides absolute paths to eight files):
 | Apple touch icon, dark variant, 180x180, solid background (iOS 13+ picks this when the user is in dark mode via the `media="(prefers-color-scheme: dark)"` link in index.html) | `application/main/WebApp/public/apple-touch-icon-dark.png` AND `application/account/BackOffice/public/apple-touch-icon-dark.png` |
 | Email banner, 1200x184, transparent PNG, logo centered (the logo occupies a 640x88 area with 280px transparent padding left/right and 48px top/bottom). Renders full-bleed at 600x92 and scales down on mobile; the email header background shows through the transparent areas. | `application/main/WebApp/public/email/logo-1200x184.png` |
 
-The favicon and apple-touch inputs each fan out to two destination paths.
+Optional hero imagery (single shared pair, rendered side-by-side with the login/signup form on `/login`, `/signup`, and BackOffice login):
+
+| Spec | Canonical path written to |
+| --- | --- |
+| Hero image, 1000x760 aspect, WebP, full quality (rendered with `fetchPriority="high"`) | `application/shared-webapp/ui/images/hero-desktop-xl.webp` |
+| Hero image LQIP placeholder, same aspect, heavily compressed WebP (~1 KB; loaded as `background-image` until the XL paints) | `application/shared-webapp/ui/images/hero-desktop-blur.webp` |
+
+The favicon and apple-touch inputs each fan out to two destination paths. The hero pair is single-source: both the user-facing WebApp and the BackOffice login render the same image — replace it once.
 
 ## STEP 3: Edit platform-settings.jsonc
 

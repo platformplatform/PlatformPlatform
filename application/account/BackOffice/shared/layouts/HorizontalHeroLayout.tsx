@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 
 import { t } from "@lingui/core/macro";
+import heroDesktopBlurImage from "@repo/ui/images/hero-desktop-blur.webp";
+import heroDesktopImage from "@repo/ui/images/hero-desktop-xl.webp";
 
 import { LoginFooterControls } from "@/routes/-components/LoginFooterControls";
-import heroDesktopBlurImage from "@/shared/images/hero-desktop-blur.webp";
-import heroDesktopImage from "@/shared/images/hero-desktop-xl.webp";
 
 interface HorizontalHeroLayoutProps {
   children: ReactNode;
