@@ -840,9 +840,6 @@ msgstr "Databeskyttelsestillæg"
 msgid "Data residency"
 msgstr "Dataopbevaring"
 
-msgid "Data storage location for privacy and compliance. This cannot be changed later."
-msgstr "Datalagringsplacering for privatliv og compliance. Dette kan ikke ændres senere."
-
 msgid "Date"
 msgstr "Dato"
 
@@ -1110,9 +1107,6 @@ msgstr "Tryk Escape for at lukke"
 
 msgid "Estimated next bill: {targetFormattedPrice}"
 msgstr "Forventet næste regning: {targetFormattedPrice}"
-
-msgid "Europe"
-msgstr "Europa"
 
 msgid "Examples"
 msgstr "Eksempler"
@@ -2123,9 +2117,6 @@ msgstr "Forfin opskriftslisten. Ændringer træder i kraft når du lukker sheete
 msgid "Refunded"
 msgstr "Refunderet"
 
-msgid "Region"
-msgstr "Region"
-
 msgid "Regulatory standards and certifications"
 msgstr "Lovgivningsmæssige standarder og certificeringer"
 
@@ -2650,9 +2641,6 @@ msgstr "Dette er en sidepanel-komponent, der glider ind fra højre. Den kan tilp
 
 msgid "This is an informational message."
 msgstr "Dette er en informationsmeddelelse."
-
-msgid "This is the region where your data is stored"
-msgstr "Dette er den region, hvor dine data er lagret"
 
 msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
 msgstr "Dette vil permanent slette <0>{totalDeletedUsersCount} brugere</0> i papirkurven."

@@ -840,9 +840,6 @@ msgstr "Data protection addendum"
 msgid "Data residency"
 msgstr "Data residency"
 
-msgid "Data storage location for privacy and compliance. This cannot be changed later."
-msgstr "Data storage location for privacy and compliance. This cannot be changed later."
-
 msgid "Date"
 msgstr "Date"
 
@@ -1110,9 +1107,6 @@ msgstr "Escape to close"
 
 msgid "Estimated next bill: {targetFormattedPrice}"
 msgstr "Estimated next bill: {targetFormattedPrice}"
-
-msgid "Europe"
-msgstr "Europe"
 
 msgid "Examples"
 msgstr "Examples"
@@ -2123,9 +2117,6 @@ msgstr "Refine the recipe list. Changes apply when you close the sheet."
 msgid "Refunded"
 msgstr "Refunded"
 
-msgid "Region"
-msgstr "Region"
-
 msgid "Regulatory standards and certifications"
 msgstr "Regulatory standards and certifications"
 
@@ -2650,9 +2641,6 @@ msgstr "This is a side pane component that slides in from the right. It can adap
 
 msgid "This is an informational message."
 msgstr "This is an informational message."
-
-msgid "This is the region where your data is stored"
-msgstr "This is the region where your data is stored"
 
 msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
 msgstr "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."

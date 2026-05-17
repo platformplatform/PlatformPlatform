@@ -5,12 +5,9 @@ import { productName } from "@repo/infrastructure/branding";
 import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
-import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { LabelWithTooltip } from "@repo/ui/components/LabelWithTooltip";
 import { Link } from "@repo/ui/components/Link";
 import { Logo } from "@repo/ui/components/Logo";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -103,27 +100,6 @@ export function StartSignupForm() {
       <div className="text-center text-sm text-muted-foreground">
         <Trans>Sign up in seconds to start building on {productName} – just like thousands of others.</Trans>
       </div>
-      <Field className="flex w-full flex-col">
-        <FieldLabel>
-          <LabelWithTooltip
-            tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
-          >
-            {t`Region`}
-          </LabelWithTooltip>
-        </FieldLabel>
-        <Select name="region" defaultValue="europe" required={true} disabled={isPending}>
-          <SelectTrigger className="w-full" aria-label={t`Region`}>
-            <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="europe">
-              <Trans>Europe</Trans>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
-      </Field>
-      <div className="w-full border-t border-border" />
       <TextField
         name="email"
         type="email"
