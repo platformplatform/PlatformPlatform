@@ -12,6 +12,18 @@ export declare global {
        */
       productName: string;
       /**
+       * PWA toolbar tint per theme mode. The HTML <meta name="theme-color"> initial value is
+       * themeColor.light; ThemeColorUpdater swaps it to themeColor.dark at runtime when dark mode
+       * resolves. manifest.json theme_color uses light as the install-time value (PWA spec is
+       * single-valued). Hex only.
+       */
+      themeColor: {
+        light: string;
+        dark: string;
+      };
+      /** PWA splash-screen background while the SPA boots (hex, no oklch) */
+      backgroundColor: string;
+      /**
        * Brand primary color (the "button color"). Light/dark + their foreground (text-on-primary)
        * companions. Piped into theme.css via inline `<style>` in the HTML template.
        */

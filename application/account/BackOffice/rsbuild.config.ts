@@ -33,15 +33,6 @@ export default defineConfig({
   security: {
     nonce: "{{cspNonce}}"
   },
-  html: {
-    templateParameters: {
-      productName: customBuildEnv.branding.productName,
-      primaryColorLight: customBuildEnv.branding.primaryColor.light,
-      primaryColorLightForeground: customBuildEnv.branding.primaryColor.lightForeground,
-      primaryColorDark: customBuildEnv.branding.primaryColor.dark,
-      primaryColorDarkForeground: customBuildEnv.branding.primaryColor.darkForeground
-    }
-  },
   plugins: [
     TailwindPlugin("#back-office"),
     pluginReact(),
@@ -54,6 +45,13 @@ export default defineConfig({
     RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),
     DevelopmentServerPlugin({ port: backOfficeStaticPort }),
-    BrandSubstitutionPlugin(customBuildEnv.branding.productName, ["manifest.json"])
+    BrandSubstitutionPlugin(
+      {
+        __PRODUCT_NAME__: customBuildEnv.branding.productName,
+        __THEME_COLOR__: customBuildEnv.branding.themeColor.light,
+        __BACKGROUND_COLOR__: customBuildEnv.branding.backgroundColor
+      },
+      ["manifest.json"]
+    )
   ]
 });

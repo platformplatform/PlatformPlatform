@@ -33,9 +33,10 @@ Required inputs:
    - `tagline.mail.<locale>` — shown in the email footer (renderer reads the template's locale).
    The two maps must list the SAME locales (backend fails loud at startup if they diverge); the en-US value is REQUIRED. Collect en-US and da-DK for both channels — for downstream brands the web and mail copy will often differ (e.g. the email leans toward the recipient context). For PlatformPlatform itself, web == mail.
 6. **Primary color** — four CSS color expressions (oklch / hex / hsl / rgb all valid) under `branding.primaryColor`: `light`, `lightForeground`, `dark`, `darkForeground`. Drives the "button color" and its on-color text in both light and dark modes. The value flows through theme.css via an inline `<style>` block injected per HTML template (`--brand-primary` / `--brand-primary-foreground` CSS variables); `--primary` and `--sidebar-primary` read those. Pick foregrounds with enough contrast against the primary — that is a deliberate brand-owner decision, not auto-derived.
-7. **Contact email** — public-facing email shown as a mail icon in landing page footer. Empty hides it.
-8. **Support email** — shown to signed-in users in the in-app support dialog. Required (the dialog renders the value unconditionally; an empty string shows a blank field).
-9. **Social links** — six separate fields: GitHub, LinkedIn, YouTube, X, Facebook, Instagram. Each is a full URL or empty string.
+7. **PWA chrome colors** — hex only, no oklch. `branding.themeColor.light` / `branding.themeColor.dark` tint the mobile browser/PWA toolbar (iOS Dynamic Island "tint band"); the frontend swaps the `<meta name="theme-color">` value at runtime to match the resolved theme. `branding.themeColor.light` is the install-time fallback baked into `manifest.json` (PWA spec is single-valued). `branding.backgroundColor` is the PWA splash-screen background while the SPA boots.
+8. **Contact email** — public-facing email shown as a mail icon in landing page footer. Empty hides it.
+9. **Support email** — shown to signed-in users in the in-app support dialog. Required (the dialog renders the value unconditionally; an empty string shows a blank field).
+10. **Social links** — six separate fields: GitHub, LinkedIn, YouTube, X, Facebook, Instagram. Each is a full URL or empty string.
 
 Required logo assets (user provides absolute paths to eight files):
 

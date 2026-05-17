@@ -12,6 +12,7 @@ using Microsoft.Extensions.Primitives;
 using SharedKernel.Authentication;
 using SharedKernel.Configuration;
 using SharedKernel.ExecutionContext;
+using SharedKernel.Platform;
 
 namespace SharedKernel.SinglePageApp;
 
@@ -82,6 +83,19 @@ public static class SinglePageAppFallbackExtensions
         html = html.Replace("%ANTIFORGERY_TOKEN%", antiforgeryHttpHeaderToken);
         html = html.Replace("%CSP_NONCE%", nonce);
         html = html.Replace("{{cspNonce}}", nonce);
+
+        // Brand tokens sourced from platform-settings.jsonc. Substituted at request time (not at
+        // rsbuild build time) so the .NET test host -- which runs without a frontend build -- still
+        // serves brand-correct HTML, and so changing the JSONC value flips the served shell without
+        // a rebuild. The rsbuild dev server passes its own copy through verbatim.
+        var branding = Settings.Current.Branding;
+        html = html.Replace("%PRODUCT_NAME%", branding.ProductName);
+        html = html.Replace("%THEME_COLOR_LIGHT%", branding.ThemeColor.Light);
+        html = html.Replace("%THEME_COLOR_DARK%", branding.ThemeColor.Dark);
+        html = html.Replace("%PRIMARY_COLOR_LIGHT%", branding.PrimaryColor.Light);
+        html = html.Replace("%PRIMARY_COLOR_LIGHT_FOREGROUND%", branding.PrimaryColor.LightForeground);
+        html = html.Replace("%PRIMARY_COLOR_DARK%", branding.PrimaryColor.Dark);
+        html = html.Replace("%PRIMARY_COLOR_DARK_FOREGROUND%", branding.PrimaryColor.DarkForeground);
 
         foreach (var variable in singlePageAppConfiguration.StaticRuntimeEnvironment)
         {

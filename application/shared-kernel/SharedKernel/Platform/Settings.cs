@@ -62,6 +62,10 @@ public sealed class Settings
     {
         public required string ProductName { get; init; }
 
+        public required ThemeColorConfig ThemeColor { get; init; }
+
+        public required string BackgroundColor { get; init; }
+
         public required PrimaryColorConfig PrimaryColor { get; init; }
 
         public required TaglineConfig Tagline { get; init; }
@@ -69,6 +73,13 @@ public sealed class Settings
         public required string ContactEmail { get; init; }
 
         public required string SupportEmail { get; init; }
+    }
+
+    public sealed class ThemeColorConfig
+    {
+        public required string Light { get; init; }
+
+        public required string Dark { get; init; }
     }
 
     public sealed class PrimaryColorConfig

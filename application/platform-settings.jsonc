@@ -19,6 +19,17 @@
     // Product/platform name displayed throughout the application.
     "productName": "PlatformPlatform",
 
+    // PWA chrome colors. "themeColor.light/dark" tints the mobile browser/PWA toolbar (the iOS
+    // Dynamic Island "tint band") -- the frontend swaps the `<meta name="theme-color">` value at
+    // runtime to match the active theme mode. "backgroundColor" is the PWA splash-screen background
+    // while the SPA boots (PWA spec is single-value). "themeColor.light" is the install-time fallback
+    // baked into manifest.json. PWA spec allows hex only, no oklch.
+    "themeColor": {
+      "light": "#eef0f2",
+      "dark": "#151b23"
+    },
+    "backgroundColor": "#ffffff",
+
     // Brand primary color (the "button color"). Each entry is a CSS color expression -- any value
     // accepted by a CSS custom property is fine (oklch, hsl, hex, rgb). Light is what most users see;
     // dark is the dark-mode counterpart (usually inverted -- e.g. brand-on-white in light mode flips
