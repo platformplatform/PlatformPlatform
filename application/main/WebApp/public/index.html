@@ -42,6 +42,17 @@
                 }
             })();
         </script>
+        <style nonce="{{cspNonce}}">
+            :root,
+            .light {
+                --brand-primary: <%= primaryColorLight %>;
+                --brand-primary-foreground: <%= primaryColorLightForeground %>;
+            }
+            .dark {
+                --brand-primary: <%= primaryColorDark %>;
+                --brand-primary-foreground: <%= primaryColorDarkForeground %>;
+            }
+        </style>
         <link href="/favicon.ico" rel="icon" type="image/x-icon" />
         <link
             href="/apple-touch-icon.png"

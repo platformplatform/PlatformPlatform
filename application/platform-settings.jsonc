@@ -19,6 +19,18 @@
     // Product/platform name displayed throughout the application.
     "productName": "PlatformPlatform",
 
+    // Brand primary color (the "button color"). Each entry is a CSS color expression -- any value
+    // accepted by a CSS custom property is fine (oklch, hsl, hex, rgb). Light is what most users see;
+    // dark is the dark-mode counterpart (usually inverted -- e.g. brand-on-white in light mode flips
+    // to white-with-brand-text in dark mode). The "*Foreground" pair is the text/icon color used on
+    // top of the primary, so contrast must be a deliberate choice by the brand owner.
+    "primaryColor": {
+      "light": "oklch(0.2 0.02 264)",
+      "lightForeground": "oklch(0.97 0.003 264)",
+      "dark": "oklch(0.95 0.003 264)",
+      "darkForeground": "oklch(0.18 0 0)"
+    },
+
     // One-line product description shown in the landing page footer and the email footer.
     // Two channels (web, mail) each carry a per-locale map -- the email tagline can lean toward the
     // recipient context (e.g. "your AI accountant") while the web one stays marketing. Every locale

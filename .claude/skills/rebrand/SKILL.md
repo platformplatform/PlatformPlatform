@@ -32,9 +32,10 @@ Required inputs:
    - `tagline.web.<locale>` — shown in the landing page footer (consumer reads the active Lingui locale).
    - `tagline.mail.<locale>` — shown in the email footer (renderer reads the template's locale).
    The two maps must list the SAME locales (backend fails loud at startup if they diverge); the en-US value is REQUIRED. Collect en-US and da-DK for both channels — for downstream brands the web and mail copy will often differ (e.g. the email leans toward the recipient context). For PlatformPlatform itself, web == mail.
-6. **Contact email** — public-facing email shown as a mail icon in landing page footer. Empty hides it.
-7. **Support email** — shown to signed-in users in the in-app support dialog. Required (the dialog renders the value unconditionally; an empty string shows a blank field).
-8. **Social links** — six separate fields: GitHub, LinkedIn, YouTube, X, Facebook, Instagram. Each is a full URL or empty string.
+6. **Primary color** — four CSS color expressions (oklch / hex / hsl / rgb all valid) under `branding.primaryColor`: `light`, `lightForeground`, `dark`, `darkForeground`. Drives the "button color" and its on-color text in both light and dark modes. The value flows through theme.css via an inline `<style>` block injected per HTML template (`--brand-primary` / `--brand-primary-foreground` CSS variables); `--primary` and `--sidebar-primary` read those. Pick foregrounds with enough contrast against the primary — that is a deliberate brand-owner decision, not auto-derived.
+7. **Contact email** — public-facing email shown as a mail icon in landing page footer. Empty hides it.
+8. **Support email** — shown to signed-in users in the in-app support dialog. Required (the dialog renders the value unconditionally; an empty string shows a blank field).
+9. **Social links** — six separate fields: GitHub, LinkedIn, YouTube, X, Facebook, Instagram. Each is a full URL or empty string.
 
 Required logo assets (user provides absolute paths to eight files):
 

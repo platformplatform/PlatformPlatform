@@ -37,7 +37,11 @@ export default defineConfig({
   },
   html: {
     templateParameters: {
-      productName: customBuildEnv.branding.productName
+      productName: customBuildEnv.branding.productName,
+      primaryColorLight: customBuildEnv.branding.primaryColor.light,
+      primaryColorLightForeground: customBuildEnv.branding.primaryColor.lightForeground,
+      primaryColorDark: customBuildEnv.branding.primaryColor.dark,
+      primaryColorDarkForeground: customBuildEnv.branding.primaryColor.darkForeground
     }
   },
   plugins: [

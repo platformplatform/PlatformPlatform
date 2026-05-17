@@ -5,6 +5,17 @@ export interface PlatformBranding {
   /** Product/platform name displayed throughout the application */
   productName: string;
   /**
+   * Brand primary color (the "button color"). Each value is a CSS color expression. The frontend
+   * pipes them into theme.css via inline `<style>` injected per HTML template; the corresponding
+   * `*Foreground` is the text/icon color used on top of the primary.
+   */
+  primaryColor: {
+    light: string;
+    lightForeground: string;
+    dark: string;
+    darkForeground: string;
+  };
+  /**
    * One-line product description per channel and locale. The frontend reads `tagline.web[locale]`;
    * emails read `tagline.mail[locale]` server-side. Locale keys in `web` and `mail` must match.
    */

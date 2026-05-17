@@ -7,8 +7,12 @@
     --card-foreground: oklch(0.13 0.028 261.692);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.13 0.028 261.692);
-    --primary: oklch(0.2 0.02 264);
-    --primary-foreground: oklch(0.97 0.003 264);
+    /* --brand-primary / --brand-primary-foreground are injected per HTML template from
+       platform-settings.jsonc; theme.css reads them so a rebrand changes the button color from
+       configuration alone. The values are undefined if the inline <style> in index.html is missing,
+       which is a build misconfiguration and fails visibly. */
+    --primary: var(--brand-primary);
+    --primary-foreground: var(--brand-primary-foreground);
     --secondary: oklch(0.95 0.003 264);
     --secondary-foreground: oklch(0.21 0.006 285.885);
     --muted: oklch(0.95 0.003 264);
@@ -27,8 +31,8 @@
     --chart-5: oklch(0.47 0.12 46);
     --sidebar: oklch(0.92 0.003 264);
     --sidebar-foreground: oklch(0.13 0.028 261.692);
-    --sidebar-primary: oklch(0.2 0.02 264);
-    --sidebar-primary-foreground: oklch(0.97 0.003 264);
+    --sidebar-primary: var(--brand-primary);
+    --sidebar-primary-foreground: var(--brand-primary-foreground);
     --sidebar-accent: oklch(0.95 0.003 264);
     --sidebar-accent-foreground: oklch(0.21 0.034 264.665);
     --sidebar-border: oklch(0.9 0.006 264);
@@ -74,8 +78,8 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.22 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.95 0.003 264);
-    --primary-foreground: oklch(0.18 0 0);
+    --primary: var(--brand-primary);
+    --primary-foreground: var(--brand-primary-foreground);
     --secondary: oklch(0.36 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.27 0 0);
@@ -94,8 +98,8 @@
     --chart-5: oklch(0.47 0.12 46);
     --sidebar: oklch(0.2 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.95 0.003 264);
-    --sidebar-primary-foreground: oklch(0.18 0 0);
+    --sidebar-primary: var(--brand-primary);
+    --sidebar-primary-foreground: var(--brand-primary-foreground);
     --sidebar-accent: oklch(0.27 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);

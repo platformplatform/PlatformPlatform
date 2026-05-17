@@ -12,6 +12,16 @@ export declare global {
        */
       productName: string;
       /**
+       * Brand primary color (the "button color"). Light/dark + their foreground (text-on-primary)
+       * companions. Piped into theme.css via inline `<style>` in the HTML template.
+       */
+      primaryColor: {
+        light: string;
+        lightForeground: string;
+        dark: string;
+        darkForeground: string;
+      };
+      /**
        * One-line product description per channel and locale. The frontend reads
        * tagline.web[locale]; emails read tagline.mail[locale] server-side. Locale keys in web and
        * mail must match (the backend fails loud at startup if they diverge).

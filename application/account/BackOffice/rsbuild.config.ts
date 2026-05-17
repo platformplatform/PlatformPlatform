@@ -33,6 +33,15 @@ export default defineConfig({
   security: {
     nonce: "{{cspNonce}}"
   },
+  html: {
+    templateParameters: {
+      productName: customBuildEnv.branding.productName,
+      primaryColorLight: customBuildEnv.branding.primaryColor.light,
+      primaryColorLightForeground: customBuildEnv.branding.primaryColor.lightForeground,
+      primaryColorDark: customBuildEnv.branding.primaryColor.dark,
+      primaryColorDarkForeground: customBuildEnv.branding.primaryColor.darkForeground
+    }
+  },
   plugins: [
     TailwindPlugin("#back-office"),
     pluginReact(),
