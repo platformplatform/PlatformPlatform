@@ -15,7 +15,7 @@ public sealed class StopCommand : Command
 {
     public StopCommand() : base("stop", "Stops the Aspire AppHost and its Docker containers")
     {
-        var allOption = new Option<bool>("--all", "-a") { Description = "Stop Aspire and Docker containers across every PlatformPlatform worktree" };
+        var allOption = new Option<bool>("--all", "-a") { Description = $"Stop Aspire and Docker containers across every {Configuration.AliasName} worktree" };
         var portOption = new Option<int?>("--port", "-p") { Description = "Stop the worktree running on this base port (e.g. 9000, 9100, 9200)" };
         var selectOption = new Option<bool>("--select", "-s") { Description = "List running stacks and pick which to stop" };
 

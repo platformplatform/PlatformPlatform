@@ -9,11 +9,11 @@ public class InstallCommand : Command
     private static readonly string Intro =
         $"""
          [green]Welcome to:[/]
-         To get the full benefit of PlatformPlatform, allow this tool to register an alias on your machine.
-         This will allow you to run PlatformPlatform commands from anywhere on your machine by typing [green]{Configuration.AliasName}[/].
+         To get the full benefit of {Configuration.AliasName}, allow this tool to register an alias on your machine.
+         This will allow you to run {Configuration.AliasName} commands from anywhere on your machine by typing [green]{Configuration.AliasName}[/].
 
          [green]The CLI can be used to:[/]
-         * Start all PlatformPlatform services locally in one command
+         * Start all {Configuration.AliasName} services locally in one command
          * Be guided through setting up secure passwordless continuous deployments between GitHub and Azure
          * Run static code analysis on your codebase to ensure it does not fail when running in GitHub Workflows
          * Run tests and show code coverage reports locally
