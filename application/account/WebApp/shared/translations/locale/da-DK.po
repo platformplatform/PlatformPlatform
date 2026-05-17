@@ -382,10 +382,10 @@ msgid "Avatar sizes"
 msgstr "Avatarstørrelser"
 
 msgid "Azure Compliance"
-msgstr "Azure Overholdelse"
+msgstr "Azure Compliance"
 
 msgid "Azure Compliance (opens in new window)"
-msgstr "Azure Overholdelse (åbner i nyt vindue)"
+msgstr "Azure Compliance (åbner i nyt vindue)"
 
 msgid "Back"
 msgstr "Tilbage"
@@ -1469,7 +1469,7 @@ msgid "Left sheet"
 msgstr "Venstre sheet"
 
 msgid "Legal and Compliance"
-msgstr "Juridisk og overholdelse"
+msgstr "Juridisk og compliance"
 
 msgid "Let's set up your account"
 msgstr "Lad os opsætte din konto"
@@ -1610,7 +1610,7 @@ msgid "Microsoft Azure Platform-as-a-Service (PaaS) with enterprise-grade reliab
 msgstr "Microsoft Azure Platform-as-a-Service (PaaS) med pålidelighed i virksomhedsklasse."
 
 msgid "Microsoft compliance resources"
-msgstr "Microsofts overholdelsesressourcer"
+msgstr "Microsofts compliance-ressourcer"
 
 msgid "Microsoft DPA"
 msgstr "Microsoft DBA"
@@ -2267,7 +2267,7 @@ msgid "Secondary"
 msgstr "Sekundær"
 
 msgid "Security, privacy, and compliance information"
-msgstr "Sikkerheds-, privatlivs- og overholdelsesoplysninger"
+msgstr "Sikkerheds-, privatlivs- og compliance-oplysninger"
 
 msgid "See more variations on ShadCN"
 msgstr "Se flere varianter på ShadCN"
