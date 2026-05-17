@@ -30,6 +30,12 @@
     },
     "backgroundColor": "#ffffff",
 
+    // Background color of the brand band at the top of every transactional email (the band that
+    // sits behind the transparent logo-1200x184.png). A single value used in both light- and
+    // dark-mode email clients -- pick a color that reads well in both contexts. The PNG itself is
+    // transparent so this color shows through wherever the logo isn't.
+    "emailHeaderBackground": "#171717",
+
     // Brand primary color (the "button color"). Each entry is a CSS color expression -- any value
     // accepted by a CSS custom property is fine (oklch, hsl, hex, rgb). Light is what most users see;
     // dark is the dark-mode counterpart (usually inverted -- e.g. brand-on-white in light mode flips

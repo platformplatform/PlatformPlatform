@@ -66,6 +66,8 @@ public sealed class Settings
 
         public required string BackgroundColor { get; init; }
 
+        public required string EmailHeaderBackground { get; init; }
+
         public required PrimaryColorConfig PrimaryColor { get; init; }
 
         public required TaglineConfig Tagline { get; init; }

@@ -10,10 +10,11 @@ import { Img, Section } from "@react-email/components";
 // card — with the logo centered inside the PNG so placement is pixel-identical in every client.
 // width="600" sizes it for Outlook's table renderer; width:100%/max-width:600px/height:auto scales
 // it down on narrow mobile viewports instead of overflowing. The image is transparent; the
-// .email-header background (set below, flipped for dark mode in TransactionalEmail) shows through.
+// band background is the {{EmailHeaderBackground}} Scriban global (sourced from
+// platform-settings.jsonc) -- one color for both light- and dark-mode email clients.
 export function Header() {
   return (
-    <Section className="email-header bg-[#11161f]">
+    <Section className="email-header" style={{ backgroundColor: "{{EmailHeaderBackground}}" }}>
       <Img
         src="{{PublicUrl}}/email/logo-1200x184.png"
         alt="{{ProductName}}"

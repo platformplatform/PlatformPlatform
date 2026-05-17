@@ -52,8 +52,12 @@ html { background-color: #f4f4f5; }
   .email-body td { background-color: #1f1f1f !important; color: #e5e5e5 !important; }
   .email-card { background-color: #2a2a2a !important; color: #e5e5e5 !important; }
   .email-card td { background-color: #2a2a2a !important; color: #e5e5e5 !important; }
-  .email-header { background-color: #f6f6f6 !important; }
-  .email-header td { background-color: #f6f6f6 !important; }
+  /* Keep the brand-coded header band at its configured color in dark mode too. Without these
+     overrides the .email-card td !important rule above would re-paint the header's inner td with
+     #2a2a2a, masking the band. Scriban substitutes {{EmailHeaderBackground}} from
+     platform-settings.jsonc at render time. */
+  .email-header { background-color: {{EmailHeaderBackground}} !important; }
+  .email-header td { background-color: {{EmailHeaderBackground}} !important; }
   .email-heading { color: #fafafa !important; }
   .email-otp-box { background-color: #171717 !important; }
   .email-otp-box td { background-color: #171717 !important; }
