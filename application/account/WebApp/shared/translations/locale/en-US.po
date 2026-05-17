@@ -489,9 +489,6 @@ msgstr "Browse all recipes"
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 
-msgid "Built with"
-msgstr "Built with"
-
 msgid "Butter chicken"
 msgstr "Butter chicken"
 
@@ -1966,9 +1963,6 @@ msgstr "Please wait while we confirm your payment. This may take a few moments."
 
 msgid "Postal code"
 msgstr "Postal code"
-
-msgid "Powered by"
-msgstr "Powered by"
 
 msgid "Pozole rojo"
 msgstr "Pozole rojo"

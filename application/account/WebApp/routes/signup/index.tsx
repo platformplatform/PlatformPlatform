@@ -13,7 +13,6 @@ import { Logo } from "@repo/ui/components/Logo";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import platformPlatformLogoWrapUrl from "@repo/ui/images/platformplatform-logo-88.png";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -189,18 +188,6 @@ export function StartSignupForm() {
             <Trans>Privacy policies</Trans>
           </Link>
         </div>
-      </div>
-      {/*
-        Built with PlatformPlatform - https://github.com/platformplatform/PlatformPlatform
-        We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
-      */}
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-sm text-muted-foreground">
-          <Trans>Built with</Trans>
-        </span>
-        <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
-          <img src={platformPlatformLogoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
-        </Link>
       </div>
     </Form>
   );
