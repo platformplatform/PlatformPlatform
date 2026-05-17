@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { supportEmail } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
@@ -30,7 +31,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
           <TextField
             name="email"
             label={t`Email`}
-            value="support@platformplatform.net"
+            value={supportEmail}
             readOnly={true}
             startIcon={<MailIcon className="size-4" />}
           />
