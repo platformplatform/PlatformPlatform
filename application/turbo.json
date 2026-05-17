@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["CERTIFICATE_PASSWORD", "MAIN_STATIC_PORT", "ACCOUNT_STATIC_PORT", "BACK_OFFICE_STATIC_PORT"],
+  "globalDependencies": ["platform-settings.jsonc"],
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$", "shared/lib/api/*.Api.json", "shared/lib/api/*.Api_*.json"],
