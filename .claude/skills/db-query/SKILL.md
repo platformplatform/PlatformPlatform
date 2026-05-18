@@ -5,7 +5,7 @@ description: Query the local Postgres database of the active Aspire worktree via
 
 # Database Query
 
-**Port = `.workspace/port.txt` base + 2. Never trust Aspire MCP for the port — a common critical failure that silently runs SQL on another worktree's database.**
+**Port = `.workspace/port.txt` base + 4. Never trust Aspire MCP for the port — a common critical failure that silently runs SQL on another worktree's database.**
 
 **Read-only. Every write needs explicit user approval for that exact statement, every time — prior approvals never carry over.**
 
@@ -24,7 +24,7 @@ If `psql --version` fails, tell the user:
 
 Aspire must be running.
 
-- Host `localhost`, port = `<base> + 2` where `<base>` is the integer in `.workspace/port.txt`.
+- Host `localhost`, port = `<base> + 4` where `<base>` is the integer in `.workspace/port.txt`.
 - User `postgres`.
 - Password: `export PGPASSWORD=$(dotnet user-secrets list --project application/AppHost/AppHost.csproj | sed -n 's/^postgres-password = //p')` (keeps it out of shell history).
 
