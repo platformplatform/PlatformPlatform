@@ -73,9 +73,10 @@ html { background-color: #f4f4f5; }
   .email-alert-default { border-color: #404040 !important; background-color: #2a2a2a !important; color: #e5e5e5 !important; }
   .email-avatar { background-color: #404040 !important; color: #d4d4d4 !important; }
 }
-/* Phones: card sits flush to the top edge — drop the desktop floating margin. */
+/* Phones: card spans the full width flush to the top edge — drop the desktop floating margin and
+   the corner radius (rounded corners on a full-bleed card look like a rendering glitch). */
 @media (max-width: 600px) {
-  .email-card { margin-top: 0 !important; }
+  .email-card { margin-top: 0 !important; border-radius: 0 !important; }
 }
 `.trim();
 }
