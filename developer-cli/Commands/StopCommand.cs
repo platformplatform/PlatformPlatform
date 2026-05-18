@@ -90,10 +90,13 @@ public sealed class StopCommand : Command
             return;
         }
 
-        // No worktree currently maps to this port (e.g. the worktree was deleted but containers leaked).
-        // Try a Docker-only cleanup using the port-derived volume names.
-        AnsiConsole.MarkupLine($"[yellow]No worktree found with base port {basePort}. Attempting Docker-only cleanup.[/]");
-        StopDockerContainers(new PortAllocation(basePort));
+        // The Docker volume prefix is read from the worktree's platform-settings.jsonc -- with no
+        // worktree on this port there is nothing to read it from, and guessing the brand would risk
+        // acting on the wrong containers. --select discovers leaked containers by Docker label
+        // instead, so it can clean them up without knowing the brand.
+        AnsiConsole.MarkupLine(
+            $"[yellow]No worktree found with base port {basePort}. Run 'stop --select' to clean up any leaked containers.[/]"
+        );
     }
 
     private static void StopBySelection()
@@ -139,7 +142,7 @@ public sealed class StopCommand : Command
         var portAllocation = PortAllocation.LoadFrom(worktreePath);
 
         RunCommand.StopAspire(worktreePath, portAllocation);
-        StopDockerContainers(portAllocation);
+        StopDockerContainers(portAllocation, worktreePath);
     }
 
     private static void StopStack(StoppableStack stack)
@@ -178,7 +181,7 @@ public sealed class StopCommand : Command
 
             var portAllocation = PortAllocation.LoadFrom(worktreePath);
             var aspirePid = FindAppHostPidForFolder(worktreePath);
-            var containers = FindContainersForBasePort(portAllocation);
+            var containers = FindContainersForBasePort(portAllocation, worktreePath);
 
             if (aspirePid is null && containers.Length == 0) continue;
 
@@ -270,7 +273,7 @@ public sealed class StopCommand : Command
         return lastDash == -1 ? null : containerName[(lastDash + 1)..];
     }
 
-    // Returns the project-specific volume prefix (e.g. "vilo", "platform-platform-9100") read from
+    // Returns the project-specific volume prefix (e.g. "platformplatform-9100") read from
     // the container's mount label. Empty for containers without a data volume (mailpit, stripe-cli).
     private static string? ExtractVolumePrefix(string containerName)
     {
@@ -285,8 +288,8 @@ public sealed class StopCommand : Command
         if (srcIndex == -1) return null;
 
         var src = mountsLabel[(srcIndex + srcMarker.Length)..].Trim();
-        // Volume name format: "{prefix}-{resource}-data" (e.g. "vilo-postgres-data"). Trim trailing
-        // resource name to surface just the project prefix.
+        // Volume name format: "{prefix}-{resource}-data" (e.g. "platformplatform-postgres-data"). Trim
+        // trailing resource name to surface just the project prefix.
         var dataSuffix = "-data";
         if (!src.EndsWith(dataSuffix, StringComparison.Ordinal)) return src;
         var withoutData = src[..^dataSuffix.Length];
@@ -343,10 +346,11 @@ public sealed class StopCommand : Command
         }
     }
 
-    private static string[] FindContainersForBasePort(PortAllocation portAllocation)
+    private static string[] FindContainersForBasePort(PortAllocation portAllocation, string repositoryRoot)
     {
+        var prefix = DockerVolumeNaming.ResolveVolumePrefix(repositoryRoot);
         var infix = portAllocation.VolumeNameInfix;
-        string[] worktreeVolumes = [$"platform-platform{infix}-postgres-data", $"platform-platform{infix}-azure-storage-data"];
+        string[] worktreeVolumes = [$"{prefix}{infix}-postgres-data", $"{prefix}{infix}-azure-storage-data"];
 
         var sessionSuffix = FindAspireSessionSuffix(worktreeVolumes);
         return sessionSuffix is null ? [] : FindContainersBySessionSuffix(sessionSuffix);
@@ -356,9 +360,9 @@ public sealed class StopCommand : Command
     // "azure-storage-606c6219", "mail-server-606c6219"). The persistent volumes on postgres and
     // azurite are named after the worktree's base port -- we use them to find one container in the
     // session, extract the suffix, then remove every container that shares it.
-    private static void StopDockerContainers(PortAllocation portAllocation)
+    private static void StopDockerContainers(PortAllocation portAllocation, string repositoryRoot)
     {
-        var containers = FindContainersForBasePort(portAllocation);
+        var containers = FindContainersForBasePort(portAllocation, repositoryRoot);
         if (containers.Length == 0)
         {
             AnsiConsole.MarkupLine($"[dim]No Docker containers found for base port {portAllocation.BasePort}.[/]");

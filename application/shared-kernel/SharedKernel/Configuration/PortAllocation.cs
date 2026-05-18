@@ -145,7 +145,7 @@ public sealed record PortAllocation(int BasePort)
         }
     }
 
-    private static string FindRepositoryRoot(string startDirectory)
+    internal static string FindRepositoryRoot(string startDirectory)
     {
         var current = new DirectoryInfo(startDirectory);
         while (current is not null)

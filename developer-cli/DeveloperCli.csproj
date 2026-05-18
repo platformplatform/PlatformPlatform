@@ -26,8 +26,9 @@
     <ItemGroup>
         <!-- Linked source from shared-kernel: developer-cli is a single-file CLI that intentionally
              stays isolated from shared-kernel's heavy dependency closure (MediatR, EFCore, NSwag,
-             OpenTelemetry, multiple Azure SDKs). PortAllocation is the shared definition; AppGateway
-             and AppHost get it natively, developer-cli compiles the same file. -->
+             OpenTelemetry, multiple Azure SDKs). PortAllocation and DockerVolumeNaming are the shared
+             definitions; AppGateway and AppHost get them natively, developer-cli compiles the same files. -->
         <Compile Include="..\application\shared-kernel\SharedKernel\Configuration\PortAllocation.cs" Link="Utilities\PortAllocation.cs"/>
+        <Compile Include="..\application\shared-kernel\SharedKernel\Configuration\DockerVolumeNaming.cs" Link="Utilities\DockerVolumeNaming.cs"/>
     </ItemGroup>
 </Project>

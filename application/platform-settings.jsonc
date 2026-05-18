@@ -84,5 +84,13 @@
     "x": "",
     "facebook": "",
     "instagram": ""
+  },
+
+  // Local development settings -- not part of the deployed app. Read straight off the checkout by
+  // the Aspire AppHost and the developer CLI.
+  "development": {
+    // Prefix for Docker volume names. Keeps each fork's volumes isolated from upstream and from
+    // other forks running on the same machine. Conventionally the product name, lowercased.
+    "dockerVolumePrefix": "platformplatform"
   }
 }

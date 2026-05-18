@@ -6,8 +6,10 @@ using Projects;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Configuration;
 
-// Prefix for Docker volume names. Rename in downstream forks to isolate volumes from upstream.
-const string dockerVolumePrefix = "platformplatform";
+// Docker volume name prefix, derived from branding.productName in platform-settings.jsonc so the
+// AppHost and the developer CLI's stop command resolve the same value with no hardcoded literal in
+// either. A rebrand flows through automatically when productName changes.
+var dockerVolumePrefix = DockerVolumeNaming.ResolveVolumePrefix();
 
 // Read the port allocation before CreateBuilder so we can set Aspire's dashboard env vars
 // (ASPNETCORE_URLS, DOTNET_DASHBOARD_OTLP_ENDPOINT_URL, etc.) before Aspire reads them.

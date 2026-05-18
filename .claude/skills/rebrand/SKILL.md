@@ -114,15 +114,9 @@ Generate ONE new GUID and use the SAME `<UserSecretsId><cli-alias>-<new-guid></U
 
 Existing user secret stores on disk (`~/.microsoft/usersecrets/`) are not migrated — developers may need to re-run any local secret setup after the rotation.
 
-## STEP 8: Flip the Docker volume prefix
+## STEP 8: Set the Docker volume prefix
 
-`application/AppHost/Program.cs`:
-
-```csharp
-const string dockerVolumePrefix = "<product-name-lower-kebab>";
-```
-
-Derive the value from the product name: lowercase, with spaces replaced by hyphens (e.g. productName `"Acme Foo Bar"` -> `"acme-foo-bar"`). Use the product name, not the CLI alias — the volume identity tracks the brand, not the dev convenience name. This avoids volume name collisions when running multiple forks on the same machine.
+Set `development.dockerVolumePrefix` in `platform-settings.jsonc` to the product name lowercased, with spaces replaced by hyphens (e.g. productName `"Acme Foo Bar"` -> `"acme-foo-bar"`). The Aspire AppHost (which names the volumes) and the developer CLI's `stop` command (which removes them) both read this single value through `DockerVolumeNaming.ResolveVolumePrefix`, so it keeps each fork's volumes isolated on a shared machine. Use the product name, not the CLI alias — the volume identity tracks the brand.
 
 ## STEP 9: Update GitHub Actions
 
@@ -201,7 +195,6 @@ The diff should only touch:
 - `developer-cli/DeveloperCli.csproj`
 - Every `*.csproj` with a rotated UserSecretsId
 - A small number of `.cs` files that read the UserSecretsId prefix
-- `application/AppHost/Program.cs`
 - `.github/workflows/*.yml`
 
 Source code outside this list should be untouched. If anything else shows up in the diff, stop and investigate before committing.
