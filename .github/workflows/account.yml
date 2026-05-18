@@ -194,7 +194,9 @@ jobs:
 
   api-stage:
     name: API Staging
-    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    # !cancelled() keeps this from auto-skipping when database-migrations-stage is skipped (it is, on
+    # pull requests without migration changes); the result guards still block on a real failure.
+    if: ${{ !cancelled() && needs.build-and-test.result == 'success' && needs.database-migrations-stage.result != 'failure' && needs.build-and-test.outputs.deploy_staging == 'true' }}
     needs: [build-and-test, database-migrations-stage]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
@@ -212,7 +214,9 @@ jobs:
 
   workers-stage:
     name: Workers Staging
-    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    # !cancelled() keeps this from auto-skipping when database-migrations-stage is skipped (it is, on
+    # pull requests without migration changes); the result guards still block on a real failure.
+    if: ${{ !cancelled() && needs.build-and-test.result == 'success' && needs.database-migrations-stage.result != 'failure' && needs.build-and-test.outputs.deploy_staging == 'true' }}
     needs: [build-and-test, database-migrations-stage]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
@@ -230,7 +234,9 @@ jobs:
 
   back-office-stage:
     name: Back Office Staging
-    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    # !cancelled() keeps this from auto-skipping when database-migrations-stage is skipped (it is, on
+    # pull requests without migration changes); the result guards still block on a real failure.
+    if: ${{ !cancelled() && needs.build-and-test.result == 'success' && needs.database-migrations-stage.result != 'failure' && needs.api-stage.result == 'success' && needs.build-and-test.outputs.deploy_staging == 'true' }}
     needs: [build-and-test, database-migrations-stage, api-stage]
     uses: ./.github/workflows/_deploy-container.yml
     secrets: inherit
