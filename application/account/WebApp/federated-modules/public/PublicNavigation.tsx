@@ -27,8 +27,8 @@ export default function PublicNavigation() {
         </Suspense>
       ) : (
         <div className="flex items-center gap-6">
-          <Suspense fallback={<div className="flex gap-2" />}>
-            <span className="flex gap-2">
+          <Suspense fallback={<div className="flex" />}>
+            <span className="flex">
               <LocaleSwitcher />
               <ThemeModeSelector aria-label={t`Change theme`} />
             </span>
