@@ -11,8 +11,8 @@ import azureSecurity from "@/shared/images/icons/azure-security.svg";
 
 export function ComplianceResourcesSection() {
   return (
-    <section className="bg-background px-6 py-16">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-background px-4 py-16">
+      <div className="mx-auto max-w-[64rem]">
         <div className="mb-12 text-center">
           <h2 className="marketing">
             <Trans>Microsoft compliance resources</Trans>

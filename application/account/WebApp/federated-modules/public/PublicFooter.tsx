@@ -88,7 +88,7 @@ export default function PublicFooter() {
 
   return (
     <footer className="w-full bg-input-background">
-      <div className="mx-auto max-w-7xl px-6 pt-14 pb-8 md:pb-10">
+      <div className="mx-auto max-w-[66rem] px-4 pt-14 pb-8 md:pb-10">
         {/* Main Footer Content - Desktop: side by side, Mobile: stacked */}
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-6">
           {/* Logo - Full logo on mobile, mark on desktop */}

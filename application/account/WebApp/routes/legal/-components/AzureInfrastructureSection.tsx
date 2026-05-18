@@ -17,8 +17,8 @@ import gdprBadge from "@/shared/images/compliance/gdpr.png";
 
 export function AzureInfrastructureSection() {
   return (
-    <section className="bg-input-background px-6 py-16">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-input-background px-4 py-16">
+      <div className="mx-auto max-w-[64rem]">
         <div className="mb-12 text-center">
           <h2 className="marketing">
             <Trans>Enterprise-grade Azure infrastructure</Trans>

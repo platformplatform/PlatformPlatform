@@ -5,8 +5,8 @@ import { FileTextIcon, ScrollTextIcon, ShieldCheckIcon } from "lucide-react";
 
 export function LegalDocumentsSection() {
   return (
-    <section className="bg-background px-6 pt-12 pb-16">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-background px-4 pt-12 pb-16">
+      <div className="mx-auto max-w-[64rem]">
         <div className="mb-12 text-center">
           <h2 className="marketing">
             <Trans>Legal and Compliance</Trans>

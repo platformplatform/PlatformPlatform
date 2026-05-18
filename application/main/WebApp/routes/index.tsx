@@ -25,8 +25,8 @@ export const Route = createFileRoute("/")({
         <div className="flex flex-1 flex-col items-center bg-background">
           <PublicNavigation />
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-20 text-center">
-            <div className="flex max-w-5xl flex-col gap-8">
+          <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-20 text-center">
+            <div className="flex max-w-[64rem] flex-col gap-8">
               <div className="flex flex-col gap-4">
                 <h1 className="marketing">
                   <Trans>Welcome to {productName}</Trans>
