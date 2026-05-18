@@ -75,6 +75,8 @@ public sealed class Settings
         public required string ContactEmail { get; init; }
 
         public required string SupportEmail { get; init; }
+
+        public required bool ShowAddToHomescreen { get; init; }
     }
 
     public sealed class ThemeColorConfig

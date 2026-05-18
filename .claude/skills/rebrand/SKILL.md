@@ -37,7 +37,8 @@ Required inputs:
 8. **Email header background** — single CSS color (hex / rgb) used behind the transparent email banner PNG at the top of every transactional email. Same value in light- and dark-mode email clients, so pick a color that reads well in both contexts. Field: `branding.emailHeaderBackground`.
 9. **Contact email** — public-facing email shown as a mail icon in landing page footer. Empty hides it.
 10. **Support email** — shown to signed-in users in the in-app support dialog. Required (the dialog renders the value unconditionally; an empty string shows a blank field).
-11. **Social links** — six separate fields: GitHub, LinkedIn, YouTube, X, Facebook, Instagram. Each is a full URL or empty string.
+11. **Show Add to Home Screen** — `branding.showAddToHomescreen` boolean. When `true` the user-facing app renders the iOS "Add to Home Screen" install prompt (it self-limits to iOS Safari outside an installed PWA); `false` suppresses it entirely. BackOffice never shows the prompt regardless.
+12. **Social links** — six separate fields: GitHub, LinkedIn, YouTube, X, Facebook, Instagram. Each is a full URL or empty string.
 
 Required logo assets (user provides absolute paths to eight files):
 

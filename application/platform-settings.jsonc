@@ -67,7 +67,12 @@
     "contactEmail": "",
 
     // Support email shown to signed-in users in the in-app support dialog.
-    "supportEmail": ""
+    "supportEmail": "",
+
+    // Whether to show the iOS "Add to Home Screen" install prompt in the user-facing app. The
+    // prompt only ever appears on iOS Safari outside an installed PWA regardless; this flag lets a
+    // downstream brand suppress it entirely.
+    "showAddToHomescreen": true
   },
 
   // Public social media / community profile links shown in the landing page footer.

@@ -9,4 +9,5 @@ export const themeColor = import.meta.build_env.branding.themeColor;
 export const webTaglines = import.meta.build_env.branding.tagline.web;
 export const contactEmail = import.meta.build_env.branding.contactEmail;
 export const supportEmail = import.meta.build_env.branding.supportEmail;
+export const showAddToHomescreen = import.meta.build_env.branding.showAddToHomescreen;
 export const socialLinks = import.meta.build_env.socialLinks;

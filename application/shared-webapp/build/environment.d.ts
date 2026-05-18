@@ -50,6 +50,10 @@ export declare global {
        * Support email shown to signed-in users in the in-app support dialog
        */
       supportEmail: string;
+      /**
+       * Whether the iOS "Add to Home Screen" install prompt renders in the user-facing app
+       */
+      showAddToHomescreen: boolean;
     };
     /**
      * Public social media / community profile links injected from platform-settings.jsonc.
