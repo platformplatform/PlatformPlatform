@@ -16,7 +16,7 @@ export default function PublicNavigation() {
 
   return (
     <nav className="mx-auto flex w-full max-w-[66rem] items-center justify-between gap-4 px-4 pt-8 pb-4">
-      <Link href="/" variant="logo" underline={false}>
+      <Link href="/" variant="logo" underline={false} className="shrink-0">
         <Logo variant="wordmark" className="hidden h-10 w-auto sm:block" alt={t`${productName} logo`} />
         <Logo variant="mark" className="size-10 sm:hidden" alt={t`${productName} logo`} />
       </Link>
