@@ -3120,4 +3120,4 @@ msgid "YouTube"
 msgstr "YouTube"
 
 msgid "Zoom"
-msgstr "Zoomtest-modify"
+msgstr "Zoom"

@@ -283,7 +283,7 @@ test.describe("@comprehensive", () => {
       await expect(page).toHaveURL("/dashboard");
 
       await page.goto("/user/preferences");
-      await expect(page.getByRole("heading", { name: "Bruger præferencer" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Brugerpræferencer" })).toBeVisible();
       await page.getByText("English").click();
       await expect(page.getByRole("heading", { name: "User preferences" })).toBeVisible();
 
@@ -316,7 +316,7 @@ test.describe("@comprehensive", () => {
         await page.goto("/user/preferences");
         await expect(page.getByRole("heading", { name: "User preferences" })).toBeVisible();
         await page.getByText("Dansk").click();
-        await expect(page.getByRole("heading", { name: "Bruger præferencer" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Brugerpræferencer" })).toBeVisible();
 
         await page.goto("/account/users");
         await expect(page.getByRole("heading", { name: "Brugere" })).toBeVisible();

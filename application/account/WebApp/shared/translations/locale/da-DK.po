@@ -215,7 +215,7 @@ msgid "Add billing information"
 msgstr "Tilføj faktureringsoplysninger"
 
 msgid "Add more in the Users menu"
-msgstr "Tilføj flere i Brugere menuen"
+msgstr "Tilføj flere i menuen Brugere"
 
 msgid "Add notes about this recipe"
 msgstr "Tilføj noter om denne opskrift"
@@ -308,7 +308,7 @@ msgid "An unexpected error occurred. Please try again or contact support if the 
 msgstr "Der opstod en uventet fejl. Prøv igen eller kontakt support, hvis problemet fortsætter."
 
 msgid "An unexpected state occurred. Please reload the page."
-msgstr "Der opstod en uventet tilstand. Venligst genindlæs siden."
+msgstr "Der opstod en uventet tilstand. Genindlæs siden."
 
 msgid "Analytics"
 msgstr "Analyse"
@@ -358,7 +358,7 @@ msgid "Aspect ratio"
 msgstr "Billedformat"
 
 msgid "Audit reports and assessments"
-msgstr "Revisions rapporter og vurderinger"
+msgstr "Revisionsrapporter og vurderinger"
 
 msgid "Authentication failed"
 msgstr "Godkendelse mislykkedes"
@@ -601,7 +601,7 @@ msgid "Change theme"
 msgstr "Skift tema"
 
 msgid "Change user preferences"
-msgstr "Skift bruger præferencer"
+msgstr "Skift brugerpræferencer"
 
 msgid "Change user role"
 msgstr "Skift brugerrolle"
@@ -983,7 +983,7 @@ msgid "Downgrade to {planName}"
 msgstr "Nedgrader til {planName}"
 
 msgid "DPA"
-msgstr "DBA"
+msgstr "DPA"
 
 msgid "Drag-and-drop or click to browse. Previews use AspectRatio to keep thumbnails aligned."
 msgstr "Træk og slip, eller klik for at vælge. Previews bruger AspectRatio for at holde miniaturer justerede."
@@ -1094,7 +1094,7 @@ msgid "Enter your verification code"
 msgstr "Indtast din bekræftelseskode"
 
 msgid "Enterprise-grade Azure infrastructure"
-msgstr "Azure infrastruktur i virksomhedsklasse"
+msgstr "Azure-infrastruktur i virksomhedsklasse"
 
 msgid "Environment isolation"
 msgstr "Miljøisolering"
@@ -1607,13 +1607,13 @@ msgid "Microsoft compliance resources"
 msgstr "Microsofts compliance-ressourcer"
 
 msgid "Microsoft DPA"
-msgstr "Microsoft DBA"
+msgstr "Microsoft DPA"
 
 msgid "Microsoft DPA (opens in new window)"
-msgstr "Microsoft DBA (åbner i nyt vindue)"
+msgstr "Microsoft DPA (åbner i nyt vindue)"
 
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
-msgstr "Microsoft opdaterer og sikrer automatisk al PaaS infrastruktur"
+msgstr "Microsoft opdaterer og sikrer automatisk al PaaS-infrastruktur"
 
 msgid "Middle"
 msgstr "Midte"
@@ -1640,7 +1640,7 @@ msgid "More merge options"
 msgstr "Flere fletmuligheder"
 
 msgid "More save options"
-msgstr "Flere gemgemuligheder"
+msgstr "Flere gemmemuligheder"
 
 msgid "More tools"
 msgstr "Flere værktøjer"
@@ -1712,7 +1712,7 @@ msgid "No account found for this email address. Please sign up to create an acco
 msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at oprette en konto."
 
 msgid "No active sessions found."
-msgstr "Ingen aktive sessioner"
+msgstr "Ingen aktive sessioner fundet."
 
 msgid "No billing information on file"
 msgstr "Ingen faktureringsoplysninger registreret"
@@ -2471,7 +2471,7 @@ msgid "Source"
 msgstr "Kilde"
 
 msgid "Spacious rows"
-msgstr "Rummeligt rækker"
+msgstr "Rummelige rækker"
 
 msgid "Spaghetti carbonara"
 msgstr "Spaghetti carbonara"
@@ -2535,7 +2535,7 @@ msgid "Suspended"
 msgstr "Suspenderet"
 
 msgid "Switch"
-msgstr "Kontakt"
+msgstr "Switch"
 
 msgid "Switch account"
 msgstr "Skift konto"
@@ -2616,7 +2616,7 @@ msgid "This action cannot be undone."
 msgstr "Denne handling kan ikke fortrydes."
 
 msgid "This action cannot be undone. The item will be permanently removed."
-msgstr "Denne handling kan ikke fortryde. Elementet fjernes permanent."
+msgstr "Denne handling kan ikke fortrydes. Elementet fjernes permanent."
 
 msgid "This action may have unintended consequences."
 msgstr "Denne handling kan have utilsigtede konsekvenser."
@@ -2691,7 +2691,7 @@ msgid "Too expensive"
 msgstr "For dyrt"
 
 msgid "Tooltips"
-msgstr "Værktøjstip"
+msgstr "Værktøjstips"
 
 msgid "Top"
 msgstr "Top"
@@ -2857,7 +2857,7 @@ msgid "User permanently deleted: {userDisplayName}"
 msgstr "Bruger slettet permanent: {userDisplayName}"
 
 msgid "User preferences"
-msgstr "Bruger præferencer"
+msgstr "Brugerpræferencer"
 
 msgid "User profile"
 msgstr "Brugerprofil"
@@ -2875,7 +2875,7 @@ msgid "User role updated successfully for {userDisplayName}"
 msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
 
 msgid "User sessions"
-msgstr "Bruger sessioner"
+msgstr "Brugersessioner"
 
 msgid "User status"
 msgstr "Brugerstatus"
@@ -3031,7 +3031,7 @@ msgid "Your changes will be published and visible to all team members immediatel
 msgstr "Dine ændringer udgives og er synlige for alle teammedlemmer med det samme."
 
 msgid "Your data stays in the Azure region you select at signup"
-msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
+msgstr "Dine data forbliver i den Azure-region, du vælger ved tilmelding"
 
 msgid "Your downgrade has been scheduled."
 msgstr "Din nedgradering er blevet planlagt."
