@@ -117,29 +117,31 @@ export default function PublicFooter() {
 
         {/* Bottom Section */}
         <div className="mt-14 flex flex-col items-center gap-6 border-t border-border pt-14 sm:flex-row sm:justify-between">
-          {/* Left: Copyright and Legal Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground sm:justify-start sm:text-left">
-            <div>
+          {/* Left: Copyright and Legal Links - the legal links wrap to their own line as a single
+              group when there is no room beside the copyright, and always stack below it on mobile. */}
+          <div className="flex flex-col items-center gap-1 text-center text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-1 sm:text-left">
+            <div className="sm:shrink-0">
               <Trans>
-                © {currentYear} {productName}. All rights reserved.
+                © {currentYear} {productName} - All rights reserved
               </Trans>
             </div>
-            <span className="hidden sm:inline">·</span>
-            <Link href="/legal/" className="text-muted-foreground hover:text-foreground">
-              <Trans>Compliance</Trans>
-            </Link>
-            <span>·</span>
-            <Link href="/legal/terms" className="text-muted-foreground hover:text-foreground">
-              <Trans>Terms</Trans>
-            </Link>
-            <span>·</span>
-            <Link href="/legal/privacy" className="text-muted-foreground hover:text-foreground">
-              <Trans>Privacy</Trans>
-            </Link>
-            <span>·</span>
-            <Link href="/legal/dpa" className="text-muted-foreground hover:text-foreground">
-              <Trans>DPA</Trans>
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-x-3 sm:shrink-0">
+              <Link href="/legal/" className="text-muted-foreground hover:text-foreground">
+                <Trans>Compliance</Trans>
+              </Link>
+              <span>·</span>
+              <Link href="/legal/terms" className="text-muted-foreground hover:text-foreground">
+                <Trans>Terms</Trans>
+              </Link>
+              <span>·</span>
+              <Link href="/legal/privacy" className="text-muted-foreground hover:text-foreground">
+                <Trans>Privacy</Trans>
+              </Link>
+              <span>·</span>
+              <Link href="/legal/dpa" className="text-muted-foreground hover:text-foreground">
+                <Trans>DPA</Trans>
+              </Link>
+            </div>
           </div>
 
           {/* Right: Social Links */}

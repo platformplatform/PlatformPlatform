@@ -50,8 +50,8 @@ msgstr "{price}/måned"
 msgid "{productName} logo"
 msgstr "{productName} logo"
 
-msgid "© {currentYear} {productName}. All rights reserved."
-msgstr "© {currentYear} {productName}. Alle rettigheder forbeholdes."
+msgid "© {currentYear} {productName} - All rights reserved"
+msgstr "© {currentYear} {productName} - Alle rettigheder forbeholdes"
 
 msgid "1 TB storage"
 msgstr "1 TB lagerplads"

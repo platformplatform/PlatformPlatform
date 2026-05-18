@@ -50,8 +50,8 @@ msgstr "{price}/month"
 msgid "{productName} logo"
 msgstr "{productName} logo"
 
-msgid "© {currentYear} {productName}. All rights reserved."
-msgstr "© {currentYear} {productName}. All rights reserved."
+msgid "© {currentYear} {productName} - All rights reserved"
+msgstr "© {currentYear} {productName} - All rights reserved"
 
 msgid "1 TB storage"
 msgstr "1 TB storage"
