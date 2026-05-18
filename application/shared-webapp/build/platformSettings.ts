@@ -16,6 +16,8 @@ export interface PlatformBranding {
   };
   /** PWA splash-screen background while the SPA boots (hex, no oklch) */
   backgroundColor: string;
+  /** Background color of the brand band at the top of every transactional email */
+  emailHeaderBackground: string;
   /**
    * Brand primary color (the "button color"). Each value is a CSS color expression. The frontend
    * pipes them into theme.css via inline `<style>` injected per HTML template; the corresponding

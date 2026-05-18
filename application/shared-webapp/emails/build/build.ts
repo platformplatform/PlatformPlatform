@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { render } from "@react-email/render";
+import { loadPlatformSettings } from "@repo/build/platformSettings";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -29,11 +30,15 @@ const LOCALES = Object.keys(i18nConfig);
 // the iframe — `app.dev.localhost` in dev, `staging.platformplatform.net` in stage, `app.platform
 // platform.net` in prod — so the preview always loads its assets from the same host as the SPA
 // it's embedded in. SignupUrl and LoginUrl follow the same convention for the same reason.
+// ProductName is a brand value (not dummy model data) -- it is hand-written as {{ProductName}} in
+// template subjects and preview text, which <Value> cannot reach. Sourced from platform-settings
+// so the preview subject line is brand-accurate.
 const PREVIEW_PLACEHOLDER_VALUES: Record<string, string> = {
   PublicUrl: "",
   SignupUrl: "/signup",
   LoginUrl: "/login",
-  TenantName: "Acme Corp"
+  TenantName: "Acme Corp",
+  ProductName: loadPlatformSettings().branding.productName
 };
 
 function substitutePreviewPlaceholders(input: string): string {
