@@ -21,22 +21,6 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 
-#. placeholder {0}: dishes.length
-msgid "{0, plural, one {Delete # recipe} other {Delete # recipes}}"
-msgstr "{0, plural, one {Delete # recipe} other {Delete # recipes}}"
-
-#. placeholder {0}: smartDate.value
-msgid "{0} hours ago"
-msgstr "{0} hours ago"
-
-#. placeholder {0}: smartDate.value
-msgid "{0} minutes ago"
-msgstr "{0} minutes ago"
-
-#. placeholder {0}: dishes.length
-msgid "{0} of {totalCount} recipes selected"
-msgstr "{0} of {totalCount} recipes selected"
-
 #. placeholder {0}: targetPlanDetails.name
 msgid "{0} plan"
 msgstr "{0} plan"
@@ -69,9 +53,6 @@ msgstr "{productName} logo"
 msgid "© {currentYear} {productName}. All rights reserved."
 msgstr "© {currentYear} {productName}. All rights reserved."
 
-msgid "+39 06 555 0000"
-msgstr "+39 06 555 0000"
-
 msgid "1 TB storage"
 msgstr "1 TB storage"
 
@@ -90,33 +71,8 @@ msgstr "100 GB storage"
 msgid "100% Security Score"
 msgstr "100% Security Score"
 
-msgid ""
-"123 Example Street\n"
-"Anytown, AA 12345"
-msgstr ""
-"123 Example Street\n"
-"Anytown, AA 12345"
-
-msgid "14 h 30 min logged"
-msgstr "14 h 30 min logged"
-
-msgid "2 hours ago"
-msgstr "2 hours ago"
-
-msgid "2X large"
-msgstr "2X large"
-
-msgid "3 minutes ago"
-msgstr "3 minutes ago"
-
-msgid "5 active co-cooks"
-msgstr "5 active co-cooks"
-
 msgid "5 users"
 msgstr "5 users"
-
-msgid "75% of quota used"
-msgstr "75% of quota used"
 
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
@@ -126,12 +82,6 @@ msgstr "A new verification code has been sent to your email."
 
 msgid "A quick summary of your account activity."
 msgstr "A quick summary of your account activity."
-
-msgid "A small selection of chart variants built on recharts."
-msgstr "A small selection of chart variants built on recharts."
-
-msgid "About this feature"
-msgstr "About this feature"
 
 msgid "Accept invitation"
 msgstr "Accept invitation"
@@ -144,12 +94,6 @@ msgstr "Access denied"
 
 msgid "Access until {formattedPeriodEndLong}"
 msgstr "Access until {formattedPeriodEndLong}"
-
-msgid "Accordion"
-msgstr "Accordion"
-
-msgid "Accordion vs Collapsible"
-msgstr "Accordion vs Collapsible"
 
 msgid "Account"
 msgstr "Account"
@@ -190,9 +134,6 @@ msgstr "Account switched"
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Achieved in Microsoft Defender for Cloud following Azure best practices"
 
-msgid "Action"
-msgstr "Action"
-
 msgid "Activating subscription"
 msgstr "Activating subscription"
 
@@ -208,29 +149,14 @@ msgstr "Active users"
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
 
-msgid "Add an extra layer of security to your account."
-msgstr "Add an extra layer of security to your account."
-
 msgid "Add billing information"
 msgstr "Add billing information"
 
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
 
-msgid "Add notes about this recipe"
-msgstr "Add notes about this recipe"
-
-msgid "Add notes here"
-msgstr "Add notes here"
-
 msgid "Add profile picture"
 msgstr "Add profile picture"
-
-msgid "Add recipe"
-msgstr "Add recipe"
-
-msgid "Add to favorites"
-msgstr "Add to favorites"
 
 msgid "Add your account name"
 msgstr "Add your account name"
@@ -238,17 +164,8 @@ msgstr "Add your account name"
 msgid "Add your account name and logo."
 msgstr "Add your account name and logo."
 
-msgid "Add your first recipe to start building your personal cookbook."
-msgstr "Add your first recipe to start building your personal cookbook."
-
-msgid "Added"
-msgstr "Added"
-
 msgid "Address"
 msgstr "Address"
-
-msgid "Address (fixed 2 lines)"
-msgstr "Address (fixed 2 lines)"
 
 msgid "Adjust the interface size on this device to your preference."
 msgstr "Adjust the interface size on this device to your preference."
@@ -259,32 +176,8 @@ msgstr "Admin"
 msgid "Advanced analytics"
 msgstr "Advanced analytics"
 
-msgid "Advanced options"
-msgstr "Advanced options"
-
-msgid "Advanced techniques, over 60 minutes"
-msgstr "Advanced techniques, over 60 minutes"
-
-msgid "Alert dialogs"
-msgstr "Alert dialogs"
-
-msgid "Alerts"
-msgstr "Alerts"
-
-msgid "Alerts, badges, and banners"
-msgstr "Alerts, badges, and banners"
-
-msgid "Alex Taylor"
-msgstr "Alex Taylor"
-
-msgid "All modifiers"
-msgstr "All modifiers"
-
 msgid "All users"
 msgstr "All users"
-
-msgid "Always underlined"
-msgstr "Always underlined"
 
 msgid "Amount"
 msgstr "Amount"
@@ -319,18 +212,6 @@ msgstr "Any role"
 msgid "Any status"
 msgstr "Any status"
 
-msgid "Apply filters"
-msgstr "Apply filters"
-
-msgid "Archive"
-msgstr "Archive"
-
-msgid "Archive item"
-msgstr "Archive item"
-
-msgid "Archive this item?"
-msgstr "Archive this item?"
-
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Are you sure you want to delete <0>{0} users</0>?"
@@ -348,15 +229,6 @@ msgstr "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgid "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 msgstr "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 
-msgid "Area chart"
-msgstr "Area chart"
-
-msgid "Area Chart - Interactive"
-msgstr "Area Chart - Interactive"
-
-msgid "Aspect ratio"
-msgstr "Aspect ratio"
-
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
 
@@ -372,23 +244,11 @@ msgstr "Authentication is shared across all tabs. To use multiple accounts simul
 msgid "Authentication was cancelled or denied. Please try again if you want to continue."
 msgstr "Authentication was cancelled or denied. Please try again if you want to continue."
 
-msgid "Avatar fallback and badge"
-msgstr "Avatar fallback and badge"
-
-msgid "Avatar group"
-msgstr "Avatar group"
-
-msgid "Avatar sizes"
-msgstr "Avatar sizes"
-
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
 
 msgid "Azure Compliance (opens in new window)"
 msgstr "Azure Compliance (opens in new window)"
-
-msgid "Back"
-msgstr "Back"
 
 msgid "Back to app"
 msgstr "Back to app"
@@ -398,27 +258,6 @@ msgstr "Back to login"
 
 msgid "Back to signup"
 msgstr "Back to signup"
-
-msgid "Badges"
-msgstr "Badges"
-
-msgid "Banners"
-msgstr "Banners"
-
-msgid "Bar chart"
-msgstr "Bar chart"
-
-msgid "Bar Chart - Interactive"
-msgstr "Bar Chart - Interactive"
-
-msgid "Bar Chart - Stacked + Legend"
-msgstr "Bar Chart - Stacked + Legend"
-
-msgid "Basic recipe information and cover photo."
-msgstr "Basic recipe information and cover photo."
-
-msgid "Basic skills, under 30 minutes"
-msgstr "Basic skills, under 30 minutes"
 
 msgid "Basic support"
 msgstr "Basic support"
@@ -453,89 +292,14 @@ msgstr "Billing tabs"
 msgid "billing@company.com"
 msgstr "billing@company.com"
 
-msgid "Boeuf bourguignon"
-msgstr "Boeuf bourguignon"
-
-msgid "Boeuf, ragù, biryani"
-msgstr "Boeuf, ragù, biryani"
-
-msgid "Bold"
-msgstr "Bold"
-
-msgid "Bordered row for stand-alone settings or list items."
-msgstr "Bordered row for stand-alone settings or list items."
-
-msgid "Bottom"
-msgstr "Bottom"
-
-msgid "Bottom drawer"
-msgstr "Bottom drawer"
-
-msgid "Bottom sheet"
-msgstr "Bottom sheet"
-
-msgid "Breadcrumb — custom separator"
-msgstr "Breadcrumb — custom separator"
-
-msgid "Breadcrumb — multi-level with auto-collapse"
-msgstr "Breadcrumb — multi-level with auto-collapse"
-
-msgid "Breadcrumb — simple"
-msgstr "Breadcrumb — simple"
-
-msgid "Browse all recipes"
-msgstr "Browse all recipes"
-
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
-
-msgid "Butter chicken"
-msgstr "Butter chicken"
-
-msgid "Button group"
-msgstr "Button group"
-
-msgid "Button sizes"
-msgstr "Button sizes"
-
-msgid "Button variants"
-msgstr "Button variants"
-
-msgid "Button-styled links"
-msgstr "Button-styled links"
-
-msgid "Buttons and links"
-msgstr "Buttons and links"
 
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
 
-msgid "By default only one item is open at a time. Pass openMultiple to allow several panels to stay open together."
-msgstr "By default only one item is open at a time. Pass openMultiple to allow several panels to stay open together."
-
 msgid "By subscribing, you agree to our <0>terms of service</0> and <1>privacy policy</1>."
 msgstr "By subscribing, you agree to our <0>terms of service</0> and <1>privacy policy</1>."
-
-msgid "Calendar"
-msgstr "Calendar"
-
-msgid "Calendar (multiple)"
-msgstr "Calendar (multiple)"
-
-msgid "Calendar (range)"
-msgstr "Calendar (range)"
-
-msgid "Calendar (single)"
-msgstr "Calendar (single)"
-
-msgid "Can change ingredients and instructions"
-msgstr "Can change ingredients and instructions"
-
-msgid "Can edit"
-msgstr "Can edit"
-
-msgid "Can view"
-msgstr "Can view"
 
 msgid "Can't find your code?"
 msgstr "Can't find your code?"
@@ -563,21 +327,6 @@ msgstr "Cancelling"
 
 msgid "Cancelling..."
 msgstr "Cancelling..."
-
-msgid "Card-style preview shown on hover or focus. Use it for user mentions, link previews, or any compact context that would otherwise need a click."
-msgstr "Card-style preview shown on hover or focus. Use it for user mentions, link previews, or any compact context that would otherwise need a click."
-
-msgid "Cards"
-msgstr "Cards"
-
-msgid "Casey Park"
-msgstr "Casey Park"
-
-msgid "Categorization"
-msgstr "Categorization"
-
-msgid "Center"
-msgstr "Center"
 
 msgid "Change"
 msgstr "Change"
@@ -610,46 +359,19 @@ msgstr "Change user role"
 msgid "Change user role for {0}"
 msgstr "Change user role for {0}"
 
-msgid "Change zoom level"
-msgstr "Change zoom level"
-
-msgid "Changes published"
-msgstr "Changes published"
-
 #. placeholder {0}: getPlanLabel(scheduledPlan)
 #. placeholder {1}: getFormattedPrice(scheduledPlan, plans)
 msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
 msgstr "Changing to {0} {1} on {formattedPeriodEndLong}"
 
-msgid "Charts"
-msgstr "Charts"
-
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
-
-msgid "Checkbox"
-msgstr "Checkbox"
-
-msgid "Chef"
-msgstr "Chef"
-
-msgid "Chicken katsu"
-msgstr "Chicken katsu"
-
-msgid "Chiles rellenos"
-msgstr "Chiles rellenos"
 
 msgid "Choose a plan to get started."
 msgstr "Choose a plan to get started."
 
 msgid "Choose how the application looks to you on this device."
 msgstr "Choose how the application looks to you on this device."
-
-msgid "Choose which notifications you receive and how."
-msgstr "Choose which notifications you receive and how."
-
-msgid "Chrome"
-msgstr "Chrome"
 
 msgid "City"
 msgstr "City"
@@ -663,68 +385,17 @@ msgstr "Clear filters"
 msgid "Clear search"
 msgstr "Clear search"
 
-msgid "Click a row to open the side pane. Use Shift or Cmd/Ctrl with click or arrow keys to multi-select, Enter to open, and Space to toggle the selection."
-msgstr "Click a row to open the side pane. Use Shift or Cmd/Ctrl with click or arrow keys to multi-select, Enter to open, and Space to toggle the selection."
-
 msgid "Close"
 msgstr "Close"
 
-msgid "Close recipe details"
-msgstr "Close recipe details"
-
 msgid "Close user profile"
 msgstr "Close user profile"
-
-msgid "Co-author"
-msgstr "Co-author"
-
-msgid "Co-cooks"
-msgstr "Co-cooks"
-
-msgid "Collapse Components"
-msgstr "Collapse Components"
-
-msgid "Collapse Examples"
-msgstr "Collapse Examples"
-
-msgid "Collapsible"
-msgstr "Collapsible"
-
-msgid "Collapsible is the unstyled single-section primitive behind Accordion. Use it when you need one trigger and one panel."
-msgstr "Collapsible is the unstyled single-section primitive behind Accordion. Use it when you need one trigger and one panel."
-
-msgid "Colm Tuite"
-msgstr "Colm Tuite"
-
-msgid "Combobox"
-msgstr "Combobox"
-
-msgid "Combobox (creatable)"
-msgstr "Combobox (creatable)"
-
-msgid "Combobox (free text)"
-msgstr "Combobox (free text)"
-
-msgid "Comfort in a bowl"
-msgstr "Comfort in a bowl"
-
-msgid "Command"
-msgstr "Command"
-
-msgid "Command palette"
-msgstr "Command palette"
 
 msgid "Complete your payment to activate your subscription."
 msgstr "Complete your payment to activate your subscription."
 
 msgid "Compliance"
 msgstr "Compliance"
-
-msgid "Components"
-msgstr "Components"
-
-msgid "Confirm action"
-msgstr "Confirm action"
 
 msgid "Confirm downgrade"
 msgstr "Confirm downgrade"
@@ -738,47 +409,14 @@ msgstr "Contact the account owner immediately if you believe this is incorrect."
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
 
-msgid "Context menu"
-msgstr "Context menu"
-
 msgid "Continue"
 msgstr "Continue"
-
-msgid "Controls"
-msgstr "Controls"
-
-msgid "Cook time"
-msgstr "Cook time"
-
-msgid "Cookbooks"
-msgstr "Cookbooks"
-
-msgid "Cooking details"
-msgstr "Cooking details"
-
-msgid "Cooking notes"
-msgstr "Cooking notes"
-
-msgid "Cooking techniques"
-msgstr "Cooking techniques"
-
-msgid "Cooking time"
-msgstr "Cooking time"
-
-msgid "Coq au vin"
-msgstr "Coq au vin"
 
 msgid "Country"
 msgstr "Country"
 
-msgid "Create"
-msgstr "Create"
-
 msgid "Create new account"
 msgstr "Create new account"
-
-msgid "Create shortcut..."
-msgstr "Create shortcut..."
 
 msgid "Create your account"
 msgstr "Create your account"
@@ -789,23 +427,8 @@ msgstr "Created"
 msgid "Credit note"
 msgstr "Credit note"
 
-msgid "Creme brulee"
-msgstr "Creme brulee"
-
-msgid "Cuisine"
-msgstr "Cuisine"
-
-msgid "Cuisines of the world"
-msgstr "Cuisines of the world"
-
-msgid "Curated weekly"
-msgstr "Curated weekly"
-
 msgid "Current"
 msgstr "Current"
-
-msgid "Current page"
-msgstr "Current page"
 
 msgid "Current plan"
 msgstr "Current plan"
@@ -828,9 +451,6 @@ msgstr "Dark"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-msgid "Data"
-msgstr "Data"
-
 msgid "Data Processing Agreement"
 msgstr "Data Processing Agreement"
 
@@ -843,27 +463,6 @@ msgstr "Data residency"
 msgid "Date"
 msgstr "Date"
 
-msgid "Date and time"
-msgstr "Date and time"
-
-msgid "Date and time formatting"
-msgstr "Date and time formatting"
-
-msgid "Date input"
-msgstr "Date input"
-
-msgid "Date must be in the past"
-msgstr "Date must be in the past"
-
-msgid "Date picker"
-msgstr "Date picker"
-
-msgid "Date range"
-msgstr "Date range"
-
-msgid "Dates and personal notes about this recipe."
-msgstr "Dates and personal notes about this recipe."
-
 msgid "Decline"
 msgstr "Decline"
 
@@ -872,9 +471,6 @@ msgstr "Declining..."
 
 msgid "Default"
 msgstr "Default"
-
-msgid "Default alert"
-msgstr "Default alert"
 
 msgid "Delete"
 msgstr "Delete"
@@ -886,20 +482,8 @@ msgstr "Delete {0} users"
 msgid "Delete account"
 msgstr "Delete account"
 
-msgid "Delete item"
-msgstr "Delete item"
-
 msgid "Delete permanently"
 msgstr "Delete permanently"
-
-msgid "Delete recipe"
-msgstr "Delete recipe"
-
-msgid "Delete selected recipes"
-msgstr "Delete selected recipes"
-
-msgid "Delete this item?"
-msgstr "Delete this item?"
 
 msgid "Delete user"
 msgstr "Delete user"
@@ -922,59 +506,20 @@ msgstr "Deleted users loading"
 msgid "Deleted users will appear here for recovery"
 msgstr "Deleted users will appear here for recovery"
 
-msgid "Description"
-msgstr "Description"
-
 msgid "Desktop"
 msgstr "Desktop"
-
-msgid "Destructive"
-msgstr "Destructive"
-
-msgid "Destructive alert"
-msgstr "Destructive alert"
-
-msgid "Developer tools"
-msgstr "Developer tools"
 
 msgid "Devices that have logged into your account. Revoke any sessions you do not recognize."
 msgstr "Devices that have logged into your account. Revoke any sessions you do not recognize."
 
-msgid "Dialogs"
-msgstr "Dialogs"
-
 msgid "Different user logged in"
 msgstr "Different user logged in"
-
-msgid "Difficulty"
-msgstr "Difficulty"
-
-msgid "Dirty dialog"
-msgstr "Dirty dialog"
-
-msgid "Disabled"
-msgstr "Disabled"
-
-msgid "Disabled buttons"
-msgstr "Disabled buttons"
-
-msgid "Discover"
-msgstr "Discover"
-
-msgid "Dish name"
-msgstr "Dish name"
-
-msgid "Dish name is required"
-msgstr "Dish name is required"
 
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
 
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
-
-msgid "Done"
-msgstr "Done"
 
 msgid "Downgrade"
 msgstr "Downgrade"
@@ -985,56 +530,17 @@ msgstr "Downgrade to {planName}"
 msgid "DPA"
 msgstr "DPA"
 
-msgid "Drag-and-drop or click to browse. Previews use AspectRatio to keep thumbnails aligned."
-msgstr "Drag-and-drop or click to browse. Previews use AspectRatio to keep thumbnails aligned."
-
-msgid "Drawer"
-msgstr "Drawer"
-
-msgid "Drop an image into any card — AspectRatio keeps the slot size fixed regardless of content."
-msgstr "Drop an image into any card — AspectRatio keeps the slot size fixed regardless of content."
-
-msgid "Drop anywhere to add to the gallery"
-msgstr "Drop anywhere to add to the gallery"
-
-msgid "Drop your filter controls here. The sheet handles scrolling and dismissal."
-msgstr "Drop your filter controls here. The sheet handles scrolling and dismissal."
-
-msgid "Dropzone"
-msgstr "Dropzone"
-
-msgid "Duplicate"
-msgstr "Duplicate"
-
 msgid "E.g. Acme Corp"
 msgstr "E.g. Acme Corp"
 
 msgid "E.g. Alex"
 msgstr "E.g. Alex"
 
-msgid "E.g. doubled the garlic, used a cast iron pan..."
-msgstr "E.g. doubled the garlic, used a cast iron pan..."
-
 msgid "E.g. Software engineer"
 msgstr "E.g. Software engineer"
 
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
-
-msgid "E.g., Alex Taylor"
-msgstr "E.g., Alex Taylor"
-
-msgid "E.g., Maria Rossi"
-msgstr "E.g., Maria Rossi"
-
-msgid "E.g., Spaghetti Carbonara"
-msgstr "E.g., Spaghetti Carbonara"
-
-msgid "Easy"
-msgstr "Easy"
-
-msgid "Edge"
-msgstr "Edge"
 
 msgid "Edit"
 msgstr "Edit"
@@ -1045,41 +551,17 @@ msgstr "Edit billing information"
 msgid "Edit profile"
 msgstr "Edit profile"
 
-msgid "Edit recipe"
-msgstr "Edit recipe"
-
 msgid "Edit user profile"
 msgstr "Edit user profile"
-
-msgid "Editor's picks"
-msgstr "Editor's picks"
 
 msgid "Email"
 msgstr "Email"
 
-msgid "Email address"
-msgstr "Email address"
-
-msgid "Email me when a new device signs in."
-msgstr "Email me when a new device signs in."
-
 msgid "Email support"
 msgstr "Email support"
 
-msgid "Emails"
-msgstr "Emails"
-
-msgid "Empty"
-msgstr "Empty"
-
 msgid "Empty recycle bin"
 msgstr "Empty recycle bin"
-
-msgid "Enabled"
-msgstr "Enabled"
-
-msgid "Enchiladas verdes"
-msgstr "Enchiladas verdes"
 
 msgid "Enter the billing details for your subscription."
 msgstr "Enter the billing details for your subscription."
@@ -1099,50 +581,14 @@ msgstr "Enterprise-grade Azure infrastructure"
 msgid "Environment isolation"
 msgstr "Environment isolation"
 
-msgid "Errors"
-msgstr "Errors"
-
-msgid "Escape to close"
-msgstr "Escape to close"
-
 msgid "Estimated next bill: {targetFormattedPrice}"
 msgstr "Estimated next bill: {targetFormattedPrice}"
-
-msgid "Examples"
-msgstr "Examples"
 
 msgid "Excl. tax"
 msgstr "Excl. tax"
 
-msgid "Expand Components"
-msgstr "Expand Components"
-
-msgid "Expand Examples"
-msgstr "Expand Examples"
-
 msgid "expires"
 msgstr "expires"
-
-msgid "Export"
-msgstr "Export"
-
-msgid "Export as CSV"
-msgstr "Export as CSV"
-
-msgid "Export as JSON"
-msgstr "Export as JSON"
-
-msgid "Export as PDF"
-msgstr "Export as PDF"
-
-msgid "External"
-msgstr "External"
-
-msgid "Extra large"
-msgstr "Extra large"
-
-msgid "Extra small"
-msgstr "Extra small"
 
 msgid "Facebook"
 msgstr "Facebook"
@@ -1168,23 +614,11 @@ msgstr "Feel free to reach out with any questions or issues you may have."
 msgid "Filters"
 msgstr "Filters"
 
-msgid "Firefox"
-msgstr "Firefox"
-
-msgid "First cooked"
-msgstr "First cooked"
-
 msgid "First name"
 msgstr "First name"
 
-msgid "Fixed columns"
-msgstr "Fixed columns"
-
 msgid "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
 msgstr "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
-
-msgid "Forward"
-msgstr "Forward"
 
 msgid "Found an alternative"
 msgstr "Found an alternative"
@@ -1192,26 +626,11 @@ msgstr "Found an alternative"
 msgid "Free"
 msgstr "Free"
 
-msgid "French"
-msgstr "French"
-
-msgid "friend@example.com"
-msgstr "friend@example.com"
-
 msgid "Full access except changing user roles and account settings"
 msgstr "Full access except changing user roles and account settings"
 
 msgid "Full access including user roles and account settings"
 msgstr "Full access including user roles and account settings"
-
-msgid "Full access, can edit and share with others"
-msgstr "Full access, can edit and share with others"
-
-msgid "Full library"
-msgstr "Full library"
-
-msgid "Fullscreen on mobile"
-msgstr "Fullscreen on mobile"
 
 msgid "Fully managed infrastructure"
 msgstr "Fully managed infrastructure"
@@ -1224,9 +643,6 @@ msgstr "GDPR compliant"
 
 msgid "GDPR Compliant"
 msgstr "GDPR Compliant"
-
-msgid "Ghost"
-msgstr "Ghost"
 
 msgid "GitHub"
 msgstr "GitHub"
@@ -1243,12 +659,6 @@ msgstr "Go to home"
 msgid "Google"
 msgstr "Google"
 
-msgid "Green curry"
-msgstr "Green curry"
-
-msgid "Hard"
-msgstr "Hard"
-
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
 
@@ -1258,59 +668,14 @@ msgstr "Hi! Welcome back"
 msgid "Hide details"
 msgstr "Hide details"
 
-msgid "Home"
-msgstr "Home"
-
-msgid "Horizontal"
-msgstr "Horizontal"
-
-msgid "Horizontal nav bar with rich dropdown sections. Use it for marketing-style site headers or top-level discovery navigation."
-msgstr "Horizontal nav bar with rich dropdown sections. Use it for marketing-style site headers or top-level discovery navigation."
-
-msgid "HoverCard"
-msgstr "HoverCard"
-
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "How we collect, use, and protect your personal data in compliance with GDPR."
-
-msgid "Icon-only buttons"
-msgstr "Icon-only buttons"
-
-msgid "Icons"
-msgstr "Icons"
 
 msgid "Identity mismatch"
 msgstr "Identity mismatch"
 
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
-
-msgid "In the real app the sidebar is fixed-positioned, persists its state and width in localStorage (rem-based, not cookies), and exposes a floating chevron to toggle icon collapse plus drag-to-resize between 14rem and 25rem."
-msgstr "In the real app the sidebar is fixed-positioned, persists its state and width in localStorage (rem-based, not cookies), and exposes a floating chevron to toggle icon collapse plus drag-to-resize between 14rem and 25rem."
-
-msgid "Include cooking notes"
-msgstr "Include cooking notes"
-
-msgid "Indeterminate"
-msgstr "Indeterminate"
-
-msgid "Indeterminate loading indicator. Use Progress when you can show how much work remains; reach for Spinner when you can't."
-msgstr "Indeterminate loading indicator. Use Progress when you can show how much work remains; reach for Spinner when you can't."
-
-msgid "Indian"
-msgstr "Indian"
-
-msgid "Info alert"
-msgstr "Info alert"
-
-msgid "Inline calendar"
-msgstr "Inline calendar"
-
-msgid "Inline keyboard hint. Use it to call out shortcuts in tooltips, menus, and command palettes. Compose multi-key combinations with KbdGroup so each key keeps its own visual chip."
-msgstr "Inline keyboard hint. Use it to call out shortcuts in tooltips, menus, and command palettes. Compose multi-key combinations with KbdGroup so each key keeps its own visual chip."
-
-msgid "Inline tip:"
-msgstr "Inline tip:"
 
 msgid "Instagram"
 msgstr "Instagram"
@@ -1320,9 +685,6 @@ msgstr "Invalid request"
 
 msgid "Invitation pending"
 msgstr "Invitation pending"
-
-msgid "Invite"
-msgstr "Invite"
 
 msgid "Invite user"
 msgstr "Invite user"
@@ -1348,74 +710,14 @@ msgstr "It may take up to 5 minutes before the device is logged out."
 msgid "It takes up to 5 minutes for changes to reach all users."
 msgstr "It takes up to 5 minutes for changes to reach all users."
 
-msgid "Italian"
-msgstr "Italian"
-
-msgid "Italian, Thai, Mexican and more"
-msgstr "Italian, Thai, Mexican and more"
-
-msgid "Italic"
-msgstr "Italic"
-
-msgid "Item — clickable row"
-msgstr "Item — clickable row"
-
-msgid "Item — image media"
-msgstr "Item — image media"
-
-msgid "Item — variants"
-msgstr "Item — variants"
-
-msgid "Item archived"
-msgstr "Item archived"
-
-msgid "Item deleted"
-msgstr "Item deleted"
-
-msgid "ItemGroup — settings list"
-msgstr "ItemGroup — settings list"
-
-msgid "January - June 2024"
-msgstr "January - June 2024"
-
-msgid "Japanese"
-msgstr "Japanese"
-
-msgid "Joined March 2024"
-msgstr "Joined March 2024"
-
-msgid "Jordan Lee"
-msgstr "Jordan Lee"
-
-msgid "Jot down a thought. It will be attached to the current recipe."
-msgstr "Jot down a thought. It will be attached to the current recipe."
-
-msgid "JPEG, PNG or WebP. Max 1 MB."
-msgstr "JPEG, PNG or WebP. Max 1 MB."
-
 msgid "Just now"
 msgstr "Just now"
-
-msgid "Kbd"
-msgstr "Kbd"
 
 msgid "Keep downgrade"
 msgstr "Keep downgrade"
 
 msgid "Keep subscription"
 msgstr "Keep subscription"
-
-msgid "Keyboard accessible"
-msgstr "Keyboard accessible"
-
-msgid "Knife skills, sauces, fermentation"
-msgstr "Knife skills, sauces, fermentation"
-
-msgid "Labels"
-msgstr "Labels"
-
-msgid "Lamb biryani"
-msgstr "Lamb biryani"
 
 msgid "Language"
 msgstr "Language"
@@ -1426,18 +728,6 @@ msgstr "Large"
 msgid "Larger"
 msgstr "Larger"
 
-msgid "Lasagna bolognese"
-msgstr "Lasagna bolognese"
-
-msgid "Last 3 months"
-msgstr "Last 3 months"
-
-msgid "Last 30 days"
-msgstr "Last 30 days"
-
-msgid "Last 7 days"
-msgstr "Last 7 days"
-
 msgid "Last active"
 msgstr "Last active"
 
@@ -1447,20 +737,8 @@ msgstr "Last name"
 msgid "Last seen"
 msgstr "Last seen"
 
-msgid "Learn more"
-msgstr "Learn more"
-
 msgid "Leave"
 msgstr "Leave"
-
-msgid "Left"
-msgstr "Left"
-
-msgid "Left drawer"
-msgstr "Left drawer"
-
-msgid "Left sheet"
-msgstr "Left sheet"
 
 msgid "Legal and Compliance"
 msgstr "Legal and Compliance"
@@ -1471,41 +749,14 @@ msgstr "Let's set up your account"
 msgid "Let's set up your profile"
 msgstr "Let's set up your profile"
 
-msgid "Library"
-msgstr "Library"
-
 msgid "Light"
 msgstr "Light"
-
-msgid "Line chart"
-msgstr "Line chart"
-
-msgid "Linear progress bar for determinate, foreground tasks like uploads or onboarding completion. Use Spinner for indeterminate or background loading."
-msgstr "Linear progress bar for determinate, foreground tasks like uploads or onboarding completion. Use Spinner for indeterminate or background loading."
-
-msgid "Link"
-msgstr "Link"
-
-msgid "Link card"
-msgstr "Link card"
-
-msgid "Link sizes"
-msgstr "Link sizes"
-
-msgid "Link underline"
-msgstr "Link underline"
-
-msgid "Link variants"
-msgstr "Link variants"
 
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
 msgid "Loading..."
 msgstr "Loading..."
-
-msgid "Local seasonal"
-msgstr "Local seasonal"
 
 msgid "Log in"
 msgstr "Log in"
@@ -1522,9 +773,6 @@ msgstr "Log out"
 msgid "Logged out"
 msgstr "Logged out"
 
-msgid "Login alerts"
-msgstr "Login alerts"
-
 msgid "Login method"
 msgstr "Login method"
 
@@ -1534,23 +782,8 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
-msgid "Long date"
-msgstr "Long date"
-
-msgid "macOS modifier glyphs: ⌃ Control, ⌥ Option, ⇧ Shift, ⌘ Command, fn Function. Use these everywhere shortcuts are surfaced so the chips read the same across menus, palettes, and tooltips."
-msgstr "macOS modifier glyphs: ⌃ Control, ⌥ Option, ⇧ Shift, ⌘ Command, fn Function. Use these everywhere shortcuts are surfaced so the chips read the same across menus, palettes, and tooltips."
-
-msgid "Main"
-msgstr "Main"
-
-msgid "Main content"
-msgstr "Main content"
-
 msgid "Main navigation"
 msgstr "Main navigation"
-
-msgid "Manage"
-msgstr "Manage"
 
 msgid "Manage subscription"
 msgstr "Manage subscription"
@@ -1570,32 +803,8 @@ msgstr "Manage your users and permissions here."
 msgid "Managed identities"
 msgstr "Managed identities"
 
-msgid "Masala dosa"
-msgstr "Masala dosa"
-
-msgid "Meal plan period"
-msgstr "Meal plan period"
-
-msgid "Media"
-msgstr "Media"
-
-msgid "Medium"
-msgstr "Medium"
-
-msgid "Meeting notes from last week"
-msgstr "Meeting notes from last week"
-
 msgid "Member"
 msgstr "Member"
-
-msgid "Merge"
-msgstr "Merge"
-
-msgid "Merge commit"
-msgstr "Merge commit"
-
-msgid "Mexican"
-msgstr "Mexican"
 
 msgid "Microsoft Azure"
 msgstr "Microsoft Azure"
@@ -1615,50 +824,11 @@ msgstr "Microsoft DPA (opens in new window)"
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft patches and secures all PaaS infrastructure automatically"
 
-msgid "Middle"
-msgstr "Middle"
-
 msgid "Mobile"
 msgstr "Mobile"
 
-msgid "Mobile-first sheet with a drag handle and swipe-to-dismiss. Reach for it when content is short and the user should be able to flick it away. Left and right drawers are narrow by default; top and bottom span the full width unless you constrain DrawerContent with mx-auto and max-w-*."
-msgstr "Mobile-first sheet with a drag handle and swipe-to-dismiss. Reach for it when content is short and the user should be able to flick it away. Left and right drawers are narrow by default; top and bottom span the full width unless you constrain DrawerContent with mx-auto and max-w-*."
-
 msgid "Modified date"
 msgstr "Modified date"
-
-msgid "Modifier combo"
-msgstr "Modifier combo"
-
-msgid "Mole poblano"
-msgstr "Mole poblano"
-
-msgid "More export options"
-msgstr "More export options"
-
-msgid "More merge options"
-msgstr "More merge options"
-
-msgid "More save options"
-msgstr "More save options"
-
-msgid "More tools"
-msgstr "More tools"
-
-msgid "Morgan Riley"
-msgstr "Morgan Riley"
-
-msgid "Multi select"
-msgstr "Multi select"
-
-msgid "Multi-select"
-msgstr "Multi-select"
-
-msgid "Multi-select summary side pane"
-msgstr "Multi-select summary side pane"
-
-msgid "Muted"
-msgstr "Muted"
 
 msgid "Name"
 msgstr "Name"
@@ -1666,47 +836,17 @@ msgstr "Name"
 msgid "Name as it appears on invoices"
 msgstr "Name as it appears on invoices"
 
-msgid "Narrow bottom drawer"
-msgstr "Narrow bottom drawer"
-
-msgid "Narrow bottom sheet"
-msgstr "Narrow bottom sheet"
-
-msgid "Native date"
-msgstr "Native date"
-
-msgid "Native time"
-msgstr "Native time"
-
 msgid "Navigation"
 msgstr "Navigation"
 
-msgid "Navigation and shortcuts"
-msgstr "Navigation and shortcuts"
-
-msgid "NavigationMenu"
-msgstr "NavigationMenu"
-
-msgid "Need a new component? Copy a recipe from <0>react.email/components<1/></0>."
-msgstr "Need a new component? Copy a recipe from <0>react.email/components<1/></0>."
-
 msgid "Need help? Our support team is here to assist you."
 msgstr "Need help? Our support team is here to assist you."
-
-msgid "Never underlined"
-msgstr "Never underlined"
-
-msgid "New document"
-msgstr "New document"
 
 msgid "Next"
 msgstr "Next"
 
 msgid "Next billing date: {formattedPeriodEndLong}"
 msgstr "Next billing date: {formattedPeriodEndLong}"
-
-msgid "Nigiri sushi"
-msgstr "Nigiri sushi"
 
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "No account found for this email address. Please sign up to create an account."
@@ -1726,50 +866,11 @@ msgstr "No payment history available."
 msgid "No payment method on file"
 msgstr "No payment method on file"
 
-msgid "No recipes yet"
-msgstr "No recipes yet"
-
-msgid "No results found"
-msgstr "No results found"
-
-msgid "No results found."
-msgstr "No results found."
-
 msgid "No users found"
 msgstr "No users found"
 
-msgid "None"
-msgstr "None"
-
-msgid "Not yet"
-msgstr "Not yet"
-
-msgid "Note"
-msgstr "Note"
-
-msgid "Notifications"
-msgstr "Notifications"
-
-msgid "Number (decimal)"
-msgstr "Number (decimal)"
-
-msgid "Number (integer)"
-msgstr "Number (integer)"
-
-msgid "Off"
-msgstr "Off"
-
 msgid "OK"
 msgstr "OK"
-
-msgid "Okonomiyaki"
-msgstr "Okonomiyaki"
-
-msgid "On"
-msgstr "On"
-
-msgid "One-time code"
-msgstr "One-time code"
 
 msgid "One-time password"
 msgstr "One-time password"
@@ -1783,32 +884,8 @@ msgstr "Only owners can change user roles"
 msgid "Only trusted personnel access data through Azure AD authentication"
 msgstr "Only trusted personnel access data through Azure AD authentication"
 
-msgid "Open command palette"
-msgstr "Open command palette"
-
-msgid "Open side pane"
-msgstr "Open side pane"
-
-msgid "Opened documentation"
-msgstr "Opened documentation"
-
-msgid "Option A"
-msgstr "Option A"
-
-msgid "Option B"
-msgstr "Option B"
-
 msgid "or"
 msgstr "or"
-
-msgid "or press"
-msgstr "or press"
-
-msgid "Osso buco"
-msgstr "Osso buco"
-
-msgid "Other"
-msgstr "Other"
 
 msgid "Other reason"
 msgstr "Other reason"
@@ -1816,35 +893,17 @@ msgstr "Other reason"
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 
-msgid "Outline"
-msgstr "Outline"
-
-msgid "Overlays"
-msgstr "Overlays"
-
 msgid "Overview"
 msgstr "Overview"
 
 msgid "Owner"
 msgstr "Owner"
 
-msgid "Pad thai"
-msgstr "Pad thai"
-
 msgid "Page not found"
 msgstr "Page not found"
 
-msgid "Page Views"
-msgstr "Page Views"
-
 msgid "Paid"
 msgstr "Paid"
-
-msgid "Palak paneer"
-msgstr "Palak paneer"
-
-msgid "Passkeys"
-msgstr "Passkeys"
 
 msgid "Passwordless deployments"
 msgstr "Passwordless deployments"
@@ -1876,17 +935,11 @@ msgstr "Payment method"
 msgid "Payment method updated"
 msgstr "Payment method updated"
 
-msgid "Pedro Duarte"
-msgstr "Pedro Duarte"
-
 msgid "Pending"
 msgstr "Pending"
 
 msgid "Pending payment completed"
 msgstr "Pending payment completed"
-
-msgid "People"
-msgstr "People"
 
 #. placeholder {0}: selectedUsers.length
 msgid "Permanently delete {0} users"
@@ -1897,33 +950,6 @@ msgstr "Permanently delete user"
 
 msgid "Permanently delete users"
 msgstr "Permanently delete users"
-
-msgid "Pick a chart"
-msgstr "Pick a chart"
-
-msgid "Pick a date"
-msgstr "Pick a date"
-
-msgid "Pick a recipe"
-msgstr "Pick a recipe"
-
-msgid "Pick a workday"
-msgstr "Pick a workday"
-
-msgid "Pie chart"
-msgstr "Pie chart"
-
-msgid "Pie Chart - Donut with Text"
-msgstr "Pie Chart - Donut with Text"
-
-msgid "Pizza margherita"
-msgstr "Pizza margherita"
-
-msgid "Placeholders"
-msgstr "Placeholders"
-
-msgid "PlatformPlatform"
-msgstr "PlatformPlatform"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -1936,9 +962,6 @@ msgstr "Please check the URL or return to the home page."
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
-
-msgid "Please enter a valid email address"
-msgstr "Please enter a valid email address"
 
 msgid "Please include your country code"
 msgstr "Please include your country code"
@@ -1958,9 +981,6 @@ msgstr "Please wait while we confirm your payment. This may take a few moments."
 msgid "Postal code"
 msgstr "Postal code"
 
-msgid "Pozole rojo"
-msgstr "Pozole rojo"
-
 msgid "Preference updated successfully"
 msgstr "Preference updated successfully"
 
@@ -1970,23 +990,8 @@ msgstr "Preferences"
 msgid "Premium"
 msgstr "Premium"
 
-msgid "press <0>?</0> to view all shortcuts."
-msgstr "press <0>?</0> to view all shortcuts."
-
-msgid "Preview app"
-msgstr "Preview app"
-
-msgid "Preview settings"
-msgstr "Preview settings"
-
 msgid "Previous"
 msgstr "Previous"
-
-msgid "Pricing"
-msgstr "Pricing"
-
-msgid "Primary"
-msgstr "Primary"
 
 msgid "Priority support"
 msgstr "Priority support"
@@ -2015,89 +1020,14 @@ msgstr "Profile avatar"
 msgid "Profile photo"
 msgstr "Profile photo"
 
-msgid "Profile picture preview"
-msgstr "Profile picture preview"
-
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
-
-msgid "Progress"
-msgstr "Progress"
-
-msgid "Publish now"
-msgstr "Publish now"
-
-msgid "Quick note"
-msgstr "Quick note"
-
-msgid "Quick weeknight meals"
-msgstr "Quick weeknight meals"
-
-msgid "Radar chart"
-msgstr "Radar chart"
-
-msgid "Radial Chart - Shape"
-msgstr "Radial Chart - Shape"
-
-msgid "Radial Chart - Stacked"
-msgstr "Radial Chart - Stacked"
-
-msgid "Radio group"
-msgstr "Radio group"
-
-msgid "Ratatouille"
-msgstr "Ratatouille"
-
-msgid "Reach for Collapsible when you only need one trigger and one panel. Use Accordion when several items share visual rhythm and behavior."
-msgstr "Reach for Collapsible when you only need one trigger and one panel. Use Accordion when several items share visual rhythm and behavior."
 
 msgid "Reactivate"
 msgstr "Reactivate"
 
 msgid "Reactivate subscription"
 msgstr "Reactivate subscription"
-
-msgid "Read docs"
-msgstr "Read docs"
-
-msgid "Read only"
-msgstr "Read only"
-
-msgid "Read only access to the recipe"
-msgstr "Read only access to the recipe"
-
-msgid "Ready to publish?"
-msgstr "Ready to publish?"
-
-msgid "Rebase and merge"
-msgstr "Rebase and merge"
-
-msgid "Recipe"
-msgstr "Recipe"
-
-msgid "Recipe actions"
-msgstr "Recipe actions"
-
-msgid "Recipe details"
-msgstr "Recipe details"
-
-msgid "Recipe ID"
-msgstr "Recipe ID"
-
-msgid "Recipe info"
-msgstr "Recipe info"
-
-msgid "Recipe saved"
-msgstr "Recipe saved"
-
-msgid "Recipe shared"
-msgstr "Recipe shared"
-
-msgid "Recipes"
-msgstr "Recipes"
-
-msgid "recipes@example.com"
-msgstr "recipes@example.com"
 
 msgid "Recycle bin"
 msgstr "Recycle bin"
@@ -2111,30 +1041,14 @@ msgstr "Redirecting..."
 msgid "Reference ID: {id}"
 msgstr "Reference ID: {id}"
 
-msgid "Refine the recipe list. Changes apply when you close the sheet."
-msgstr "Refine the recipe list. Changes apply when you close the sheet."
-
 msgid "Refunded"
 msgstr "Refunded"
 
 msgid "Regulatory standards and certifications"
 msgstr "Regulatory standards and certifications"
 
-msgid "Relative"
-msgstr "Relative"
-
 msgid "Reload"
 msgstr "Reload"
-
-msgid "Remove"
-msgstr "Remove"
-
-#. placeholder {0}: image.file.name
-msgid "Remove {0}"
-msgstr "Remove {0}"
-
-msgid "Remove image from {label}"
-msgstr "Remove image from {label}"
 
 msgid "Remove logo"
 msgstr "Remove logo"
@@ -2144,18 +1058,6 @@ msgstr "Remove profile picture"
 
 msgid "Request a new code"
 msgstr "Request a new code"
-
-msgid "Resizable app shell"
-msgstr "Resizable app shell"
-
-msgid "Resizable panels"
-msgstr "Resizable panels"
-
-msgid "Responsive layout"
-msgstr "Responsive layout"
-
-msgid "Restaurant phone"
-msgstr "Restaurant phone"
 
 msgid "Restore"
 msgstr "Restore"
@@ -2182,59 +1084,17 @@ msgstr "Revoke session"
 msgid "Revoking..."
 msgstr "Revoking..."
 
-msgid "Right"
-msgstr "Right"
-
-msgid "Right drawer"
-msgstr "Right drawer"
-
-msgid "Right sheet"
-msgstr "Right sheet"
-
-msgid "Right-click area"
-msgstr "Right-click area"
-
-msgid "Right-click here"
-msgstr "Right-click here"
-
-msgid "Risotto alla milanese"
-msgstr "Risotto alla milanese"
-
-msgid "Rogan josh"
-msgstr "Rogan josh"
-
 msgid "Role"
 msgstr "Role"
-
-msgid "Safari"
-msgstr "Safari"
 
 msgid "Save"
 msgstr "Save"
 
-msgid "Save and close"
-msgstr "Save and close"
-
-msgid "Save as..."
-msgstr "Save as..."
-
 msgid "Save changes"
 msgstr "Save changes"
 
-msgid "Save note"
-msgstr "Save note"
-
-msgid "Save page as..."
-msgstr "Save page as..."
-
-msgid "Saved recipes"
-msgstr "Saved recipes"
-
 msgid "Saving..."
 msgstr "Saving..."
-
-msgid "Scheduled maintenance on Sunday 2:00 AM — 4:00 AM UTC. Some features may be unavailable."
-msgstr "Scheduled maintenance on Sunday 2:00 AM — 4:00 AM UTC. Some features may be unavailable."
 
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
@@ -2242,53 +1102,19 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 msgid "Search"
 msgstr "Search"
 
-msgid "Search and run commands"
-msgstr "Search and run commands"
-
-msgid "Search charts..."
-msgstr "Search charts..."
-
-msgid "Search emoji"
-msgstr "Search emoji"
-
-msgid "Search-driven menu with grouped items and inline shortcuts. Wrap it in CommandDialog to surface as a Cmd+K palette."
-msgstr "Search-driven menu with grouped items and inline shortcuts. Wrap it in CommandDialog to surface as a Cmd+K palette."
-
-msgid "Secondary"
-msgstr "Secondary"
-
 msgid "Security, privacy, and compliance information"
 msgstr "Security, privacy, and compliance information"
-
-msgid "See more variations on ShadCN"
-msgstr "See more variations on ShadCN"
-
-msgid "Select"
-msgstr "Select"
-
-#. placeholder {0}: dish.name
-msgid "Select {0}"
-msgstr "Select {0}"
 
 #. placeholder {0}: user.firstName
 #. placeholder {1}: user.lastName
 msgid "Select {0} {1}"
 msgstr "Select {0} {1}"
 
-msgid "Select a value"
-msgstr "Select a value"
-
 msgid "Select account"
 msgstr "Select account"
 
-msgid "Select all rows on this page"
-msgstr "Select all rows on this page"
-
 msgid "Select all users"
 msgstr "Select all users"
-
-msgid "Select charts"
-msgstr "Select charts"
 
 msgid "Select country"
 msgstr "Select country"
@@ -2296,14 +1122,8 @@ msgstr "Select country"
 msgid "Select dates"
 msgstr "Select dates"
 
-msgid "Select with groups"
-msgstr "Select with groups"
-
 msgid "Select your preferred language. Saved to your profile."
 msgstr "Select your preferred language. Saved to your profile."
-
-msgid "Selected recipes"
-msgstr "Selected recipes"
 
 msgid "Send invite"
 msgstr "Send invite"
@@ -2313,9 +1133,6 @@ msgstr "Sending verification code..."
 
 msgid "Sending..."
 msgstr "Sending..."
-
-msgid "Separator"
-msgstr "Separator"
 
 msgid "Session ended"
 msgstr "Session ended"
@@ -2329,80 +1146,14 @@ msgstr "Session revoked successfully"
 msgid "Sessions"
 msgstr "Sessions"
 
-msgid "Set the recipe's difficulty and favorite status."
-msgstr "Set the recipe's difficulty and favorite status."
-
 msgid "Settings"
 msgstr "Settings"
-
-msgid "Share permission"
-msgstr "Share permission"
-
-msgid "Share recipe"
-msgstr "Share recipe"
-
-msgid "Share recipes with family and friends."
-msgstr "Share recipes with family and friends."
-
-msgid "Share this recipe with a friend or family member."
-msgstr "Share this recipe with a friend or family member."
-
-msgid "Sharing..."
-msgstr "Sharing..."
-
-msgid "Sheet"
-msgstr "Sheet"
-
-msgid "Short date"
-msgstr "Short date"
-
-msgid "Show banner"
-msgstr "Show banner"
-
-msgid "Show banner with action"
-msgstr "Show banner with action"
-
-msgid "Show bookmarks"
-msgstr "Show bookmarks"
-
-msgid "Show checkboxes"
-msgstr "Show checkboxes"
 
 msgid "Show details"
 msgstr "Show details"
 
-msgid "Show dismissable banner"
-msgstr "Show dismissable banner"
-
 msgid "Show search filters"
 msgstr "Show search filters"
-
-msgid "Show status bar"
-msgstr "Show status bar"
-
-msgid "Show toast"
-msgstr "Show toast"
-
-msgid "Showing total visitors for the last 3 months"
-msgstr "Showing total visitors for the last 3 months"
-
-msgid "Showing total visitors for the last 6 months"
-msgstr "Showing total visitors for the last 6 months"
-
-msgid "Side pane"
-msgstr "Side pane"
-
-msgid "Side-anchored panel built on the same Dialog primitive. Use it for desktop side surfaces like filter sidebars, secondary navigation, or detail editors. Left and right sheets are narrow by default; top and bottom span the full width unless you constrain SheetContent with mx-auto and max-w-*. Compare with SidePane (Custom) which is the docked-by-default app-shell variant."
-msgstr "Side-anchored panel built on the same Dialog primitive. Use it for desktop side surfaces like filter sidebars, secondary navigation, or detail editors. Left and right sheets are narrow by default; top and bottom span the full width unless you constrain SheetContent with mx-auto and max-w-*. Compare with SidePane (Custom) which is the docked-by-default app-shell variant."
-
-msgid "Sidebar"
-msgstr "Sidebar"
-
-msgid "Sidebar footer"
-msgstr "Sidebar footer"
-
-msgid "Sign in without a password using your device."
-msgstr "Sign in without a password using your device."
 
 msgid "Sign up"
 msgstr "Sign up"
@@ -2419,29 +1170,8 @@ msgstr "Sign up with Google"
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
-msgid "Simulate errors"
-msgstr "Simulate errors"
-
-msgid "Single key"
-msgstr "Single key"
-
-msgid "Single-expand vs multi-expand"
-msgstr "Single-expand vs multi-expand"
-
-msgid "Skeleton"
-msgstr "Skeleton"
-
 msgid "SLA"
 msgstr "SLA"
-
-msgid "Slider (range)"
-msgstr "Slider (range)"
-
-msgid "Slider with steps"
-msgstr "Slider with steps"
-
-msgid "Slow-cooked classics"
-msgstr "Slow-cooked classics"
 
 msgid "Small"
 msgstr "Small"
@@ -2452,38 +1182,8 @@ msgstr "SOC and ISO Reports"
 msgid "SOC and ISO Reports (opens in new window)"
 msgstr "SOC and ISO Reports (opens in new window)"
 
-msgid "Som tam salad"
-msgstr "Som tam salad"
-
-msgid "Some cooking experience, 30 to 60 minutes"
-msgstr "Some cooking experience, 30 to 60 minutes"
-
 msgid "Something went wrong"
 msgstr "Something went wrong"
-
-msgid "Something went wrong. Please try again."
-msgstr "Something went wrong. Please try again."
-
-msgid "Soups and stews"
-msgstr "Soups and stews"
-
-msgid "Source"
-msgstr "Source"
-
-msgid "Spacious rows"
-msgstr "Spacious rows"
-
-msgid "Spaghetti carbonara"
-msgstr "Spaghetti carbonara"
-
-msgid "Spinner"
-msgstr "Spinner"
-
-msgid "Split buttons"
-msgstr "Split buttons"
-
-msgid "Squash and merge"
-msgstr "Squash and merge"
 
 msgid "Standard"
 msgstr "Standard"
@@ -2496,9 +1196,6 @@ msgstr "State / Province"
 
 msgid "State or region"
 msgstr "State or region"
-
-msgid "Static preview of the Sidebar component. The fully interactive version — with drag-to-resize, hover-reveal toggle, and icon collapse — renders as the real sidemenu in each self-contained system."
-msgstr "Static preview of the Sidebar component. The fully interactive version — with drag-to-resize, hover-reveal toggle, and icon collapse — renders as the real sidemenu in each self-contained system."
 
 msgid "Status"
 msgstr "Status"
@@ -2525,17 +1222,8 @@ msgstr "Subscribe to {0}"
 msgid "Subscription"
 msgstr "Subscription"
 
-msgid "Subtle background for grouped rows inside a panel."
-msgstr "Subtle background for grouped rows inside a panel."
-
-msgid "Suggestions"
-msgstr "Suggestions"
-
 msgid "Suspended"
 msgstr "Suspended"
-
-msgid "Switch"
-msgstr "Switch"
 
 msgid "Switch account"
 msgstr "Switch account"
@@ -2546,17 +1234,8 @@ msgstr "Switching account..."
 msgid "System"
 msgstr "System"
 
-msgid "Tables and side pane"
-msgstr "Tables and side pane"
-
 msgid "Tablet"
 msgstr "Tablet"
-
-msgid "Tabs"
-msgstr "Tabs"
-
-msgid "Tacos al pastor"
-msgstr "Tacos al pastor"
 
 msgid "Tax"
 msgstr "Tax"
@@ -2570,9 +1249,6 @@ msgstr "Tell us a bit about yourself to get started."
 msgid "Tell us more..."
 msgstr "Tell us more..."
 
-msgid "Template"
-msgstr "Template"
-
 msgid "Terms"
 msgstr "Terms"
 
@@ -2582,23 +1258,11 @@ msgstr "Terms of Service"
 msgid "Terms of use"
 msgstr "Terms of use"
 
-msgid "Text area"
-msgstr "Text area"
-
-msgid "Text field"
-msgstr "Text field"
-
-msgid "Thai"
-msgstr "Thai"
-
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "The agreement governing your use of our Service, including acceptable use and liability."
 
 msgid "The authentication request was invalid. Please try again."
 msgstr "The authentication request was invalid. Please try again."
-
-msgid "The item will be moved to the archive. You can restore it later from the archive."
-msgstr "The item will be moved to the archive. You can restore it later from the archive."
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "The name of your account, shown to users and in email notifications"
@@ -2615,32 +1279,11 @@ msgstr "This account is linked to a different Google identity."
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
-msgid "This action cannot be undone. The item will be permanently removed."
-msgstr "This action cannot be undone. The item will be permanently removed."
-
-msgid "This action may have unintended consequences."
-msgstr "This action may have unintended consequences."
-
 msgid "This can happen when email ownership has changed. Contact your account administrator."
 msgstr "This can happen when email ownership has changed. Contact your account administrator."
 
 msgid "This device"
 msgstr "This device"
-
-msgid "This feature helps you manage your workspace more efficiently. All changes are synced across your team in real time."
-msgstr "This feature helps you manage your workspace more efficiently. All changes are synced across your team in real time."
-
-msgid "This field is required"
-msgstr "This field is required"
-
-msgid "This is a default informational alert."
-msgstr "This is a default informational alert."
-
-msgid "This is a side pane component that slides in from the right. It can adapt to fullscreen mode on smaller screens."
-msgstr "This is a side pane component that slides in from the right. It can adapt to fullscreen mode on smaller screens."
-
-msgid "This is an informational message."
-msgstr "This is an informational message."
 
 msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
 msgstr "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
@@ -2648,86 +1291,26 @@ msgstr "This will permanently delete <0>{totalDeletedUsersCount} users</0> in th
 msgid "This will permanently delete <0>1 user</0> in the recycle bin."
 msgstr "This will permanently delete <0>1 user</0> in the recycle bin."
 
-msgid "Time zone"
-msgstr "Time zone"
-
-msgid "Tinkers with food on weekends. Recipe library curator since 2024."
-msgstr "Tinkers with food on weekends. Recipe library curator since 2024."
-
-msgid "Tiramisu"
-msgstr "Tiramisu"
-
 msgid "Title"
 msgstr "Title"
 
 msgid "To delete your account, please contact our support team."
 msgstr "To delete your account, please contact our support team."
 
-msgid "Toggle bold"
-msgstr "Toggle bold"
-
-msgid "Toggle buttons"
-msgstr "Toggle buttons"
-
 msgid "Toggle features available to your account."
 msgstr "Toggle features available to your account."
-
-msgid "Toggle group"
-msgstr "Toggle group"
-
-msgid "Toggle italic"
-msgstr "Toggle italic"
-
-msgid "Toggle underline"
-msgstr "Toggle underline"
-
-msgid "Tom yum soup"
-msgstr "Tom yum soup"
-
-msgid "Tonkotsu ramen"
-msgstr "Tonkotsu ramen"
 
 msgid "Too expensive"
 msgstr "Too expensive"
 
-msgid "Tooltips"
-msgstr "Tooltips"
-
-msgid "Top"
-msgstr "Top"
-
-msgid "Top center"
-msgstr "Top center"
-
-msgid "Top drawer"
-msgstr "Top drawer"
-
-msgid "Top left"
-msgstr "Top left"
-
-msgid "Top right"
-msgstr "Top right"
-
-msgid "Top sheet"
-msgstr "Top sheet"
-
 msgid "Total"
 msgstr "Total"
-
-msgid "Total cook time"
-msgstr "Total cook time"
-
-msgid "Total time spent cooking this month."
-msgstr "Total time spent cooking this month."
 
 msgid "Total users"
 msgstr "Total users"
 
 msgid "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
 msgstr "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
-
-msgid "Trending up by 5.2% this month"
-msgstr "Trending up by 5.2% this month"
 
 msgid "Trust Center"
 msgstr "Trust Center"
@@ -2741,29 +1324,8 @@ msgstr "Try adjusting your search or filters"
 msgid "Try again"
 msgstr "Try again"
 
-msgid "Two-factor authentication"
-msgstr "Two-factor authentication"
-
-msgid "Type a command or search..."
-msgstr "Type a command or search..."
-
-msgid "Type a date"
-msgstr "Type a date"
-
-msgid "Type or search..."
-msgstr "Type or search..."
-
 msgid "Unable to load profile"
 msgstr "Unable to load profile"
-
-msgid "Under 30 minutes"
-msgstr "Under 30 minutes"
-
-msgid "Underline"
-msgstr "Underline"
-
-msgid "Underline on hover"
-msgstr "Underline on hover"
 
 msgid "Unknown"
 msgstr "Unknown"
@@ -2789,9 +1351,6 @@ msgstr "Update payment method"
 msgid "Update the billing details associated with your subscription."
 msgstr "Update the billing details associated with your subscription."
 
-msgid "Update your personal information and profile photo."
-msgstr "Update your personal information and profile photo."
-
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
 
@@ -2801,33 +1360,15 @@ msgstr "Updating..."
 msgid "Upgrade"
 msgstr "Upgrade"
 
-msgid "Upgrade now"
-msgstr "Upgrade now"
-
 #. placeholder {0}: targetPlanDetails.name
 msgid "Upgrade to {0}"
 msgstr "Upgrade to {0}"
 
-msgid "Upload image for {label}"
-msgstr "Upload image for {label}"
-
-msgid "Upload images"
-msgstr "Upload images"
-
 msgid "Upload logo"
 msgstr "Upload logo"
 
-msgid "Upload photo"
-msgstr "Upload photo"
-
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
-
-msgid "Use a horizontal separator to group related sections in a column layout."
-msgstr "Use a horizontal separator to group related sections in a column layout."
-
-msgid "Use Accordion to stack multiple related disclosable sections. Good for FAQs, settings groups, or any list where users scan items and expand a few."
-msgstr "Use Accordion to stack multiple related disclosable sections. Good for FAQs, settings groups, or any list where users scan items and expand a few."
 
 msgid "User"
 msgstr "User"
@@ -2895,14 +1436,8 @@ msgstr "Users loading"
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
 
-msgid "Values"
-msgstr "Values"
-
 msgid "VAT number"
 msgstr "VAT number"
-
-msgid "Vegetable tempura"
-msgstr "Vegetable tempura"
 
 msgid "Verification code sent"
 msgstr "Verification code sent"
@@ -2919,62 +1454,26 @@ msgstr "Verifying..."
 msgid "View active users"
 msgstr "View active users"
 
-msgid "View all"
-msgstr "View all"
-
 msgid "View invitation"
 msgstr "View invitation"
 
 msgid "View invited users"
 msgstr "View invited users"
 
-msgid "View invoices and manage your payment method."
-msgstr "View invoices and manage your payment method."
-
 msgid "View profile"
 msgstr "View profile"
-
-msgid "View profile verification"
-msgstr "View profile verification"
 
 msgid "View users"
 msgstr "View users"
 
-msgid "Visitors"
-msgstr "Visitors"
-
-msgid "Warning"
-msgstr "Warning"
-
-msgid "Warning alert"
-msgstr "Warning alert"
-
 msgid "We detected a security issue with your login attempt. Please try again."
 msgstr "We detected a security issue with your login attempt. Please try again."
-
-msgid "What's at the market this week"
-msgstr "What's at the market this week"
-
-msgid "When to use Accordion"
-msgstr "When to use Accordion"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 
-msgid "With icons"
-msgstr "With icons"
-
-msgid "Workday picker"
-msgstr "Workday picker"
-
 msgid "X"
 msgstr "X"
-
-msgid "Yakitori skewers"
-msgstr "Yakitori skewers"
-
-msgid "Yesterday"
-msgstr "Yesterday"
 
 msgid "You cannot change your own role"
 msgstr "You cannot change your own role"
@@ -2987,9 +1486,6 @@ msgstr "You do not have permission to access this page."
 
 msgid "You have {invitationCount} pending invitations."
 msgstr "You have {invitationCount} pending invitations."
-
-msgid "You have 12 saved recipes."
-msgstr "You have 12 saved recipes."
 
 #. placeholder {0}: firstInvitation.tenantName
 #. placeholder {0}: tenant.tenantName
@@ -3027,9 +1523,6 @@ msgstr "Your cancellation will be reversed and your {planName} subscription will
 msgid "Your changes may take a moment to appear."
 msgstr "Your changes may take a moment to appear."
 
-msgid "Your changes will be published and visible to all team members immediately."
-msgstr "Your changes will be published and visible to all team members immediately."
-
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Your data stays in the Azure region you select at signup"
 
@@ -3045,9 +1538,6 @@ msgstr "Your payment card is expired or expiring soon. Please update your paymen
 msgid "Your payment card is expiring soon. Update your payment method to avoid interruption."
 msgstr "Your payment card is expiring soon. Update your payment method to avoid interruption."
 
-msgid "Your personal cookbook library."
-msgstr "Your personal cookbook library."
-
 msgid "Your plan has been upgraded."
 msgstr "Your plan has been upgraded."
 
@@ -3056,9 +1546,6 @@ msgstr "Your plan will be downgraded to {planName} at the end of your current bi
 
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
 msgstr "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
-
-msgid "Your profile has been verified"
-msgstr "Your profile has been verified"
 
 msgid "Your scheduled downgrade has been cancelled."
 msgstr "Your scheduled downgrade has been cancelled."
@@ -3103,9 +1590,6 @@ msgstr "Your subscription will remain active until {formattedDate}. After that, 
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."
-
-msgid "Your trial expires in 3 days."
-msgstr "Your trial expires in 3 days."
 
 msgid "Your verification code has expired"
 msgstr "Your verification code has expired"

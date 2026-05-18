@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Scriban.Runtime;
@@ -53,14 +54,67 @@ public static class EmailRenderingConfiguration
 
     extension(IApplicationBuilder app)
     {
-        public IApplicationBuilder UseEmailStaticFiles(string webAppProjectName)
+        // `includePreviewArtifacts` controls whether the *.preview.html/.txt files are reachable.
+        // Those are dev-tooling renders (sample data, no secrets) consumed only by the back-office
+        // email preview page: served on the auth-gated back-office host, 404'd on the public host
+        // so they are not publicly fetchable by guessing the path.
+        //
+        // Preview artifacts keep an unsubstituted {{PublicUrl}} placeholder (the email build no
+        // longer bakes it). When previews are served it is resolved here to `appPublicUrl` -- the
+        // always-on public app host -- so the preview's logo and links point exactly where a real
+        // email loads them, with nothing email-related hosted on the back-office.
+        public IApplicationBuilder UseEmailStaticFiles(
+            string webAppProjectName,
+            bool includePreviewArtifacts,
+            string? appPublicUrl = null
+        )
         {
-            var emailsDistPath = ResolveEmailsDistPath(webAppProjectName);
-            if (!Directory.Exists(emailsDistPath)) Directory.CreateDirectory(emailsDistPath);
+            var distRoot = Path.GetFullPath(ResolveEmailsDistPath(webAppProjectName));
+            if (!Directory.Exists(distRoot)) Directory.CreateDirectory(distRoot);
+
+            app.Use(async (context, next) =>
+                {
+                    var path = context.Request.Path.Value;
+                    var isPreviewArtifact = path is not null
+                                            && path.StartsWith(EmailStaticFilesRequestPath, StringComparison.OrdinalIgnoreCase)
+                                            && (path.EndsWith(".preview.html", StringComparison.OrdinalIgnoreCase)
+                                                || path.EndsWith(".preview.txt", StringComparison.OrdinalIgnoreCase));
+
+                    if (!isPreviewArtifact)
+                    {
+                        await next();
+                        return;
+                    }
+
+                    if (!includePreviewArtifacts)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    var relativePath = path![EmailStaticFilesRequestPath.Length..].TrimStart('/');
+                    var fullPath = Path.GetFullPath(Path.Combine(distRoot, relativePath));
+                    if (!fullPath.StartsWith(distRoot + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                        || !File.Exists(fullPath))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    var publicUrl = (appPublicUrl ?? string.Empty).TrimEnd('/');
+                    var content = (await File.ReadAllTextAsync(fullPath))
+                        .Replace("{{PublicUrl}}", publicUrl)
+                        .Replace("{{ PublicUrl }}", publicUrl);
+                    context.Response.ContentType = path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
+                        ? "text/plain; charset=utf-8"
+                        : "text/html; charset=utf-8";
+                    await context.Response.WriteAsync(content);
+                }
+            );
 
             return app.UseStaticFiles(new StaticFileOptions
                 {
-                    FileProvider = new PhysicalFileProvider(emailsDistPath),
+                    FileProvider = new PhysicalFileProvider(distRoot),
                     RequestPath = EmailStaticFilesRequestPath
                 }
             );
