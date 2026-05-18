@@ -25,5 +25,7 @@ export function Logo({ variant, alt, className }: LogoProps) {
   const source =
     variant === "mark" ? (isDark ? logoMarkDark : logoMarkLight) : isDark ? logoWordmarkDark : logoWordmarkLight;
 
-  return <img src={source} alt={alt} className={className} />;
+  // `object-contain` keeps non-square brand marks from stretching when a consumer constrains
+  // both width and height (e.g. `size-10`). Square marks render identically with or without it.
+  return <img src={source} alt={alt} className={`object-contain ${className ?? ""}`} />;
 }
