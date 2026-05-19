@@ -93,7 +93,7 @@ public static class ChangeDetection
         try
         {
             // Kill processes that have the file locked
-            ProcessHelper.StartProcess("""powershell -Command "Get-Process pp.previous -ErrorAction SilentlyContinue | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
+            ProcessHelper.StartProcess($$"""powershell -Command "Get-Process {{Configuration.AliasName}}.previous -ErrorAction SilentlyContinue | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
             ProcessHelper.StartProcess($$"""powershell -Command "Get-Process | Where-Object {$_.Path -eq '{{previousExePath}}'} | Stop-Process -Force" """, redirectOutput: true, exitOnError: false);
 
             Thread.Sleep(1000);
@@ -266,13 +266,13 @@ public static class ChangeDetection
 
                 // Save the hash before moving files into place: while the old single-file bundle is
                 // still mapped at PublishFolder, the runtime can resolve any assembly JsonSerializer
-                // lazily pulls in (notably System.IO.Pipelines). Once the move replaces pp on disk,
+                // lazily pulls in (notably System.IO.Pipelines). Once the move replaces {Configuration.AliasName} on disk,
                 // a fresh assembly load fails because the runtime tries to read it from the new
                 // bundle layout.
                 SaveCurrentHash(currentHash);
 
                 // Skip the config file -- the publish folder is shared across multiple project CLIs
-                // and each one keeps its config (e.g. pp.json) here. Publish does not emit it, but
+                // and each one keeps its config (e.g. {Configuration.AliasName}.json) here. Publish does not emit it, but
                 // we exclude it defensively so a future change cannot clobber the hash we just saved.
                 var configFileName = $"{Configuration.AliasName}.json";
                 foreach (var publishedFile in Directory.EnumerateFiles(tempPublishFolder))

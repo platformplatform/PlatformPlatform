@@ -15,11 +15,11 @@ export default function StartLogin({ locale }: Readonly<StartLoginProps>) {
   return (
     <TransactionalEmail
       locale={locale}
-      preview="PlatformPlatform login verification code"
+      preview="{{ProductName}} login verification code"
       otpAutofill={<OtpAutofill code="OneTimePassword" domain="Domain" />}
     >
       <Subject>
-        <Trans>PlatformPlatform login verification code</Trans>
+        <Trans>{`'{{'ProductName'}}' login verification code`}</Trans>
       </Subject>
 
       <Heading level={1} className="text-center">

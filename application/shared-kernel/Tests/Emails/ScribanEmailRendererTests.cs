@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Scriban.Runtime;
 using SharedKernel.Emails;
+using SharedKernel.Platform;
 using Xunit;
 
 namespace SharedKernel.Tests.Emails;
@@ -294,6 +295,37 @@ public sealed class ScribanEmailRendererTests
 
         result.HtmlBody.Should().Contain("https://app.platformplatform.net/legal/terms");
         result.HtmlBody.Should().NotContain("//legal/terms");
+    }
+
+    [Fact]
+    public void RenderEmail_WhenTemplateReferencesTagline_ShouldUseMailTaglineForTemplateLocale()
+    {
+        // The mail-channel tagline is locale-specific (each locale can have its own copy), so the
+        // renderer pushes {{ Tagline }} as a per-call global rather than baking it into the shared
+        // helpers ScriptObject. Verify both supported PP locales resolve to their own mail tagline.
+        var html = "<html><head><title>t</title></head><body>{{ Tagline }}</body></html>";
+        var renderer = CreateRenderer(html, "{{ Tagline }}");
+        var expectedEnglish = Settings.Current.Branding.Tagline.Mail["en-US"];
+        var expectedDanish = Settings.Current.Branding.Tagline.Mail["da-DK"];
+
+        var english = renderer.RenderEmail(new TestTemplate("tagline-en", "en-US", new { }));
+        var danish = renderer.RenderEmail(new TestTemplate("tagline-da", "da-DK", new { }));
+
+        english.PlainTextBody.Should().Be(expectedEnglish);
+        danish.PlainTextBody.Should().Be(expectedDanish);
+    }
+
+    [Fact]
+    public void RenderEmail_WhenTemplateLocaleHasNoMailTagline_ShouldThrowWithDiagnostic()
+    {
+        // Guards against silently falling back to en-US for unknown locales -- a missing mail tagline
+        // for a locale is a misconfiguration in platform-settings.jsonc and should surface immediately.
+        var html = "<html><head><title>t</title></head><body>{{ Tagline }}</body></html>";
+        var renderer = CreateRenderer(html, "{{ Tagline }}");
+
+        var act = () => renderer.RenderEmail(new TestTemplate("tagline-missing", "fr-FR", new { }));
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*branding.tagline.mail*fr-FR*");
     }
 
     [Fact]

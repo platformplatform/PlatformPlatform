@@ -5,26 +5,36 @@ import { useEffect } from "react";
 
 export { useTheme } from "next-themes";
 
+// Brand-coded PWA toolbar tints, one per resolved theme mode. Passed in from the app shell so
+// `@repo/ui` stays free of `@repo/infrastructure` imports (TS rootDir boundary -- see
+// translationContext.ts). The app reads the values from `branding.themeColor` and threads them in.
+type ThemeColor = {
+  light: string;
+  dark: string;
+};
+
 type ThemeModeProviderProps = {
+  themeColor: ThemeColor;
   children: React.ReactNode;
 };
 
-export function ThemeModeProvider({ children }: Readonly<ThemeModeProviderProps>) {
+export function ThemeModeProvider({ themeColor, children }: Readonly<ThemeModeProviderProps>) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem={true} disableTransitionOnChange={true}>
-      <ThemeColorUpdater />
+      <ThemeColorUpdater themeColor={themeColor} />
       {children}
     </NextThemesProvider>
   );
 }
 
-// Component to update theme-color meta tag for Dynamic Island
-function ThemeColorUpdater() {
+// Updates the PWA / iOS Dynamic Island toolbar tint (`<meta name="theme-color">`) to match the
+// resolved theme mode.
+function ThemeColorUpdater({ themeColor }: Readonly<{ themeColor: ThemeColor }>) {
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const themeColorMeta = document.querySelector('meta[name="theme-color"]:not([media])') as HTMLMetaElement;
-    const color = resolvedTheme === "dark" ? "#151b23" : "#eef0f2";
+    const color = resolvedTheme === "dark" ? themeColor.dark : themeColor.light;
 
     if (themeColorMeta) {
       themeColorMeta.content = color;
@@ -34,7 +44,7 @@ function ThemeColorUpdater() {
       meta.content = color;
       document.head.appendChild(meta);
     }
-  }, [resolvedTheme]);
+  }, [resolvedTheme, themeColor]);
 
   return null;
 }

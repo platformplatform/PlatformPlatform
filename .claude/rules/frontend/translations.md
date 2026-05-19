@@ -47,7 +47,7 @@ import { Heading } from "@repo/ui/components/Heading";
 </Button>
 
 <Heading>
-  <Trans>Welcome to PlatformPlatform</Trans>
+  <Trans>Welcome to {productName}</Trans>
 </Heading>
 <Trans>Dynamic content: {dynamicContent}</Trans> // ✅ DO: Translate parameterized dynamic content
 <Trans>{dynamicContent}</Trans> // ❌ DON'T: Do not translate completely dynamic content

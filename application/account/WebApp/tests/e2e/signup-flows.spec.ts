@@ -66,7 +66,6 @@ test.describe("@smoke", () => {
     await step("Complete signup with valid email & verify navigation to verification page")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await blurActiveElement(page);
-      await expect(page.getByText("Europe")).toBeVisible();
       await page.getByRole("button", { name: "Sign up with email" }).click();
 
       // Verify verification page state

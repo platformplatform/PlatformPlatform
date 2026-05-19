@@ -58,7 +58,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Platform\platform-settings.jsonc"/>
+        <EmbeddedResource Include="..\..\platform-settings.jsonc" LogicalName="platform-settings.jsonc"/>
     </ItemGroup>
 
     <ItemGroup>

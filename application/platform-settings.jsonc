@@ -1,0 +1,96 @@
+{
+  // Platform-wide brand configuration -- the single source of truth for rebranding.
+  // Shared by the backend (.NET, embedded resource) and the frontend (TypeScript, injected at build time).
+  //
+  // To rebrand a downstream fork, edit the values in this file. Comments must stay on their own
+  // lines: the frontend build strips whole-line // comments, so a trailing comment after a value
+  // would not be removed and could corrupt the JSON.
+  //
+  // Security Note: Only include non-sensitive configuration here.
+  // Sensitive values (like API keys) should be stored in environment variables or key vaults.
+
+  "identity": {
+    // Email domain suffix used to classify users as internal (e.g. for telemetry segmentation).
+    // BackOffice access is controlled by Entra ID, not by this setting.
+    "internalEmailDomain": "@platformplatform.net"
+  },
+
+  "branding": {
+    // Product/platform name displayed throughout the application.
+    "productName": "PlatformPlatform",
+
+    // PWA chrome colors. "themeColor.light/dark" tints the mobile browser/PWA toolbar (the iOS
+    // Dynamic Island "tint band") -- the frontend swaps the `<meta name="theme-color">` value at
+    // runtime to match the active theme mode. "backgroundColor" is the PWA splash-screen background
+    // while the SPA boots (PWA spec is single-value). "themeColor.light" is the install-time fallback
+    // baked into manifest.json. PWA spec allows hex only, no oklch.
+    "themeColor": {
+      "light": "#eef0f2",
+      "dark": "#151b23"
+    },
+    "backgroundColor": "#ffffff",
+
+    // Background color of the brand band at the top of every transactional email (the band that
+    // sits behind the transparent logo-1200x184.png). A single value used in both light- and
+    // dark-mode email clients -- pick a color that reads well in both contexts. The PNG itself is
+    // transparent so this color shows through wherever the logo isn't.
+    "emailHeaderBackground": "#171717",
+
+    // Brand primary color (the "button color"). Each entry is a CSS color expression -- any value
+    // accepted by a CSS custom property is fine (oklch, hsl, hex, rgb). Light is what most users see;
+    // dark is the dark-mode counterpart (usually inverted -- e.g. brand-on-white in light mode flips
+    // to white-with-brand-text in dark mode). The "*Foreground" pair is the text/icon color used on
+    // top of the primary, so contrast must be a deliberate choice by the brand owner.
+    "primaryColor": {
+      "light": "oklch(0.2 0.02 264)",
+      "lightForeground": "oklch(0.97 0.003 264)",
+      "dark": "oklch(0.95 0.003 264)",
+      "darkForeground": "oklch(0.18 0 0)"
+    },
+
+    // One-line product description shown in the landing page footer and the email footer.
+    // Two channels (web, mail) each carry a per-locale map -- the email tagline can lean toward the
+    // recipient context (e.g. "your AI accountant") while the web one stays marketing. Every locale
+    // listed under "web" must also be listed under "mail" (Settings.cs fails loud at startup if not).
+    "tagline": {
+      "web": {
+        "en-US": "Free, open-source .NET and React starter kit for building modern SaaS applications.",
+        "da-DK": "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
+      },
+      "mail": {
+        "en-US": "Free, open-source .NET and React starter kit for building modern SaaS applications.",
+        "da-DK": "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
+      }
+    },
+
+    // Contact email shown as a mail icon in the landing page footer (empty = hidden).
+    "contactEmail": "",
+
+    // Support email shown to signed-in users in the in-app support dialog.
+    "supportEmail": "",
+
+    // Whether to show the iOS "Add to Home Screen" install prompt in the user-facing app. The
+    // prompt only ever appears on iOS Safari outside an installed PWA regardless; this flag lets a
+    // downstream brand suppress it entirely.
+    "showAddToHomescreen": true
+  },
+
+  // Public social media / community profile links shown in the landing page footer.
+  // Set any link to an empty string to hide its icon in the footer.
+  "socialLinks": {
+    "gitHub": "https://github.com/platformplatform/PlatformPlatform",
+    "linkedIn": "https://www.linkedin.com/company/platformplatform/",
+    "youTube": "https://www.youtube.com/@PlatformPlatform",
+    "x": "",
+    "facebook": "",
+    "instagram": ""
+  },
+
+  // Local development settings -- not part of the deployed app. Read straight off the checkout by
+  // the Aspire AppHost and the developer CLI.
+  "development": {
+    // Prefix for Docker volume names. Keeps each fork's volumes isolated from upstream and from
+    // other forks running on the same machine. Conventionally the product name, lowercased.
+    "dockerVolumePrefix": "platformplatform"
+  }
+}

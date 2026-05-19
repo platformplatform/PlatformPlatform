@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using FluentAssertions;
+using SharedKernel.Platform;
 using Xunit;
 
 namespace Account.Tests.BackOffice;
@@ -26,6 +27,6 @@ public sealed class MockLoginRouteTests(BackOfficeWebApplicationFactory factory)
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
         body.Should().Contain("id=\"back-office\"");
-        body.Should().Contain("<title>Back Office</title>");
+        body.Should().Contain($"<title>{Settings.Current.Branding.ProductName} Back Office</title>");
     }
 }

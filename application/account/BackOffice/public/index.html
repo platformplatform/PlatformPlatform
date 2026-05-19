@@ -11,9 +11,9 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="%THEME_COLOR_LIGHT%" />
         <meta name="csp-nonce" content="%CSP_NONCE%" />
-        <title>Back Office</title>
+        <title>%PRODUCT_NAME% Back Office</title>
         <script nonce="{{cspNonce}}">
             globalThis.__webpack_nonce__ = document.querySelector('meta[name="csp-nonce"]').content;
             const o = document.createElement;
@@ -42,8 +42,30 @@
                 }
             })();
         </script>
+        <style nonce="{{cspNonce}}">
+            :root,
+            .light {
+                --brand-primary: %PRIMARY_COLOR_LIGHT%;
+                --brand-primary-foreground: %PRIMARY_COLOR_LIGHT_FOREGROUND%;
+            }
+            .dark {
+                --brand-primary: %PRIMARY_COLOR_DARK%;
+                --brand-primary-foreground: %PRIMARY_COLOR_DARK_FOREGROUND%;
+            }
+        </style>
         <link href="/favicon.ico" rel="icon" type="image/x-icon" />
-        <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
+        <link
+            href="/apple-touch-icon.png"
+            rel="apple-touch-icon"
+            sizes="180x180"
+            media="(prefers-color-scheme: light)"
+        />
+        <link
+            href="/apple-touch-icon-dark.png"
+            rel="apple-touch-icon"
+            sizes="180x180"
+            media="(prefers-color-scheme: dark)"
+        />
         <!-- crossorigin="use-credentials" sends the Easy Auth cookie so ACA does not redirect to Entra. -->
         <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
     </head>

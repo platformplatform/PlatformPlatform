@@ -86,7 +86,7 @@ public static class SharedDependencyConfiguration
             if (!SharedInfrastructureConfiguration.IsRunningInAzure)
             {
                 // Set a common application name for all self-contained systems for local development (handled automatically by Azure Container Apps Environment)
-                dataProtection.SetApplicationName("PlatformPlatform");
+                dataProtection.SetApplicationName(Settings.Current.Branding.ProductName);
             }
 
             return services;

@@ -2,7 +2,72 @@ export declare global {
   /**
    * Custom build environment variables
    */
-  interface CustomBuildEnv {}
+  interface CustomBuildEnv {
+    /**
+     * Brand configuration injected from platform-settings.jsonc at build time
+     */
+    branding: {
+      /**
+       * Product/platform name displayed throughout the application
+       */
+      productName: string;
+      /**
+       * PWA toolbar tint per theme mode. The HTML <meta name="theme-color"> initial value is
+       * themeColor.light; ThemeColorUpdater swaps it to themeColor.dark at runtime when dark mode
+       * resolves. manifest.json theme_color uses light as the install-time value (PWA spec is
+       * single-valued). Hex only.
+       */
+      themeColor: {
+        light: string;
+        dark: string;
+      };
+      /** PWA splash-screen background while the SPA boots (hex, no oklch) */
+      backgroundColor: string;
+      /**
+       * Brand primary color (the "button color"). Light/dark + their foreground (text-on-primary)
+       * companions. Piped into theme.css via inline `<style>` in the HTML template.
+       */
+      primaryColor: {
+        light: string;
+        lightForeground: string;
+        dark: string;
+        darkForeground: string;
+      };
+      /**
+       * One-line product description per channel and locale. The frontend reads
+       * tagline.web[locale]; emails read tagline.mail[locale] server-side. Locale keys in web and
+       * mail must match (the backend fails loud at startup if they diverge).
+       */
+      tagline: {
+        web: Record<string, string>;
+        mail: Record<string, string>;
+      };
+      /**
+       * Contact email shown as a mail icon in the landing page footer (empty hides the icon)
+       */
+      contactEmail: string;
+      /**
+       * Support email shown to signed-in users in the in-app support dialog
+       */
+      supportEmail: string;
+      /**
+       * Whether the iOS "Add to Home Screen" install prompt renders in the user-facing app
+       */
+      showAddToHomescreen: boolean;
+    };
+    /**
+     * Public social media / community profile links injected from platform-settings.jsonc.
+     * Each field is a URL or an empty string; the footer hides any icon whose URL is empty.
+     */
+    socialLinks: {
+      gitHub: string;
+      linkedIn: string;
+      youTube: string;
+      x: string;
+      facebook: string;
+      instagram: string;
+    };
+  }
   /**
    * Build Environment Variables
    */

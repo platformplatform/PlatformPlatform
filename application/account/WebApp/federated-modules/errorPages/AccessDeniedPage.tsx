@@ -3,14 +3,13 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { productName } from "@repo/infrastructure/branding";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { Home, LogOut, ShieldX } from "lucide-react";
 import { useContext, useState } from "react";
-
-import logoMark from "@/shared/images/logo-mark.svg";
-import logoWrap from "@/shared/images/logo-wrap.svg";
 
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import SupportButton from "../common/SupportButton";
@@ -53,9 +52,9 @@ function AccessDeniedNavigation() {
 
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
-      <Link href="/" variant="logo" underline={false}>
-        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} />
-        <img className="size-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} />
+      <Link href="/" variant="logo" underline={false} className="shrink-0">
+        <Logo variant="wordmark" className="hidden h-10 w-auto sm:block" alt={t`${productName} logo`} />
+        <Logo variant="mark" className="size-10 sm:hidden" alt={t`${productName} logo`} />
       </Link>
 
       <div className="flex items-center gap-6">

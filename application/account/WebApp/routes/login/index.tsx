@@ -6,6 +6,7 @@ import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
+import { Logo } from "@repo/ui/components/Logo";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -14,8 +15,6 @@ import { useEffect, useState } from "react";
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 
@@ -105,7 +104,7 @@ export function LoginForm() {
       className="flex w-full max-w-[22rem] flex-col items-center gap-4 pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+        <Logo variant="mark" className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Hi! Welcome back</Trans>
@@ -164,18 +163,6 @@ export function LoginForm() {
           </Link>
         </Trans>
       </p>
-      {/*
-        Built with PlatformPlatform - https://github.com/platformplatform/PlatformPlatform
-        We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
-      */}
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-sm text-muted-foreground">
-          <Trans>Built with</Trans>
-        </span>
-        <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
-          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
-        </Link>
-      </div>
     </Form>
   );
 }

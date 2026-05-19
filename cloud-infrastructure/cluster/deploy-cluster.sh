@@ -85,6 +85,14 @@ export REVISION_SUFFIX=$(printf "%04x" $RANDOM | head -c 4)
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+# Product name is the single source of truth for branding -- read it from platform-settings.jsonc.
+# Strip whole-line // comments so jq can parse the JSONC.
+export PRODUCT_NAME=$(sed '/^[[:space:]]*\/\//d' ../../application/platform-settings.jsonc | jq -r '.branding.productName')
+if [[ -z "$PRODUCT_NAME" || "$PRODUCT_NAME" == "null" ]]; then
+  echo "ERROR: Could not read branding.productName from application/platform-settings.jsonc." >&2
+  exit 1
+fi
+
 # Build the .bicepparam file to generate parameters.json
 bicep build-params ./main-cluster.bicepparam --outfile ./main-cluster.parameters.json
 

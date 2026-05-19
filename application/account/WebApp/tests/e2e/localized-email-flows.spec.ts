@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
+import { productName } from "@shared/e2e/utils/constants";
 import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode, testUser, uniqueEmail } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
@@ -113,7 +114,7 @@ test.describe("@smoke", () => {
       async () => {
         const mail = await fetchLatestMailByRecipient(enSignupUser.email);
 
-        expect(mail.subject).toBe("PlatformPlatform login verification code");
+        expect(mail.subject).toBe(`${productName} login verification code`);
         expect(mail.html).toContain("Your confirmation code is below");
         expect(mail.html).toContain("Enter it in your open browser window. It is only valid for a few minutes.");
         expect(mail.text).toContain("Your confirmation code is below");
@@ -215,7 +216,7 @@ test.describe("@comprehensive", () => {
     )(async () => {
       const mail = await fetchLatestMailByRecipient(owner.email);
 
-      expect(mail.subject).toBe("PlatformPlatform-bekræftelseskode til login");
+      expect(mail.subject).toBe(`${productName}-bekræftelseskode til login`);
       expect(mail.html).toContain("Din bekræftelseskode står herunder");
       expect(mail.html).toContain("Indtast den i dit åbne browservindue. Den er kun gyldig i få minutter.");
       expect(mail.text).toContain("Din bekræftelseskode står herunder");
@@ -282,7 +283,7 @@ test.describe("@comprehensive", () => {
       await expect(page).toHaveURL("/dashboard");
 
       await page.goto("/user/preferences");
-      await expect(page.getByRole("heading", { name: "Bruger præferencer" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Brugerpræferencer" })).toBeVisible();
       await page.getByText("English").click();
       await expect(page.getByRole("heading", { name: "User preferences" })).toBeVisible();
 
@@ -300,10 +301,10 @@ test.describe("@comprehensive", () => {
       const mail = await fetchLatestMailByRecipient(enInviteeEmail);
 
       expect(mail.subject).toContain("You have been invited to join");
-      expect(mail.subject).toContain("PlatformPlatform");
-      expect(mail.html).toContain("invited you to join PlatformPlatform");
+      expect(mail.subject).toContain(productName);
+      expect(mail.html).toContain(`invited you to join ${productName}`);
       expect(mail.html).toContain(enInviteeEmail);
-      expect(mail.text).toContain("invited you to join PlatformPlatform");
+      expect(mail.text).toContain(`invited you to join ${productName}`);
       expect(mail.text).toContain(enInviteeEmail);
     })();
 
@@ -315,7 +316,7 @@ test.describe("@comprehensive", () => {
         await page.goto("/user/preferences");
         await expect(page.getByRole("heading", { name: "User preferences" })).toBeVisible();
         await page.getByText("Dansk").click();
-        await expect(page.getByRole("heading", { name: "Bruger præferencer" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Brugerpræferencer" })).toBeVisible();
 
         await page.goto("/account/users");
         await expect(page.getByRole("heading", { name: "Brugere" })).toBeVisible();
@@ -329,10 +330,10 @@ test.describe("@comprehensive", () => {
         const mail = await fetchLatestMailByRecipient(daInviteeEmail);
 
         expect(mail.subject).toContain("inviteret til at deltage i");
-        expect(mail.subject).toContain("PlatformPlatform");
-        expect(mail.html).toContain("har inviteret dig til at deltage i PlatformPlatform");
+        expect(mail.subject).toContain(productName);
+        expect(mail.html).toContain(`har inviteret dig til at deltage i ${productName}`);
         expect(mail.html).toContain(daInviteeEmail);
-        expect(mail.text).toContain("har inviteret dig til at deltage i PlatformPlatform");
+        expect(mail.text).toContain(`har inviteret dig til at deltage i ${productName}`);
         expect(mail.text).toContain(daInviteeEmail);
       }
     )();

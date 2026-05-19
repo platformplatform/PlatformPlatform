@@ -64,14 +64,14 @@ msgstr "Erstat denne eksempelside med dine egne produktinformationer og branding
 msgid "This is where your personalized dashboard content will appear. Stay tuned for updates."
 msgstr "Her vil dit personlige dashboard-indhold blive vist. Hold dig opdateret."
 
-msgid "Welcome to PlatformPlatform"
-msgstr "Velkommen til PlatformPlatform"
+msgid "Welcome to {productName}"
+msgstr "Velkommen til {productName}"
 
-msgid "You successfully deployed PlatformPlatform! 🎉"
-msgstr "Du har installeret PlatformPlatform med succes! 🎉"
+msgid "You successfully deployed {productName}! 🎉"
+msgstr "Du har installeret {productName} med succes! 🎉"
 
-msgid "You successfully installed PlatformPlatform! 🎉"
-msgstr "Du har installeret PlatformPlatform med succes! 🎉"
+msgid "You successfully installed {productName}! 🎉"
+msgstr "Du har installeret {productName} med succes! 🎉"
 
 msgid "Your dashboard is empty"
 msgstr "Dit dashboard er tomt"

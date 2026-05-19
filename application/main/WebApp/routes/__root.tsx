@@ -1,6 +1,7 @@
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
+import { productName, showAddToHomescreen, themeColor } from "@repo/infrastructure/branding";
 import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
 import { OnboardingGuard } from "@repo/infrastructure/onboarding/OnboardingGuard";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
@@ -35,12 +36,12 @@ function Root() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeModeProvider>
+      <ThemeModeProvider themeColor={themeColor}>
         <AuthenticationProvider navigate={(options) => navigate(options)}>
           <BannerPortal>
             <FederatedBanners />
           </BannerPortal>
-          <AddToHomescreen />
+          {showAddToHomescreen && <AddToHomescreen productName={productName} />}
           <PageTracker />
           <Outlet />
           <AuthSyncModal modalComponent={FederatedAuthSyncModal} />

@@ -22,3 +22,5 @@ param googleOAuthClientSecret = readEnvironmentVariable('GOOGLE_OAUTH_CLIENT_SEC
 param stripePublishableKey = readEnvironmentVariable('STRIPE_PUBLISHABLE_KEY', '')
 param stripeApiKey = readEnvironmentVariable('STRIPE_API_KEY', '')
 param stripeWebhookSecret = readEnvironmentVariable('STRIPE_WEBHOOK_SECRET', '')
+param productName = readEnvironmentVariable('PRODUCT_NAME')
+param mailSenderDisplayName = readEnvironmentVariable('MAIL_SENDER_DISPLAY_NAME', productName)

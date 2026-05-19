@@ -1,5 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
+import { productName } from "@shared/e2e/utils/constants";
 import { createTestContext } from "@shared/e2e/utils/test-assertions";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -18,8 +19,8 @@ test.describe("@smoke", () => {
     await step("Navigate to landing page & verify welcome content")(async () => {
       await page.goto("/");
 
-      await expect(page.getByRole("heading", { name: "Welcome to PlatformPlatform" })).toBeVisible();
-      await expect(page.getByText("You successfully installed PlatformPlatform!")).toBeVisible();
+      await expect(page.getByRole("heading", { name: `Welcome to ${productName}` })).toBeVisible();
+      await expect(page.getByText(`You successfully installed ${productName}!`)).toBeVisible();
     })();
 
     await step("Verify call-to-action buttons & navigation links are visible")(async () => {

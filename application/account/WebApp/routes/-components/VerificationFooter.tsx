@@ -1,13 +1,9 @@
 import type { ReactNode } from "react";
 
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { Link } from "@repo/ui/components/Link";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-
-import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 
 interface VerificationFooterProps {
   showRequestLink: boolean;
@@ -49,14 +45,6 @@ export function VerificationFooter({
         )}
       </div>
       {backLink}
-      <div className="mt-6 flex flex-col items-center gap-1">
-        <span className="text-sm text-muted-foreground">
-          <Trans>Powered by</Trans>
-        </span>
-        <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
-          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
-        </Link>
-      </div>
     </div>
   );
 }

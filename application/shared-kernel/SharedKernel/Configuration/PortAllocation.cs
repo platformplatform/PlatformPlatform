@@ -19,17 +19,23 @@ public sealed record PortAllocation(int BasePort)
     // Worktrees scan these in order and pick the first base port whose full allocation is free.
     internal static readonly int[] WorktreeCandidateBasePorts = [9100, 9200, 9300, 9400, 9500, 9600, 9700, 9800, 9900];
 
+    // Port layout within a worktree's allocation. The browser-facing hosts take the lowest offsets:
+    //   +0 app.dev.localhost   +1 back-office.dev.localhost   +2 (reserved: web.dev.localhost)
+    //   +3 Aspire dashboard    +4 Postgres    +5 Mailpit UI/API    +6 Blob storage
+    // BasePort + 2 is intentionally unallocated so the future web host can claim it without a reshuffle.
     public int AppGateway => BasePort;
 
-    public int Aspire => BasePort + 1;
+    public int BackOfficeApi => BasePort + 1;
 
-    public int Postgres => BasePort + 2;
+    public int Aspire => BasePort + 3;
 
-    public int Blob => BasePort + 3;
-
-    public int MailpitSmtp => BasePort + 4;
+    public int Postgres => BasePort + 4;
 
     public int MailpitHttp => BasePort + 5;
+
+    public int Blob => BasePort + 6;
+
+    public int MailpitSmtp => BasePort + 7;
 
     public int OtelEndpoint => BasePort + 8;
 
@@ -49,12 +55,10 @@ public sealed record PortAllocation(int BasePort)
 
     public int BackOfficeStatic => BasePort + 16;
 
-    public int BackOfficeApi => BasePort + 17;
-
     public int[] AllPorts =>
     [
-        AppGateway, Aspire, Postgres, Blob, MailpitSmtp, MailpitHttp, OtelEndpoint, ResourceService,
-        MainApi, MainStatic, MainWorkers, AccountApi, AccountStatic, AccountWorkers, BackOfficeStatic, BackOfficeApi
+        AppGateway, BackOfficeApi, Aspire, Postgres, MailpitHttp, Blob, MailpitSmtp, OtelEndpoint,
+        ResourceService, MainApi, MainStatic, MainWorkers, AccountApi, AccountStatic, AccountWorkers, BackOfficeStatic
     ];
 
     // Empty on the default base port so existing developers' Docker volumes are reused unchanged on
@@ -145,7 +149,7 @@ public sealed record PortAllocation(int BasePort)
         }
     }
 
-    private static string FindRepositoryRoot(string startDirectory)
+    internal static string FindRepositoryRoot(string startDirectory)
     {
         var current = new DirectoryInfo(startDirectory);
         while (current is not null)

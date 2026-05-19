@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using Scriban;
 using Scriban.Runtime;
+using SharedKernel.Platform;
 
 namespace SharedKernel.Emails;
 
@@ -35,10 +36,29 @@ public sealed partial class ScribanEmailRenderer(ScriptObject helpers, IEmailTem
         // PascalCase to snake_case, which would silently break {{ OtpCode }} → empty.
         modelObject.Import(template.Model, renamer: member => member.Name);
 
+        // {{ Tagline }} is locale-specific (the mail-channel tagline can differ per locale), so it
+        // is pushed per render rather than baked into the shared helpers ScriptObject.
+        var perRenderGlobals = new ScriptObject();
+        perRenderGlobals.SetValue("Tagline", ResolveMailTagline(template.Locale), true);
+
         var context = new TemplateContext();
         context.PushGlobal(helpers);
+        context.PushGlobal(perRenderGlobals);
         context.PushGlobal(modelObject);
         return parsed.Render(context);
+    }
+
+    private static string ResolveMailTagline(string locale)
+    {
+        var mailTaglines = Settings.Current.Branding.Tagline.Mail;
+        if (mailTaglines.TryGetValue(locale, out var tagline))
+        {
+            return tagline;
+        }
+
+        throw new InvalidOperationException(
+            $"platform-settings.jsonc: branding.tagline.mail does not include locale '{locale}'. Available: [{string.Join(", ", mailTaglines.Keys)}]."
+        );
     }
 
     private static string ExtractSubject(string htmlBody, string templateName)

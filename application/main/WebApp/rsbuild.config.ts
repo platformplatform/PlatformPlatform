@@ -1,3 +1,5 @@
+import { loadPlatformSettings } from "@repo/build/platformSettings";
+import { BrandSubstitutionPlugin } from "@repo/build/plugin/BrandSubstitutionPlugin";
 import { DevelopmentServerPlugin } from "@repo/build/plugin/DevelopmentServerPlugin";
 import { FileSystemRouterPlugin } from "@repo/build/plugin/FileSystemRouterPlugin";
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
@@ -10,7 +12,7 @@ import { pluginSourceBuild } from "@rsbuild/plugin-source-build";
 import { pluginSvgr } from "@rsbuild/plugin-svgr";
 import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 
-const customBuildEnv: CustomBuildEnv = {};
+const customBuildEnv: CustomBuildEnv = loadPlatformSettings();
 
 function requirePort(name: string): number {
   // In production builds, port env vars aren't relevant (no dev server). Returning 0 keeps the
@@ -49,6 +51,14 @@ export default defineConfig({
       remotes: {
         account: { port: accountStaticPort }
       }
-    })
+    }),
+    BrandSubstitutionPlugin(
+      {
+        __PRODUCT_NAME__: customBuildEnv.branding.productName,
+        __THEME_COLOR__: customBuildEnv.branding.themeColor.light,
+        __BACKGROUND_COLOR__: customBuildEnv.branding.backgroundColor
+      },
+      ["manifest.json"]
+    )
   ]
 });

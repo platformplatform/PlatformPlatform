@@ -82,14 +82,18 @@ app.UseApiServices(); // Add common configuration for all APIs like Swagger, HST
 // that AppGateway proxies on the user-facing host must be served here directly from blob storage.
 app.MapBackOfficeBlobProxy(backOfficeHostname);
 
-app.UseEmailStaticFiles("WebApp");
-
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
     // Production: same image runs in two ACA container apps. The back-office one carries an explicit
     // env var; account-api does not. Each registers only the SPA it serves, so endpoint matching does
     // not depend on Request.Host being correctly rewritten from X-Forwarded-Host through the ACA mesh.
     var isBackOfficeContainer = app.Configuration.GetValue("BackOffice:IsBackOfficeContainer", false);
+
+    // Email *.preview.* artifacts are reachable only on the back-office container -- the email
+    // preview page that consumes them is back-office-only and Easy Auth gates the whole host.
+    // `appPublicUrl` resolves {{PublicUrl}} in served previews so their assets load from the
+    // public app host.
+    app.UseEmailStaticFiles("WebApp", isBackOfficeContainer, appPublicUrl);
 
     if (isBackOfficeContainer)
     {
@@ -124,6 +128,17 @@ else
 {
     // Local dev (Aspire): one process serves both SPAs via dual Kestrel listeners; host-scoped
     // fallback disambiguates because Aspire really delivers requests with the right Host header.
+    // Email static files are host-scoped the same way: the back-office host serves the *.preview.*
+    // artifacts (consumed by the back-office-only email preview page), the user-facing host does not.
+    app.UseWhen(
+        context => context.Request.Host.Host.Equals(backOfficeHostname, StringComparison.OrdinalIgnoreCase),
+        branch => branch.UseEmailStaticFiles("WebApp", true, appPublicUrl)
+    );
+    app.UseWhen(
+        context => context.Request.Host.Host.Equals(appHostname, StringComparison.OrdinalIgnoreCase),
+        branch => branch.UseEmailStaticFiles("WebApp", false)
+    );
+
     app.UseHostScopedSinglePageAppFallback(
         new HostScopedSinglePageApp(
             appHostname,

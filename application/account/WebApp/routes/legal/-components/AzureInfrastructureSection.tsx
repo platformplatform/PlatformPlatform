@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Card, CardDescription, CardTitle } from "@repo/ui/components/Card";
 import { Link } from "@repo/ui/components/Link";
+import platformPlatformLogoMark from "@repo/ui/images/platformplatform-logo-mark-192.png";
 import {
   DatabaseIcon,
   ExternalLinkIcon,
@@ -13,12 +14,11 @@ import {
 } from "lucide-react";
 
 import gdprBadge from "@/shared/images/compliance/gdpr.png";
-import platformLogo from "@/shared/images/logo-mark.svg";
 
 export function AzureInfrastructureSection() {
   return (
-    <section className="bg-input-background px-6 py-16">
-      <div className="mx-auto max-w-5xl">
+    <section className="bg-input-background px-4 py-16">
+      <div className="mx-auto max-w-[64rem]">
         <div className="mb-12 text-center">
           <h2 className="marketing">
             <Trans>Enterprise-grade Azure infrastructure</Trans>
@@ -141,7 +141,7 @@ function SecurityFeaturesGrid() {
 function PlatformPlatformCredit() {
   return (
     <div className="flex items-center justify-center gap-3">
-      <img src={platformLogo} alt={t`PlatformPlatform logo`} className="size-10" loading="lazy" />
+      <img src={platformPlatformLogoMark} alt={t`PlatformPlatform logo`} className="size-10" loading="lazy" />
       <p className="text-sm text-muted-foreground">
         <Trans>
           Built on{" "}

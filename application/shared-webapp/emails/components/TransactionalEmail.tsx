@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { Body, Container, Head, Html, Preview, Section, Tailwind } from "@react-email/components";
 
+import { emailHeaderBackground } from "../helpers/brand";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
@@ -44,7 +45,12 @@ const FONT_STACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helve
 // strip inside a dark frame (and unstyled text inside still inherits the inline dark color). The
 // same descendant selector also flips the default text color for unclassed elements (paragraphs,
 // divs) inside the card — they inherit the td's color.
-const EMAIL_STYLES = `
+// `headerBackground` is the brand-coded email-header band color -- a Scriban placeholder in build
+// mode, the real platform-settings.jsonc value in preview mode (see helpers/brand). The .email-header
+// dark-mode rules below keep the band at that color even in dark email clients: without them the
+// `.email-card td !important` rule would re-paint the header's inner td with #2a2a2a, masking it.
+function buildEmailStyles(headerBackground: string): string {
+  return `
 html { background-color: #f4f4f5; }
 @media (prefers-color-scheme: dark) {
   html { background-color: #1f1f1f !important; }
@@ -52,8 +58,8 @@ html { background-color: #f4f4f5; }
   .email-body td { background-color: #1f1f1f !important; color: #e5e5e5 !important; }
   .email-card { background-color: #2a2a2a !important; color: #e5e5e5 !important; }
   .email-card td { background-color: #2a2a2a !important; color: #e5e5e5 !important; }
-  .email-header { background-color: #f6f6f6 !important; }
-  .email-header td { background-color: #f6f6f6 !important; }
+  .email-header { background-color: ${headerBackground} !important; }
+  .email-header td { background-color: ${headerBackground} !important; }
   .email-heading { color: #fafafa !important; }
   .email-otp-box { background-color: #171717 !important; }
   .email-otp-box td { background-color: #171717 !important; }
@@ -67,7 +73,13 @@ html { background-color: #f4f4f5; }
   .email-alert-default { border-color: #404040 !important; background-color: #2a2a2a !important; color: #e5e5e5 !important; }
   .email-avatar { background-color: #404040 !important; color: #d4d4d4 !important; }
 }
+/* Phones: card spans the full width flush to the top edge — drop the desktop floating margin and
+   the corner radius (rounded corners on a full-bleed card look like a rendering glitch). */
+@media (max-width: 600px) {
+  .email-card { margin-top: 0 !important; border-radius: 0 !important; }
+}
 `.trim();
+}
 
 export function TransactionalEmail({ locale, preview, otpAutofill, children }: Readonly<TransactionalEmailProps>) {
   return (
@@ -76,7 +88,7 @@ export function TransactionalEmail({ locale, preview, otpAutofill, children }: R
         <Head>
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
-          <style dangerouslySetInnerHTML={{ __html: EMAIL_STYLES }} />
+          <style dangerouslySetInnerHTML={{ __html: buildEmailStyles(emailHeaderBackground()) }} />
         </Head>
         <Preview>{preview}</Preview>
         <Body style={{ fontFamily: FONT_STACK }} className="email-body m-[0px] bg-[#f4f4f5] p-[0px] text-[#0f172a]">
@@ -84,7 +96,7 @@ export function TransactionalEmail({ locale, preview, otpAutofill, children }: R
             <Header />
             <Section className="px-[32px] py-[32px]">{children}</Section>
           </Container>
-          <Footer />
+          <Footer locale={locale} />
           {otpAutofill}
         </Body>
       </Html>

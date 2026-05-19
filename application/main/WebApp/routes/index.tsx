@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { productName } from "@repo/infrastructure/branding";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { lazy } from "react";
@@ -24,17 +25,17 @@ export const Route = createFileRoute("/")({
         <div className="flex flex-1 flex-col items-center bg-background">
           <PublicNavigation />
 
-          <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-20 text-center">
-            <div className="flex max-w-5xl flex-col gap-8">
+          <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-20 text-center">
+            <div className="flex max-w-[64rem] flex-col gap-8">
               <div className="flex flex-col gap-4">
                 <h1 className="marketing">
-                  <Trans>Welcome to PlatformPlatform</Trans>
+                  <Trans>Welcome to {productName}</Trans>
                 </h1>
                 <p className="text-xl text-muted-foreground md:text-2xl">
                   {window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? (
-                    <Trans>You successfully installed PlatformPlatform! 🎉</Trans>
+                    <Trans>You successfully installed {productName}! 🎉</Trans>
                   ) : (
-                    <Trans>You successfully deployed PlatformPlatform! 🎉</Trans>
+                    <Trans>You successfully deployed {productName}! 🎉</Trans>
                   )}
                 </p>
                 <p className="text-base text-muted-foreground md:text-lg">

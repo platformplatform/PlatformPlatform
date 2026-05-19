@@ -1,5 +1,6 @@
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { themeColor } from "@repo/infrastructure/branding";
 import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 import { BannerPortal } from "@repo/ui/components/BannerPortal";
@@ -25,7 +26,7 @@ function Root() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeModeProvider>
+      <ThemeModeProvider themeColor={themeColor}>
         <AuthenticationProvider navigate={(options) => navigate(options)}>
           <BannerPortal>
             <BackOfficeBanners />

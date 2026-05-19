@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { render } from "@react-email/render";
+import { loadPlatformSettings } from "@repo/build/platformSettings";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -24,16 +25,19 @@ const LOCALES = Object.keys(i18nConfig);
 // through the JSX helpers — typically those that live inside href attributes or Lingui <Trans>
 // strings (see emails.md "Exception — HTML attributes and Trans strings"). Applied only to the
 // preview render output, never to the production .html/.txt artifacts.
-// PublicUrl is left empty in preview output so every URL renders as a root-relative path
-// (`/email/logo.png`, `/legal/privacy`, etc.). The browser resolves them against the host serving
-// the iframe — `app.dev.localhost` in dev, `staging.platformplatform.net` in stage, `app.platform
-// platform.net` in prod — so the preview always loads its assets from the same host as the SPA
-// it's embedded in. SignupUrl and LoginUrl follow the same convention for the same reason.
+//
+// SignupUrl/LoginUrl render as root-relative paths — they are nav links, fine to resolve against
+// whatever host serves the preview iframe. ProductName is a brand value (not dummy model data),
+// sourced from platform-settings so the preview subject line is brand-accurate.
+//
+// {{PublicUrl}} is deliberately NOT listed: it stays unsubstituted in the preview artifacts so the
+// back-office resolves it at serve time to the public app URL — the always-on host real emails
+// load their logo and assets from (see UseEmailStaticFiles).
 const PREVIEW_PLACEHOLDER_VALUES: Record<string, string> = {
-  PublicUrl: "",
   SignupUrl: "/signup",
   LoginUrl: "/login",
-  TenantName: "Acme Corp"
+  TenantName: "Acme Corp",
+  ProductName: loadPlatformSettings().branding.productName
 };
 
 function substitutePreviewPlaceholders(input: string): string {

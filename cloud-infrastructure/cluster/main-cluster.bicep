@@ -14,7 +14,10 @@ param accountVersion string
 param mainVersion string
 param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
-param mailSenderDisplayName string = 'PlatformPlatform'
+@minLength(1)
+param productName string
+@minLength(1)
+param mailSenderDisplayName string = productName
 param useCustomEmailDomain bool = false
 param revisionSuffix string
 
@@ -108,6 +111,7 @@ module keyVault '../modules/key-vault.bicep' = {
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
     workspaceId: existingLogAnalyticsWorkspace.id
     domainName: domainName
+    productName: productName
   }
 }
 
@@ -141,8 +145,8 @@ module stripeSecrets '../modules/key-vault-secrets.bicep' = if (!empty(stripeApi
 // (RFC 1034). The apex of a domain cannot itself be a CNAME, so SPF (TXT) and DKIM CNAMEs at
 // sub-subdomains of the apex can coexist freely with whatever else lives on the apex.
 // Apple Mail OTP autofill matches on eTLD+1, so a sender at the apex still autofills on any subdomain
-// of the same apex (e.g., sender no-reply@platformplatform.net autofills forms on
-// staging.platformplatform.net or app.platformplatform.net).
+// of the same apex (e.g., sender no-reply@example.com autofills forms on
+// staging.example.com or app.example.com).
 // The "last two parts" derivation is correct for single-suffix TLDs (.net, .com, .io). It is wrong
 // for multi-part public suffixes like .co.uk - replace with an explicit param if that ever applies.
 var domainNameParts = split(domainName, '.')

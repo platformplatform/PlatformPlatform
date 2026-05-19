@@ -1,12 +1,12 @@
 {
-  "name": "Back Office",
-  "short_name": "Back Office",
-  "description": "PlatformPlatform Application",
+  "name": "__PRODUCT_NAME__ Back Office",
+  "short_name": "__PRODUCT_NAME__",
+  "description": "__PRODUCT_NAME__ Back Office",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
+  "theme_color": "__THEME_COLOR__",
+  "background_color": "__BACKGROUND_COLOR__",
   "icons": [
     {
       "src": "/favicon.ico",

@@ -6,6 +6,7 @@
 # Bicep generated artifacts
 cloud-infrastructure/cluster/main-cluster.parameters.json
 cloud-infrastructure/cluster/main-cluster.json
+cloud-infrastructure/modules/*.json
 
 # User-specific files
 *.rsuser

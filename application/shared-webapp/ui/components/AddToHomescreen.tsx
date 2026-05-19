@@ -6,7 +6,7 @@ import { Button } from "./Button";
 const STORAGE_KEY = "add-to-homescreen-dismissed";
 const DISMISS_DURATION_DAYS = 7;
 
-export function AddToHomescreen() {
+export function AddToHomescreen({ productName }: { productName: string }) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [translateY, setTranslateY] = useState(0);
@@ -95,9 +95,14 @@ export function AddToHomescreen() {
     >
       <div className="border-b bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
-          <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="size-10 rounded-lg shadow-sm" />
+          <img src="/apple-touch-icon.png" alt={productName} className="size-10 rounded-lg shadow-sm dark:hidden" />
+          <img
+            src="/apple-touch-icon-dark.png"
+            alt={productName}
+            className="hidden size-10 rounded-lg shadow-sm dark:block"
+          />
           <div className="flex-1">
-            <h5>Install PlatformPlatform</h5>
+            <h5>Install {productName}</h5>
             <p className="text-xs text-muted-foreground">
               Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline size-3" />{" "}
               then "Add to Home Screen"

@@ -5,6 +5,7 @@ import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import { productName } from "@repo/infrastructure/branding";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@repo/ui/components/DropdownMenu";
 import { collapsedContext, overlayContext } from "@repo/ui/components/Sidebar";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
@@ -55,7 +56,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
     return null;
   }
 
-  const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
+  const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || productName;
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
   const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
   const isAccountContext = navigateToMain !== null;

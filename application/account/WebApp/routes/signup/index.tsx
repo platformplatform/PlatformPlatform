@@ -1,14 +1,13 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
+import { productName } from "@repo/infrastructure/branding";
 import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
-import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { LabelWithTooltip } from "@repo/ui/components/LabelWithTooltip";
 import { Link } from "@repo/ui/components/Link";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
+import { Logo } from "@repo/ui/components/Logo";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -18,8 +17,6 @@ import { useEffect, useState } from "react";
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 
@@ -95,35 +92,14 @@ export function StartSignupForm() {
       className="flex w-full max-w-[22rem] flex-col items-center gap-4 rounded-lg pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
+        <Logo variant="mark" className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Create your account</Trans>
       </h2>
       <div className="text-center text-sm text-muted-foreground">
-        <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
+        <Trans>Sign up in seconds to start building on {productName} – just like thousands of others.</Trans>
       </div>
-      <Field className="flex w-full flex-col">
-        <FieldLabel>
-          <LabelWithTooltip
-            tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
-          >
-            {t`Region`}
-          </LabelWithTooltip>
-        </FieldLabel>
-        <Select name="region" defaultValue="europe" required={true} disabled={isPending}>
-          <SelectTrigger className="w-full" aria-label={t`Region`}>
-            <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="europe">
-              <Trans>Europe</Trans>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
-      </Field>
-      <div className="w-full border-t border-border" />
       <TextField
         name="email"
         type="email"
@@ -188,18 +164,6 @@ export function StartSignupForm() {
             <Trans>Privacy policies</Trans>
           </Link>
         </div>
-      </div>
-      {/*
-        Built with PlatformPlatform - https://github.com/platformplatform/PlatformPlatform
-        We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
-      */}
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-sm text-muted-foreground">
-          <Trans>Built with</Trans>
-        </span>
-        <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
-          <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />
-        </Link>
       </div>
     </Form>
   );
