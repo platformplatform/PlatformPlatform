@@ -9,7 +9,7 @@ import { Skeleton } from "@repo/ui/components/Skeleton";
 import type { components } from "@/shared/lib/api/client";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
-import { api } from "@/shared/lib/api/client";
+import { api, SupportTicketStatus } from "@/shared/lib/api/client";
 
 type BackOfficeUserDetailResponse = components["schemas"]["BackOfficeUserDetailResponse"];
 
@@ -26,6 +26,18 @@ export function UserActivityTiles({ user, userId, isLoading }: Readonly<UserActi
   const sessionsLoading = sessionsQuery.isLoading;
   const totalSessions = sessionsQuery.data?.totalCount;
   const tenantCount = user?.tenantMemberships.length ?? 0;
+
+  // PageSize is requested at the validator-enforced cap of 100 so the chip count and the tab list
+  // share one TanStack Query cache entry. For users with more than 100 tickets the chip undercounts
+  // until a dedicated count endpoint exists; the v1 surface intentionally accepts that trade-off.
+  const supportTicketsQuery = api.useQuery("get", "/api/back-office/support-tickets", {
+    params: { query: { ReporterId: userId, PageSize: 100 } }
+  });
+  const supportTicketsLoading = supportTicketsQuery.isLoading;
+  const openTicketCount = supportTicketsQuery.data?.tickets.filter(
+    (ticket) => ticket.status !== SupportTicketStatus.Resolved && ticket.status !== SupportTicketStatus.Closed
+  ).length;
+  const totalTicketCount = supportTicketsQuery.data?.totalCount;
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(13rem,1fr))] gap-4">
@@ -67,6 +79,25 @@ export function UserActivityTiles({ user, userId, isLoading }: Readonly<UserActi
       >
         <span className="text-2xl font-semibold tabular-nums">{totalSessions !== undefined ? totalSessions : "-"}</span>
       </ActivityTile>
+
+      <ActivityTile
+        label={t`Support tickets`}
+        loading={supportTicketsLoading}
+        subtitle={
+          totalTicketCount !== undefined
+            ? plural(totalTicketCount, {
+                one: "# total",
+                other: "# total"
+              })
+            : undefined
+        }
+        linkTo={totalTicketCount !== undefined && totalTicketCount > 0 ? "support-tickets" : undefined}
+        userId={userId}
+      >
+        <span className="text-2xl font-semibold tabular-nums">
+          {openTicketCount !== undefined ? openTicketCount : "-"}
+        </span>
+      </ActivityTile>
     </div>
   );
 }
@@ -83,7 +114,7 @@ function ActivityTile({
   loading: boolean;
   subtitle?: ReactNode;
   children: ReactNode;
-  linkTo?: "overview" | "logins" | "sessions";
+  linkTo?: "overview" | "logins" | "sessions" | "support-tickets";
   userId?: string;
 }>) {
   const content = (
