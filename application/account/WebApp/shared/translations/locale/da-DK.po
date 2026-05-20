@@ -13,6 +13,12 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "(optional, up to 5)"
+msgstr "(valgfrit, op til 5)"
+
+msgid "(optional)"
+msgstr "(valgfrit)"
+
 #. placeholder {0}: result.value
 msgid "{0, plural, one {# hour ago} other {# hours ago}}"
 msgstr "{0, plural, one {# time siden} other {# timer siden}}"
@@ -20,6 +26,18 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 #. placeholder {0}: result.value
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
+
+#. placeholder {0}: active.length
+msgid "{0} active conversations. We usually reply within a day."
+msgstr "{0} aktive samtaler. Vi svarer normalt inden for et døgn."
+
+#. placeholder {0}: file.name
+msgid "{0} exceeds the 25 MB limit"
+msgstr "{0} overskrider grænsen på 25 MB"
+
+#. placeholder {0}: file.name
+msgid "{0} is not an allowed file type"
+msgstr "{0} er ikke en tilladt filtype"
 
 #. placeholder {0}: targetPlanDetails.name
 msgid "{0} plan"
@@ -41,6 +59,9 @@ msgstr "{0} brugere genoprettet succesfuldt"
 msgid "{0}/month"
 msgstr "{0}/måned"
 
+msgid "{awaitingUserCount, plural, one {# ticket needs your reply} other {# tickets need your reply}}"
+msgstr "{awaitingUserCount, plural, one {# sag venter på dit svar} other {# sager venter på dit svar}}"
+
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} brugere slettet permanent"
 
@@ -52,6 +73,17 @@ msgstr "{productName} logo"
 
 msgid "© {currentYear} {productName} - All rights reserved"
 msgstr "© {currentYear} {productName} - Alle rettigheder forbeholdes"
+
+#. placeholder {0}: event.actorDisplayName
+msgid "<0>{0}</0> marked this ticket as resolved"
+msgstr "<0>{0}</0> markerede denne sag som løst"
+
+#. placeholder {0}: event.actorDisplayName
+msgid "<0>{0}</0> reopened this ticket"
+msgstr "<0>{0}</0> genåbnede denne sag"
+
+msgid "1 active conversation. We usually reply within a day."
+msgstr "1 aktiv samtale. Vi svarer normalt inden for et døgn."
 
 msgid "1 TB storage"
 msgstr "1 TB lagerplads"
@@ -82,6 +114,15 @@ msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 
 msgid "A quick summary of your account activity."
 msgstr "Et hurtigt overblik over din kontoaktivitet."
+
+msgid "A reply can have at most {MAX_ATTACHMENTS} attachments"
+msgstr "Et svar kan højst have {MAX_ATTACHMENTS} vedhæftede filer"
+
+msgid "A short headline so we know what this is about"
+msgstr "En kort overskrift, så vi ved, hvad det handler om"
+
+msgid "A ticket can have at most {MAX_ATTACHMENTS} attachments"
+msgstr "En sag kan højst have {MAX_ATTACHMENTS} vedhæftede filer"
 
 msgid "Accept invitation"
 msgstr "Accepter invitation"
@@ -152,6 +193,9 @@ msgstr "Aktive brugere i de sidste 30 dage"
 msgid "Add billing information"
 msgstr "Tilføj faktureringsoplysninger"
 
+msgid "Add file"
+msgstr "Tilføj fil"
+
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i menuen Brugere"
 
@@ -175,6 +219,9 @@ msgstr "Admin"
 
 msgid "Advanced analytics"
 msgstr "Avanceret analyse"
+
+msgid "All tickets"
+msgstr "Alle sager"
 
 msgid "All users"
 msgstr "Alle brugere"
@@ -212,6 +259,9 @@ msgstr "Enhver rolle"
 msgid "Any status"
 msgstr "Enhver status"
 
+msgid "Anything you want to add?"
+msgstr "Er der noget, du vil tilføje?"
+
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
@@ -229,6 +279,15 @@ msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
 msgid "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil blive logget ud og skal logge ind igen."
 
+msgid "Ask the team"
+msgstr "Spørg teamet"
+
+msgid "Attach"
+msgstr "Vedhæft"
+
+msgid "Attachments"
+msgstr "Vedhæftede filer"
+
 msgid "Audit reports and assessments"
 msgstr "Revisionsrapporter og vurderinger"
 
@@ -244,6 +303,9 @@ msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti
 msgid "Authentication was cancelled or denied. Please try again if you want to continue."
 msgstr "Godkendelse blev annulleret eller afvist. Prøv venligst igen, hvis du vil fortsætte."
 
+msgid "Awaiting your reply"
+msgstr "Afventer dit svar"
+
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
 
@@ -255,6 +317,9 @@ msgstr "Tilbage til appen"
 
 msgid "Back to login"
 msgstr "Tilbage til login"
+
+msgid "Back to My tickets"
+msgstr "Tilbage til Mine sager"
 
 msgid "Back to signup"
 msgstr "Tilbage til tilmelding"
@@ -292,6 +357,9 @@ msgstr "Faktureringsfaner"
 msgid "billing@company.com"
 msgstr "fakturering@firma.dk"
 
+msgid "Bug"
+msgstr "Fejl"
+
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Bygget på <0>PlatformPlatform<1/></0> - en open-source platform af brancheeksperter til professionel B2B SaaS udvikling"
 
@@ -327,6 +395,9 @@ msgstr "Annullerer"
 
 msgid "Cancelling..."
 msgstr "Annullerer..."
+
+msgid "Category"
+msgstr "Kategori"
 
 msgid "Change"
 msgstr "Skift"
@@ -390,6 +461,13 @@ msgstr "Luk"
 
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
+
+msgid "Closed"
+msgstr "Lukket"
+
+#. placeholder {0}: closed.length
+msgid "Closed ({0})"
+msgstr "Lukkede ({0})"
 
 msgid "Complete your payment to activate your subscription."
 msgstr "Gennemfør din betaling for at aktivere dit abonnement."
@@ -527,6 +605,10 @@ msgstr "Nedgrader"
 msgid "Downgrade to {planName}"
 msgstr "Nedgrader til {planName}"
 
+#. placeholder {0}: attachment.fileName
+msgid "Download attachment {0}"
+msgstr "Hent vedhæftet fil {0}"
+
 msgid "DPA"
 msgstr "DPA"
 
@@ -599,6 +681,9 @@ msgstr "Mislykket"
 msgid "Failed to load payment processor."
 msgstr "Kunne ikke indlæse betalingsprocessor."
 
+msgid "Feature"
+msgstr "Funktion"
+
 msgid "Feature preferences"
 msgstr "Funktionspræferencer"
 
@@ -607,6 +692,9 @@ msgstr "Funktion opdateret succesfuldt"
 
 msgid "Features"
 msgstr "Funktioner"
+
+msgid "Feedback"
+msgstr "Feedback"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
@@ -662,14 +750,23 @@ msgstr "Google"
 msgid "Help your team recognize your invites"
 msgstr "Hjælp dit team med at genkende dine invitationer"
 
+msgid "Helpful"
+msgstr "Brugbart"
+
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
 
 msgid "Hide details"
 msgstr "Skjul detaljer"
 
+msgid "How was the support you got?"
+msgstr "Hvordan var supporten, du fik?"
+
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overensstemmelse med GDPR."
+
+msgid "How-to"
+msgstr "Vejledning"
 
 msgid "Identity mismatch"
 msgstr "Identitetsuoverensstemmelse"
@@ -704,8 +801,14 @@ msgstr "IP-adresse"
 msgid "Is there anything else you would like us to know? (optional)"
 msgstr "Er der andet, du gerne vil fortælle os? (valgfrit)"
 
+msgid "It helps us spot what to improve."
+msgstr "Det hjælper os med at se, hvad vi kan forbedre."
+
 msgid "It may take up to 5 minutes before the device is logged out."
 msgstr "Det kan tage op til 5 minutter, før enheden er logget ud."
+
+msgid "It only takes a moment."
+msgstr "Det tager kun et øjeblik."
 
 msgid "It takes up to 5 minutes for changes to reach all users."
 msgstr "Det tager op til 5 minutter, før ændringer når alle brugere."
@@ -782,6 +885,9 @@ msgstr "Login-bekræftelseskode"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Looking into it"
+msgstr "Undersøges"
+
 msgid "Main navigation"
 msgstr "Hovednavigation"
 
@@ -802,6 +908,12 @@ msgstr "Administrer dine brugere og tilladelser her."
 
 msgid "Managed identities"
 msgstr "Administrerede identiteter"
+
+msgid "Mark as resolved"
+msgstr "Marker som løst"
+
+msgid "Marked as solved"
+msgstr "Markeret som løst"
 
 msgid "Member"
 msgstr "Medlem"
@@ -830,6 +942,9 @@ msgstr "Mobil"
 msgid "Modified date"
 msgstr "Ændret dato"
 
+msgid "My tickets"
+msgstr "Mine sager"
+
 msgid "Name"
 msgstr "Navn"
 
@@ -838,6 +953,9 @@ msgstr "Navn som det fremgår på fakturaer"
 
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Need a hand? Open a ticket and someone from support will get back to you."
+msgstr "Brug for hjælp? Opret en sag, og en fra supporten vender tilbage til dig."
 
 msgid "Need help? Our support team is here to assist you."
 msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
@@ -854,6 +972,9 @@ msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at 
 msgid "No active sessions found."
 msgstr "Ingen aktive sessioner fundet."
 
+msgid "No active tickets right now."
+msgstr "Ingen aktive sager lige nu."
+
 msgid "No billing information on file"
 msgstr "Ingen faktureringsoplysninger registreret"
 
@@ -866,11 +987,20 @@ msgstr "Ingen betalingshistorik tilgængelig."
 msgid "No payment method on file"
 msgstr "Ingen betalingsmetode registreret"
 
+msgid "No tickets yet"
+msgstr "Ingen sager endnu"
+
 msgid "No users found"
 msgstr "Ingen brugere fundet"
 
+msgid "Not great"
+msgstr "Ikke godt"
+
 msgid "OK"
 msgstr "OK"
+
+msgid "One quick question — how was the support you got?"
+msgstr "Et hurtigt spørgsmål — hvordan var den hjælp, du fik?"
 
 msgid "One-time password"
 msgstr "Engangskode"
@@ -884,8 +1014,14 @@ msgstr "Kun ejere kan ændre brugerroller"
 msgid "Only trusted personnel access data through Azure AD authentication"
 msgstr "Kun betroet personale får adgang til data gennem Azure AD autentificering"
 
+msgid "Open your first ticket"
+msgstr "Opret din første sag"
+
 msgid "or"
 msgstr "eller"
+
+msgid "Other"
+msgstr "Andet"
 
 msgid "Other reason"
 msgstr "Anden grund"
@@ -1023,6 +1159,9 @@ msgstr "Profilbillede"
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
 
+msgid "Rate this support"
+msgstr "Bedøm denne support"
+
 msgid "Reactivate"
 msgstr "Fortryd opsigelse"
 
@@ -1050,11 +1189,21 @@ msgstr "Lovgivningsmæssige standarder og certificeringer"
 msgid "Reload"
 msgstr "Genindlæs"
 
+#. placeholder {0}: file.name
+msgid "Remove {0}"
+msgstr "Fjern {0}"
+
 msgid "Remove logo"
 msgstr "Fjern logo"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
+
+msgid "Reopen"
+msgstr "Genåbn"
+
+msgid "Reopen ticket"
+msgstr "Genåbn sag"
 
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
@@ -1125,14 +1274,29 @@ msgstr "Vælg datoer"
 msgid "Select your preferred language. Saved to your profile."
 msgstr "Vælg dit foretrukne sprog. Gemt på din profil."
 
+msgid "Send"
+msgstr "Send"
+
 msgid "Send invite"
 msgstr "Send invitation"
+
+msgid "Send to support"
+msgstr "Send til supporten"
+
+msgid "Sending as <0>{userName}</0>"
+msgstr "Sender som <0>{userName}</0>"
+
+msgid "Sending as <0>{userName}</0> · {tenantName}"
+msgstr "Sender som <0>{userName}</0> · {tenantName}"
 
 msgid "Sending verification code..."
 msgstr "Sender bekræftelseskode..."
 
 msgid "Sending..."
 msgstr "Sender..."
+
+msgid "Sent"
+msgstr "Sendt"
 
 msgid "Session ended"
 msgstr "Session afsluttet"
@@ -1170,6 +1334,9 @@ msgstr "Tilmeld dig med Google"
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "Skip"
+msgstr "Spring over"
+
 msgid "SLA"
 msgstr "SLA"
 
@@ -1184,6 +1351,9 @@ msgstr "SOC og ISO rapporter (åbner i nyt vindue)"
 
 msgid "Something went wrong"
 msgstr "Noget gik galt"
+
+msgid "Staff"
+msgstr "Support"
 
 msgid "Standard"
 msgstr "Standard"
@@ -1212,6 +1382,15 @@ msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre milj
 msgid "Stripe Link"
 msgstr "Stripe Link"
 
+msgid "Subject"
+msgstr "Emne"
+
+msgid "Submit feedback"
+msgstr "Send feedback"
+
+msgid "Submitting..."
+msgstr "Sender..."
+
 msgid "Subscribe"
 msgstr "Abonner"
 
@@ -1221,6 +1400,15 @@ msgstr "Abonner på {0}"
 
 msgid "Subscription"
 msgstr "Abonnement"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Support staff"
+msgstr "Supportmedarbejder"
+
+msgid "Support tickets"
+msgstr "Supportsager"
 
 msgid "Suspended"
 msgstr "Suspenderet"
@@ -1249,6 +1437,9 @@ msgstr "Fortæl os lidt om dig selv for at komme i gang."
 msgid "Tell us more..."
 msgstr "Fortæl os mere..."
 
+msgid "Tell us what's going on"
+msgstr "Fortæl os, hvad der sker"
+
 msgid "Terms"
 msgstr "Vilkår"
 
@@ -1258,11 +1449,23 @@ msgstr "Servicevilkår"
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
+msgid "Thanks — we won't ask again."
+msgstr "Tak — vi spørger ikke igen."
+
+msgid "Thanks for closing this out"
+msgstr "Tak fordi du lukkede sagen"
+
+msgid "Thanks for the feedback"
+msgstr "Tak for din feedback"
+
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug og ansvar."
 
 msgid "The authentication request was invalid. Please try again."
 msgstr "Godkendelsesanmodningen var ugyldig. Prøv venligst igen."
+
+msgid "The more detail you can give, the faster we can help. Steps to reproduce, what you expected, what actually happened…"
+msgstr "Jo flere detaljer du kan give, jo hurtigere kan vi hjælpe. Trin til at gengive, hvad du forventede, hvad der faktisk skete…"
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
@@ -1284,6 +1487,12 @@ msgstr "Dette kan ske, når e-mailejerskabet er ændret. Kontakt din kontoadmini
 
 msgid "This device"
 msgstr "Denne enhed"
+
+msgid "This ticket is closed."
+msgstr "Denne sag er lukket."
+
+msgid "This ticket is marked as resolved."
+msgstr "Denne sag er markeret som løst."
 
 msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
 msgstr "Dette vil permanent slette <0>{totalDeletedUsersCount} brugere</0> i papirkurven."
@@ -1324,8 +1533,14 @@ msgstr "Prøv at justere din søgning eller filtre"
 msgid "Try again"
 msgstr "Prøv igen"
 
+msgid "Type your reply…"
+msgstr "Skriv dit svar…"
+
 msgid "Unable to load profile"
 msgstr "Kunne ikke indlæse profil"
+
+msgid "Unable to load ticket."
+msgstr "Kan ikke indlæse sagen."
 
 msgid "Unknown"
 msgstr "Ukendt"
@@ -1451,6 +1666,9 @@ msgstr "Bekræft"
 msgid "Verifying..."
 msgstr "Bekræfter..."
 
+msgid "View"
+msgstr "Vis"
+
 msgid "View active users"
 msgstr "Se aktive brugere"
 
@@ -1466,20 +1684,47 @@ msgstr "Se profil"
 msgid "View users"
 msgstr "Se brugere"
 
+msgid "Waiting on support"
+msgstr "Venter på supporten"
+
 msgid "We detected a security issue with your login attempt. Please try again."
 msgstr "Vi opdagede et sikkerhedsproblem med dit loginforsøg. Prøv venligst igen."
+
+msgid "What could have been better?"
+msgstr "Hvad kunne have været bedre?"
+
+msgid "What went wrong? We'll read every word."
+msgstr "Hvad gik galt? Vi læser hvert eneste ord."
+
+msgid "What worked well?"
+msgstr "Hvad fungerede godt?"
+
+msgid "What's happening?"
+msgstr "Hvad sker der?"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
 
+msgid "When you ask the team for help, your conversations will live here. We typically reply within a business day."
+msgstr "Når du beder teamet om hjælp, vil dine samtaler bo her. Vi svarer normalt inden for en hverdag."
+
 msgid "X"
 msgstr "X"
+
+msgid "You"
+msgstr "Dig"
+
+msgid "You already shared feedback for this ticket"
+msgstr "Du har allerede delt feedback for denne sag"
 
 msgid "You cannot change your own role"
 msgstr "Du kan ikke ændre din egen rolle"
 
 msgid "You cannot delete yourself"
 msgstr "Du kan ikke slette dig selv"
+
+msgid "You closed this ticket · just now"
+msgstr "Du lukkede denne sag · lige nu"
 
 msgid "You do not have permission to access this page."
 msgstr "Du har ikke tilladelse til at tilgå denne side."
@@ -1546,6 +1791,9 @@ msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuvær
 
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
 msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende planfunktioner indtil da."
+
+msgid "Your rating"
+msgstr "Din bedømmelse"
 
 msgid "Your scheduled downgrade has been cancelled."
 msgstr "Din planlagte nedgradering er blevet afbrudt."

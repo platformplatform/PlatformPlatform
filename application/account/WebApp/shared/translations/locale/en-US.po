@@ -13,6 +13,12 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "(optional, up to 5)"
+msgstr "(optional, up to 5)"
+
+msgid "(optional)"
+msgstr "(optional)"
+
 #. placeholder {0}: result.value
 msgid "{0, plural, one {# hour ago} other {# hours ago}}"
 msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
@@ -20,6 +26,18 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 #. placeholder {0}: result.value
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
+
+#. placeholder {0}: active.length
+msgid "{0} active conversations. We usually reply within a day."
+msgstr "{0} active conversations. We usually reply within a day."
+
+#. placeholder {0}: file.name
+msgid "{0} exceeds the 25 MB limit"
+msgstr "{0} exceeds the 25 MB limit"
+
+#. placeholder {0}: file.name
+msgid "{0} is not an allowed file type"
+msgstr "{0} is not an allowed file type"
 
 #. placeholder {0}: targetPlanDetails.name
 msgid "{0} plan"
@@ -41,6 +59,9 @@ msgstr "{0} users restored successfully"
 msgid "{0}/month"
 msgstr "{0}/month"
 
+msgid "{awaitingUserCount, plural, one {# ticket needs your reply} other {# tickets need your reply}}"
+msgstr "{awaitingUserCount, plural, one {# ticket needs your reply} other {# tickets need your reply}}"
+
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} users permanently deleted"
 
@@ -52,6 +73,17 @@ msgstr "{productName} logo"
 
 msgid "© {currentYear} {productName} - All rights reserved"
 msgstr "© {currentYear} {productName} - All rights reserved"
+
+#. placeholder {0}: event.actorDisplayName
+msgid "<0>{0}</0> marked this ticket as resolved"
+msgstr "<0>{0}</0> marked this ticket as resolved"
+
+#. placeholder {0}: event.actorDisplayName
+msgid "<0>{0}</0> reopened this ticket"
+msgstr "<0>{0}</0> reopened this ticket"
+
+msgid "1 active conversation. We usually reply within a day."
+msgstr "1 active conversation. We usually reply within a day."
 
 msgid "1 TB storage"
 msgstr "1 TB storage"
@@ -82,6 +114,15 @@ msgstr "A new verification code has been sent to your email."
 
 msgid "A quick summary of your account activity."
 msgstr "A quick summary of your account activity."
+
+msgid "A reply can have at most {MAX_ATTACHMENTS} attachments"
+msgstr "A reply can have at most {MAX_ATTACHMENTS} attachments"
+
+msgid "A short headline so we know what this is about"
+msgstr "A short headline so we know what this is about"
+
+msgid "A ticket can have at most {MAX_ATTACHMENTS} attachments"
+msgstr "A ticket can have at most {MAX_ATTACHMENTS} attachments"
 
 msgid "Accept invitation"
 msgstr "Accept invitation"
@@ -152,6 +193,9 @@ msgstr "Active users in the past 30 days"
 msgid "Add billing information"
 msgstr "Add billing information"
 
+msgid "Add file"
+msgstr "Add file"
+
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
 
@@ -175,6 +219,9 @@ msgstr "Admin"
 
 msgid "Advanced analytics"
 msgstr "Advanced analytics"
+
+msgid "All tickets"
+msgstr "All tickets"
 
 msgid "All users"
 msgstr "All users"
@@ -212,6 +259,9 @@ msgstr "Any role"
 msgid "Any status"
 msgstr "Any status"
 
+msgid "Anything you want to add?"
+msgstr "Anything you want to add?"
+
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Are you sure you want to delete <0>{0} users</0>?"
@@ -229,6 +279,15 @@ msgstr "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgid "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 msgstr "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 
+msgid "Ask the team"
+msgstr "Ask the team"
+
+msgid "Attach"
+msgstr "Attach"
+
+msgid "Attachments"
+msgstr "Attachments"
+
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
 
@@ -244,6 +303,9 @@ msgstr "Authentication is shared across all tabs. To use multiple accounts simul
 msgid "Authentication was cancelled or denied. Please try again if you want to continue."
 msgstr "Authentication was cancelled or denied. Please try again if you want to continue."
 
+msgid "Awaiting your reply"
+msgstr "Awaiting your reply"
+
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
 
@@ -255,6 +317,9 @@ msgstr "Back to app"
 
 msgid "Back to login"
 msgstr "Back to login"
+
+msgid "Back to My tickets"
+msgstr "Back to My tickets"
 
 msgid "Back to signup"
 msgstr "Back to signup"
@@ -292,6 +357,9 @@ msgstr "Billing tabs"
 msgid "billing@company.com"
 msgstr "billing@company.com"
 
+msgid "Bug"
+msgstr "Bug"
+
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 
@@ -327,6 +395,9 @@ msgstr "Cancelling"
 
 msgid "Cancelling..."
 msgstr "Cancelling..."
+
+msgid "Category"
+msgstr "Category"
 
 msgid "Change"
 msgstr "Change"
@@ -390,6 +461,13 @@ msgstr "Close"
 
 msgid "Close user profile"
 msgstr "Close user profile"
+
+msgid "Closed"
+msgstr "Closed"
+
+#. placeholder {0}: closed.length
+msgid "Closed ({0})"
+msgstr "Closed ({0})"
 
 msgid "Complete your payment to activate your subscription."
 msgstr "Complete your payment to activate your subscription."
@@ -527,6 +605,10 @@ msgstr "Downgrade"
 msgid "Downgrade to {planName}"
 msgstr "Downgrade to {planName}"
 
+#. placeholder {0}: attachment.fileName
+msgid "Download attachment {0}"
+msgstr "Download attachment {0}"
+
 msgid "DPA"
 msgstr "DPA"
 
@@ -599,6 +681,9 @@ msgstr "Failed"
 msgid "Failed to load payment processor."
 msgstr "Failed to load payment processor."
 
+msgid "Feature"
+msgstr "Feature"
+
 msgid "Feature preferences"
 msgstr "Feature preferences"
 
@@ -607,6 +692,9 @@ msgstr "Feature updated successfully"
 
 msgid "Features"
 msgstr "Features"
+
+msgid "Feedback"
+msgstr "Feedback"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
@@ -662,14 +750,23 @@ msgstr "Google"
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
 
+msgid "Helpful"
+msgstr "Helpful"
+
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
 
 msgid "Hide details"
 msgstr "Hide details"
 
+msgid "How was the support you got?"
+msgstr "How was the support you got?"
+
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "How we collect, use, and protect your personal data in compliance with GDPR."
+
+msgid "How-to"
+msgstr "How-to"
 
 msgid "Identity mismatch"
 msgstr "Identity mismatch"
@@ -704,8 +801,14 @@ msgstr "IP address"
 msgid "Is there anything else you would like us to know? (optional)"
 msgstr "Is there anything else you would like us to know? (optional)"
 
+msgid "It helps us spot what to improve."
+msgstr "It helps us spot what to improve."
+
 msgid "It may take up to 5 minutes before the device is logged out."
 msgstr "It may take up to 5 minutes before the device is logged out."
+
+msgid "It only takes a moment."
+msgstr "It only takes a moment."
 
 msgid "It takes up to 5 minutes for changes to reach all users."
 msgstr "It takes up to 5 minutes for changes to reach all users."
@@ -782,6 +885,9 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Looking into it"
+msgstr "Looking into it"
+
 msgid "Main navigation"
 msgstr "Main navigation"
 
@@ -802,6 +908,12 @@ msgstr "Manage your users and permissions here."
 
 msgid "Managed identities"
 msgstr "Managed identities"
+
+msgid "Mark as resolved"
+msgstr "Mark as resolved"
+
+msgid "Marked as solved"
+msgstr "Marked as solved"
 
 msgid "Member"
 msgstr "Member"
@@ -830,6 +942,9 @@ msgstr "Mobile"
 msgid "Modified date"
 msgstr "Modified date"
 
+msgid "My tickets"
+msgstr "My tickets"
+
 msgid "Name"
 msgstr "Name"
 
@@ -838,6 +953,9 @@ msgstr "Name as it appears on invoices"
 
 msgid "Navigation"
 msgstr "Navigation"
+
+msgid "Need a hand? Open a ticket and someone from support will get back to you."
+msgstr "Need a hand? Open a ticket and someone from support will get back to you."
 
 msgid "Need help? Our support team is here to assist you."
 msgstr "Need help? Our support team is here to assist you."
@@ -854,6 +972,9 @@ msgstr "No account found for this email address. Please sign up to create an acc
 msgid "No active sessions found."
 msgstr "No active sessions found."
 
+msgid "No active tickets right now."
+msgstr "No active tickets right now."
+
 msgid "No billing information on file"
 msgstr "No billing information on file"
 
@@ -866,11 +987,20 @@ msgstr "No payment history available."
 msgid "No payment method on file"
 msgstr "No payment method on file"
 
+msgid "No tickets yet"
+msgstr "No tickets yet"
+
 msgid "No users found"
 msgstr "No users found"
 
+msgid "Not great"
+msgstr "Not great"
+
 msgid "OK"
 msgstr "OK"
+
+msgid "One quick question — how was the support you got?"
+msgstr "One quick question — how was the support you got?"
 
 msgid "One-time password"
 msgstr "One-time password"
@@ -884,8 +1014,14 @@ msgstr "Only owners can change user roles"
 msgid "Only trusted personnel access data through Azure AD authentication"
 msgstr "Only trusted personnel access data through Azure AD authentication"
 
+msgid "Open your first ticket"
+msgstr "Open your first ticket"
+
 msgid "or"
 msgstr "or"
+
+msgid "Other"
+msgstr "Other"
 
 msgid "Other reason"
 msgstr "Other reason"
@@ -1023,6 +1159,9 @@ msgstr "Profile photo"
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
 
+msgid "Rate this support"
+msgstr "Rate this support"
+
 msgid "Reactivate"
 msgstr "Reactivate"
 
@@ -1050,11 +1189,21 @@ msgstr "Regulatory standards and certifications"
 msgid "Reload"
 msgstr "Reload"
 
+#. placeholder {0}: file.name
+msgid "Remove {0}"
+msgstr "Remove {0}"
+
 msgid "Remove logo"
 msgstr "Remove logo"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
+
+msgid "Reopen"
+msgstr "Reopen"
+
+msgid "Reopen ticket"
+msgstr "Reopen ticket"
 
 msgid "Request a new code"
 msgstr "Request a new code"
@@ -1125,14 +1274,29 @@ msgstr "Select dates"
 msgid "Select your preferred language. Saved to your profile."
 msgstr "Select your preferred language. Saved to your profile."
 
+msgid "Send"
+msgstr "Send"
+
 msgid "Send invite"
 msgstr "Send invite"
+
+msgid "Send to support"
+msgstr "Send to support"
+
+msgid "Sending as <0>{userName}</0>"
+msgstr "Sending as <0>{userName}</0>"
+
+msgid "Sending as <0>{userName}</0> · {tenantName}"
+msgstr "Sending as <0>{userName}</0> · {tenantName}"
 
 msgid "Sending verification code..."
 msgstr "Sending verification code..."
 
 msgid "Sending..."
 msgstr "Sending..."
+
+msgid "Sent"
+msgstr "Sent"
 
 msgid "Session ended"
 msgstr "Session ended"
@@ -1170,6 +1334,9 @@ msgstr "Sign up with Google"
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "Skip"
+msgstr "Skip"
+
 msgid "SLA"
 msgstr "SLA"
 
@@ -1184,6 +1351,9 @@ msgstr "SOC and ISO Reports (opens in new window)"
 
 msgid "Something went wrong"
 msgstr "Something went wrong"
+
+msgid "Staff"
+msgstr "Staff"
 
 msgid "Standard"
 msgstr "Standard"
@@ -1212,6 +1382,15 @@ msgstr "Strict separation prevents production data from leaking to other environ
 msgid "Stripe Link"
 msgstr "Stripe Link"
 
+msgid "Subject"
+msgstr "Subject"
+
+msgid "Submit feedback"
+msgstr "Submit feedback"
+
+msgid "Submitting..."
+msgstr "Submitting..."
+
 msgid "Subscribe"
 msgstr "Subscribe"
 
@@ -1221,6 +1400,15 @@ msgstr "Subscribe to {0}"
 
 msgid "Subscription"
 msgstr "Subscription"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Support staff"
+msgstr "Support staff"
+
+msgid "Support tickets"
+msgstr "Support tickets"
 
 msgid "Suspended"
 msgstr "Suspended"
@@ -1249,6 +1437,9 @@ msgstr "Tell us a bit about yourself to get started."
 msgid "Tell us more..."
 msgstr "Tell us more..."
 
+msgid "Tell us what's going on"
+msgstr "Tell us what's going on"
+
 msgid "Terms"
 msgstr "Terms"
 
@@ -1258,11 +1449,23 @@ msgstr "Terms of Service"
 msgid "Terms of use"
 msgstr "Terms of use"
 
+msgid "Thanks — we won't ask again."
+msgstr "Thanks — we won't ask again."
+
+msgid "Thanks for closing this out"
+msgstr "Thanks for closing this out"
+
+msgid "Thanks for the feedback"
+msgstr "Thanks for the feedback"
+
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "The agreement governing your use of our Service, including acceptable use and liability."
 
 msgid "The authentication request was invalid. Please try again."
 msgstr "The authentication request was invalid. Please try again."
+
+msgid "The more detail you can give, the faster we can help. Steps to reproduce, what you expected, what actually happened…"
+msgstr "The more detail you can give, the faster we can help. Steps to reproduce, what you expected, what actually happened…"
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "The name of your account, shown to users and in email notifications"
@@ -1284,6 +1487,12 @@ msgstr "This can happen when email ownership has changed. Contact your account a
 
 msgid "This device"
 msgstr "This device"
+
+msgid "This ticket is closed."
+msgstr "This ticket is closed."
+
+msgid "This ticket is marked as resolved."
+msgstr "This ticket is marked as resolved."
 
 msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
 msgstr "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
@@ -1324,8 +1533,14 @@ msgstr "Try adjusting your search or filters"
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Type your reply…"
+msgstr "Type your reply…"
+
 msgid "Unable to load profile"
 msgstr "Unable to load profile"
+
+msgid "Unable to load ticket."
+msgstr "Unable to load ticket."
 
 msgid "Unknown"
 msgstr "Unknown"
@@ -1451,6 +1666,9 @@ msgstr "Verify"
 msgid "Verifying..."
 msgstr "Verifying..."
 
+msgid "View"
+msgstr "View"
+
 msgid "View active users"
 msgstr "View active users"
 
@@ -1466,20 +1684,47 @@ msgstr "View profile"
 msgid "View users"
 msgstr "View users"
 
+msgid "Waiting on support"
+msgstr "Waiting on support"
+
 msgid "We detected a security issue with your login attempt. Please try again."
 msgstr "We detected a security issue with your login attempt. Please try again."
+
+msgid "What could have been better?"
+msgstr "What could have been better?"
+
+msgid "What went wrong? We'll read every word."
+msgstr "What went wrong? We'll read every word."
+
+msgid "What worked well?"
+msgstr "What worked well?"
+
+msgid "What's happening?"
+msgstr "What's happening?"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 
+msgid "When you ask the team for help, your conversations will live here. We typically reply within a business day."
+msgstr "When you ask the team for help, your conversations will live here. We typically reply within a business day."
+
 msgid "X"
 msgstr "X"
+
+msgid "You"
+msgstr "You"
+
+msgid "You already shared feedback for this ticket"
+msgstr "You already shared feedback for this ticket"
 
 msgid "You cannot change your own role"
 msgstr "You cannot change your own role"
 
 msgid "You cannot delete yourself"
 msgstr "You cannot delete yourself"
+
+msgid "You closed this ticket · just now"
+msgstr "You closed this ticket · just now"
 
 msgid "You do not have permission to access this page."
 msgstr "You do not have permission to access this page."
@@ -1546,6 +1791,9 @@ msgstr "Your plan will be downgraded to {planName} at the end of your current bi
 
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
 msgstr "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
+
+msgid "Your rating"
+msgstr "Your rating"
 
 msgid "Your scheduled downgrade has been cancelled."
 msgstr "Your scheduled downgrade has been cancelled."

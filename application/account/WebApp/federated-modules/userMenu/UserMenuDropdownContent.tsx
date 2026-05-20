@@ -22,7 +22,7 @@ interface UserMenuDropdownContentProps {
   onNavigateToPreferences: () => void;
   onNavigateToAccountSettings: () => void;
   onLogout: () => void;
-  onShowSupport: () => void;
+  onContactSupport: () => void;
   onTenantSwitch: (tenant: TenantInfo) => void;
 }
 
@@ -38,7 +38,7 @@ export function UserMenuDropdownContent({
   onNavigateToPreferences,
   onNavigateToAccountSettings,
   onLogout,
-  onShowSupport,
+  onContactSupport,
   onTenantSwitch
 }: Readonly<UserMenuDropdownContentProps>) {
   return (
@@ -87,7 +87,7 @@ export function UserMenuDropdownContent({
 
       <DropdownMenuSeparator />
 
-      <DropdownMenuItem onClick={onShowSupport} aria-label={t`Contact support`}>
+      <DropdownMenuItem onClick={onContactSupport} aria-label={t`Contact support`}>
         <MailQuestion className="size-5" />
         <Trans>Contact support</Trans>
       </DropdownMenuItem>

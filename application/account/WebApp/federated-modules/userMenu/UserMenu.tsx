@@ -17,7 +17,6 @@ import { useContext, useEffect, useState } from "react";
 
 import { MainNavigationContext } from "@/shared/hooks/useMainNavigation";
 
-import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import { logoutApi } from "../common/tenantUtils";
 import { MobileMenuDialogs } from "../sideMenu/MobileMenu";
@@ -38,7 +37,6 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
 
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
@@ -75,11 +73,9 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
     }
   };
 
-  const handleShowSupport = () => {
+  const handleContactSupport = () => {
     closeMenuAndOverlay();
-    setTimeout(() => {
-      setIsSupportDialogOpen(true);
-    }, 100);
+    navigate({ to: "/support/tickets" });
   };
 
   const handleNavigateToAccountSettings = () => {
@@ -157,13 +153,12 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
             onNavigateToPreferences={handleNavigateToPreferences}
             onNavigateToAccountSettings={handleNavigateToAccountSettings}
             onLogout={handleLogout}
-            onShowSupport={handleShowSupport}
+            onContactSupport={handleContactSupport}
             onTenantSwitch={handleTenantSwitch}
           />
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <SupportDialog isOpen={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen} />
       {isSwitching && <SwitchingAccountLoader />}
       <MobileMenuDialogs />
     </div>
