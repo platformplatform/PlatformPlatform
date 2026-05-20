@@ -38,9 +38,9 @@ public sealed class SubmitCsatHandler(
 
         if (ticket.ReporterId != executionContext.UserInfo.Id!) return Result.NotFound($"Support ticket with id '{command.Id}' not found.");
 
-        // CSAT can only be submitted once a ticket has reached a terminal state. Without this guard
-        // a reporter could POST to /csat on an active ticket and the domain method would force the
-        // status to Closed — effectively a backdoor close path.
+        // CSAT can only be submitted once a ticket has reached a terminal state (Resolved going
+        // forward, or the legacy Closed for historical rows). The domain method itself does not
+        // change status; this guard keeps the API contract aligned with the user-facing CSAT flow.
         if (ticket.Status is not (SupportTicketStatus.Resolved or SupportTicketStatus.Closed))
         {
             return Result.BadRequest("A rating can only be submitted on a resolved or closed ticket.");

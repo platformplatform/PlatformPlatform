@@ -43,6 +43,16 @@ public sealed class CloseTicketByUserHandler(
         if (ticket.ReporterId != executionContext.UserInfo.Id!) return Result.NotFound($"Support ticket with id '{command.Id}' not found.");
 
         var now = timeProvider.GetUtcNow();
+        // The end-user "Close" action drives the ticket to Resolved; the optional CSAT score is
+        // recorded alongside. SubmitCsat no longer changes status, so the transition is explicit.
+        // CloseByUser is a no-op on an already-terminal ticket, which is acceptable when the user
+        // is submitting a CSAT rating after the fact; without a CSAT score there is nothing to do.
+        var transitioned = ticket.CloseByUser(now);
+        if (!transitioned && command.CsatScore is null)
+        {
+            return Result.BadRequest("Ticket is already closed.");
+        }
+
         if (command.CsatScore is not null)
         {
             // When a rating already exists, only allow overwriting it after a reopen made it stale.
@@ -55,13 +65,6 @@ public sealed class CloseTicketByUserHandler(
 
             ticket.SubmitCsat(command.CsatScore.Value, command.CsatComment, now);
             events.CollectEvent(new SupportTicketCsatSubmitted(ticket.Id, command.CsatScore.Value));
-        }
-        else
-        {
-            if (!ticket.CloseByUser(now))
-            {
-                return Result.BadRequest("Ticket is already closed.");
-            }
         }
 
         ticketRepository.Update(ticket);

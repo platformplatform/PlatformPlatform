@@ -13,6 +13,9 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "(you)"
+msgstr "(you)"
+
 #. placeholder {0}: result.value
 msgid "{0, plural, one {# hour ago} other {# hours ago}}"
 msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
@@ -20,6 +23,10 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 #. placeholder {0}: result.value
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
+
+#. placeholder {0}: reporter.tenantTicketCount
+msgid "{0, plural, one {# ticket} other {# tickets}}"
+msgstr "{0, plural, one {# ticket} other {# tickets}}"
 
 #. placeholder {0}: dishes.length
 msgid "{0, plural, one {Delete # recipe} other {Delete # recipes}}"
@@ -29,9 +36,17 @@ msgstr "{0, plural, one {Delete # recipe} other {Delete # recipes}}"
 msgid "{0} blended"
 msgstr "{0} blended"
 
+#. placeholder {0}: file.name
+msgid "{0} exceeds the 25 MB limit"
+msgstr "{0} exceeds the 25 MB limit"
+
 #. placeholder {0}: smartDate.value
 msgid "{0} hours ago"
 msgstr "{0} hours ago"
+
+#. placeholder {0}: file.name
+msgid "{0} is not an allowed file type"
+msgstr "{0} is not an allowed file type"
 
 #. placeholder {0}: smartDate.value
 msgid "{0} minutes ago"
@@ -87,6 +102,9 @@ msgstr "{pendingUsers} pending"
 
 msgid "{productName} logo"
 msgstr "{productName} logo"
+
+msgid "{resultCount, plural, one {# ticket} other {# tickets}}"
+msgstr "{resultCount, plural, one {# ticket} other {# tickets}}"
 
 msgid "{tenantCount, plural, one {# membership} other {# memberships}}"
 msgstr "{tenantCount, plural, one {# membership} other {# memberships}}"
@@ -156,6 +174,9 @@ msgstr "7d"
 msgid "90d"
 msgstr "90d"
 
+msgid "A reply can have at most {MAX_ATTACHMENTS} attachments"
+msgstr "A reply can have at most {MAX_ATTACHMENTS} attachments"
+
 msgid "A small selection of chart variants built on recharts."
 msgstr "A small selection of chart variants built on recharts."
 
@@ -194,6 +215,9 @@ msgstr "Account preview"
 msgid "Account status"
 msgstr "Account status"
 
+msgid "Account user"
+msgstr "Account user"
+
 msgid "Account users"
 msgstr "Account users"
 
@@ -214,6 +238,9 @@ msgstr "Accounts will appear here as they are created."
 
 msgid "Accounts will appear here as they qualify for this feature."
 msgstr "Accounts will appear here as they qualify for this feature."
+
+msgid "Across all accounts."
+msgstr "Across all accounts."
 
 msgid "Action"
 msgstr "Action"
@@ -314,6 +341,9 @@ msgstr "Amount"
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
+msgid "Any agent"
+msgstr "Any agent"
+
 #. placeholder {0}: result.billingEventsAppended
 #. placeholder {1}: formatDate(result.reconciledAt)
 msgid "Appended {0} new billing events. Last reconciled at {1}."
@@ -340,6 +370,27 @@ msgstr "Area Chart - Interactive"
 msgid "Aspect ratio"
 msgstr "Aspect ratio"
 
+msgid "Assign to me"
+msgstr "Assign to me"
+
+msgid "Assigned to me"
+msgstr "Assigned to me"
+
+msgid "Assigned to you"
+msgstr "Assigned to you"
+
+msgid "Assignee"
+msgstr "Assignee"
+
+msgid "Assignee updated"
+msgstr "Assignee updated"
+
+msgid "Attach"
+msgstr "Attach"
+
+msgid "Attachment included"
+msgstr "Attachment included"
+
 msgid "Authoritative log of subscription, payment, and billing transitions across all accounts."
 msgstr "Authoritative log of subscription, payment, and billing transitions across all accounts."
 
@@ -351,6 +402,15 @@ msgstr "Avatar group"
 
 msgid "Avatar sizes"
 msgstr "Avatar sizes"
+
+msgid "Awaiting agent"
+msgstr "Awaiting agent"
+
+msgid "Awaiting internal"
+msgstr "Awaiting internal"
+
+msgid "Awaiting user"
+msgstr "Awaiting user"
 
 msgid "Back"
 msgstr "Back"
@@ -448,6 +508,9 @@ msgstr "Browse all recipes"
 msgid "Browser"
 msgstr "Browser"
 
+msgid "Bug"
+msgstr "Bug"
+
 msgid "Butter chicken"
 msgstr "Butter chicken"
 
@@ -520,6 +583,9 @@ msgstr "Casey Park"
 msgid "Categorization"
 msgstr "Categorization"
 
+msgid "Category"
+msgstr "Category"
+
 msgid "Center"
 msgstr "Center"
 
@@ -531,6 +597,12 @@ msgstr "Change theme"
 
 msgid "Change zoom level"
 msgstr "Change zoom level"
+
+msgid "changed assignee"
+msgstr "changed assignee"
+
+msgid "changed status"
+msgstr "changed status"
 
 msgid "Changes published"
 msgstr "Changes published"
@@ -577,8 +649,17 @@ msgstr "Close"
 msgid "Close account preview"
 msgstr "Close account preview"
 
+msgid "Close preview"
+msgstr "Close preview"
+
 msgid "Close recipe details"
 msgstr "Close recipe details"
+
+msgid "Closed"
+msgstr "Closed"
+
+msgid "closed this ticket"
+msgstr "closed this ticket"
 
 msgid "Co-author"
 msgstr "Co-author"
@@ -621,6 +702,9 @@ msgstr "Command palette"
 
 msgid "Components"
 msgstr "Components"
+
+msgid "Composer mode"
+msgstr "Composer mode"
 
 msgid "Confirm action"
 msgstr "Confirm action"
@@ -834,6 +918,10 @@ msgstr "Downgraded"
 msgid "Downgrading"
 msgstr "Downgrading"
 
+#. placeholder {0}: attachment.fileName
+msgid "Download attachment {0}"
+msgstr "Download attachment {0}"
+
 msgid "Drag-and-drop or click to browse. Previews use AspectRatio to keep thumbnails aligned."
 msgstr "Drag-and-drop or click to browse. Previews use AspectRatio to keep thumbnails aligned."
 
@@ -990,6 +1078,9 @@ msgstr "Extra small"
 msgid "Failed"
 msgstr "Failed"
 
+msgid "Feature"
+msgstr "Feature"
+
 msgid "Feature flag activated"
 msgstr "Feature flag activated"
 
@@ -1013,6 +1104,12 @@ msgstr "Feature flags are defined in code. This view controls their activation a
 
 msgid "Features"
 msgstr "Features"
+
+msgid "Feedback"
+msgstr "Feedback"
+
+msgid "Filter by status"
+msgstr "Filter by status"
 
 msgid "Filters"
 msgstr "Filters"
@@ -1074,8 +1171,14 @@ msgstr "Hard"
 msgid "Has override"
 msgstr "Has override"
 
+msgid "Helpful"
+msgstr "Helpful"
+
 msgid "Hide details"
 msgstr "Hide details"
+
+msgid "History"
+msgstr "History"
 
 msgid "Home"
 msgstr "Home"
@@ -1089,6 +1192,9 @@ msgstr "Horizontal nav bar with rich dropdown sections. Use it for marketing-sty
 msgid "HoverCard"
 msgstr "HoverCard"
 
+msgid "How-to"
+msgstr "How-to"
+
 msgid "Icon-only buttons"
 msgstr "Icon-only buttons"
 
@@ -1100,6 +1206,9 @@ msgstr "In the real app the sidebar is fixed-positioned, persists its state and 
 
 msgid "Inactive"
 msgstr "Inactive"
+
+msgid "Inbox zero"
+msgstr "Inbox zero"
 
 msgid "Include cooking notes"
 msgstr "Include cooking notes"
@@ -1136,6 +1245,15 @@ msgstr "Inline keyboard hint. Use it to call out shortcuts in tooltips, menus, a
 
 msgid "Inline tip:"
 msgstr "Inline tip:"
+
+msgid "Internal note"
+msgstr "Internal note"
+
+msgid "Internal note (visible only to staff)…"
+msgstr "Internal note (visible only to staff)…"
+
+msgid "Internal note saved"
+msgstr "Internal note saved"
 
 msgid "Invite"
 msgstr "Invite"
@@ -1251,6 +1369,9 @@ msgstr "Last 30 days"
 msgid "Last 7 days"
 msgstr "Last 7 days"
 
+msgid "Last activity"
+msgstr "Last activity"
+
 msgid "Last changed"
 msgstr "Last changed"
 
@@ -1268,6 +1389,9 @@ msgstr "Last seen"
 
 msgid "Learn more"
 msgstr "Learn more"
+
+msgid "Leave"
+msgstr "Leave"
 
 msgid "Left"
 msgstr "Left"
@@ -1307,6 +1431,9 @@ msgstr "Link underline"
 
 msgid "Link variants"
 msgstr "Link variants"
+
+msgid "Loading…"
+msgstr "Loading…"
 
 msgid "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
 msgstr "Local development sign-in. Production uses Azure Container Apps built-in Entra ID authentication."
@@ -1407,6 +1534,9 @@ msgstr "Modifier combo"
 msgid "Mole poblano"
 msgstr "Mole poblano"
 
+msgid "More assignment options"
+msgstr "More assignment options"
+
 msgid "More export options"
 msgstr "More export options"
 
@@ -1415,6 +1545,9 @@ msgstr "More merge options"
 
 msgid "More save options"
 msgstr "More save options"
+
+msgid "More send options"
+msgstr "More send options"
 
 msgid "More tools"
 msgstr "More tools"
@@ -1485,6 +1618,9 @@ msgstr "Never logged in"
 msgid "Never underlined"
 msgstr "Never underlined"
 
+msgid "New"
+msgstr "New"
+
 msgid "New accounts will appear here as they sign up."
 msgstr "New accounts will appear here as they sign up."
 
@@ -1509,6 +1645,9 @@ msgstr "No accounts qualify for this feature yet"
 msgid "No accounts yet"
 msgstr "No accounts yet"
 
+msgid "No active tickets across any account."
+msgstr "No active tickets across any account."
+
 msgid "No back-office access"
 msgstr "No back-office access"
 
@@ -1530,6 +1669,9 @@ msgstr "No change"
 msgid "No feature flags"
 msgstr "No feature flags"
 
+msgid "No history yet."
+msgstr "No history yet."
+
 msgid "No invoices yet"
 msgstr "No invoices yet"
 
@@ -1538,6 +1680,9 @@ msgstr "No invoices, refunds, or credit notes yet."
 
 msgid "No login history"
 msgstr "No login history"
+
+msgid "No matches"
+msgstr "No matches"
 
 msgid "No matching users"
 msgstr "No matching users"
@@ -1623,6 +1768,9 @@ msgstr "No users yet"
 msgid "None"
 msgstr "None"
 
+msgid "Not great"
+msgstr "Not great"
+
 msgid "Not synced yet"
 msgstr "Not synced yet"
 
@@ -1646,6 +1794,9 @@ msgstr "Occurred"
 
 msgid "Off"
 msgstr "Off"
+
+msgid "OK"
+msgstr "OK"
 
 msgid "Okonomiyaki"
 msgstr "Okonomiyaki"
@@ -1680,8 +1831,17 @@ msgstr "Open invoice"
 msgid "Open side pane"
 msgstr "Open side pane"
 
+msgid "Open ticket"
+msgstr "Open ticket"
+
+msgid "Opened"
+msgstr "Opened"
+
 msgid "Opened documentation"
 msgstr "Opened documentation"
+
+msgid "opened this ticket"
+msgstr "opened this ticket"
 
 msgid "Option A"
 msgstr "Option A"
@@ -1867,6 +2027,9 @@ msgstr "Please enter a valid email address"
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 
+msgid "posted a message"
+msgstr "posted a message"
+
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
 
@@ -1929,6 +2092,9 @@ msgstr "Radio group"
 
 msgid "Ratatouille"
 msgstr "Ratatouille"
+
+msgid "Rating"
+msgstr "Rating"
 
 msgid "Reach for Collapsible when you only need one trigger and one panel. Use Accordion when several items share visual rhythm and behavior."
 msgstr "Reach for Collapsible when you only need one trigger and one panel. Use Accordion when several items share visual rhythm and behavior."
@@ -2041,6 +2207,7 @@ msgstr "Reload"
 msgid "Remove"
 msgstr "Remove"
 
+#. placeholder {0}: file.name
 #. placeholder {0}: image.file.name
 msgid "Remove {0}"
 msgstr "Remove {0}"
@@ -2065,10 +2232,25 @@ msgstr "Renewed"
 msgid "Renews {0}"
 msgstr "Renews {0}"
 
+msgid "reopened this ticket"
+msgstr "reopened this ticket"
+
 #. placeholder {0}: result.billingEventsAppended
 #. placeholder {1}: formatDate(result.replayedAt)
 msgid "Replayed {0} archived events into the billing event ledger at {1}."
 msgstr "Replayed {0} archived events into the billing event ledger at {1}."
+
+msgid "Reply sent"
+msgstr "Reply sent"
+
+msgid "Reply to the customer… markdown supported"
+msgstr "Reply to the customer… markdown supported"
+
+msgid "Reply to user"
+msgstr "Reply to user"
+
+msgid "Reporter"
+msgstr "Reporter"
 
 msgid "Required plan"
 msgstr "Required plan"
@@ -2081,6 +2263,18 @@ msgstr "Resizable app shell"
 
 msgid "Resizable panels"
 msgstr "Resizable panels"
+
+msgid "Resolve"
+msgstr "Resolve"
+
+msgid "Resolved"
+msgstr "Resolved"
+
+msgid "Resolved (24h)"
+msgstr "Resolved (24h)"
+
+msgid "Resolving…"
+msgstr "Resolving…"
 
 msgid "Responsive layout"
 msgstr "Responsive layout"
@@ -2154,6 +2348,9 @@ msgstr "Save as..."
 msgid "Save changes"
 msgstr "Save changes"
 
+msgid "Save internal note"
+msgstr "Save internal note"
+
 msgid "Save note"
 msgstr "Save note"
 
@@ -2165,6 +2362,9 @@ msgstr "Saved recipes"
 
 msgid "Saving..."
 msgstr "Saving..."
+
+msgid "Saving…"
+msgstr "Saving…"
 
 msgid "Scheduled maintenance on Sunday 2:00 AM — 4:00 AM UTC. Some features may be unavailable."
 msgstr "Scheduled maintenance on Sunday 2:00 AM — 4:00 AM UTC. Some features may be unavailable."
@@ -2201,6 +2401,9 @@ msgstr "Search charts..."
 
 msgid "Search emoji"
 msgstr "Search emoji"
+
+msgid "Search subject, message, reporter, account, or ID"
+msgstr "Search subject, message, reporter, account, or ID"
 
 msgid "Search users"
 msgstr "Search users"
@@ -2239,8 +2442,17 @@ msgstr "Select with groups"
 msgid "Selected recipes"
 msgstr "Selected recipes"
 
+msgid "Send"
+msgstr "Send"
+
+msgid "Send & resolve"
+msgstr "Send & resolve"
+
 msgid "Send invite"
 msgstr "Send invite"
+
+msgid "Sending…"
+msgstr "Sending…"
 
 msgid "Separator"
 msgstr "Separator"
@@ -2392,6 +2604,9 @@ msgstr "Split buttons"
 msgid "Squash and merge"
 msgstr "Squash and merge"
 
+msgid "Staff"
+msgstr "Staff"
+
 msgid "Standard"
 msgstr "Standard"
 
@@ -2404,8 +2619,17 @@ msgstr "Static preview of the Sidebar component. The fully interactive version �
 msgid "Status"
 msgstr "Status"
 
+msgid "Stay"
+msgstr "Stay"
+
 msgid "Street address"
 msgstr "Street address"
+
+msgid "Subject"
+msgstr "Subject"
+
+msgid "submitted a satisfaction rating"
+msgstr "submitted a satisfaction rating"
 
 msgid "Subscribed"
 msgstr "Subscribed"
@@ -2442,6 +2666,24 @@ msgstr "Successful, pending, and failed invoices across all accounts."
 
 msgid "Suggestions"
 msgstr "Suggestions"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Support staff"
+msgstr "Support staff"
+
+msgid "Support ticket"
+msgstr "Support ticket"
+
+msgid "Support ticket details"
+msgstr "Support ticket details"
+
+msgid "Support ticket preview"
+msgstr "Support ticket preview"
+
+msgid "Support tickets"
+msgstr "Support tickets"
 
 msgid "Suspended"
 msgstr "Suspended"
@@ -2539,6 +2781,12 @@ msgstr "This user has no recorded sessions."
 msgid "This user is not a member of any account."
 msgstr "This user is not a member of any account."
 
+msgid "Ticket resolved"
+msgstr "Ticket resolved"
+
+msgid "Tickets"
+msgstr "Tickets"
+
 msgid "Time zone"
 msgstr "Time zone"
 
@@ -2629,6 +2877,9 @@ msgstr "Try a different search term or clear the role and activity filters."
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Try clearing filters or searching for something else."
+msgstr "Try clearing filters or searching for something else."
+
 msgid "Try clearing the search or filters to see more results."
 msgstr "Try clearing the search or filters to see more results."
 
@@ -2647,6 +2898,12 @@ msgstr "Type a date"
 msgid "Type or search..."
 msgstr "Type or search..."
 
+msgid "Unassign"
+msgstr "Unassign"
+
+msgid "Unassigned"
+msgstr "Unassigned"
+
 msgid "Unclassified"
 msgstr "Unclassified"
 
@@ -2661,6 +2918,9 @@ msgstr "Underline on hover"
 
 msgid "Unknown"
 msgstr "Unknown"
+
+msgid "Unsaved changes"
+msgstr "Unsaved changes"
 
 msgid "Update your personal information and profile photo."
 msgstr "Update your personal information and profile photo."
@@ -2761,6 +3021,9 @@ msgstr "View invoices and manage your payment method."
 msgid "View profile verification"
 msgstr "View profile verification"
 
+msgid "Visible only to PlatformPlatform staff"
+msgstr "Visible only to PlatformPlatform staff"
+
 msgid "Visitors"
 msgstr "Visitors"
 
@@ -2799,6 +3062,9 @@ msgstr "Yesterday"
 
 msgid "You have 12 saved recipes."
 msgstr "You have 12 saved recipes."
+
+msgid "You have unsaved changes. If you leave now, your changes will be lost."
+msgstr "You have unsaved changes. If you leave now, your changes will be lost."
 
 msgid "Your account is not in the required group."
 msgstr "Your account is not in the required group."
