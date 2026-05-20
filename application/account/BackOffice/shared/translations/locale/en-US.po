@@ -118,6 +118,9 @@ msgstr "{total} new signups · {priorTotal} prior period"
 msgid "{total} total · avg {average}/day"
 msgstr "{total} total · avg {average}/day"
 
+msgid "{totalTicketCount, plural, one {# total} other {# total}}"
+msgstr "{totalTicketCount, plural, one {# total} other {# total}}"
+
 msgid "/ month"
 msgstr "/ month"
 
@@ -1034,6 +1037,9 @@ msgstr "Every invoice, refund, and credit note across all accounts."
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 
+msgid "Every support ticket this user has filed, across all of their accounts."
+msgstr "Every support ticket this user has filed, across all of their accounts."
+
 msgid "Examples"
 msgstr "Examples"
 
@@ -1738,6 +1744,9 @@ msgstr "No sessions"
 
 msgid "No sign-in attempts in the last 30 days."
 msgstr "No sign-in attempts in the last 30 days."
+
+msgid "No support tickets"
+msgstr "No support tickets"
 
 msgid "No tenant-scoped feature flags are defined for this account."
 msgstr "No tenant-scoped feature flags are defined for this account."
@@ -2775,6 +2784,9 @@ msgstr "This rebuilds the billing event ledger from this tenant's archived Strip
 
 msgid "This user has no recorded sessions."
 msgstr "This user has no recorded sessions."
+
+msgid "This user has not filed any support tickets."
+msgstr "This user has not filed any support tickets."
 
 msgid "This user is not a member of any account."
 msgstr "This user is not a member of any account."

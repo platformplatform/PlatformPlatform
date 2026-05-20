@@ -118,6 +118,9 @@ msgstr "{total} nye tilmeldinger · {priorTotal} forrige periode"
 msgid "{total} total · avg {average}/day"
 msgstr "{total} i alt · gns. {average}/dag"
 
+msgid "{totalTicketCount, plural, one {# total} other {# total}}"
+msgstr "{totalTicketCount, plural, one {# i alt} other {# i alt}}"
+
 msgid "/ month"
 msgstr "/ måned"
 
@@ -1034,6 +1037,9 @@ msgstr "Alle fakturaer, refunderinger og kreditnotaer på tværs af alle konti."
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Alle login-forsøg de seneste 30 dage, succesfulde eller mislykkede, på tværs af e-mail og eksterne udbydere."
 
+msgid "Every support ticket this user has filed, across all of their accounts."
+msgstr "Hver supportsag denne bruger har oprettet, på tværs af alle deres konti."
+
 msgid "Examples"
 msgstr "Eksempler"
 
@@ -1738,6 +1744,9 @@ msgstr "Ingen sessioner"
 
 msgid "No sign-in attempts in the last 30 days."
 msgstr "Ingen login-forsøg de seneste 30 dage."
+
+msgid "No support tickets"
+msgstr "Ingen supportsager"
 
 msgid "No tenant-scoped feature flags are defined for this account."
 msgstr "Der er ingen feature flags defineret for denne konto."
@@ -2775,6 +2784,9 @@ msgstr "Dette genopbygger faktureringshændelsesloggen fra denne kontos arkivere
 
 msgid "This user has no recorded sessions."
 msgstr "Denne bruger har ingen registrerede sessioner."
+
+msgid "This user has not filed any support tickets."
+msgstr "Denne bruger har ikke oprettet nogen supportsager."
 
 msgid "This user is not a member of any account."
 msgstr "Denne bruger er ikke medlem af nogen konto."
