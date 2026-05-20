@@ -12,6 +12,7 @@ const ACCOUNT_PREFIXES = [
   "/login",
   "/profile",
   "/signup",
+  "/support",
   "/user",
   "/welcome"
 ];

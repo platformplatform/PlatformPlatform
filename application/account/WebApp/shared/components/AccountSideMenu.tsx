@@ -11,6 +11,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail
@@ -20,6 +21,7 @@ import {
   Building2Icon,
   CreditCardIcon,
   HomeIcon,
+  LifeBuoyIcon,
   MonitorSmartphoneIcon,
   SlidersHorizontalIcon,
   UserIcon,
@@ -30,6 +32,7 @@ import { use } from "react";
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
 import UserMenu from "@/federated-modules/userMenu/UserMenu";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
+import { api } from "@/shared/lib/api/client";
 
 const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 
@@ -46,6 +49,8 @@ export function AccountSideMenu() {
   const { navigateToMain } = useMainNavigation();
   const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
   const { enabled: isAccountOverviewEnabled } = useFeatureFlag("account-overview");
+  const { data: myTickets } = api.useQuery("get", "/api/account/support-tickets");
+  const awaitingUserCount = myTickets?.awaitingUserCount ?? 0;
 
   const isActive = (target: string, matchPrefix = false) => {
     const normalized = normalizePath(target);
@@ -162,9 +167,36 @@ export function AccountSideMenu() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          <SupportSidebarGroup isActive={isActive("/support/tickets", true)} awaitingUserCount={awaitingUserCount} />
         </SidebarContent>
       </nav>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function SupportSidebarGroup({ isActive, awaitingUserCount }: { isActive: boolean; awaitingUserCount: number }) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>
+        <Trans>Support</Trans>
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild={true} isActive={isActive} tooltip={t`My tickets`}>
+              <RouterLink to="/support/tickets">
+                <LifeBuoyIcon />
+                <span>
+                  <Trans>My tickets</Trans>
+                </span>
+              </RouterLink>
+            </SidebarMenuButton>
+            {awaitingUserCount > 0 && <SidebarMenuBadge>{awaitingUserCount}</SidebarMenuBadge>}
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }
