@@ -1,4 +1,4 @@
-import { t } from "@lingui/core/macro";
+import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LinkCard } from "@repo/ui/components/LinkCard";
 import { Skeleton } from "@repo/ui/components/Skeleton";
@@ -8,9 +8,9 @@ import { CalendarIcon } from "lucide-react";
 
 import type { components } from "@/shared/lib/api/client";
 
-import { api } from "@/shared/lib/api/client";
+import { api, SupportTicketStatus } from "@/shared/lib/api/client";
 
-type AccountDetailTab = "users" | "invoices" | "billing-events";
+type AccountDetailTab = "users" | "invoices" | "billing-events" | "support-tickets";
 
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
 
@@ -35,6 +35,18 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
     params: { path: { id: tenantId } }
   });
   const userCounts = userCountsQuery.data;
+
+  // PageSize is requested at the validator-enforced cap of 100 so the chip count and the tab list
+  // share one TanStack Query cache entry. For tenants with more than 100 tickets the chip undercounts
+  // until a dedicated count endpoint exists; the v1 surface intentionally accepts that trade-off.
+  const supportTicketsQuery = api.useQuery("get", "/api/back-office/support-tickets", {
+    params: { query: { TenantId: tenantId, PageSize: 100 } }
+  });
+  const supportTicketsLoading = supportTicketsQuery.isLoading;
+  const openTicketCount = supportTicketsQuery.data?.tickets.filter(
+    (ticket) => ticket.status !== SupportTicketStatus.Resolved && ticket.status !== SupportTicketStatus.Closed
+  ).length;
+  const totalTicketCount = supportTicketsQuery.data?.totalCount;
   const totalUsers = userCounts?.totalUsers ?? 0;
   const activeUsers = userCounts?.activeUsers ?? 0;
   const pendingUsers = userCounts?.pendingUsers ?? 0;
@@ -112,6 +124,25 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
           <MrrAmount tenant={tenant} />
         </HealthTile>
       )}
+
+      <HealthTile
+        label={t`Support tickets`}
+        loading={supportTicketsLoading}
+        tenantId={tenantId}
+        tab="support-tickets"
+        subtitle={
+          totalTicketCount !== undefined
+            ? plural(totalTicketCount, {
+                one: "# total",
+                other: "# total"
+              })
+            : undefined
+        }
+      >
+        <span className="text-2xl font-semibold tabular-nums">
+          {openTicketCount !== undefined ? openTicketCount : "-"}
+        </span>
+      </HealthTile>
     </div>
   );
 }

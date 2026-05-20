@@ -1039,6 +1039,9 @@ msgstr "Alle fakturaer, refunderinger og kreditnotaer på tværs af alle konti."
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Alle login-forsøg de seneste 30 dage, succesfulde eller mislykkede, på tværs af e-mail og eksterne udbydere."
 
+msgid "Every support ticket filed by users of this account."
+msgstr "Hver supportsag oprettet af brugere af denne konto."
+
 msgid "Every support ticket this user has filed, across all of their accounts."
 msgstr "Hver supportsag denne bruger har oprettet, på tværs af alle deres konti."
 
@@ -2741,6 +2744,9 @@ msgstr "Tema"
 
 msgid "This account"
 msgstr "Denne konto"
+
+msgid "This account has no support tickets."
+msgstr "Denne konto har ingen supportsager."
 
 msgid "This account has no users."
 msgstr "Denne konto har ingen brugere."
