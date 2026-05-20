@@ -71,6 +71,8 @@ builder
 
 CreateBlobContainer("avatars");
 CreateBlobContainer("logos");
+CreateBlobContainer("support-tickets");
+CreateBlobContainer("support-staff");
 
 var frontendBuild = builder
     .AddJavaScriptApp("frontend-build", "../")

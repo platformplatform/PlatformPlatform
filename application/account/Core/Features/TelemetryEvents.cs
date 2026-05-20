@@ -3,6 +3,7 @@ using Account.Features.EmailAuthentication.Domain;
 using Account.Features.ExternalAuthentication.Domain;
 using Account.Features.FeatureFlags.Domain;
 using Account.Features.Subscriptions.Domain;
+using Account.Features.SupportTickets.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
 using SharedKernel.Authentication.TokenGeneration;
@@ -263,6 +264,27 @@ public sealed class SubscriptionUpgraded(
     string currency
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SupportTicketAssigneeChanged(SupportTicketId ticketId, string? toAssigneeObjectId)
+    : TelemetryEvent(("ticket_id", ticketId), ("to_assignee_object_id", toAssigneeObjectId as object ?? "none"));
+
+public sealed class SupportTicketClosed(SupportTicketId ticketId, SupportMessageAuthorKind actorKind)
+    : TelemetryEvent(("ticket_id", ticketId), ("actor_kind", actorKind));
+
+public sealed class SupportTicketCreated(SupportTicketId ticketId, SupportTicketCategory category, int attachmentsCount)
+    : TelemetryEvent(("ticket_id", ticketId), ("category", category), ("attachments_count", attachmentsCount));
+
+public sealed class SupportTicketCsatSubmitted(SupportTicketId ticketId, SupportTicketCsatScore score)
+    : TelemetryEvent(("ticket_id", ticketId), ("score", score));
+
+public sealed class SupportTicketReopened(SupportTicketId ticketId)
+    : TelemetryEvent(("ticket_id", ticketId));
+
+public sealed class SupportTicketReplyPosted(SupportTicketId ticketId, SupportMessageAuthorKind authorKind, int attachmentsCount)
+    : TelemetryEvent(("ticket_id", ticketId), ("author_kind", authorKind), ("attachments_count", attachmentsCount));
+
+public sealed class SupportTicketStatusChanged(SupportTicketId ticketId, SupportTicketStatus fromStatus, SupportTicketStatus toStatus, SupportMessageAuthorKind actorKind)
+    : TelemetryEvent(("ticket_id", ticketId), ("from_status", fromStatus), ("to_status", toStatus), ("actor_kind", actorKind));
 
 public sealed class TenantAbInclusionPinUpdated(TenantId tenantId, AbInclusionPin? fromPin, AbInclusionPin? toPin)
     : TelemetryEvent(("tenant_id", tenantId), ("from_pin", fromPin as object ?? "none"), ("to_pin", toPin as object ?? "none"));

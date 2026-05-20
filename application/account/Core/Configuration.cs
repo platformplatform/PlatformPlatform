@@ -4,6 +4,7 @@ using Account.Features.ExternalAuthentication;
 using Account.Features.ExternalAuthentication.Shared;
 using Account.Features.FeatureFlags.Shared;
 using Account.Features.Subscriptions.Shared;
+using Account.Features.SupportTickets.Shared;
 using Account.Features.Users.Shared;
 using Account.Integrations.Gravatar;
 using Account.Integrations.OAuth;
@@ -76,7 +77,9 @@ public static class Configuration
                 .AddScoped<UserInfoFactory>()
                 .AddScoped<ProcessPendingStripeEvents>()
                 .AddScoped<ExternalAuthenticationService>()
-                .AddScoped<ExternalAuthenticationHelper>();
+                .AddScoped<ExternalAuthenticationHelper>()
+                .AddScoped<SupportAttachmentUploader>()
+                .AddScoped<BackOfficeStaffContext>();
         }
     }
 }
