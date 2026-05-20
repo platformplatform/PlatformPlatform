@@ -1037,6 +1037,9 @@ msgstr "Every invoice, refund, and credit note across all accounts."
 msgid "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 msgstr "Every sign-in attempt over the last 30 days, successful or failed, across email and external providers."
 
+msgid "Every support ticket filed by users of this account."
+msgstr "Every support ticket filed by users of this account."
+
 msgid "Every support ticket this user has filed, across all of their accounts."
 msgstr "Every support ticket this user has filed, across all of their accounts."
 
@@ -2739,6 +2742,9 @@ msgstr "Theme"
 
 msgid "This account"
 msgstr "This account"
+
+msgid "This account has no support tickets."
+msgstr "This account has no support tickets."
 
 msgid "This account has no users."
 msgstr "This account has no users."

@@ -4,7 +4,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/Tabs";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ActivityIcon, FlagIcon, LayoutGridIcon, ReceiptIcon, UsersIcon } from "lucide-react";
+import { ActivityIcon, FlagIcon, LayoutGridIcon, LifeBuoyIcon, ReceiptIcon, UsersIcon } from "lucide-react";
 import { useCallback } from "react";
 import { z } from "zod";
 
@@ -18,13 +18,14 @@ import { AccountFeatureFlagsTab } from "./-components/AccountFeatureFlagsTab";
 import { AccountHealthTiles } from "./-components/AccountHealthTiles";
 import { AccountOverviewTab } from "./-components/AccountOverviewTab";
 import { AccountUsersTab } from "./-components/AccountUsersTab";
+import { TenantSupportTicketsSection } from "./-components/TenantSupportTicketsSection";
 
-type AccountDetailTab = "overview" | "users" | "invoices" | "billing-events" | "feature-flags";
+type AccountDetailTab = "overview" | "users" | "invoices" | "billing-events" | "feature-flags" | "support-tickets";
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
 
 const accountDetailSearchSchema = z.object({
-  tab: z.enum(["overview", "users", "invoices", "billing-events", "feature-flags"]).optional()
+  tab: z.enum(["overview", "users", "invoices", "billing-events", "feature-flags", "support-tickets"]).optional()
 });
 
 export const Route = createFileRoute("/accounts/$tenantId")({
@@ -91,6 +92,10 @@ function AccountDetailPage() {
                   <FlagIcon className="size-4" aria-hidden={true} />
                   <Trans>Feature flags</Trans>
                 </TabsTrigger>
+                <TabsTrigger value="support-tickets">
+                  <LifeBuoyIcon className="size-4" aria-hidden={true} />
+                  <Trans>Support tickets</Trans>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="overview" className="flex flex-col gap-6">
                 <AccountOverviewTab tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
@@ -125,6 +130,9 @@ function AccountDetailPage() {
               )}
               <TabsContent value="feature-flags">
                 <AccountFeatureFlagsTab tenantId={tenantId} />
+              </TabsContent>
+              <TabsContent value="support-tickets">
+                <TenantSupportTicketsSection tenantId={tenantId} />
               </TabsContent>
             </Tabs>
           </div>
