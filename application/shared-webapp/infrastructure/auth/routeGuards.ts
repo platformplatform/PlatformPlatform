@@ -54,6 +54,17 @@ export function requireSubscriptionEnabled(): void {
 }
 
 /**
+ * Require the support system feature flag to be enabled.
+ * Throws NotFoundError if the flag is disabled.
+ * Use this in beforeLoad to gate all /support/* routes when the kill switch is flipped.
+ */
+export function requireSupportSystemEnabled(): void {
+  if (import.meta.runtime_env.PUBLIC_SUPPORT_SYSTEM_ENABLED !== "true") {
+    throw new NotFoundError();
+  }
+}
+
+/**
  * Redirect to login if user is not authenticated.
  * Use this in beforeLoad to prevent unauthorized access before the route renders.
  *

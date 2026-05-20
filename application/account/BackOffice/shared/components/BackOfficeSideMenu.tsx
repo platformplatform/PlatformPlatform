@@ -32,6 +32,7 @@ import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+const isSupportSystemEnabled = import.meta.runtime_env.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
 
 export function BackOfficeSideMenu() {
   const router = useRouter();
@@ -44,11 +45,13 @@ export function BackOfficeSideMenu() {
   const isSupportTicketsActive = currentPath === "/support/tickets" || currentPath.startsWith("/support/tickets/");
   const isComponentsActive = currentPath === "/components" || currentPath.startsWith("/components/");
 
+  // Skip the unresolved-tickets badge query entirely when the support system is gated off so the
+  // back-office shell does not fan out to an endpoint the sidebar will never reveal.
   const { data: ticketsData } = api.useQuery(
     "get",
     "/api/back-office/support-tickets",
     { params: { query: { PageSize: 1 } } },
-    { staleTime: 60_000 }
+    { staleTime: 60_000, enabled: isSupportSystemEnabled }
   );
   const unresolvedCount =
     (ticketsData?.counts.new ?? 0) +
@@ -133,7 +136,9 @@ export function BackOfficeSideMenu() {
               </SidebarGroupContent>
             </SidebarGroup>
           )}
-          <SupportSidebarGroup isActive={isSupportTicketsActive} unresolvedCount={unresolvedCount} />
+          {isSupportSystemEnabled && (
+            <SupportSidebarGroup isActive={isSupportTicketsActive} unresolvedCount={unresolvedCount} />
+          )}
           <SidebarGroup>
             <SidebarGroupLabel>
               <Trans>Platform</Trans>

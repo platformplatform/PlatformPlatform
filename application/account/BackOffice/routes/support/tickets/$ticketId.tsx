@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { requireSupportSystemEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
@@ -18,6 +19,7 @@ import { StatusPill } from "../-components/StatusPill";
 
 export const Route = createFileRoute("/support/tickets/$ticketId")({
   staticData: { trackingTitle: "Support ticket" },
+  beforeLoad: () => requireSupportSystemEnabled(),
   component: SupportTicketDetailPage
 });
 

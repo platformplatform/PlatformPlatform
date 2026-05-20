@@ -20,6 +20,8 @@ import { UserSessionsSection } from "./-components/UserSessionsSection";
 import { UserSupportTicketsSection } from "./-components/UserSupportTicketsSection";
 import { UserTenantsSection } from "./-components/UserTenantsSection";
 
+const isSupportSystemEnabled = import.meta.runtime_env.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
+
 type UserDetailTab = "overview" | "sessions" | "logins" | "feature-flags" | "support-tickets";
 
 const userDetailSearchSchema = z.object({
@@ -83,10 +85,12 @@ function UserDetailPage() {
                   <FlagIcon className="size-4" />
                   <Trans>Feature flags</Trans>
                 </TabsTrigger>
-                <TabsTrigger value="support-tickets">
-                  <LifeBuoyIcon className="size-4" aria-hidden={true} />
-                  <Trans>Support tickets</Trans>
-                </TabsTrigger>
+                {isSupportSystemEnabled && (
+                  <TabsTrigger value="support-tickets">
+                    <LifeBuoyIcon className="size-4" aria-hidden={true} />
+                    <Trans>Support tickets</Trans>
+                  </TabsTrigger>
+                )}
               </TabsList>
               <TabsContent value="overview">
                 <UserTenantsSection user={user} />
@@ -100,9 +104,11 @@ function UserDetailPage() {
               <TabsContent value="feature-flags">
                 <UserFeatureFlagsSection userId={userId} />
               </TabsContent>
-              <TabsContent value="support-tickets">
-                <UserSupportTicketsSection userId={userId} />
-              </TabsContent>
+              {isSupportSystemEnabled && (
+                <TabsContent value="support-tickets">
+                  <UserSupportTicketsSection userId={userId} />
+                </TabsContent>
+              )}
             </Tabs>
           </div>
         </AppLayout>

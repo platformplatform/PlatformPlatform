@@ -9,7 +9,7 @@
 // `useFeatureFlag(deletedKey)` and `getFeatureFlagLabel(deletedKey)` callsite into a TS compile
 // error after the next backend build regenerates this file.
 
-export type FeatureFlagKey = "google-oauth" | "subscriptions" | "beta-features" | "sso" | "account-overview" | "compact-view" | "experimental-ui";
+export type FeatureFlagKey = "google-oauth" | "subscriptions" | "support-system" | "beta-features" | "sso" | "account-overview" | "compact-view" | "experimental-ui";
 
 type FeatureFlagScope = "system" | "tenant" | "user";
 type FeatureFlagAdminLevel = "systemAdmin" | "tenantOwner" | "user";
@@ -49,6 +49,14 @@ const featureFlagRegistry: Record<FeatureFlagKey, FeatureFlagDefinition> = {
       parentDependency: null,
       description: "Stripe-powered subscription billing and plan management",
       envVar: "PUBLIC_SUBSCRIPTION_ENABLED"
+    },
+    "support-system": {
+      key: "support-system",
+      scope: "system",
+      adminLevel: "systemAdmin",
+      parentDependency: null,
+      description: "In-app support ticket creation, inbox, and back-office support tabs",
+      envVar: "PUBLIC_SUPPORT_SYSTEM_ENABLED"
     },
     "beta-features": {
       key: "beta-features",

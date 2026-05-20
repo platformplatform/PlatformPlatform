@@ -27,6 +27,10 @@ function getKnownFeatureFlagLabels(): Record<string, FeatureFlagLabel> {
       name: t`Subscriptions`,
       description: t`Stripe-powered subscription billing and plan management`
     },
+    "support-system": {
+      name: t`Support system`,
+      description: t`In-app support ticket creation, inbox, and back-office support tabs`
+    },
     "beta-features": {
       name: t`Beta features`,
       description: t`Early access to experimental features before general availability`

@@ -49,7 +49,15 @@ export function AccountSideMenu() {
   const { navigateToMain } = useMainNavigation();
   const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
   const { enabled: isAccountOverviewEnabled } = useFeatureFlag("account-overview");
-  const { data: myTickets } = api.useQuery("get", "/api/account/support-tickets");
+  const { enabled: isSupportSystemEnabled } = useFeatureFlag("support-system");
+  // The /api/account/support-tickets endpoint is gone when the support system is disabled, so the
+  // query must be conditionally enabled to avoid a guaranteed 404 on every page load.
+  const { data: myTickets } = api.useQuery(
+    "get",
+    "/api/account/support-tickets",
+    {},
+    { enabled: isSupportSystemEnabled }
+  );
   const awaitingUserCount = myTickets?.awaitingUserCount ?? 0;
 
   const isActive = (target: string, matchPrefix = false) => {
@@ -168,7 +176,9 @@ export function AccountSideMenu() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          <SupportSidebarGroup isActive={isActive("/support/tickets", true)} awaitingUserCount={awaitingUserCount} />
+          {isSupportSystemEnabled && (
+            <SupportSidebarGroup isActive={isActive("/support/tickets", true)} awaitingUserCount={awaitingUserCount} />
+          )}
         </SidebarContent>
       </nav>
       <SidebarRail />
