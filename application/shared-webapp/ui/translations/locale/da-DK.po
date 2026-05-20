@@ -80,6 +80,9 @@ msgstr "Gå til forrige side"
 msgid "Google OAuth"
 msgstr "Google OAuth"
 
+msgid "In-app support ticket creation, inbox, and back-office support tabs"
+msgstr "Oprettelse af supportsager i appen, indbakke og back-office supportfaner"
+
 msgid "Increase"
 msgstr "Forøg"
 
@@ -157,6 +160,9 @@ msgstr "Stripe-drevet abonnementsfakturering og abonnementsstyring"
 
 msgid "Subscriptions"
 msgstr "Abonnementer"
+
+msgid "Support system"
+msgstr "Supportsystem"
 
 msgid "Today"
 msgstr "I dag"

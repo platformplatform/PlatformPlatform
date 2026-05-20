@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { requireSupportSystemEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -38,6 +39,7 @@ const DEFAULT_SORT_ORDER = SortOrder.Descending;
 export const Route = createFileRoute("/support/tickets/")({
   staticData: { trackingTitle: "Support tickets" },
   validateSearch: inboxSearchSchema,
+  beforeLoad: () => requireSupportSystemEnabled(),
   component: SupportInboxPage
 });
 

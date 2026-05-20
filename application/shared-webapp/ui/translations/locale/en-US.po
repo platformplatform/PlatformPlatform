@@ -80,6 +80,9 @@ msgstr "Go to previous page"
 msgid "Google OAuth"
 msgstr "Google OAuth"
 
+msgid "In-app support ticket creation, inbox, and back-office support tabs"
+msgstr "In-app support ticket creation, inbox, and back-office support tabs"
+
 msgid "Increase"
 msgstr "Increase"
 
@@ -157,6 +160,9 @@ msgstr "Stripe-powered subscription billing and plan management"
 
 msgid "Subscriptions"
 msgstr "Subscriptions"
+
+msgid "Support system"
+msgstr "Support system"
 
 msgid "Today"
 msgstr "Today"

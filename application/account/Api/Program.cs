@@ -58,7 +58,10 @@ var backOfficeCdnUrl = Environment.GetEnvironmentVariable("BACK_OFFICE_CDN_URL")
 var runtimeEnvironment = new Dictionary<string, string>
 {
     ["PUBLIC_GOOGLE_OAUTH_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_GOOGLE_OAUTH_ENABLED") ?? "false",
-    ["PUBLIC_SUBSCRIPTION_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_SUBSCRIPTION_ENABLED") ?? "false"
+    ["PUBLIC_SUBSCRIPTION_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_SUBSCRIPTION_ENABLED") ?? "false",
+    // Support system defaults to true so the in-app support surface is on out of the box; set the env
+    // var to "false" to gate the entire feature off (legacy "Contact support" mailto dialog returns).
+    ["PUBLIC_SUPPORT_SYSTEM_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_SUPPORT_SYSTEM_ENABLED") ?? "true"
 };
 
 // The /login picker is the dev-only MockEasyAuth identity selector. In Azure-deployed instances the

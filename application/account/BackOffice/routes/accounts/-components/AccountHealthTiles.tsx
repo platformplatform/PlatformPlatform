@@ -15,6 +15,7 @@ type AccountDetailTab = "users" | "invoices" | "billing-events" | "support-ticke
 type TenantDetailResponse = components["schemas"]["TenantDetailResponse"];
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+const isSupportSystemEnabled = import.meta.runtime_env.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
 
 interface AccountHealthTilesProps {
   tenant: TenantDetailResponse | undefined;
@@ -39,9 +40,13 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
   // PageSize is requested at the validator-enforced cap of 100 so the chip count and the tab list
   // share one TanStack Query cache entry. For tenants with more than 100 tickets the chip undercounts
   // until a dedicated count endpoint exists; the v1 surface intentionally accepts that trade-off.
-  const supportTicketsQuery = api.useQuery("get", "/api/back-office/support-tickets", {
-    params: { query: { TenantId: tenantId, PageSize: 100 } }
-  });
+  // Skip the request entirely when the support system is gated off; the tile is hidden anyway.
+  const supportTicketsQuery = api.useQuery(
+    "get",
+    "/api/back-office/support-tickets",
+    { params: { query: { TenantId: tenantId, PageSize: 100 } } },
+    { enabled: isSupportSystemEnabled }
+  );
   const supportTicketsLoading = supportTicketsQuery.isLoading;
   const openTicketCount = supportTicketsQuery.data?.tickets.filter(
     (ticket) => ticket.status !== SupportTicketStatus.Resolved && ticket.status !== SupportTicketStatus.Closed
@@ -125,24 +130,26 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
         </HealthTile>
       )}
 
-      <HealthTile
-        label={t`Support tickets`}
-        loading={supportTicketsLoading}
-        tenantId={tenantId}
-        tab="support-tickets"
-        subtitle={
-          totalTicketCount !== undefined
-            ? plural(totalTicketCount, {
-                one: "# total",
-                other: "# total"
-              })
-            : undefined
-        }
-      >
-        <span className="text-2xl font-semibold tabular-nums">
-          {openTicketCount !== undefined ? openTicketCount : "-"}
-        </span>
-      </HealthTile>
+      {isSupportSystemEnabled && (
+        <HealthTile
+          label={t`Support tickets`}
+          loading={supportTicketsLoading}
+          tenantId={tenantId}
+          tab="support-tickets"
+          subtitle={
+            totalTicketCount !== undefined
+              ? plural(totalTicketCount, {
+                  one: "# total",
+                  other: "# total"
+                })
+              : undefined
+          }
+        >
+          <span className="text-2xl font-semibold tabular-nums">
+            {openTicketCount !== undefined ? openTicketCount : "-"}
+          </span>
+        </HealthTile>
+      )}
     </div>
   );
 }

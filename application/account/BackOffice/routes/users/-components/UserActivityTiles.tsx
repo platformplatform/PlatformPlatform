@@ -13,6 +13,8 @@ import { api, SupportTicketStatus } from "@/shared/lib/api/client";
 
 type BackOfficeUserDetailResponse = components["schemas"]["BackOfficeUserDetailResponse"];
 
+const isSupportSystemEnabled = import.meta.runtime_env.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
+
 interface UserActivityTilesProps {
   user: BackOfficeUserDetailResponse | undefined;
   userId: string;
@@ -30,9 +32,13 @@ export function UserActivityTiles({ user, userId, isLoading }: Readonly<UserActi
   // PageSize is requested at the validator-enforced cap of 100 so the chip count and the tab list
   // share one TanStack Query cache entry. For users with more than 100 tickets the chip undercounts
   // until a dedicated count endpoint exists; the v1 surface intentionally accepts that trade-off.
-  const supportTicketsQuery = api.useQuery("get", "/api/back-office/support-tickets", {
-    params: { query: { ReporterId: userId, PageSize: 100 } }
-  });
+  // Skip the request entirely when the support system is gated off; the tile is hidden anyway.
+  const supportTicketsQuery = api.useQuery(
+    "get",
+    "/api/back-office/support-tickets",
+    { params: { query: { ReporterId: userId, PageSize: 100 } } },
+    { enabled: isSupportSystemEnabled }
+  );
   const supportTicketsLoading = supportTicketsQuery.isLoading;
   const openTicketCount = supportTicketsQuery.data?.tickets.filter(
     (ticket) => ticket.status !== SupportTicketStatus.Resolved && ticket.status !== SupportTicketStatus.Closed
@@ -80,24 +86,26 @@ export function UserActivityTiles({ user, userId, isLoading }: Readonly<UserActi
         <span className="text-2xl font-semibold tabular-nums">{totalSessions !== undefined ? totalSessions : "-"}</span>
       </ActivityTile>
 
-      <ActivityTile
-        label={t`Support tickets`}
-        loading={supportTicketsLoading}
-        subtitle={
-          totalTicketCount !== undefined
-            ? plural(totalTicketCount, {
-                one: "# total",
-                other: "# total"
-              })
-            : undefined
-        }
-        linkTo={totalTicketCount !== undefined && totalTicketCount > 0 ? "support-tickets" : undefined}
-        userId={userId}
-      >
-        <span className="text-2xl font-semibold tabular-nums">
-          {openTicketCount !== undefined ? openTicketCount : "-"}
-        </span>
-      </ActivityTile>
+      {isSupportSystemEnabled && (
+        <ActivityTile
+          label={t`Support tickets`}
+          loading={supportTicketsLoading}
+          subtitle={
+            totalTicketCount !== undefined
+              ? plural(totalTicketCount, {
+                  one: "# total",
+                  other: "# total"
+                })
+              : undefined
+          }
+          linkTo={totalTicketCount !== undefined && totalTicketCount > 0 ? "support-tickets" : undefined}
+          userId={userId}
+        >
+          <span className="text-2xl font-semibold tabular-nums">
+            {openTicketCount !== undefined ? openTicketCount : "-"}
+          </span>
+        </ActivityTile>
+      )}
     </div>
   );
 }

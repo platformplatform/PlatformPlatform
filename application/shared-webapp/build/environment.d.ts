@@ -110,6 +110,11 @@ export declare global {
      * Whether subscription/billing is enabled (Stripe configured)
      **/
     PUBLIC_SUBSCRIPTION_ENABLED: string;
+    /**
+     * Whether the in-app support system (ticket inbox + back-office support tabs) is enabled. When
+     * disabled, the legacy "Contact support" mailto dialog is shown from the user menu instead.
+     **/
+    PUBLIC_SUPPORT_SYSTEM_ENABLED?: string;
   }
 
   export interface UserInfoEnv {

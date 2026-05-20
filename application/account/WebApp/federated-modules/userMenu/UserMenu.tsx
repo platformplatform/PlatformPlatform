@@ -6,6 +6,7 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { productName } from "@repo/infrastructure/branding";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@repo/ui/components/DropdownMenu";
 import { collapsedContext, overlayContext } from "@repo/ui/components/Sidebar";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
@@ -17,6 +18,7 @@ import { useContext, useEffect, useState } from "react";
 
 import { MainNavigationContext } from "@/shared/hooks/useMainNavigation";
 
+import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import { logoutApi } from "../common/tenantUtils";
 import { MobileMenuDialogs } from "../sideMenu/MobileMenu";
@@ -37,9 +39,11 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
 
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
+  const { enabled: isSupportSystemEnabled } = useFeatureFlag("support-system");
 
   useTrackOpen("User menu", "menu", isMenuOpen);
 
@@ -75,7 +79,13 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
 
   const handleContactSupport = () => {
     closeMenuAndOverlay();
-    navigate({ to: "/support/tickets" });
+    if (isSupportSystemEnabled) {
+      navigate({ to: "/support/tickets" });
+      return;
+    }
+    // Legacy fallback: when the support system flag is off, restore the mailto-style dialog that
+    // surfaces the configured support email so users still have a way to reach support.
+    setIsSupportDialogOpen(true);
   };
 
   const handleNavigateToAccountSettings = () => {
@@ -161,6 +171,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
 
       {isSwitching && <SwitchingAccountLoader />}
       <MobileMenuDialogs />
+      {!isSupportSystemEnabled && <SupportDialog isOpen={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen} />}
     </div>
   );
 }

@@ -39,6 +39,16 @@ public static partial class FeatureFlags
         "true"
     );
 
+    public static readonly FeatureFlagDefinition SupportSystem = new SystemFeatureFlag(
+        "support-system",
+        "Support system",
+        "In-app support ticket creation, inbox, and back-office support tabs",
+        "Support:Enabled",
+        "PUBLIC_SUPPORT_SYSTEM_ENABLED",
+        false,
+        "true"
+    );
+
     public static readonly FeatureFlagDefinition BetaFeatures = new TenantAbTestFlag(
         "beta-features",
         "Beta features",
