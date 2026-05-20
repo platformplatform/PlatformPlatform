@@ -242,6 +242,14 @@ module accountStorageAccount '../modules/storage-account.bicep' = {
         name: 'logos'
         publicAccess: 'None'
       }
+      {
+        name: 'support-tickets'
+        publicAccess: 'None'
+      }
+      {
+        name: 'support-staff'
+        publicAccess: 'None'
+      }
     ]
   }
 }
