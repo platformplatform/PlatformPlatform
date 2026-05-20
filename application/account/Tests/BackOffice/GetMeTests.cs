@@ -25,6 +25,7 @@ public sealed class GetMeTests(BackOfficeWebApplicationFactory factory) : BackOf
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<MeResponse>();
         payload.Should().NotBeNull();
+        payload.ObjectId.Should().Be(identity.ObjectId);
         payload.DisplayName.Should().Be(identity.Name);
         payload.Email.Should().Be(identity.Email);
         payload.IsAdmin.Should().BeTrue();
@@ -45,6 +46,7 @@ public sealed class GetMeTests(BackOfficeWebApplicationFactory factory) : BackOf
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<MeResponse>();
         payload.Should().NotBeNull();
+        payload.ObjectId.Should().Be(identity.ObjectId);
         payload.DisplayName.Should().Be(identity.Name);
         payload.Email.Should().Be(identity.Email);
         payload.IsAdmin.Should().BeFalse();

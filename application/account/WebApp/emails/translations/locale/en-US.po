@@ -19,6 +19,9 @@ msgstr "'{{'ProductName'}}' login verification code"
 msgid "<0/> invited you to join '{{'ProductName'}}'."
 msgstr "<0/> invited you to join '{{'ProductName'}}'."
 
+msgid "<0/> replied to your ticket"
+msgstr "<0/> replied to your ticket"
+
 msgid "Compliance"
 msgstr "Compliance"
 
@@ -58,8 +61,17 @@ msgstr "It looks like there isn't a '{{'ProductName'}}' account tied to <0><1/><
 msgid "No account found"
 msgstr "No account found"
 
+msgid "Open ticket"
+msgstr "Open ticket"
+
 msgid "Privacy"
 msgstr "Privacy"
+
+msgid "Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
+msgstr "Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
+
+msgid "Reply by opening the ticket — replies to this email are not monitored."
+msgstr "Reply by opening the ticket — replies to this email are not monitored."
 
 msgid "Sign up for an account"
 msgstr "Sign up for an account"

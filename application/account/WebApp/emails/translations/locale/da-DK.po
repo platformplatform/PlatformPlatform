@@ -19,6 +19,9 @@ msgstr "'{{'ProductName'}}'-bekræftelseskode til login"
 msgid "<0/> invited you to join '{{'ProductName'}}'."
 msgstr "<0/> har inviteret dig til at deltage i '{{'ProductName'}}'."
 
+msgid "<0/> replied to your ticket"
+msgstr "<0/> har svaret på din sag"
+
 msgid "Compliance"
 msgstr "Compliance"
 
@@ -58,8 +61,17 @@ msgstr "Det ser ud til, at der ikke er en '{{'ProductName'}}'-konto knyttet til 
 msgid "No account found"
 msgstr "Ingen konto fundet"
 
+msgid "Open ticket"
+msgstr "Åbn sagen"
+
 msgid "Privacy"
 msgstr "Privatliv"
+
+msgid "Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
+msgstr "Sv: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
+
+msgid "Reply by opening the ticket — replies to this email are not monitored."
+msgstr "Svar ved at åbne sagen — svar på denne e-mail bliver ikke læst."
 
 msgid "Sign up for an account"
 msgstr "Opret en konto"

@@ -11,7 +11,7 @@ namespace Account.Features.BackOffice.Queries;
 public sealed record GetMeQuery : IRequest<Result<MeResponse>>;
 
 [PublicAPI]
-public sealed record MeResponse(string DisplayName, string Email, bool IsAdmin, string[] Groups);
+public sealed record MeResponse(string ObjectId, string DisplayName, string Email, bool IsAdmin, string[] Groups);
 
 // Reaches into HttpContext.User directly rather than going through IExecutionContext because back-office
 // principals (Easy Auth / mock easy auth) carry no UserId, TenantId, or SessionId — IExecutionContext.UserInfo
@@ -25,6 +25,9 @@ public sealed class GetMeHandler(IHttpContextAccessor httpContextAccessor, IOpti
     {
         // The route group requires authorization, so HttpContext.User is always an authenticated BackOfficeIdentity here.
         var principal = httpContextAccessor.HttpContext!.User;
+        // ObjectId is the Entra oid (ClaimTypes.NameIdentifier) — the same identifier used for back-office
+        // staff assignment on support tickets (see BackOfficeStaffContext / AssignTicketCommand).
+        var objectId = principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
         var displayName = principal.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
         var email = principal.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
         var groups = principal.Claims
@@ -38,6 +41,6 @@ public sealed class GetMeHandler(IHttpContextAccessor httpContextAccessor, IOpti
         var isAdmin = !string.IsNullOrWhiteSpace(_options.AdminsGroupId) &&
                       groups.Contains(_options.AdminsGroupId);
 
-        return Task.FromResult<Result<MeResponse>>(new MeResponse(displayName, email, isAdmin, groups));
+        return Task.FromResult<Result<MeResponse>>(new MeResponse(objectId, displayName, email, isAdmin, groups));
     }
 }

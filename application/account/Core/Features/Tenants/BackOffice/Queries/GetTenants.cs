@@ -54,18 +54,6 @@ public sealed record TenantSummary(
     // override views). Keeping construction co-located with the record avoids drift between call sites.
     public static TenantSummary FromAggregate(Tenant tenant, Subscription? subscription, User? owner)
     {
-        var plannedChange = subscription switch
-        {
-            { CancelAtPeriodEnd: true } => PlannedSubscriptionChange.Cancellation,
-            { ScheduledPlan: not null } => PlannedSubscriptionChange.ScheduledPlanChange,
-            _ => (PlannedSubscriptionChange?)null
-        };
-
-        // Refunded counts as "ever subscribed" — money flowed in before being credited back, so the tenant did pay at
-        // some point. Distinguishes a refunded customer (Canceled) from never having paid at all (Free).
-        var hasEverSubscribed = subscription?.PaymentTransactions
-            .Any(transaction => transaction.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
-
         return new TenantSummary(
             tenant.Id,
             tenant.Name,
@@ -75,13 +63,33 @@ public sealed record TenantSummary(
             subscription?.ScheduledPriceAmount,
             subscription?.CurrentPriceCurrency,
             subscription?.CurrentPeriodEnd,
-            plannedChange,
-            hasEverSubscribed,
+            ResolvePlannedChange(subscription),
+            ResolveHasEverSubscribed(subscription),
             subscription?.BillingInfo?.Address?.Country,
             tenant.CreatedAt,
             tenant.ModifiedAt,
             owner is null ? null : new TenantOwnerSummary(owner.Id, owner.FirstName, owner.LastName, owner.Email)
         );
+    }
+
+    // Shared between every back-office view that surfaces a tenant's subscription state — accounts list, support
+    // side pane, etc. Co-locating the rules here prevents the predicate from drifting between call sites.
+    public static PlannedSubscriptionChange? ResolvePlannedChange(Subscription? subscription)
+    {
+        return subscription switch
+        {
+            { CancelAtPeriodEnd: true } => PlannedSubscriptionChange.Cancellation,
+            { ScheduledPlan: not null } => PlannedSubscriptionChange.ScheduledPlanChange,
+            _ => null
+        };
+    }
+
+    // Refunded counts as "ever subscribed" — money flowed in before being credited back, so the tenant did pay at
+    // some point. Distinguishes a refunded customer (Canceled) from never having paid at all (Free).
+    public static bool ResolveHasEverSubscribed(Subscription? subscription)
+    {
+        return subscription?.PaymentTransactions
+            .Any(transaction => transaction.Status is PaymentTransactionStatus.Succeeded or PaymentTransactionStatus.Refunded) == true;
     }
 }
 
