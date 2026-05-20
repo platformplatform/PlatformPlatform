@@ -95,7 +95,7 @@ function ToggleGroupItem({
         toggleVariants({ variant, size }),
         "shrink-0 focus:z-10 focus-visible:z-10 data-[label-focus]:outline data-[label-focus]:outline-2 data-[label-focus]:outline-offset-2",
         isConnected && [
-          "px-2",
+          size === "sm" ? "px-2" : size === "lg" ? "px-4" : "px-3",
           isHorizontal && !isFirst && "rounded-l-none",
           isHorizontal && !isLast && "rounded-r-none",
           !isHorizontal && !isFirst && "rounded-t-none",
