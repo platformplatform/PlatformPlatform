@@ -16,6 +16,7 @@ import { AccountCurrentPlanCard } from "./-components/AccountCurrentPlanCard";
 import { AccountDetailHeader } from "./-components/AccountDetailHeader";
 import { AccountFeatureFlagsTab } from "./-components/AccountFeatureFlagsTab";
 import { AccountHealthTiles } from "./-components/AccountHealthTiles";
+import { AccountOpenSupportTicketsCard } from "./-components/AccountOpenSupportTicketsCard";
 import { AccountOverviewTab } from "./-components/AccountOverviewTab";
 import { AccountUsersTab } from "./-components/AccountUsersTab";
 import { TenantSupportTicketsSection } from "./-components/TenantSupportTicketsSection";
@@ -99,6 +100,7 @@ function AccountDetailPage() {
               </TabsList>
               <TabsContent value="overview" className="flex flex-col gap-6">
                 <AccountOverviewTab tenant={tenant} tenantId={tenantId} isLoading={tenantQuery.isLoading} />
+                <AccountOpenSupportTicketsCard tenantId={tenantId} />
                 {isSubscriptionEnabled && (
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
                     <div className="flex flex-col lg:col-span-2">

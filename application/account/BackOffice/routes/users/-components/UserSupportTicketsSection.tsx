@@ -3,7 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@repo/ui/components/Empty";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 import { CategoryPill } from "@/routes/support/-components/CategoryPill";
 import { CsatScoreLabel } from "@/routes/support/-components/StaffCsatSummary";
@@ -16,6 +16,7 @@ interface UserSupportTicketsSectionProps {
 }
 
 export function UserSupportTicketsSection({ userId }: Readonly<UserSupportTicketsSectionProps>) {
+  const navigate = useNavigate();
   // Mirrors the chip query so TanStack Query serves both from the same cache entry.
   const { data, isLoading } = api.useQuery("get", "/api/back-office/support-tickets", {
     params: { query: { ReporterId: userId, PageSize: 100 } }
@@ -56,19 +57,19 @@ export function UserSupportTicketsSection({ userId }: Readonly<UserSupportTicket
           </TableHeader>
           <TableBody>
             {data.tickets.map((ticket) => (
-              <TableRow key={ticket.id}>
+              <TableRow
+                key={ticket.id}
+                className="cursor-pointer"
+                onClick={() => navigate({ to: "/support/tickets/$ticketId", params: { ticketId: ticket.id } })}
+              >
                 <TableCell>
-                  <Link
-                    to="/support/tickets"
-                    search={{ selectedTicketId: ticket.id }}
-                    className="flex min-w-0 flex-col gap-1 hover:underline"
-                  >
+                  <div className="flex min-w-0 flex-col gap-1">
                     <span className="truncate font-medium text-foreground">{ticket.subject}</span>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                       <CategoryPill category={ticket.category} />
                       <span className="font-mono text-xs text-muted-foreground">#{ticket.shortDisplayId}</span>
                     </div>
-                  </Link>
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col items-start gap-1">

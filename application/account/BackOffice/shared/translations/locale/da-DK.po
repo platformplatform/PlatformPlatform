@@ -1843,6 +1843,9 @@ msgstr "Åbn faktura"
 msgid "Open side pane"
 msgstr "Åbn sidepanel"
 
+msgid "Open support tickets"
+msgstr "Åbne supportsager"
+
 msgid "Open ticket"
 msgstr "Åbn sag"
 
