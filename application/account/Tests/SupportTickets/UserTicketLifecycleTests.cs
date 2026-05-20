@@ -28,7 +28,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
         TelemetryEventsCollectorSpy.Reset();
         var form = new MultipartFormDataContent
         {
-            { new StringContent("Thanks for the update — here is additional info."), "body" },
+            { new StringContent("Thanks for the update. Here is additional info."), "body" },
             { new StringContent("false"), "markAsResolved" }
         };
 
@@ -65,7 +65,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     {
         // Arrange
         var ticketId = await CreateTicketViaApi();
-        SeedInternalNote(ticketId, "Investigating with infra team — do not share.");
+        SeedInternalNote(ticketId, "Investigating with infra team. Do not share.");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -96,7 +96,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
-    public async Task CloseTicketByUser_WhenSubmittedWithCsat_ShouldPersistCsatAndCloseTicket()
+    public async Task CloseTicketByUser_WhenSubmittedWithCsat_ShouldPersistCsatAndKeepTicketResolved()
     {
         // Arrange
         var ticketId = await CreateTicketViaApi();
@@ -112,8 +112,9 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
         var csatJson = Connection.ExecuteScalar<string>("SELECT csat FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
         csatJson.Should().NotBeNullOrEmpty();
         csatJson.Should().Contain("Helpful");
+        // Resolved is the terminal status going forward; the legacy Closed value is no longer written.
         var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
-        status.Should().Be(nameof(SupportTicketStatus.Closed));
+        status.Should().Be(nameof(SupportTicketStatus.Resolved));
         TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "SupportTicketCsatSubmitted");
     }
 
@@ -166,11 +167,14 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
-    public async Task ReopenTicket_WhenClosed_ShouldTransitionToAwaitingAgentAndPreserveCsat()
+    public async Task ReopenTicket_WhenClosedWithCsatInsideReopenWindow_ShouldTransitionToAwaitingAgentAndPreserveCsat()
     {
-        // Arrange
+        // Arrange. Close goes through the API so the aggregate sets ResolvedAt, which is what
+        // CanBeReopenedAt depends on. The reopen window is 7 days, so a just-resolved ticket is
+        // eligible.
         var ticketId = await CreateTicketViaApi();
-        SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
+        var markResolvedResponse = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/mark-resolved", null);
+        markResolvedResponse.EnsureSuccessStatusCode();
         var closeCommand = new CloseTicketByUserCommand { CsatScore = SupportTicketCsatScore.Ok };
         var closeResponse = await AuthenticatedOwnerHttpClient.PostAsJsonAsync($"/api/account/support-tickets/{ticketId}/close", closeCommand);
         closeResponse.EnsureSuccessStatusCode();
@@ -190,7 +194,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     [Fact]
     public async Task ReopenTicket_WhenResolvedWithinSevenDays_ShouldTransitionToAwaitingAgentAndClearResolvedAt()
     {
-        // Arrange — Resolved 6 days ago is inside the 7-day reopen window.
+        // Arrange. Resolved 6 days ago is inside the 7-day reopen window.
         var ticketId = await CreateTicketViaApi();
         SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
         SetResolvedAt(ticketId, DateTimeOffset.UtcNow.AddDays(-6));
@@ -209,7 +213,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     [Fact]
     public async Task ReopenTicket_WhenResolvedPastSevenDays_ShouldReturnBadRequest()
     {
-        // Arrange — Resolved 8 days ago is past the 7-day reopen window.
+        // Arrange. Resolved 8 days ago is past the 7-day reopen window.
         var ticketId = await CreateTicketViaApi();
         SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
         SetResolvedAt(ticketId, DateTimeOffset.UtcNow.AddDays(-8));
@@ -226,7 +230,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     [Fact]
     public async Task SubmitCsat_WhenTicketIsActive_ShouldReturnBadRequest()
     {
-        // Arrange — a ticket that has not reached a terminal status should not accept a rating.
+        // Arrange. A ticket that has not reached a terminal status should not accept a rating.
         var ticketId = await CreateTicketViaApi();
         SetTicketStatus(ticketId, SupportTicketStatus.AwaitingAgent);
         var rateCommand = new SubmitCsatCommand(SupportTicketCsatScore.Helpful, null);
@@ -245,9 +249,10 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     [Fact]
     public async Task SubmitCsat_WhenRatingFreshAndNotStale_ShouldReturnBadRequest()
     {
-        // Arrange — record a CSAT via close, then try to submit again immediately (no reopen in between).
+        // Arrange. Record a CSAT via close, then try to submit again immediately (no reopen in between).
         var ticketId = await CreateTicketViaApi();
-        SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
+        var markResolvedResponse = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/mark-resolved", null);
+        markResolvedResponse.EnsureSuccessStatusCode();
         var closeCommand = new CloseTicketByUserCommand { CsatScore = SupportTicketCsatScore.Helpful, CsatComment = "Quick fix" };
         var closeResponse = await AuthenticatedOwnerHttpClient.PostAsJsonAsync($"/api/account/support-tickets/{ticketId}/close", closeCommand);
         closeResponse.EnsureSuccessStatusCode();
@@ -266,16 +271,18 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     [Fact]
     public async Task SubmitCsat_WhenRatingStaleAfterReopen_ShouldOverwriteAndSucceed()
     {
-        // Arrange — close + rate, reopen (Status → AwaitingAgent), re-resolve so the ticket is back
+        // Arrange. Close + rate, reopen (Status to AwaitingAgent), re-resolve so the ticket is back
         // in a terminal status, then submit a fresh rating. The reopen makes the prior CSAT stale.
         var ticketId = await CreateTicketViaApi();
-        SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
+        var markResolvedResponse = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/mark-resolved", null);
+        markResolvedResponse.EnsureSuccessStatusCode();
         var closeCommand = new CloseTicketByUserCommand { CsatScore = SupportTicketCsatScore.Helpful, CsatComment = "Initial rating" };
         var closeResponse = await AuthenticatedOwnerHttpClient.PostAsJsonAsync($"/api/account/support-tickets/{ticketId}/close", closeCommand);
         closeResponse.EnsureSuccessStatusCode();
         var reopenResponse = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/reopen", null);
         reopenResponse.EnsureSuccessStatusCode();
-        SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
+        var reMarkResolvedResponse = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/mark-resolved", null);
+        reMarkResolvedResponse.EnsureSuccessStatusCode();
         var rerateCommand = new SubmitCsatCommand(SupportTicketCsatScore.NotGreat, "Actually broken again");
 
         // Act
@@ -441,7 +448,7 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
         var otherTicketId = SeedOtherTenantTicket(otherTenantId);
         var form = new MultipartFormDataContent
         {
-            { new StringContent("Cross-tenant reply attempt — should be invisible."), "body" },
+            { new StringContent("Cross-tenant reply attempt. Should be invisible."), "body" },
             { new StringContent("false"), "markAsResolved" }
         };
 

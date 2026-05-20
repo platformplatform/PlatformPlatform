@@ -8,12 +8,24 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { BlocksIcon, Building2Icon, FlagIcon, HomeIcon, ReceiptIcon, UsersIcon, ZapIcon } from "lucide-react";
+import {
+  BlocksIcon,
+  Building2Icon,
+  FlagIcon,
+  HomeIcon,
+  InboxIcon,
+  ReceiptIcon,
+  UsersIcon,
+  ZapIcon
+} from "lucide-react";
+
+import { api } from "@/shared/lib/api/client";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
 
@@ -29,7 +41,20 @@ export function BackOfficeSideMenu() {
   const isBillingEventsActive = currentPath === "/billing-events" || currentPath.startsWith("/billing-events/");
   const isInvoicesActive = currentPath === "/invoices" || currentPath.startsWith("/invoices/");
   const isFeatureFlagsActive = currentPath === "/feature-flags" || currentPath.startsWith("/feature-flags/");
+  const isSupportTicketsActive = currentPath === "/support/tickets" || currentPath.startsWith("/support/tickets/");
   const isComponentsActive = currentPath === "/components" || currentPath.startsWith("/components/");
+
+  const { data: ticketsData } = api.useQuery(
+    "get",
+    "/api/back-office/support-tickets",
+    { params: { query: { PageSize: 1 } } },
+    { staleTime: 60_000 }
+  );
+  const unresolvedCount =
+    (ticketsData?.counts.new ?? 0) +
+    (ticketsData?.counts.awaitingAgent ?? 0) +
+    (ticketsData?.counts.awaitingUser ?? 0) +
+    (ticketsData?.counts.awaitingInternal ?? 0);
 
   return (
     <Sidebar collapsible="icon">
@@ -108,6 +133,7 @@ export function BackOfficeSideMenu() {
               </SidebarGroupContent>
             </SidebarGroup>
           )}
+          <SupportSidebarGroup isActive={isSupportTicketsActive} unresolvedCount={unresolvedCount} />
           <SidebarGroup>
             <SidebarGroupLabel>
               <Trans>Platform</Trans>
@@ -150,5 +176,30 @@ export function BackOfficeSideMenu() {
       </nav>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+function SupportSidebarGroup({ isActive, unresolvedCount }: { isActive: boolean; unresolvedCount: number }) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>
+        <Trans>Support</Trans>
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild={true} isActive={isActive} tooltip={t`Tickets`}>
+              <RouterLink to="/support/tickets">
+                <InboxIcon />
+                <span>
+                  <Trans>Tickets</Trans>
+                </span>
+              </RouterLink>
+            </SidebarMenuButton>
+            {unresolvedCount > 0 && <SidebarMenuBadge>{unresolvedCount}</SidebarMenuBadge>}
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }

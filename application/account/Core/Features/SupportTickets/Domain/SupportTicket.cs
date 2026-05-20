@@ -14,7 +14,7 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
     public const int CsatCommentMaxLength = 2_000;
     public const int ShortDisplayIdLength = 6;
 
-    // A Resolved ticket auto-locks for further reopen after this window — the reporter has had a
+    // A Resolved ticket auto-locks for further reopen after this window. The reporter has had a
     // week to come back and re-engage if the answer didn't actually solve their problem, and after
     // that the ticket is treated as Closed. We don't have background jobs to flip the row's status,
     // so the rule lives on the aggregate and the DB stays Resolved + ResolvedAt forever.
@@ -36,7 +36,7 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
     }
 
     // Derived from the trailing ULID characters of Id. ULIDs are Crockford Base32 (uppercase A-Z and
-    // digits, excluding I/L/O/U), giving 32^6 ~= 1 billion permutations — collisions within a tenant
+    // digits, excluding I/L/O/U), giving 32^6 ~= 1 billion permutations. Collisions within a tenant
     // are statistically negligible without needing a separate uniqueness probe.
     public string ShortDisplayId => Id.Value[^ShortDisplayIdLength..];
 
@@ -145,21 +145,18 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
 
     public bool CloseByUser(DateTimeOffset now)
     {
-        if (Status is SupportTicketStatus.Closed) return false;
-        // The end-user may close from any non-closed state; the design only exposes Close from Resolved.
-        Status = SupportTicketStatus.Closed;
-        ClosedAt = now;
-        LastActivityAt = now;
-        HistoryEvents = HistoryEvents.Add(
-            SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.Closed, SupportMessageAuthorKind.User, ReporterEmailSnapshot, now)
-        );
+        // The end-user "Close" action is the user-facing label for marking a ticket Resolved. Resolved
+        // is the terminal status; the 7-day reopen window then derives the UI's "Closed" state without
+        // a second DB transition. The legacy Closed enum value is preserved for historical rows only.
+        if (Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed) return false;
+        ApplyStatusTransition(SupportTicketStatus.Resolved, SupportMessageAuthorKind.User, ReporterEmailSnapshot, now, true);
         return true;
     }
 
     // A CSAT rating is "stale" when the ticket has been reopened since the rating was submitted.
-    // After a reopen → re-resolve cycle the user should be able to submit a fresh rating instead of
-    // being locked out by the old one. Used by SubmitCsat to gate overwrites and by the UI to know
-    // whether to surface the rating form again.
+    // After a reopen and re-resolve cycle the user should be able to submit a fresh rating instead
+    // of being locked out by the old one. Used by SubmitCsat to gate overwrites and by the UI to
+    // know whether to surface the rating form again.
     public bool IsCsatStale()
     {
         if (Csat is null) return false;
@@ -225,14 +222,9 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
 
     public void SubmitCsat(SupportTicketCsatScore score, string? comment, DateTimeOffset now)
     {
+        // Submitting CSAT only records the rating; status transitions are owned by the user's
+        // explicit Close or Mark-resolved actions. The handler guards against CSAT on active tickets.
         Csat = new SupportTicketCsat(score, comment, now);
-        // Submitting CSAT closes the ticket (PRD).
-        if (Status is not SupportTicketStatus.Closed)
-        {
-            Status = SupportTicketStatus.Closed;
-            ClosedAt = now;
-        }
-
         LastActivityAt = now;
         HistoryEvents = HistoryEvents.Add(
             SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.CsatSubmitted, SupportMessageAuthorKind.User, ReporterEmailSnapshot, now, payload: score.ToString())
