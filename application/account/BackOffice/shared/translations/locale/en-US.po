@@ -1841,6 +1841,9 @@ msgstr "Open invoice"
 msgid "Open side pane"
 msgstr "Open side pane"
 
+msgid "Open support tickets"
+msgstr "Open support tickets"
+
 msgid "Open ticket"
 msgstr "Open ticket"
 
