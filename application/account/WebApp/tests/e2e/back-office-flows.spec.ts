@@ -1,4 +1,4 @@
-import { expect, request } from "@playwright/test";
+import { expect, type Page, request } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { getBackOfficeBaseUrl, getBaseUrl } from "@shared/e2e/utils/constants";
 import { createTestContext } from "@shared/e2e/utils/test-assertions";
@@ -7,6 +7,37 @@ import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
 const BASE_URL = getBaseUrl();
+
+// Pre-seeds a support ticket as the reporter via the user-facing API. The fixture-provided
+// reporterPage's context is created without ignoreHTTPSErrors on macOS, so a fresh request context
+// is spun up from the reporter's storageState. /api/account/support-tickets is multipart and
+// disables antiforgery, so no x-xsrf-token is required.
+async function createReporterTicket(reporterPage: Page, subject: string, body: string): Promise<string> {
+  const storageState = await reporterPage.context().storageState();
+  const reporterRequest = await request.newContext({ storageState, ignoreHTTPSErrors: true });
+  const response = await reporterRequest.post(`${BASE_URL}/api/account/support-tickets`, {
+    multipart: { subject, body, category: "Billing" }
+  });
+  expect(response.ok()).toBe(true);
+  const raw = await response.text();
+  await reporterRequest.dispose();
+  return JSON.parse(raw) as string;
+}
+
+// Fetches the staff detail view of a ticket from the back-office API using the already-authenticated
+// back-office page session. Used to look up the real tenant id and reporter id off a seeded ticket
+// without relying on the fixture's placeholder tenantId.
+async function getStaffTicketDetail(
+  backOfficePage: Page,
+  ticketId: string
+): Promise<{ accountId: string; reporterId: string }> {
+  const response = await backOfficePage.request.get(
+    `${BACK_OFFICE_BASE_URL}/api/back-office/support-tickets/${ticketId}`
+  );
+  expect(response.ok()).toBe(true);
+  const detail = (await response.json()) as { account: { id: string }; reporter: { id: string } };
+  return { accountId: detail.account.id, reporterId: detail.reporter.id };
+}
 
 test.describe("@smoke", () => {
   /**
@@ -68,8 +99,11 @@ test.describe("@comprehensive", () => {
    * Broader back-office surface coverage: drift banner appears when the summary endpoint reports drift,
    * the reconcile-with-Stripe admin action is wired on the account detail header, navigation across the
    * Overview/Users tabs swaps tab panels, the accounts list search filter and column-sort toggle update
-   * the URL, and host-scoped auth boundaries reject cross-host requests (security spot-check folded in
-   * to keep the file at the one-smoke-plus-one-comprehensive convention).
+   * the URL, the account Support tickets tab and Open support tickets card render for a seeded
+   * ticket and a row click deep-links to the back-office ticket detail page, the user Support tickets
+   * tab renders the same ticket from the reporter angle, and host-scoped auth boundaries reject
+   * cross-host requests (security spot-check folded in to keep the file at the one-smoke-plus-one-
+   * comprehensive convention).
    */
   test("should surface drift banner, expose reconcile action, navigate tabs, filter and sort accounts, and reject cross-host requests", async ({
     ownerPage,
@@ -165,6 +199,79 @@ test.describe("@comprehensive", () => {
 
       await page.keyboard.press("Escape");
     })();
+
+    // === SUPPORT TABS AND ACCOUNT CARD ===
+
+    // Seed a non-terminal support ticket for the worker tenant so the account-scoped support
+    // surfaces have data to render. The seeded ticket id also drives the row-click navigation
+    // assertion and the user support tab assertion below.
+    const supportSuffix = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+    const supportSubject = `E2E support tab ${supportSuffix}`;
+    let supportTicketId = "";
+    let supportTenantId = "";
+    let supportReporterId = "";
+
+    await step("Pre-seed a support ticket as the reporter & look up the tenant and reporter ids via staff API")(
+      async () => {
+        supportTicketId = await createReporterTicket(ownerPage, supportSubject, "Verifying back-office support tabs.");
+        expect(supportTicketId).toContain("tkt_");
+
+        const detail = await getStaffTicketDetail(page, supportTicketId);
+        supportTenantId = detail.accountId;
+        supportReporterId = detail.reporterId;
+        expect(supportTenantId.length).toBeGreaterThan(0);
+        expect(supportReporterId).toContain("usr_");
+      }
+    )();
+
+    await step("Navigate to the worker tenant's account detail Support tickets tab & verify the seeded ticket renders")(
+      async () => {
+        await page.goto(`${BACK_OFFICE_BASE_URL}/accounts/${supportTenantId}?tab=support-tickets`);
+
+        const main = page.getByRole("main");
+        await expect(main.getByRole("tab", { name: "Support tickets" })).toBeVisible();
+        const supportPanel = main.getByRole("tabpanel", { name: "Support tickets" });
+        await expect(supportPanel).toBeVisible();
+        await expect(supportPanel.getByText(supportSubject)).toBeVisible();
+      }
+    )();
+
+    await step("Switch to the Overview tab & verify the Open support tickets card lists the seeded ticket")(
+      async () => {
+        const main = page.getByRole("main");
+        await main.getByRole("tab", { name: "Overview" }).click();
+
+        const overviewPanel = main.getByRole("tabpanel", { name: "Overview" });
+        await expect(overviewPanel).toBeVisible();
+        const openCardTable = overviewPanel.getByRole("table", { name: "Open support tickets" });
+        await expect(openCardTable).toBeVisible();
+        await expect(openCardTable.getByText(supportSubject)).toBeVisible();
+      }
+    )();
+
+    await step("Click the seeded ticket row in the Open support tickets card & verify navigation to the ticket detail")(
+      async () => {
+        const main = page.getByRole("main");
+        const openCardTable = main.getByRole("table", { name: "Open support tickets" });
+        await openCardTable.getByRole("row").filter({ hasText: supportSubject }).click();
+
+        await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/support/tickets/${supportTicketId}`);
+        // Two headings carry the subject — the H1 in the detail header and the H4 in the side pane.
+        await expect(page.getByRole("heading", { level: 1, name: supportSubject })).toBeVisible();
+      }
+    )();
+
+    await step("Navigate to the reporter's user detail Support tickets tab & verify the seeded ticket renders")(
+      async () => {
+        await page.goto(`${BACK_OFFICE_BASE_URL}/users/${supportReporterId}?tab=support-tickets`);
+
+        const main = page.getByRole("main");
+        await expect(main.getByRole("tab", { name: "Support tickets" })).toBeVisible();
+        const supportPanel = main.getByRole("tabpanel", { name: "Support tickets" });
+        await expect(supportPanel).toBeVisible();
+        await expect(supportPanel.getByText(supportSubject)).toBeVisible();
+      }
+    )();
 
     // === SECURITY: HOST-SCOPED AUTH BOUNDARY ===
 
