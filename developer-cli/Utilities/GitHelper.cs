@@ -142,11 +142,10 @@ public static class GitHelper
     }
 
     // Returns relative paths (relative to solutionDirectory) of .cs files changed compared to
-    // origin/main. Fetches origin/main first so this works on shallow CI clones; the fetch is
-    // best-effort and silent on failure.
+    // origin/main. Relies on the caller's environment to keep origin/main reasonably current:
+    // CI checkouts in this repo use fetch-depth: 0 and local developers fetch on the usual cadence.
     public static string[] GetChangedCsFilesInDirectory(string solutionDirectory)
     {
-        ProcessHelper.StartProcess("git fetch origin main --depth=1", Configuration.SourceCodeFolder, true, exitOnError: false);
         var output = ProcessHelper.StartProcess("git diff --name-only origin/main -- \"*.cs\"", Configuration.SourceCodeFolder, true, exitOnError: false);
         if (string.IsNullOrWhiteSpace(output)) return [];
 
