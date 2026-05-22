@@ -960,6 +960,9 @@ msgstr "Brug for hjælp? Opret en sag, og en fra supporten vender tilbage til di
 msgid "Need help? Our support team is here to assist you."
 msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 
+msgid "New ticket"
+msgstr "Ny sag"
+
 msgid "Next"
 msgstr "Næste"
 
@@ -1198,9 +1201,6 @@ msgstr "Fjern logo"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
-
-msgid "Reopen"
-msgstr "Genåbn"
 
 msgid "Reopen ticket"
 msgstr "Genåbn sag"
@@ -1500,6 +1500,9 @@ msgstr "Dette vil permanent slette <0>{totalDeletedUsersCount} brugere</0> i pap
 msgid "This will permanently delete <0>1 user</0> in the recycle bin."
 msgstr "Dette vil permanent slette <0>1 bruger</0> i papirkurven."
 
+msgid "Ticket closed"
+msgstr "Sag lukket"
+
 msgid "Title"
 msgstr "Titel"
 
@@ -1716,6 +1719,9 @@ msgstr "Dig"
 
 msgid "You already shared feedback for this ticket"
 msgstr "Du har allerede delt feedback for denne sag"
+
+msgid "You can reopen it from your tickets list if you change your mind."
+msgstr "Du kan genåbne den fra din sagsliste, hvis du ombestemmer dig."
 
 msgid "You cannot change your own role"
 msgstr "Du kan ikke ændre din egen rolle"
