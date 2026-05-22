@@ -6,6 +6,7 @@ import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
+import { useEffect } from "react";
 
 import { api, type Schemas } from "@/shared/lib/api/client";
 
@@ -34,7 +35,17 @@ export function BackOfficeSupportSidePane({ ticketId, onClose, mode }: Readonly<
 function PreviewSidePane({ ticketId, onClose }: { ticketId: string | undefined; onClose: () => void }) {
   const isOpen = ticketId !== undefined;
   const navigate = useNavigate();
-  const { data: ticket, isLoading } = useTicketDetail(ticketId, isOpen);
+  const { data: ticket, isLoading, isError } = useTicketDetail(ticketId, isOpen);
+
+  // A stale or unauthorized selectedTicketId resolves to { isLoading: false, isError: true, data:
+  // undefined }. Without this the pane would show the loading skeleton forever. The shared
+  // errorHandler already surfaced a toast for the failed response; closing the pane clears the stale
+  // URL parameter and gives a coherent "ticket isn't here" outcome.
+  useEffect(() => {
+    if (isError && !ticket) {
+      onClose();
+    }
+  }, [isError, ticket, onClose]);
 
   return (
     <SidePane
@@ -48,7 +59,7 @@ function PreviewSidePane({ ticketId, onClose }: { ticketId: string | undefined; 
         {ticket ? <span className="truncate">{ticket.subject}</span> : <Trans>Support ticket</Trans>}
       </SidePaneHeader>
       <SidePaneBody className="flex flex-col gap-6">
-        <SidePaneContent ticket={ticket} isLoading={isLoading} />
+        <SidePaneContent ticket={ticket} isLoading={isLoading} isError={isError} />
       </SidePaneBody>
       {ticket && (
         <SidePaneFooter className="flex flex-col gap-3 border-t border-border bg-card">
@@ -72,7 +83,7 @@ function PreviewSidePane({ ticketId, onClose }: { ticketId: string | undefined; 
 }
 
 function DetailSidePane({ ticketId }: { ticketId: string | undefined }) {
-  const { data: ticket, isLoading } = useTicketDetail(ticketId, ticketId !== undefined);
+  const { data: ticket, isLoading, isError } = useTicketDetail(ticketId, ticketId !== undefined);
 
   return (
     <aside
@@ -85,7 +96,7 @@ function DetailSidePane({ ticketId }: { ticketId: string | undefined }) {
         </h4>
       </div>
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4">
-        <SidePaneContent ticket={ticket} isLoading={isLoading} />
+        <SidePaneContent ticket={ticket} isLoading={isLoading} isError={isError} />
       </div>
       {ticket && (
         <div className="mt-auto flex flex-col gap-3 border-t border-border bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
@@ -107,11 +118,18 @@ function useTicketDetail(ticketId: string | undefined, enabled: boolean) {
 
 function SidePaneContent({
   ticket,
-  isLoading
+  isLoading,
+  isError
 }: {
   ticket: Schemas["StaffTicketDetailResponse"] | undefined;
   isLoading: boolean;
+  isError: boolean;
 }) {
+  // The preview pane auto-closes on this same condition; rendering nothing avoids a flash of skeleton
+  // before the close lands. The errorHandler toast already told the user the fetch failed.
+  if (isError && !ticket) {
+    return null;
+  }
   if (isLoading || !ticket) {
     return (
       <div className="flex flex-col gap-4">
