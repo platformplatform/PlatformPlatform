@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Checkbox } from "@repo/ui/components/Checkbox";
+import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { Textarea } from "@repo/ui/components/Textarea";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
@@ -107,6 +108,12 @@ export function ReplyComposer({
 
   const canSend = reply.trim().length > 0 && !replyMutation.isPending;
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (reply.trim().length === 0) return;
+    replyMutation.mutate();
+  };
+
   return (
     <div className="border-t border-border bg-background px-4 py-3 sm:px-8 sm:py-4">
       <UnsavedChangesDialog
@@ -115,12 +122,19 @@ export function ReplyComposer({
         onCancel={cancelLeave}
         parentTrackingTitle="Support ticket detail"
       />
-      <div className="mx-auto w-full max-w-[48rem]">
+      <Form
+        onSubmit={handleSubmit}
+        validationErrors={replyMutation.error?.errors}
+        validationBehavior="aria"
+        className="mx-auto w-full max-w-[48rem]"
+      >
         <Textarea
+          name="body"
           value={reply}
           onChange={(event) => setReply(event.target.value)}
           placeholder={t`Type your reply…`}
           rows={2}
+          maxLength={10000}
           disabled={replyMutation.isPending}
         />
         {files.length > 0 && (
@@ -166,18 +180,12 @@ export function ReplyComposer({
               <Trans>Mark as resolved</Trans>
             </Label>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            disabled={!canSend}
-            isPending={replyMutation.isPending}
-            onClick={() => replyMutation.mutate()}
-          >
+          <Button type="submit" size="sm" disabled={!canSend} isPending={replyMutation.isPending}>
             <SendIcon className="size-3.5" />
             {replyMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send</Trans>}
           </Button>
         </div>
-      </div>
+      </Form>
     </div>
   );
 }
