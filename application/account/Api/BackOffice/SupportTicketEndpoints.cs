@@ -48,10 +48,6 @@ public sealed class SupportTicketEndpoints : IEndpoints
             => await HandleInternalNoteAsync(id, body, files, mediator, uploader, cancellationToken)
         ).DisableAntiforgery();
 
-        group.MapPut("/{id}/status", async Task<ApiResult> (SupportTicketId id, ChangeTicketStatusCommand command, IMediator mediator)
-            => await mediator.Send(command with { Id = id })
-        );
-
         group.MapPut("/{id}/assignee", async Task<ApiResult> (SupportTicketId id, AssignTicketCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         );

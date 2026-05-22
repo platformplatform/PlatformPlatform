@@ -131,27 +131,6 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
         return message;
     }
 
-    public ChangeStatusByStaffOutcome ChangeStatusByStaff(SupportTicketStatus newStatus, BackOfficeStaffRef staff, DateTimeOffset now)
-    {
-        if (Status == newStatus) return ChangeStatusByStaffOutcome.AlreadyInStatus;
-        if (newStatus is SupportTicketStatus.Closed)
-        {
-            // Staff cannot directly close; closing is end-user only (explicit close or CSAT submission).
-            return ChangeStatusByStaffOutcome.ClosingRefused;
-        }
-
-        // Terminal → non-terminal is a reopen. Enforce the 7-day window so this path matches
-        // ReopenByUser's contract; otherwise staff could reopen ancient tickets that the user
-        // is forced to recreate.
-        if (Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed && !CanBeReopenedAt(now))
-        {
-            return ChangeStatusByStaffOutcome.ReopenWindowExpired;
-        }
-
-        ApplyStatusTransition(newStatus, SupportMessageAuthorKind.Staff, staff.DisplayName, now, true);
-        return ChangeStatusByStaffOutcome.Changed;
-    }
-
     public bool MarkResolvedByUser(DateTimeOffset now)
     {
         if (Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed) return false;
@@ -267,8 +246,6 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
     {
         if (Status == newStatus) return;
 
-        var wasTerminal = Status is SupportTicketStatus.Closed or SupportTicketStatus.Resolved;
-
         // Leaving Closed always clears ClosedAt; the CSAT record is preserved (see SubmitCsat).
         if (Status is SupportTicketStatus.Closed) ClosedAt = null;
         // Leaving Resolved clears ResolvedAt; entering Resolved sets it.
@@ -279,17 +256,7 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
 
         LastActivityAt = now;
 
-        // Leaving a terminal status for a non-terminal one is always a reopen, regardless of who
-        // initiated it or whether recordHistory is set. The Reopened audit row is load-bearing: the
-        // chat thread projects it to the reporter and IsCsatStale-derived UI flows rely on the
-        // implicit ResolvedAt reset that follows.
-        if (wasTerminal && newStatus is not (SupportTicketStatus.Resolved or SupportTicketStatus.Closed))
-        {
-            HistoryEvents = HistoryEvents.Add(
-                SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.Reopened, actorKind, actorDisplayName, now)
-            );
-        }
-        else if (recordHistory)
+        if (recordHistory)
         {
             HistoryEvents = HistoryEvents.Add(
                 SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.StatusChanged, actorKind, actorDisplayName, now, payload: newStatus.ToString())
@@ -318,14 +285,6 @@ public sealed record SupportMessageId(string Value) : StronglyTypedUlid<SupportM
     {
         return Value;
     }
-}
-
-public enum ChangeStatusByStaffOutcome
-{
-    Changed,
-    AlreadyInStatus,
-    ClosingRefused,
-    ReopenWindowExpired
 }
 
 [PublicAPI]
