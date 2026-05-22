@@ -4,12 +4,11 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Logo } from "@repo/ui/components/Logo";
+import { formatFileSize } from "@repo/ui/support/attachments";
 import { PaperclipIcon } from "lucide-react";
 
 import { SmartDate } from "@/shared/components/SmartDate";
 import { type Schemas, SupportMessageAuthorKind } from "@/shared/lib/api/client";
-
-import { formatFileSize } from "./formatFileSize";
 
 type TicketMessage = Schemas["TicketMessageView"];
 

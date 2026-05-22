@@ -4,13 +4,13 @@ import { Button } from "@repo/ui/components/Button";
 import { Textarea } from "@repo/ui/components/Textarea";
 import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ToggleGroup";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
+import { ALLOWED_ATTACHMENT_EXTENSIONS, MAX_ATTACHMENTS } from "@repo/ui/support/attachments";
 import { LockIcon, MessageSquareIcon, PlusIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { type Schemas, SupportTicketStatus } from "@/shared/lib/api/client";
 
-import { ALLOWED_ATTACHMENT_EXTENSIONS, MAX_ATTACHMENTS } from "./formatFileSize";
 import { ReopenConfirmDialog } from "./ReopenConfirmDialog";
 import { type SendAction, SplitSendButton } from "./SplitSendButton";
 import { pickAttachments, StaffAttachmentList } from "./StaffAttachmentList";

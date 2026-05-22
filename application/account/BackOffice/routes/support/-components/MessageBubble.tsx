@@ -3,13 +3,13 @@ import { Trans } from "@lingui/react/macro";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Logo } from "@repo/ui/components/Logo";
+import { formatFileSize } from "@repo/ui/support/attachments";
 import { EyeOffIcon, LockIcon, PaperclipIcon } from "lucide-react";
 
 import { SmartDateTime } from "@/shared/components/SmartDateTime";
 import { type Schemas, SupportMessageAuthorKind } from "@/shared/lib/api/client";
 
 import { getInitials } from "./displayName";
-import { formatFileSize } from "./formatFileSize";
 
 type StaffMessage = Schemas["StaffTicketMessageView"];
 

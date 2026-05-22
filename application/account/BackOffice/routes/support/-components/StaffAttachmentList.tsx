@@ -1,9 +1,13 @@
 import { t } from "@lingui/core/macro";
 import { Button } from "@repo/ui/components/Button";
+import {
+  ALLOWED_ATTACHMENT_EXTENSIONS,
+  formatFileSize,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS
+} from "@repo/ui/support/attachments";
 import { PaperclipIcon, XIcon } from "lucide-react";
 import { toast } from "sonner";
-
-import { ALLOWED_ATTACHMENT_EXTENSIONS, formatFileSize, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS } from "./formatFileSize";
 
 export function pickAttachments(picked: FileList | null, current: File[]): File[] {
   if (!picked) return current;
