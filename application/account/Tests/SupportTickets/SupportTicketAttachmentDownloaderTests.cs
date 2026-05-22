@@ -15,7 +15,7 @@ public sealed class SupportTicketAttachmentDownloaderTests
         var parsed = SupportTicketAttachmentDownloader.TryParseBlobUrl(blobUrl);
 
         parsed.Should().NotBeNull();
-        parsed!.Value.ContainerName.Should().Be(expectedContainer);
+        parsed.Value.ContainerName.Should().Be(expectedContainer);
         parsed.Value.BlobName.Should().Be(expectedBlobName);
     }
 
