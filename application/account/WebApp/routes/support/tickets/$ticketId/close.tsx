@@ -9,7 +9,7 @@ import { useState } from "react";
 import { api, type Schemas, SupportTicketStatus } from "@/shared/lib/api/client";
 
 import { CategoryPill } from "../../-components/CategoryPill";
-import { CsatCard } from "../../-components/CsatCard";
+import { CsatCard, type CsatSubmittedState } from "../../-components/CsatCard";
 import { MessageBubble } from "../../-components/MessageBubble";
 import { StatusPill } from "../../-components/StatusPill";
 
@@ -26,9 +26,10 @@ function CloseTicketPage() {
     params: { path: { id: ticketId } }
   });
 
-  // Local override surfaces the "Thanks for the feedback" state immediately on submit, before
-  // the refetch lands. Server state (`ticket.csat !== null`) is the source of truth across reloads.
-  const [localSubmitted, setLocalSubmitted] = useState(false);
+  // Local override surfaces the success state immediately on submit, before the refetch lands.
+  // Server state (`ticket.csat !== null`) is the source of truth across reloads. Tracks whether the
+  // user rated ("submitted") or skipped ("skipped") so the panel copy matches their action.
+  const [submittedState, setSubmittedState] = useState<CsatSubmittedState>("none");
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["get", "/api/account/support-tickets/{id}"] });
@@ -59,7 +60,9 @@ function CloseTicketPage() {
   // A non-null csat is treated as "already recorded" only when it's still fresh; after a reopen the
   // backend flags the existing rating as stale and the user can submit a new one.
   const csatRecorded = ticket.csat !== null && !ticket.isCsatStale;
-  const submitted = localSubmitted || csatRecorded;
+  // Prefer the local action result; fall back to the server-recorded rating across reloads.
+  const submittedDerived: CsatSubmittedState =
+    submittedState !== "none" ? submittedState : csatRecorded ? "submitted" : "none";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -101,11 +104,12 @@ function CloseTicketPage() {
           <CsatCard
             ticketId={ticketId}
             alreadyClosed={alreadyClosed}
-            submitted={submitted}
+            ticketStatus={ticket.status}
+            submittedState={submittedDerived}
             csatAlreadyRecorded={csatRecorded}
-            onSubmitted={() => {
+            onSubmitted={(next) => {
               invalidate();
-              setLocalSubmitted(true);
+              setSubmittedState(next);
             }}
           />
 
@@ -115,16 +119,22 @@ function CloseTicketPage() {
               <div className="flex-1 text-sm text-muted-foreground">
                 <Trans>This ticket is closed.</Trans>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                isPending={reopenMutation.isPending}
-                onClick={() =>
-                  reopenMutation.mutate({ params: { path: { id: ticketId as Schemas["SupportTicketId"] } } })
-                }
-              >
-                <Trans>Reopen</Trans>
-              </Button>
+              {ticket.canBeReopened ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  isPending={reopenMutation.isPending}
+                  onClick={() =>
+                    reopenMutation.mutate({ params: { path: { id: ticketId as Schemas["SupportTicketId"] } } })
+                  }
+                >
+                  <Trans>Reopen ticket</Trans>
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" render={<RouterLink to="/support/tickets/new" />}>
+                  <Trans>New ticket</Trans>
+                </Button>
+              )}
             </div>
           )}
         </div>

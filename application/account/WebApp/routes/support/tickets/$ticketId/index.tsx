@@ -103,6 +103,7 @@ function TicketDetailPage() {
               status={ticket.status}
               csat={ticket.csat}
               isCsatStale={ticket.isCsatStale}
+              canBeReopened={ticket.canBeReopened}
               onStartReopen={() => setReopenMode(true)}
             />
           );

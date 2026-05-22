@@ -960,6 +960,9 @@ msgstr "Need a hand? Open a ticket and someone from support will get back to you
 msgid "Need help? Our support team is here to assist you."
 msgstr "Need help? Our support team is here to assist you."
 
+msgid "New ticket"
+msgstr "New ticket"
+
 msgid "Next"
 msgstr "Next"
 
@@ -1198,9 +1201,6 @@ msgstr "Remove logo"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
-
-msgid "Reopen"
-msgstr "Reopen"
 
 msgid "Reopen ticket"
 msgstr "Reopen ticket"
@@ -1500,6 +1500,9 @@ msgstr "This will permanently delete <0>{totalDeletedUsersCount} users</0> in th
 msgid "This will permanently delete <0>1 user</0> in the recycle bin."
 msgstr "This will permanently delete <0>1 user</0> in the recycle bin."
 
+msgid "Ticket closed"
+msgstr "Ticket closed"
+
 msgid "Title"
 msgstr "Title"
 
@@ -1716,6 +1719,9 @@ msgstr "You"
 
 msgid "You already shared feedback for this ticket"
 msgstr "You already shared feedback for this ticket"
+
+msgid "You can reopen it from your tickets list if you change your mind."
+msgstr "You can reopen it from your tickets list if you change your mind."
 
 msgid "You cannot change your own role"
 msgstr "You cannot change your own role"

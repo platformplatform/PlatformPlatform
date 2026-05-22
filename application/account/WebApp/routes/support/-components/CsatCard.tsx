@@ -6,7 +6,9 @@ import { Textarea } from "@repo/ui/components/Textarea";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { useId, useState } from "react";
 
-import { api, type Schemas, SupportTicketCsatScore } from "@/shared/lib/api/client";
+import { api, type Schemas, SupportTicketCsatScore, SupportTicketStatus } from "@/shared/lib/api/client";
+
+export type CsatSubmittedState = "none" | "submitted" | "skipped";
 
 type CsatChoice = {
   score: Schemas["SupportTicketCsatScore"];
@@ -39,15 +41,20 @@ const csatChoices: CsatChoice[] = [
 interface CsatCardProps {
   ticketId: string;
   alreadyClosed: boolean;
-  submitted: boolean;
+  // The ticket's current status. Used to decide whether "Skip" still needs a /close call: when the
+  // ticket is already terminal (e.g. the user arrived here via a mark-as-resolved reply) /close would
+  // 400, so Skip becomes a no-op network-wise.
+  ticketStatus: Schemas["SupportTicketStatus"];
+  submittedState: CsatSubmittedState;
   csatAlreadyRecorded: boolean;
-  onSubmitted: () => void;
+  onSubmitted: (next: Exclude<CsatSubmittedState, "none">) => void;
 }
 
 export function CsatCard({
   ticketId,
   alreadyClosed,
-  submitted,
+  ticketStatus,
+  submittedState,
   csatAlreadyRecorded,
   onSubmitted
 }: Readonly<CsatCardProps>) {
@@ -55,21 +62,30 @@ export function CsatCard({
   const [score, setScore] = useState<Schemas["SupportTicketCsatScore"]>(SupportTicketCsatScore.Helpful);
   const [comment, setComment] = useState("");
 
-  const closeMutation = api.useMutation("post", "/api/account/support-tickets/{id}/close", {
-    onSuccess: onSubmitted
-  });
+  const closeMutation = api.useMutation("post", "/api/account/support-tickets/{id}/close");
   const csatMutation = api.useMutation("post", "/api/account/support-tickets/{id}/csat", {
-    onSuccess: onSubmitted
+    onSuccess: () => onSubmitted("submitted")
   });
 
   const isPending = closeMutation.isPending || csatMutation.isPending;
   const trimmedComment = comment.trim() || null;
+  const isTerminalAlready =
+    ticketStatus === SupportTicketStatus.Resolved || ticketStatus === SupportTicketStatus.Closed;
 
   const handleSkip = () => {
-    closeMutation.mutate({
-      params: { path: { id: ticketId as Schemas["SupportTicketId"] } },
-      body: { csatScore: null, csatComment: null }
-    });
+    // Skip means "don't leave a rating". When the ticket is already terminal there is nothing to
+    // transition — calling /close would 400 ("already resolved or closed"). Treat it as a no-op.
+    if (isTerminalAlready) {
+      onSubmitted("skipped");
+      return;
+    }
+    closeMutation.mutate(
+      {
+        params: { path: { id: ticketId as Schemas["SupportTicketId"] } },
+        body: { csatScore: null, csatComment: null }
+      },
+      { onSuccess: () => onSubmitted("skipped") }
+    );
   };
 
   const handleSubmit = () => {
@@ -80,20 +96,27 @@ export function CsatCard({
       });
       return;
     }
-    closeMutation.mutate({
-      params: { path: { id: ticketId as Schemas["SupportTicketId"] } },
-      body: { csatScore: score, csatComment: trimmedComment }
-    });
+    closeMutation.mutate(
+      {
+        params: { path: { id: ticketId as Schemas["SupportTicketId"] } },
+        body: { csatScore: score, csatComment: trimmedComment }
+      },
+      { onSuccess: () => onSubmitted("submitted") }
+    );
   };
 
-  if (submitted) {
+  if (submittedState !== "none") {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 text-center">
         <h2 className="mb-1">
-          <Trans>Thanks for the feedback</Trans>
+          {submittedState === "submitted" ? <Trans>Thanks for the feedback</Trans> : <Trans>Ticket closed</Trans>}
         </h2>
         <p className="mb-4 text-sm text-muted-foreground">
-          <Trans>It helps us spot what to improve.</Trans>
+          {submittedState === "submitted" ? (
+            <Trans>It helps us spot what to improve.</Trans>
+          ) : (
+            <Trans>You can reopen it from your tickets list if you change your mind.</Trans>
+          )}
         </p>
         <Button variant="outline" size="sm" render={<RouterLink to="/support/tickets" />}>
           <Trans>Back to My tickets</Trans>

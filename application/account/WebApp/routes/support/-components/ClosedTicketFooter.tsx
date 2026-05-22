@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Link as RouterLink } from "@tanstack/react-router";
-import { LockIcon, RotateCcwIcon } from "lucide-react";
+import { LockIcon, PenLineIcon, RotateCcwIcon } from "lucide-react";
 
 import { type Schemas, SupportTicketCsatScore, SupportTicketStatus } from "@/shared/lib/api/client";
 
@@ -12,6 +12,10 @@ interface ClosedTicketFooterProps {
   csat: Schemas["TicketCsatView"] | null;
   // True when the existing rating predates a later reopen; the user can submit a fresh one.
   isCsatStale: boolean;
+  // True iff the backend will accept a /reopen call right now. False for Resolved tickets past the
+  // 7-day window (see SupportTicket.CanBeReopenedAt). When false we show a "create a new ticket" CTA
+  // instead of a Reopen button so the user has a path forward rather than a 400 toast.
+  canBeReopened: boolean;
   // Click handler for the Reopen button. Does NOT call /reopen directly. The parent route switches
   // into reopen-compose mode and shows the ReplyComposer. The actual /reopen call piggybacks on the
   // first reply so a misclick on Reopen costs nothing and we always know WHY the ticket was reopened.
@@ -26,6 +30,7 @@ export function ClosedTicketFooter({
   status,
   csat,
   isCsatStale,
+  canBeReopened,
   onStartReopen
 }: Readonly<ClosedTicketFooterProps>) {
   const isClosed = status === SupportTicketStatus.Closed;
@@ -41,10 +46,17 @@ export function ClosedTicketFooter({
           <div className="flex-1 text-sm text-muted-foreground">
             {isClosed ? <Trans>This ticket is closed.</Trans> : <Trans>This ticket is marked as resolved.</Trans>}
           </div>
-          <Button variant="outline" size="sm" onClick={onStartReopen}>
-            <RotateCcwIcon className="size-3.5" />
-            <Trans>Reopen ticket</Trans>
-          </Button>
+          {canBeReopened ? (
+            <Button variant="outline" size="sm" onClick={onStartReopen}>
+              <RotateCcwIcon className="size-3.5" />
+              <Trans>Reopen ticket</Trans>
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" render={<RouterLink to="/support/tickets/new" />}>
+              <PenLineIcon className="size-3.5" />
+              <Trans>New ticket</Trans>
+            </Button>
+          )}
         </div>
       </div>
     </div>
