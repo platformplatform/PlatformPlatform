@@ -31,6 +31,21 @@ public sealed class SupportTicketRepository(AccountDbContext accountDbContext)
     : RepositoryBase<SupportTicket, SupportTicketId>(accountDbContext), ISupportTicketRepository
 {
     /// <summary>
+    ///     Overrides the base GetByIdAsync to respect the tenant query filter. The base uses
+    ///     DbSet.FindAsync which bypasses every EF query filter, including the tenant filter; for a
+    ///     tenant-scoped aggregate that would return rows from any tenant and leave isolation to the
+    ///     per-handler reporter check alone. Checks the local change tracker first so an aggregate
+    ///     already loaded in the request scope is returned without a round trip.
+    /// </summary>
+    public new async Task<SupportTicket?> GetByIdAsync(SupportTicketId id, CancellationToken cancellationToken)
+    {
+        var local = DbSet.Local.SingleOrDefault(e => e.Id.Equals(id));
+        if (local is not null) return local;
+
+        return await DbSet.SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
+    }
+
+    /// <summary>
     ///     Returns every ticket for the current tenant. Sort happens in memory because SQLite (test
     ///     database) cannot translate DateTimeOffset comparisons in ORDER BY; the tenant-scoped result
     ///     set is bounded by how many tickets a tenant can reasonably open in v1.
