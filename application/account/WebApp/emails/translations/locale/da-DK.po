@@ -67,8 +67,8 @@ msgstr "Åbn sagen"
 msgid "Privacy"
 msgstr "Privatliv"
 
-msgid "Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
-msgstr "Sv: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
+msgid "Re: '{{'Subject | html_escape'}}' · #'{{'ShortDisplayId'}}'"
+msgstr "Sv: '{{'Subject | html_escape'}}' · #'{{'ShortDisplayId'}}'"
 
 msgid "Reply by opening the ticket — replies to this email are not monitored."
 msgstr "Svar ved at åbne sagen — svar på denne e-mail bliver ikke læst."

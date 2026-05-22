@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 using Scriban;
 using Scriban.Runtime;
@@ -15,14 +16,14 @@ public sealed partial class ScribanEmailRenderer(ScriptObject helpers, IEmailTem
         var htmlSource = templateLoader.LoadHtml(template.Name, template.Locale);
         var plainTextSource = templateLoader.LoadPlainText(template.Name, template.Locale);
 
-        var htmlBody = Render(htmlSource, template);
-        var plainTextBody = Render(plainTextSource, template);
+        var htmlBody = Render(htmlSource, template, true);
+        var plainTextBody = Render(plainTextSource, template, false);
 
         var subject = ExtractSubject(htmlBody, template.Name);
         return new EmailRenderResult(subject, htmlBody, plainTextBody);
     }
 
-    private string Render(string source, EmailTemplateBase template)
+    private string Render(string source, EmailTemplateBase template, bool htmlEscape)
     {
         var parsed = Template.Parse(source);
         if (parsed.HasErrors)
@@ -45,6 +46,19 @@ public sealed partial class ScribanEmailRenderer(ScriptObject helpers, IEmailTem
         context.PushGlobal(helpers);
         context.PushGlobal(perRenderGlobals);
         context.PushGlobal(modelObject);
+
+        // The HTML and plaintext templates share a single source (the Value helper emits the same
+        // {{ field | html_escape }} into both), but HTML escaping must only apply to the HTML body.
+        // For the plaintext pass, shadow html_escape/e with identity so the .txt output carries the
+        // raw text the sender typed rather than entity-encoded markup.
+        if (!htmlEscape)
+        {
+            var plainTextOverrides = new ScriptObject();
+            plainTextOverrides.Import("html_escape", (string? value) => value ?? "");
+            plainTextOverrides.Import("e", (string? value) => value ?? "");
+            context.PushGlobal(plainTextOverrides);
+        }
+
         return parsed.Render(context);
     }
 
@@ -69,7 +83,10 @@ public sealed partial class ScribanEmailRenderer(ScriptObject helpers, IEmailTem
             throw new InvalidOperationException($"Email template '{templateName}' is missing a <title> element required for the subject line.");
         }
 
-        return WhitespaceRegex().Replace(match.Groups[1].Value, " ").Trim();
+        // The <title> content may be HTML-escaped (templates pipe untrusted subject text through
+        // html_escape to prevent breaking out of <head>). The email Subject is a plaintext header, so
+        // decode entities back to the raw text. A no-op for titles built from trusted, unescaped text.
+        return WebUtility.HtmlDecode(WhitespaceRegex().Replace(match.Groups[1].Value, " ").Trim());
     }
 
     [GeneratedRegex("<title>(.*?)</title>", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
