@@ -55,6 +55,19 @@ public sealed class ReplyToTicketAsStaffHandler(
         var now = timeProvider.GetUtcNow();
         var fromStatus = ticket.Status;
 
+        // A staff reply on a terminal ticket is a reopen. Enforce the 7-day window so the customer
+        // does not receive an unannounced reply email about a thread they considered closed and so
+        // the chat thread carries the explicit Reopened marker.
+        if (ticket.Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed)
+        {
+            if (!ticket.ReopenByStaff(staff, now))
+            {
+                return Result.BadRequest("This ticket can no longer be reopened. The user must create a new ticket.");
+            }
+
+            events.CollectEvent(new SupportTicketReopened(ticket.Id, SupportMessageAuthorKind.Staff));
+        }
+
         ticket.PostStaffPublicMessage(staff, command.Body, command.Attachments, now);
         events.CollectEvent(new SupportTicketReplyPosted(ticket.Id, SupportMessageAuthorKind.Staff, command.Attachments.Length));
         if (fromStatus != ticket.Status)

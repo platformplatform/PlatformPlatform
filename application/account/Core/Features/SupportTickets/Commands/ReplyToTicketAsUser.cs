@@ -48,6 +48,20 @@ public sealed class ReplyToTicketAsUserHandler(
 
         var now = timeProvider.GetUtcNow();
         var fromStatus = ticket.Status;
+
+        // A reply on a terminal ticket is a reopen. Enforce the 7-day window here and emit the
+        // canonical Reopened telemetry; the aggregate's PostUserMessage rejects terminal-status
+        // replies so we can't fall through silently if this guard is bypassed.
+        if (ticket.Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed)
+        {
+            if (!ticket.ReopenByUser(now))
+            {
+                return Result.BadRequest("This ticket can no longer be reopened. Please create a new ticket instead.");
+            }
+
+            events.CollectEvent(new SupportTicketReopened(ticket.Id, SupportMessageAuthorKind.User));
+        }
+
         ticket.PostUserMessage(reporterUserId, command.Body, command.Attachments, now);
 
         events.CollectEvent(new SupportTicketReplyPosted(ticket.Id, SupportMessageAuthorKind.User, command.Attachments.Length));

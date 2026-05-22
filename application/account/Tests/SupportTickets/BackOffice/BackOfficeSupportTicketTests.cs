@@ -200,6 +200,63 @@ public sealed class BackOfficeSupportTicketTests(SupportTicketBackOfficeWebAppli
     }
 
     [Fact]
+    public async Task ReplyToTicketAsStaff_WhenTicketIsResolvedWithinReopenWindow_ShouldReopenWithReopenedEventAndSendOneEmail()
+    {
+        // Arrange. Staff reply on a Resolved ticket within the 7-day window must reopen the ticket
+        // (emitting the Reopened history event so the customer's chat thread shows the reopen) and
+        // emit the SupportTicketReopened telemetry event before the regular reply transition.
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.Resolved, resolvedAt: DateTimeOffset.UtcNow.AddDays(-2));
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Reopening to investigate further."), "body" },
+            { new StringContent("false"), "markAsResolved" }
+        };
+        factory.EmailClient.ClearReceivedCalls();
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/support-tickets/{ticketId}/reply", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.AwaitingUser));
+        var resolvedAt = Connection.ExecuteScalar<DateTimeOffset?>("SELECT resolved_at FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        resolvedAt.Should().BeNull();
+        await factory.EmailClient.Received(1).SendAsync(Arg.Any<EmailMessage>(), Arg.Any<CancellationToken>());
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "SupportTicketReopened");
+        var historyJson = Connection.ExecuteScalar<string>("SELECT history_events FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        historyJson.Should().Contain("Reopened");
+    }
+
+    [Fact]
+    public async Task ReplyToTicketAsStaff_WhenTicketIsResolvedPastReopenWindow_ShouldReturnBadRequestAndNotSendEmail()
+    {
+        // Arrange. Resolved 8 days ago is past the 7-day reopen window; the staff reply must be
+        // rejected rather than silently reopening the ticket and emailing the customer.
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.Resolved, resolvedAt: DateTimeOffset.UtcNow.AddDays(-8));
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Trying to reply past the reopen window."), "body" },
+            { new StringContent("false"), "markAsResolved" }
+        };
+        factory.EmailClient.ClearReceivedCalls();
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/support-tickets/{ticketId}/reply", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.Resolved));
+        await factory.EmailClient.DidNotReceive().SendAsync(Arg.Any<EmailMessage>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task PostInternalNote_WhenPosted_ShouldNotChangeStatusAndNotEnqueueEmail()
     {
         // Arrange

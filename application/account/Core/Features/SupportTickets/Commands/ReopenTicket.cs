@@ -33,7 +33,7 @@ public sealed class ReopenTicketHandler(
         }
 
         ticketRepository.Update(ticket);
-        events.CollectEvent(new SupportTicketReopened(ticket.Id));
+        events.CollectEvent(new SupportTicketReopened(ticket.Id, SupportMessageAuthorKind.User));
         return Result.Success();
     }
 }

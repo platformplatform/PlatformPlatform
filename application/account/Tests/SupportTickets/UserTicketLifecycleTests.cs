@@ -61,6 +61,59 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
+    public async Task ReplyToTicketAsUser_WhenStatusIsResolvedWithinReopenWindow_ShouldReopenWithReopenedEventAndAppend()
+    {
+        // Arrange. The ticket is Resolved inside the 7-day reopen window. A user reply must reopen
+        // the ticket, emit the Reopened history event (so CSAT staleness derives correctly), and
+        // emit the SupportTicketReopened telemetry event.
+        var ticketId = await CreateTicketViaApi();
+        SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
+        SetResolvedAt(ticketId, DateTimeOffset.UtcNow.AddDays(-2));
+        TelemetryEventsCollectorSpy.Reset();
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Actually still broken; reopening with more detail."), "body" },
+            { new StringContent("false"), "markAsResolved" }
+        };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/reply", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.AwaitingAgent));
+        var resolvedAt = Connection.ExecuteScalar<DateTimeOffset?>("SELECT resolved_at FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        resolvedAt.Should().BeNull();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "SupportTicketReopened");
+        var historyJson = Connection.ExecuteScalar<string>("SELECT history_events FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        historyJson.Should().Contain("Reopened");
+    }
+
+    [Fact]
+    public async Task ReplyToTicketAsUser_WhenStatusIsResolvedPastReopenWindow_ShouldReturnBadRequestAndKeepResolved()
+    {
+        // Arrange. The ticket is Resolved 8 days ago, past the 7-day reopen window. The handler must
+        // reject the reply rather than silently reopen the ticket.
+        var ticketId = await CreateTicketViaApi();
+        SetTicketStatus(ticketId, SupportTicketStatus.Resolved);
+        SetResolvedAt(ticketId, DateTimeOffset.UtcNow.AddDays(-8));
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Trying to reply past the reopen window."), "body" },
+            { new StringContent("false"), "markAsResolved" }
+        };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/reply", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.Resolved));
+    }
+
+    [Fact]
     public async Task GetTicketDetail_WhenInternalNoteExists_ShouldFilterItOutInResponse()
     {
         // Arrange

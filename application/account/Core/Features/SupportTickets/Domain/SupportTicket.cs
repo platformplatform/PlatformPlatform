@@ -80,6 +80,14 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
 
     public SupportMessage PostUserMessage(UserId authorUserId, string body, ImmutableArray<SupportMessageAttachment> attachments, DateTimeOffset now)
     {
+        // Terminal tickets must be explicitly reopened by the handler before a new message lands.
+        // Without this guard a reply silently bypasses the 7-day reopen window, skips the Reopened
+        // history event, and locks the reporter out of re-rating CSAT after the next re-resolve.
+        if (Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed)
+        {
+            throw new InvalidOperationException("Cannot post a user message on a terminal ticket; call ReopenByUser first.");
+        }
+
         var message = SupportMessage.Create(authorUserId.Value, SupportMessageAuthorKind.User, ReporterEmailSnapshot, body, attachments, now);
         Messages = Messages.Add(message);
         LastActivityAt = now;
@@ -87,13 +95,20 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
             SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.MessagePosted, SupportMessageAuthorKind.User, ReporterEmailSnapshot, now, attachments.Length > 0)
         );
 
-        // A user message always transitions to AwaitingAgent. From Closed it acts as a reopen.
+        // A user message always transitions to AwaitingAgent.
         ApplyStatusTransition(SupportTicketStatus.AwaitingAgent, SupportMessageAuthorKind.User, ReporterEmailSnapshot, now, false);
         return message;
     }
 
     public SupportMessage PostStaffPublicMessage(BackOfficeStaffRef staff, string body, ImmutableArray<SupportMessageAttachment> attachments, DateTimeOffset now)
     {
+        // Terminal tickets must be explicitly reopened by the handler before a staff reply lands.
+        // See PostUserMessage for the matching invariant on the user side.
+        if (Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed)
+        {
+            throw new InvalidOperationException("Cannot post a staff message on a terminal ticket; call ReopenByStaff first.");
+        }
+
         var message = SupportMessage.Create(staff.ObjectId, SupportMessageAuthorKind.Staff, staff.DisplayName, body, attachments, now);
         Messages = Messages.Add(message);
         LastActivityAt = now;
@@ -116,17 +131,25 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
         return message;
     }
 
-    public bool ChangeStatusByStaff(SupportTicketStatus newStatus, BackOfficeStaffRef staff, DateTimeOffset now)
+    public ChangeStatusByStaffOutcome ChangeStatusByStaff(SupportTicketStatus newStatus, BackOfficeStaffRef staff, DateTimeOffset now)
     {
-        if (Status == newStatus) return false;
+        if (Status == newStatus) return ChangeStatusByStaffOutcome.AlreadyInStatus;
         if (newStatus is SupportTicketStatus.Closed)
         {
             // Staff cannot directly close; closing is end-user only (explicit close or CSAT submission).
-            return false;
+            return ChangeStatusByStaffOutcome.ClosingRefused;
+        }
+
+        // Terminal → non-terminal is a reopen. Enforce the 7-day window so this path matches
+        // ReopenByUser's contract; otherwise staff could reopen ancient tickets that the user
+        // is forced to recreate.
+        if (Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed && !CanBeReopenedAt(now))
+        {
+            return ChangeStatusByStaffOutcome.ReopenWindowExpired;
         }
 
         ApplyStatusTransition(newStatus, SupportMessageAuthorKind.Staff, staff.DisplayName, now, true);
-        return true;
+        return ChangeStatusByStaffOutcome.Changed;
     }
 
     public bool MarkResolvedByUser(DateTimeOffset now)
@@ -153,18 +176,14 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
         return true;
     }
 
-    // A CSAT rating is "stale" when the ticket has been reopened since the rating was submitted.
+    // A CSAT rating is "stale" when the ticket has been re-resolved since the rating was submitted.
     // After a reopen and re-resolve cycle the user should be able to submit a fresh rating instead
-    // of being locked out by the old one. Used by SubmitCsat to gate overwrites and by the UI to
-    // know whether to surface the rating form again.
+    // of being locked out by the old one. Derives from ResolvedAt so the invariant holds even when
+    // a status path transitions out of Resolved without emitting a Reopened history event.
     public bool IsCsatStale()
     {
         if (Csat is null) return false;
-        var latestReopenedAt = HistoryEvents
-            .Where(historyEvent => historyEvent.Type == SupportTicketHistoryEventType.Reopened)
-            .Select(historyEvent => (DateTimeOffset?)historyEvent.OccurredAt)
-            .LastOrDefault();
-        return latestReopenedAt is { } latest && latest > Csat.SubmittedAt;
+        return ResolvedAt is { } resolvedAt && resolvedAt > Csat.SubmittedAt;
     }
 
     // A ticket is reopenable when it is Closed OR when it is Resolved within the reopen window.
@@ -209,6 +228,19 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
         return true;
     }
 
+    public bool ReopenByStaff(BackOfficeStaffRef staff, DateTimeOffset now)
+    {
+        if (!CanBeReopenedAt(now)) return false;
+        Status = SupportTicketStatus.AwaitingAgent;
+        ClosedAt = null;
+        ResolvedAt = null;
+        LastActivityAt = now;
+        HistoryEvents = HistoryEvents.Add(
+            SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.Reopened, SupportMessageAuthorKind.Staff, staff.DisplayName, now)
+        );
+        return true;
+    }
+
     public bool Assign(BackOfficeStaffRef? assignee, BackOfficeStaffRef actor, DateTimeOffset now)
     {
         if (Equals(Assignee, assignee)) return false;
@@ -235,6 +267,8 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
     {
         if (Status == newStatus) return;
 
+        var wasTerminal = Status is SupportTicketStatus.Closed or SupportTicketStatus.Resolved;
+
         // Leaving Closed always clears ClosedAt; the CSAT record is preserved (see SubmitCsat).
         if (Status is SupportTicketStatus.Closed) ClosedAt = null;
         // Leaving Resolved clears ResolvedAt; entering Resolved sets it.
@@ -245,7 +279,17 @@ public sealed class SupportTicket : AggregateRoot<SupportTicketId>, ITenantScope
 
         LastActivityAt = now;
 
-        if (recordHistory)
+        // Leaving a terminal status for a non-terminal one is always a reopen, regardless of who
+        // initiated it or whether recordHistory is set. The Reopened audit row is load-bearing: the
+        // chat thread projects it to the reporter and IsCsatStale-derived UI flows rely on the
+        // implicit ResolvedAt reset that follows.
+        if (wasTerminal && newStatus is not (SupportTicketStatus.Resolved or SupportTicketStatus.Closed))
+        {
+            HistoryEvents = HistoryEvents.Add(
+                SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.Reopened, actorKind, actorDisplayName, now)
+            );
+        }
+        else if (recordHistory)
         {
             HistoryEvents = HistoryEvents.Add(
                 SupportTicketHistoryEvent.Create(SupportTicketHistoryEventType.StatusChanged, actorKind, actorDisplayName, now, payload: newStatus.ToString())
@@ -274,6 +318,14 @@ public sealed record SupportMessageId(string Value) : StronglyTypedUlid<SupportM
     {
         return Value;
     }
+}
+
+public enum ChangeStatusByStaffOutcome
+{
+    Changed,
+    AlreadyInStatus,
+    ClosingRefused,
+    ReopenWindowExpired
 }
 
 [PublicAPI]

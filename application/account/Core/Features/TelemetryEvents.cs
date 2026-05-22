@@ -277,8 +277,8 @@ public sealed class SupportTicketCreated(SupportTicketId ticketId, SupportTicket
 public sealed class SupportTicketCsatSubmitted(SupportTicketId ticketId, SupportTicketCsatScore score)
     : TelemetryEvent(("ticket_id", ticketId), ("score", score));
 
-public sealed class SupportTicketReopened(SupportTicketId ticketId)
-    : TelemetryEvent(("ticket_id", ticketId));
+public sealed class SupportTicketReopened(SupportTicketId ticketId, SupportMessageAuthorKind actorKind)
+    : TelemetryEvent(("ticket_id", ticketId), ("actor_kind", actorKind));
 
 public sealed class SupportTicketReplyPosted(SupportTicketId ticketId, SupportMessageAuthorKind authorKind, int attachmentsCount)
     : TelemetryEvent(("ticket_id", ticketId), ("author_kind", authorKind), ("attachments_count", attachmentsCount));
