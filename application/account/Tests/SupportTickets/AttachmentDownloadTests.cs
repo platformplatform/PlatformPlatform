@@ -117,6 +117,22 @@ public sealed class AttachmentDownloadTests : EndpointBaseTest<AccountDbContext>
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
+    [Fact]
+    public async Task DownloadAttachment_WhenReporterAndMessageIsInternalNote_ShouldReturnNotFound()
+    {
+        // Arrange. The reporter owns the ticket, but the attachment is on a staff-only internal note
+        // stored in the support-staff container. The reporter download endpoint must never serve it,
+        // even given a valid internal SupportMessageId.
+        var (ticketId, internalMessageId) = SeedTicketWithInternalNoteAttachment(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account/support-tickets/{ticketId}/messages/{internalMessageId}/attachments/HASH999-private.png");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await _blobStorageClient.DidNotReceiveWithAnyArgs().DownloadAsync(null!, null!, CancellationToken.None);
+    }
+
     private (SupportTicketId TicketId, SupportMessageId MessageId) SeedTicketWithAttachment(TenantId tenantId, UserId reporterId, string reporterEmail)
     {
         var ticketId = SupportTicketId.NewId();
@@ -146,6 +162,37 @@ public sealed class AttachmentDownloadTests : EndpointBaseTest<AccountDbContext>
             ]
         );
         return (ticketId, messageId);
+    }
+
+    private (SupportTicketId TicketId, SupportMessageId InternalMessageId) SeedTicketWithInternalNoteAttachment(TenantId tenantId, UserId reporterId, string reporterEmail)
+    {
+        var ticketId = SupportTicketId.NewId();
+        var internalMessageId = SupportMessageId.NewId();
+        var now = DateTimeOffset.UtcNow;
+        var internalAttachment = new SupportMessageAttachment("private.png", ContentType, BlobBytes.Length, "/support-staff/messages/HASH999-private.png");
+        var internalNote = new SupportMessage(internalMessageId, "staff-oid", SupportMessageAuthorKind.Internal, "Support Staff", "Internal triage note", [internalAttachment], now);
+        var messagesJson = JsonSerializer.Serialize(new[] { internalNote });
+        Connection.Insert("support_tickets", [
+                ("tenant_id", tenantId.Value),
+                ("id", ticketId.ToString()),
+                ("created_at", now.AddMinutes(-10)),
+                ("modified_at", null),
+                ("reporter_id", reporterId.ToString()),
+                ("reporter_role_snapshot", nameof(UserRole.Owner)),
+                ("reporter_email_snapshot", reporterEmail),
+                ("subject", "Ticket with internal-note attachment"),
+                ("category", nameof(SupportTicketCategory.Other)),
+                ("status", nameof(SupportTicketStatus.AwaitingAgent)),
+                ("assignee", null),
+                ("last_activity_at", now),
+                ("resolved_at", null),
+                ("closed_at", null),
+                ("csat", null),
+                ("messages", messagesJson),
+                ("history_events", "[]")
+            ]
+        );
+        return (ticketId, internalMessageId);
     }
 
     private TenantId SeedOtherTenant()

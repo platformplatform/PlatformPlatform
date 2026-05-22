@@ -24,7 +24,11 @@ internal static class SupportTicketAttachmentEndpoint
         var ticket = await ticketRepository.GetByIdAsync(ticketId, cancellationToken);
         if (ticket is null || ticket.ReporterId != executionContext.UserInfo.Id!) return Results.NotFound();
 
-        return await StreamAttachmentAsync(ticket, messageId, fileName, blobStorageClient, httpContext, cancellationToken);
+        // Reporters must never receive internal-note attachments. The detail query already hides
+        // internal messages; mirror that invariant here so a leaked internal SupportMessageId can
+        // not be turned into bytes via this endpoint.
+        var message = ticket.Messages.SingleOrDefault(m => m.Id == messageId && m.AuthorKind != SupportMessageAuthorKind.Internal);
+        return await StreamMessageAttachmentAsync(message, fileName, SupportAttachmentUploader.TenantContainerName, blobStorageClient, httpContext, cancellationToken);
     }
 
     public static async Task<IResult> DownloadForStaffAsync(
@@ -40,17 +44,25 @@ internal static class SupportTicketAttachmentEndpoint
         var ticket = await ticketRepository.GetByIdUnfilteredAsync(ticketId, cancellationToken);
         if (ticket is null) return Results.NotFound();
 
-        return await StreamAttachmentAsync(ticket, messageId, fileName, blobStorageClient, httpContext, cancellationToken);
+        var message = ticket.Messages.SingleOrDefault(m => m.Id == messageId);
+        // Staff legitimately read both customer-attached and staff-only (internal-note) attachments,
+        // so no container is pinned for this path.
+        return await StreamMessageAttachmentAsync(message, fileName, null, blobStorageClient, httpContext, cancellationToken);
     }
 
-    private static async Task<IResult> StreamAttachmentAsync(SupportTicket ticket, SupportMessageId messageId, string fileName, IBlobStorageClient blobStorageClient, HttpContext httpContext, CancellationToken cancellationToken)
+    private static async Task<IResult> StreamMessageAttachmentAsync(SupportMessage? message, string fileName, string? expectedContainerName, IBlobStorageClient blobStorageClient, HttpContext httpContext, CancellationToken cancellationToken)
     {
-        var message = ticket.Messages.SingleOrDefault(m => m.Id == messageId);
         var attachment = message?.Attachments.SingleOrDefault(a => SupportTicketAttachmentDownloader.ExtractFileName(a.BlobUrl).Equals(fileName, StringComparison.Ordinal));
         if (attachment is null) return Results.NotFound();
 
-        var (containerName, blobName) = SupportTicketAttachmentDownloader.ParseBlobUrl(attachment.BlobUrl);
-        var blob = await blobStorageClient.DownloadAsync(containerName, blobName, cancellationToken);
+        var parsed = SupportTicketAttachmentDownloader.TryParseBlobUrl(attachment.BlobUrl);
+        if (parsed is null) return Results.NotFound();
+
+        // Pin the container per actor: a reporter download must only ever read from the tenant
+        // container, never the staff-only one, regardless of what the stored BlobUrl claims.
+        if (expectedContainerName is not null && parsed.Value.ContainerName != expectedContainerName) return Results.NotFound();
+
+        var blob = await blobStorageClient.DownloadAsync(parsed.Value.ContainerName, parsed.Value.BlobName, cancellationToken);
         if (blob is null) return Results.NotFound();
 
         httpContext.Response.Headers.CacheControl = "private, no-store";

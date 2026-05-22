@@ -17,11 +17,23 @@ public static class SupportTicketAttachmentDownloader
         return $"/api/back-office/support-tickets/{ticketId}/messages/{messageId}/attachments/{ExtractFileName(blobUrl)}";
     }
 
-    public static (string ContainerName, string BlobName) ParseBlobUrl(string blobUrl)
+    // Parses a stored BlobUrl into its container and blob name, returning null when the URL is
+    // malformed or its container is not one of the two known support containers. The managed
+    // identity can read every container in the storage account, so the container name read out of a
+    // stored value must be validated against the allow-list rather than trusted blindly.
+    public static (string ContainerName, string BlobName)? TryParseBlobUrl(string blobUrl)
     {
         var trimmed = blobUrl.TrimStart('/');
         var firstSlash = trimmed.IndexOf('/');
-        return (trimmed[..firstSlash], trimmed[(firstSlash + 1)..]);
+        if (firstSlash <= 0 || firstSlash == trimmed.Length - 1) return null;
+
+        var containerName = trimmed[..firstSlash];
+        if (containerName != SupportAttachmentUploader.TenantContainerName && containerName != SupportAttachmentUploader.StaffContainerName)
+        {
+            return null;
+        }
+
+        return (containerName, trimmed[(firstSlash + 1)..]);
     }
 
     public static string ExtractFileName(string blobUrl)
