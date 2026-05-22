@@ -11,6 +11,7 @@ import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { type Schemas, SupportTicketStatus } from "@/shared/lib/api/client";
 
 import { ALLOWED_ATTACHMENT_EXTENSIONS, MAX_ATTACHMENTS } from "./formatFileSize";
+import { ReopenConfirmDialog } from "./ReopenConfirmDialog";
 import { type SendAction, SplitSendButton } from "./SplitSendButton";
 import { pickAttachments, StaffAttachmentList } from "./StaffAttachmentList";
 import { useStaffReplyMutations } from "./useStaffReplyMutations";
@@ -35,6 +36,9 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
   const [body, setBody] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [primaryAction, setPrimaryAction] = useState<SendAction>("send");
+  // Holds the pending public-reply action while the reopen confirmation dialog is shown. A public
+  // reply on a terminal ticket silently reopens it and emails the customer, so staff must confirm.
+  const [pendingReopen, setPendingReopen] = useState<SendAction | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSuccess = () => {
@@ -54,10 +58,21 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
     hasUnsavedChanges: isDirty
   });
 
-  const executePrimary = (action: SendAction) => {
+  const runPrimary = (action: SendAction) => {
     if (action === "send") replyMutation.mutate({ body: body.trim(), files, markAsResolved: false });
     if (action === "sendAndResolve") replyMutation.mutate({ body: body.trim(), files, markAsResolved: true });
     if (action === "resolve") resolveMutation.mutate();
+  };
+
+  const executePrimary = (action: SendAction) => {
+    // A public reply on a terminal ticket reopens it and emails the customer. Confirm first so staff
+    // don't reopen a thread the customer considered closed by accident. (SplitSendButton only offers
+    // "send" on a terminal ticket, but the guard covers any reply action defensively.)
+    if (isTerminal) {
+      setPendingReopen(action);
+      return;
+    }
+    runPrimary(action);
   };
 
   return (
@@ -131,6 +146,7 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
               hasBody={hasBody}
               hasAttachments={hasAttachments}
               isPending={isAnyPending}
+              isTerminal={isTerminal}
               onExecute={executePrimary}
               onSelect={setPrimaryAction}
             />
@@ -148,6 +164,16 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
           )}
         </div>
       </div>
+
+      <ReopenConfirmDialog
+        isOpen={pendingReopen !== null}
+        onCancel={() => setPendingReopen(null)}
+        onConfirm={() => {
+          const action = pendingReopen;
+          setPendingReopen(null);
+          if (action !== null) runPrimary(action);
+        }}
+      />
     </div>
   );
 }

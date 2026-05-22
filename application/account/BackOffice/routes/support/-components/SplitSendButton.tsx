@@ -38,6 +38,10 @@ interface SplitSendButtonProps {
   hasBody: boolean;
   hasAttachments: boolean;
   isPending: boolean;
+  // When the ticket is terminal (Resolved/Closed) only "send" is offered — it reopens the ticket
+  // (the composer confirms first). "Send & resolve" and bare "Resolve" are incoherent on a terminal
+  // ticket (they would reopen then immediately re-resolve), so they are hidden.
+  isTerminal: boolean;
   // Called when the user clicks the main button — executes the currently-selected action.
   onExecute: (action: SendAction) => void;
   // Called when the user picks a different action from the dropdown — only updates which action
@@ -56,58 +60,69 @@ export function SplitSendButton({
   hasBody,
   hasAttachments,
   isPending,
+  isTerminal,
   onExecute,
   onSelect
 }: Readonly<SplitSendButtonProps>) {
-  const config = SEND_ACTION_LABELS[primaryAction];
+  const availableActions = (Object.keys(SEND_ACTION_LABELS) as SendAction[]).filter(
+    (action) => !isTerminal || action === "send"
+  );
+  // A stale primaryAction (e.g. the ticket transitioned to terminal while composing) falls back to
+  // the first available action so the main button never fires a hidden, incoherent action.
+  const effectiveAction = availableActions.includes(primaryAction) ? primaryAction : availableActions[0];
+  const config = SEND_ACTION_LABELS[effectiveAction];
   const Icon = config.icon;
   const disablePrimary = isPending || isActionDisabled(config, hasBody, hasAttachments);
+  const showDropdown = availableActions.length > 1;
 
   return (
     <div className="flex items-stretch">
       <Button
         type="button"
         size="sm"
-        className="rounded-r-none"
+        className={showDropdown ? "rounded-r-none" : undefined}
         disabled={disablePrimary}
         isPending={isPending}
-        onClick={() => onExecute(primaryAction)}
+        onClick={() => onExecute(effectiveAction)}
       >
         <Icon className="size-3.5" />
         {isPending ? config.pending() : config.idle()}
       </Button>
-      <DropdownMenu trackingTitle="Send actions">
-        <DropdownMenuTrigger
-          render={
-            <Button
-              type="button"
-              size="sm"
-              className="-ml-px rounded-l-none px-2"
-              disabled={isPending}
-              aria-label={t`More send options`}
-            >
-              <ChevronDownIcon className="size-3.5" />
-            </Button>
-          }
-        />
-        <DropdownMenuContent align="end">
-          {(Object.entries(SEND_ACTION_LABELS) as [SendAction, SendActionConfig][]).map(([key, value]) => {
-            const RowIcon = value.icon;
-            return (
-              <DropdownMenuItem
-                key={key}
-                onClick={() => onSelect(key)}
-                trackingLabel={key}
-                disabled={isActionDisabled(value, hasBody, hasAttachments)}
+      {showDropdown && (
+        <DropdownMenu trackingTitle="Send actions">
+          <DropdownMenuTrigger
+            render={
+              <Button
+                type="button"
+                size="sm"
+                className="-ml-px rounded-l-none px-2"
+                disabled={isPending}
+                aria-label={t`More send options`}
               >
-                <RowIcon className="size-4" />
-                <span className="flex-1">{value.idle()}</span>
-                {primaryAction === key && <CheckIcon className="size-3.5" />}
-              </DropdownMenuItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
+                <ChevronDownIcon className="size-3.5" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end">
+            {availableActions.map((key) => {
+              const value = SEND_ACTION_LABELS[key];
+              const RowIcon = value.icon;
+              return (
+                <DropdownMenuItem
+                  key={key}
+                  onClick={() => onSelect(key)}
+                  trackingLabel={key}
+                  disabled={isActionDisabled(value, hasBody, hasAttachments)}
+                >
+                  <RowIcon className="size-4" />
+                  <span className="flex-1">{value.idle()}</span>
+                  {effectiveAction === key && <CheckIcon className="size-3.5" />}
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }
