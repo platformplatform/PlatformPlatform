@@ -84,10 +84,9 @@ public sealed class SupportTicketDomainTests
     }
 
     // The legacy Status==Closed branch cannot be reached by any public aggregate method (the user
-    // close path writes Resolved, and ChangeStatusByStaff explicitly rejects Closed). It is
-    // exercised end-to-end by the API tests that seed a Closed row directly via the test database
-    // helper. Leaving this branch domain-untested would be a gap, but constructing the state via
-    // reflection here would be more misleading than the API coverage below.
+    // close path writes Resolved). It is exercised end-to-end by the API tests that seed a Closed row
+    // directly via the test database helper. Leaving this branch domain-untested would be a gap, but
+    // constructing the state via reflection here would be more misleading than the API coverage below.
     private static SupportTicket CreateTicket()
     {
         return SupportTicket.Create(

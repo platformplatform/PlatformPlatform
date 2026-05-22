@@ -116,21 +116,6 @@ public sealed class BackOfficeSupportTicketTests(SupportTicketBackOfficeWebAppli
     }
 
     [Fact]
-    public async Task ChangeTicketStatus_WhenAnonymous_ShouldReturnUnauthorized()
-    {
-        // Arrange
-        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
-        using var client = CreateBackOfficeClient();
-        var command = new ChangeTicketStatusCommand(SupportTicketStatus.AwaitingInternal);
-
-        // Act
-        var response = await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/status", command);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
     public async Task AssignTicket_WhenAnonymous_ShouldReturnUnauthorized()
     {
         // Arrange
@@ -457,22 +442,6 @@ public sealed class BackOfficeSupportTicketTests(SupportTicketBackOfficeWebAppli
         var assignedIndex = Array.FindIndex(payload.Tickets, t => t.Id.Value == assignedId.Value);
         var unassignedIndex = Array.FindIndex(payload.Tickets, t => t.Id.Value == unassignedId.Value);
         assignedIndex.Should().BeLessThan(unassignedIndex);
-    }
-
-    [Fact]
-    public async Task ChangeTicketStatus_WhenClosingViaStaff_ShouldReturnBadRequest()
-    {
-        // Arrange
-        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
-        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
-        using var client = CreateBackOfficeClientForIdentity(identity);
-        var command = new ChangeTicketStatusCommand(SupportTicketStatus.Closed);
-
-        // Act
-        var response = await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/status", command);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

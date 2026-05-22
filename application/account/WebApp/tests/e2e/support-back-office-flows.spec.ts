@@ -65,15 +65,6 @@ async function createReporterTicket(
   return JSON.parse(raw) as string;
 }
 
-// Loads the back-office antiforgery token from the SPA shell. Mutation endpoints that do NOT call
-// .DisableAntiforgery() (status, assignee, mark-resolved) require this header on Playwright requests.
-async function getBackOfficeAntiforgeryHeaders(backOfficePage: Page): Promise<{ "x-xsrf-token": string }> {
-  const token = await backOfficePage.evaluate(
-    () => document.head.querySelector('meta[name="antiforgeryToken"]')?.getAttribute("content") ?? ""
-  );
-  return { "x-xsrf-token": token };
-}
-
 // Posts an internal note (staff-only, no email) via the back-office API in the already-authenticated
 // back-office page session. The /internal-note endpoint disables antiforgery.
 async function postInternalNote(backOfficePage: Page, ticketId: string, body: string): Promise<void> {
@@ -350,37 +341,6 @@ test.describe("@comprehensive", () => {
         await expect(ownerPage.getByRole("heading", { name: subjectAlpha })).toBeVisible();
         await expect(ownerPage.getByText(internalNoteBody)).not.toBeVisible();
         await expect(ownerPage.getByText("Internal note")).not.toBeVisible();
-      }
-    )();
-
-    // === STATUS TRANSITION GUARDS (API-LEVEL — NO UI STATUS DROPDOWN EXISTS IN BACK-OFFICE V1) ===
-
-    await step("Attempt to set the alpha ticket status to Closed via the back-office API & verify 400 with copy")(
-      async () => {
-        const headers = await getBackOfficeAntiforgeryHeaders(backOfficePage);
-        const response = await backOfficePage.request.put(
-          `${BACK_OFFICE_BASE_URL}/api/back-office/support-tickets/${ticketIdAlpha}/status`,
-          { headers, data: { status: "Closed" } }
-        );
-
-        expect(response.status()).toBe(400);
-        const body = await response.text();
-        expect(body).toContain("Staff cannot close a ticket directly");
-      }
-    )();
-
-    await step("Attempt to set the alpha ticket status to its current value via the API & verify 400 with copy")(
-      async () => {
-        // The reporter-created ticket is in AwaitingAgent (see PostUserMessage transition).
-        const headers = await getBackOfficeAntiforgeryHeaders(backOfficePage);
-        const response = await backOfficePage.request.put(
-          `${BACK_OFFICE_BASE_URL}/api/back-office/support-tickets/${ticketIdAlpha}/status`,
-          { headers, data: { status: "AwaitingAgent" } }
-        );
-
-        expect(response.status()).toBe(400);
-        const body = await response.text();
-        expect(body).toContain("already in status");
       }
     )();
 
