@@ -2245,6 +2245,12 @@ msgstr "Renewed"
 msgid "Renews {0}"
 msgstr "Renews {0}"
 
+msgid "Reopen and send"
+msgstr "Reopen and send"
+
+msgid "Reopen this ticket?"
+msgstr "Reopen this ticket?"
+
 msgid "reopened this ticket"
 msgstr "reopened this ticket"
 
@@ -2463,6 +2469,9 @@ msgstr "Send & resolve"
 
 msgid "Send invite"
 msgstr "Send invite"
+
+msgid "Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't want to notify them."
+msgstr "Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't want to notify them."
 
 msgid "Sending…"
 msgstr "Sending…"

@@ -2245,6 +2245,12 @@ msgstr "Fornyet"
 msgid "Renews {0}"
 msgstr "Fornyes {0}"
 
+msgid "Reopen and send"
+msgstr "Genåbn og send"
+
+msgid "Reopen this ticket?"
+msgstr "Genåbn denne sag?"
+
 msgid "reopened this ticket"
 msgstr "genåbnede denne sag"
 
@@ -2463,6 +2469,9 @@ msgstr "Send og løs"
 
 msgid "Send invite"
 msgstr "Send invitation"
+
+msgid "Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't want to notify them."
+msgstr "Når du sender dette svar, genåbnes sagen, og kunden får en e-mail. Brug en intern note i stedet, hvis du ikke vil give besked."
 
 msgid "Sending…"
 msgstr "Sender…"
