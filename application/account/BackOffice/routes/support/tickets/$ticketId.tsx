@@ -1,7 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { requireSupportSystemEnabled } from "@repo/infrastructure/auth/routeGuards";
+import { Button } from "@repo/ui/components/Button";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/Sidebar";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef } from "react";
@@ -122,14 +124,16 @@ function TicketDetailHeader({ ticket }: { ticket: Schemas["StaffTicketDetailResp
     <div className="sticky top-0 z-10 border-b border-border bg-background px-4 pt-4 pb-3 sm:px-8">
       <div className="mx-auto flex w-full max-w-[48rem] flex-col">
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleBack}
-            aria-label={t`Back`}
-            className="cursor-pointer text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeftIcon className="size-5" aria-hidden={true} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button variant="ghost" size="icon-sm" onClick={handleBack} aria-label={t`Back to inbox`}>
+                  <ArrowLeftIcon className="size-5" aria-hidden={true} />
+                </Button>
+              }
+            />
+            <TooltipContent>{t`Back to inbox`}</TooltipContent>
+          </Tooltip>
           <h1 className="flex-1">{ticket.subject}</h1>
           <StatusPill status={ticket.status} />
         </div>

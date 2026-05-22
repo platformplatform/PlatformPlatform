@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
+import { Button } from "@repo/ui/components/Button";
 import { Logo } from "@repo/ui/components/Logo";
 import { PaperclipIcon } from "lucide-react";
 
@@ -65,21 +66,29 @@ export function MessageBubble({ message }: { message: TicketMessage }) {
           {message.attachments.length > 0 && (
             <div className="mt-2 flex flex-col gap-1.5">
               {message.attachments.map((attachment) => (
-                <a
+                <Button
                   key={attachment.url}
-                  href={attachment.url}
-                  download={attachment.fileName}
-                  className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs underline-offset-2 hover:underline ${
-                    isOwnMessage ? "border-background/40 text-background" : "border-border text-foreground"
+                  variant="outline"
+                  size="sm"
+                  className={`h-auto justify-start gap-2 rounded-lg bg-transparent px-2.5 py-1.5 text-xs no-underline shadow-none hover:underline ${
+                    isOwnMessage
+                      ? "border-background/40 text-background hover:bg-background/10"
+                      : "border-border text-foreground hover:bg-transparent"
                   }`}
-                  aria-label={t`Download attachment ${attachment.fileName}`}
+                  render={
+                    <a
+                      href={attachment.url}
+                      download={attachment.fileName}
+                      aria-label={t`Download attachment ${attachment.fileName}`}
+                    />
+                  }
                 >
                   <PaperclipIcon className="size-3" aria-hidden={true} />
                   <span className="truncate">{attachment.fileName}</span>
                   <span className={isOwnMessage ? "opacity-70" : "text-muted-foreground"}>
                     · {formatFileSize(attachment.sizeInBytes)}
                   </span>
-                </a>
+                </Button>
               ))}
             </div>
           )}

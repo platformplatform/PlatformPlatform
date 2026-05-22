@@ -8,6 +8,8 @@ import { useId, useState } from "react";
 
 import { api, type Schemas, SupportTicketCsatScore, SupportTicketStatus } from "@/shared/lib/api/client";
 
+import { CsatSmileyButton } from "./CsatSmileyButton";
+
 export type CsatSubmittedState = "none" | "submitted" | "skipped";
 
 type CsatChoice = {
@@ -154,9 +156,10 @@ export function CsatCard({
       </p>
       <div className="flex items-center justify-center gap-4">
         {csatChoices.map((choice) => (
-          <SmileyButton
+          <CsatSmileyButton
             key={choice.score}
-            choice={choice}
+            emoji={choice.emoji}
+            label={choice.label()}
             selected={score === choice.score}
             disabled={isPending}
             onSelect={() => setScore(choice.score)}
@@ -187,36 +190,6 @@ export function CsatCard({
           {isPending ? <Trans>Submitting...</Trans> : <Trans>Submit feedback</Trans>}
         </Button>
       </div>
-    </div>
-  );
-}
-
-function SmileyButton({
-  choice,
-  selected,
-  disabled,
-  onSelect
-}: {
-  choice: CsatChoice;
-  selected: boolean;
-  disabled: boolean;
-  onSelect: () => void;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-1.5">
-      <button
-        type="button"
-        onClick={onSelect}
-        disabled={disabled}
-        className={`flex size-12 cursor-pointer items-center justify-center rounded-full border text-2xl transition ${
-          selected ? "border-primary bg-primary/10" : "border-border bg-background hover:bg-muted"
-        }`}
-        aria-pressed={selected}
-        aria-label={choice.label()}
-      >
-        {choice.emoji}
-      </button>
-      <span className="text-xs text-muted-foreground">{choice.label()}</span>
     </div>
   );
 }

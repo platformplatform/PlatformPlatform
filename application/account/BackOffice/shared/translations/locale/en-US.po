@@ -428,6 +428,9 @@ msgstr "Back Office overview · {today}"
 msgid "Back to feature flags"
 msgstr "Back to feature flags"
 
+msgid "Back to inbox"
+msgstr "Back to inbox"
+
 msgid "Badges"
 msgstr "Badges"
 
