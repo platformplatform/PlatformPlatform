@@ -53,7 +53,9 @@ export function InboxToolbar({ search, category, assignee, resultCount }: Readon
         ...previous,
         orderBy: previous.orderBy as SortableTicketProperties | undefined,
         search: debouncedSearch || undefined,
-        pageOffset: undefined
+        pageOffset: undefined,
+        // Clear the side-pane selection: a new search can drop the previewed ticket's row.
+        selectedTicketId: undefined
       })
     });
   }, [debouncedSearch, navigate, search]);
@@ -70,7 +72,8 @@ export function InboxToolbar({ search, category, assignee, resultCount }: Readon
         ...previous,
         orderBy: previous.orderBy as SortableTicketProperties | undefined,
         category: next,
-        pageOffset: undefined
+        pageOffset: undefined,
+        selectedTicketId: undefined
       })
     });
   };
@@ -82,7 +85,8 @@ export function InboxToolbar({ search, category, assignee, resultCount }: Readon
         ...previous,
         orderBy: previous.orderBy as SortableTicketProperties | undefined,
         assignee: value,
-        pageOffset: undefined
+        pageOffset: undefined,
+        selectedTicketId: undefined
       })
     });
   };

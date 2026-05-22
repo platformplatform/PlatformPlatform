@@ -78,6 +78,9 @@ function SupportInboxPage() {
   const showEmpty = !isLoading && tickets.length === 0 && !hasActiveFilters;
   const showNoResults = !isLoading && tickets.length === 0 && hasActiveFilters;
 
+  // Every navigation except a row selection clears selectedTicketId: a status/sort/filter/page change
+  // can drop the previewed ticket's row from the visible result set, leaving the side pane stranded on
+  // a ticket the user can no longer see in the table.
   const handleStatusChange = (next: SupportTicketStatus | undefined) => {
     navigate({
       to: "/support/tickets",
@@ -85,7 +88,8 @@ function SupportInboxPage() {
         ...previous,
         orderBy: previous.orderBy as SortableTicketProperties | undefined,
         status: next,
-        pageOffset: undefined
+        pageOffset: undefined,
+        selectedTicketId: undefined
       })
     });
   };
@@ -100,7 +104,8 @@ function SupportInboxPage() {
       search: (previous) => ({
         ...previous,
         orderBy: previous.orderBy as SortableTicketProperties | undefined,
-        pageOffset: page === 1 ? undefined : page - 1
+        pageOffset: page === 1 ? undefined : page - 1,
+        selectedTicketId: undefined
       })
     });
   };
@@ -133,7 +138,8 @@ function SupportInboxPage() {
         ...previous,
         orderBy: column === DEFAULT_ORDER_BY ? undefined : column,
         sortOrder: nextOrder === DEFAULT_SORT_ORDER ? undefined : nextOrder,
-        pageOffset: undefined
+        pageOffset: undefined,
+        selectedTicketId: undefined
       })
     });
   };
