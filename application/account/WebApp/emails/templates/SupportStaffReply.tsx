@@ -12,20 +12,20 @@ type SupportStaffReplyProps = {
 
 export default function SupportStaffReply({ locale }: Readonly<SupportStaffReplyProps>) {
   return (
-    <TransactionalEmail locale={locale} preview="Re: {{Subject}}">
+    <TransactionalEmail locale={locale} preview="Re: {{Subject | html_escape}}">
       <Subject>
-        <Trans>{`Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'`}</Trans>
+        <Trans>{`Re: '{{'Subject | html_escape'}}' · #'{{'ShortDisplayId'}}'`}</Trans>
       </Subject>
 
       <Heading level={1}>
         <Trans>
-          <Value path="StaffName" sample="Lars" /> replied to your ticket
+          <Value path="StaffName | html_escape" sample="Lars" /> replied to your ticket
         </Trans>
       </Heading>
 
       <Section className="email-quote my-[16px] rounded-[8px] border border-[#e2e8f0] bg-[#f8fafc] p-[16px]">
         <Text className="m-[0px] text-[14px] leading-[22px] whitespace-pre-line">
-          <Value path="Body" sample="Thanks for reaching out — we are looking into this now." />
+          <Value path="Body | html_escape" sample="Thanks for reaching out — we are looking into this now." />
         </Text>
       </Section>
 

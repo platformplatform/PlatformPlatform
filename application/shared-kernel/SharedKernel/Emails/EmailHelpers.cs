@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using Humanizer;
 using Scriban.Runtime;
 using SharedKernel.Platform;
@@ -30,10 +31,20 @@ internal static class EmailHelpers
         scriptObject.Import("format_currency", FormatCurrency);
         scriptObject.Import("format_date", FormatDate);
         scriptObject.Import("pluralize", Pluralize);
+        // HTML-escape untrusted text interpolated into the HTML body. Scriban does no auto-escaping,
+        // so any template that substitutes user- or staff-controlled text MUST pipe it through this
+        // (e.g. {{ Body | html_escape }}). `e` is the conventional short alias.
+        scriptObject.Import("html_escape", HtmlEscape);
+        scriptObject.Import("e", HtmlEscape);
         scriptObject.SetValue("PublicUrl", publicUrl.TrimEnd('/'), true);
         scriptObject.SetValue("ProductName", Settings.Current.Branding.ProductName, true);
         scriptObject.SetValue("EmailHeaderBackground", Settings.Current.Branding.EmailHeaderBackground, true);
         return scriptObject;
+    }
+
+    private static string HtmlEscape(string? value)
+    {
+        return WebUtility.HtmlEncode(value ?? "");
     }
 
     private static string FormatCurrency(decimal amount, string currency, string locale)

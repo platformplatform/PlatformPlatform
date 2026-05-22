@@ -194,6 +194,51 @@ public sealed class ScribanEmailRendererTests
     }
 
     [Fact]
+    public void RenderEmail_WhenHtmlEscapeHelperUsed_ShouldEscapeInHtmlButLeavePlaintextRaw()
+    {
+        // Scriban does no auto-escaping, so untrusted text interpolated into the HTML body must be
+        // piped through html_escape. The same {{ field | html_escape }} appears in both the HTML and
+        // plaintext sources (the Value JSX helper emits to both), so the renderer must escape only the
+        // HTML pass and leave the plaintext raw — otherwise legitimate text like "you & me" would show
+        // as "you &amp; me" in the .txt body.
+        var html = "<html><head><title>Re: {{ subject | html_escape }}</title></head><body><span>{{ body | html_escape }}</span></body></html>";
+        var plainText = "{{ body | html_escape }}";
+        var renderer = CreateRenderer(html, plainText);
+        var template = new TestTemplate("support", "en-US", new
+            {
+                subject = "Help</title><h1>Spoofed</h1>",
+                body = "<script>alert('xss')</script> you & me"
+            }
+        );
+
+        // Act
+        var result = renderer.RenderEmail(template);
+
+        // Assert
+        result.HtmlBody.Should().Contain("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt; you &amp; me");
+        result.HtmlBody.Should().NotContain("<script>alert");
+        result.HtmlBody.Should().NotContain("</title><h1>Spoofed</h1>");
+        result.Subject.Should().Be("Re: Help</title><h1>Spoofed</h1>");
+        result.PlainTextBody.Should().Be("<script>alert('xss')</script> you & me");
+    }
+
+    [Fact]
+    public void RenderEmail_WhenEHelperUsed_ShouldEscapeInHtmlButLeavePlaintextRaw()
+    {
+        // `e` is the short alias for html_escape; it must behave identically.
+        var html = "<html><head><title>t</title></head><body><span>{{ body | e }}</span></body></html>";
+        var renderer = CreateRenderer(html, "{{ body | e }}");
+        var template = new TestTemplate("alias", "en-US", new { body = "<b>x</b> & y" });
+
+        // Act
+        var result = renderer.RenderEmail(template);
+
+        // Assert
+        result.HtmlBody.Should().Contain("&lt;b&gt;x&lt;/b&gt; &amp; y");
+        result.PlainTextBody.Should().Be("<b>x</b> & y");
+    }
+
+    [Fact]
     public void RenderEmail_WhenTitleMissing_ShouldThrow()
     {
         // Arrange

@@ -67,8 +67,8 @@ msgstr "Open ticket"
 msgid "Privacy"
 msgstr "Privacy"
 
-msgid "Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
-msgstr "Re: '{{'Subject'}}' · #'{{'ShortDisplayId'}}'"
+msgid "Re: '{{'Subject | html_escape'}}' · #'{{'ShortDisplayId'}}'"
+msgstr "Re: '{{'Subject | html_escape'}}' · #'{{'ShortDisplayId'}}'"
 
 msgid "Reply by opening the ticket — replies to this email are not monitored."
 msgstr "Reply by opening the ticket — replies to this email are not monitored."
