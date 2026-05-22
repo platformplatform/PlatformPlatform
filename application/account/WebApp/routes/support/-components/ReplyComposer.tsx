@@ -6,6 +6,12 @@ import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { Textarea } from "@repo/ui/components/Textarea";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
+import {
+  ALLOWED_ATTACHMENT_EXTENSIONS,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS,
+  formatFileSize
+} from "@repo/ui/support/attachments";
 import { useMutation } from "@tanstack/react-query";
 import { PaperclipIcon, PlusIcon, SendIcon, XIcon } from "lucide-react";
 import { useId, useRef, useState } from "react";
@@ -13,8 +19,6 @@ import { toast } from "sonner";
 
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { apiClient, type Schemas } from "@/shared/lib/api/client";
-
-import { ALLOWED_ATTACHMENT_EXTENSIONS, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS, formatFileSize } from "./formatFileSize";
 
 interface ReplyComposerProps {
   ticketId: string;

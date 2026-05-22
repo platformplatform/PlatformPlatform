@@ -1,11 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
+import {
+  ALLOWED_ATTACHMENT_EXTENSIONS,
+  formatFileSize,
+  MAX_ATTACHMENT_BYTES,
+  MAX_ATTACHMENTS
+} from "@repo/ui/support/attachments";
 import { PaperclipIcon, PlusIcon, XIcon } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
-
-import { ALLOWED_ATTACHMENT_EXTENSIONS, formatFileSize, MAX_ATTACHMENT_BYTES, MAX_ATTACHMENTS } from "./formatFileSize";
 
 interface AttachmentChipListProps {
   files: File[];
