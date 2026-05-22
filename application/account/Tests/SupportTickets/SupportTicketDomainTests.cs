@@ -69,6 +69,20 @@ public sealed class SupportTicketDomainTests
         ticket.ComputeDisplayStatus(Now).Should().Be(SupportTicketStatus.Resolved);
     }
 
+    [Fact]
+    public void IsCsatStale_WhenReopenInProgressBeforeReResolve_ShouldReturnFalse()
+    {
+        // Between reopen and re-resolve ResolvedAt is null, so IsCsatStale returns false. Consumers
+        // (SubmitCsat, CloseTicketByUser, ComputeDisplayStatus) all gate on Status == Resolved/Closed
+        // before consulting staleness, so the contract is not user-visible during this window.
+        var ticket = CreateTicket();
+        ticket.MarkResolvedByUser(Now.AddDays(-5));
+        ticket.SubmitCsat(SupportTicketCsatScore.Helpful, null, Now.AddDays(-4));
+        ticket.ReopenByUser(Now.AddDays(-3));
+
+        ticket.IsCsatStale().Should().BeFalse();
+    }
+
     // The legacy Status==Closed branch cannot be reached by any public aggregate method (the user
     // close path writes Resolved, and ChangeStatusByStaff explicitly rejects Closed). It is
     // exercised end-to-end by the API tests that seed a Closed row directly via the test database

@@ -25,19 +25,31 @@ public sealed class ChangeTicketStatusHandler(
         var ticket = await ticketRepository.GetByIdUnfilteredAsync(command.Id, cancellationToken);
         if (ticket is null) return Result.NotFound($"Support ticket with id '{command.Id}' not found.");
 
-        if (command.Status is SupportTicketStatus.Closed)
-        {
-            return Result.BadRequest("Staff cannot close a ticket directly — only the end user can close it.");
-        }
-
         var staff = backOfficeStaffContext.GetCurrent();
         var fromStatus = ticket.Status;
-        if (!ticket.ChangeStatusByStaff(command.Status, staff, timeProvider.GetUtcNow()))
+        var wasTerminal = fromStatus is SupportTicketStatus.Resolved or SupportTicketStatus.Closed;
+        var outcome = ticket.ChangeStatusByStaff(command.Status, staff, timeProvider.GetUtcNow());
+
+        switch (outcome)
         {
-            return Result.BadRequest($"Ticket is already in status '{command.Status}'.");
+            case ChangeStatusByStaffOutcome.AlreadyInStatus:
+                return Result.BadRequest($"Ticket is already in status '{command.Status}'.");
+            case ChangeStatusByStaffOutcome.ClosingRefused:
+                return Result.BadRequest("Staff cannot close a ticket directly; only the end user can close it.");
+            case ChangeStatusByStaffOutcome.ReopenWindowExpired:
+                return Result.BadRequest("This ticket can no longer be reopened. The user must create a new ticket.");
+            case ChangeStatusByStaffOutcome.Changed:
+                break;
+            default:
+                throw new UnreachableException($"Unhandled ChangeStatusByStaffOutcome '{outcome}'.");
         }
 
         ticketRepository.Update(ticket);
+        if (wasTerminal)
+        {
+            events.CollectEvent(new SupportTicketReopened(ticket.Id, SupportMessageAuthorKind.Staff));
+        }
+
         events.CollectEvent(new SupportTicketStatusChanged(ticket.Id, fromStatus, ticket.Status, SupportMessageAuthorKind.Staff));
         return Result.Success();
     }
