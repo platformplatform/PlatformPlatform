@@ -17,7 +17,7 @@ public sealed class SupportTicketRepositoryTests
         // a future refactor that removes the override fails loudly rather than silently reopening the
         // cross-tenant read surface.
         var interfaceMap = typeof(SupportTicketRepository).GetInterfaceMap(typeof(ICrudRepository<SupportTicket, SupportTicketId>));
-        var interfaceMethod = typeof(ICrudRepository<SupportTicket, SupportTicketId>).GetMethod(nameof(ICrudRepository<SupportTicket, SupportTicketId>.GetByIdAsync))!;
+        var interfaceMethod = typeof(ICrudRepository<SupportTicket, SupportTicketId>).GetMethod(nameof(ISupportTicketRepository.GetByIdAsync))!;
         var index = Array.IndexOf(interfaceMap.InterfaceMethods, interfaceMethod);
 
         var targetMethod = interfaceMap.TargetMethods[index];
