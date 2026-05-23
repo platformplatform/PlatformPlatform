@@ -751,7 +751,7 @@ msgid "Help your team recognize your invites"
 msgstr "Hjælp dit team med at genkende dine invitationer"
 
 msgid "Helpful"
-msgstr "Brugbart"
+msgstr "Nyttig"
 
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
