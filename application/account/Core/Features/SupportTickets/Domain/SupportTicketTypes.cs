@@ -54,7 +54,6 @@ public enum SupportTicketHistoryEventType
     StatusChanged,
     AssigneeChanged,
     CsatSubmitted,
-    Closed,
     Reopened
 }
 

@@ -662,9 +662,6 @@ msgstr "Luk opskriftsdetaljer"
 msgid "Closed"
 msgstr "Lukket"
 
-msgid "closed this ticket"
-msgstr "lukkede denne sag"
-
 msgid "Co-author"
 msgstr "Medforfatter"
 

@@ -14,7 +14,6 @@ const eventLabels = {
   [SupportTicketHistoryEventType.StatusChanged]: msg`changed status`,
   [SupportTicketHistoryEventType.AssigneeChanged]: msg`changed assignee`,
   [SupportTicketHistoryEventType.CsatSubmitted]: msg`submitted a satisfaction rating`,
-  [SupportTicketHistoryEventType.Closed]: msg`closed this ticket`,
   [SupportTicketHistoryEventType.Reopened]: msg`reopened this ticket`
 };
 
