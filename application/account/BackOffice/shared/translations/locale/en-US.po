@@ -664,9 +664,6 @@ msgstr "Close recipe details"
 msgid "Closed"
 msgstr "Closed"
 
-msgid "closed this ticket"
-msgstr "closed this ticket"
-
 msgid "Co-author"
 msgstr "Co-author"
 

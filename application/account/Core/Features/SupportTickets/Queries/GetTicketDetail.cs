@@ -115,18 +115,11 @@ public sealed class GetTicketDetailHandler(ISupportTicketRepository ticketReposi
     // Resolved transitions are recorded as StatusChanged history events with payload "Resolved"
     // (see SupportTicket.ApplyStatusTransition). Reopened is its own event type. Everything else
     // is filtered out so the reporter only sees lifecycle events that match the status pill changes.
-    // Legacy rows written before the close-paths refactor used the Closed history event type for the
-    // same user intent, so they surface as Resolved here for display consistency.
     private static TicketHistoryEventView? ProjectUserVisibleEvent(SupportTicketHistoryEvent historyEvent)
     {
         if (historyEvent.Type is SupportTicketHistoryEventType.Reopened)
         {
             return new TicketHistoryEventView(TicketUserVisibleEventType.Reopened, historyEvent.ActorKind, historyEvent.ActorDisplayName, historyEvent.OccurredAt);
-        }
-
-        if (historyEvent.Type is SupportTicketHistoryEventType.Closed)
-        {
-            return new TicketHistoryEventView(TicketUserVisibleEventType.Resolved, historyEvent.ActorKind, historyEvent.ActorDisplayName, historyEvent.OccurredAt);
         }
 
         if (historyEvent.Type is SupportTicketHistoryEventType.StatusChanged && historyEvent.Payload == nameof(SupportTicketStatus.Resolved))
