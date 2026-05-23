@@ -5,9 +5,9 @@ import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Link } from "@tanstack/react-router";
 import { MailIcon } from "lucide-react";
 
-import type { Schemas } from "@/shared/lib/api/client";
+import type { Schemas, UserRole } from "@/shared/lib/api/client";
 
-import { getSubscriptionPlanLabel } from "@/shared/lib/api/labels";
+import { getSubscriptionPlanLabel, getUserRoleLabel } from "@/shared/lib/api/labels";
 import { getSubscriptionPlanBadgeClass } from "@/shared/lib/planBadge";
 
 import { TenantStatusBadge } from "../../accounts/-components/TenantStatusBadge";
@@ -30,7 +30,7 @@ export function ReporterRow({ reporter }: { reporter: Schemas["StaffTicketReport
         <span className="truncate text-sm font-medium">{displayName}</span>
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant="outline" className="text-[0.6875rem]">
-            {reporter.roleSnapshot}
+            {getUserRoleLabel(reporter.roleSnapshot as UserRole)}
           </Badge>
           <span className="text-xs text-muted-foreground">
             {plural(reporter.tenantTicketCount, { one: "# ticket", other: "# tickets" })}
