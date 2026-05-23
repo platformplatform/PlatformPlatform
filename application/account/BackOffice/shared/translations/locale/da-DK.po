@@ -2262,8 +2262,8 @@ msgstr "Afspillede {0} arkiverede hændelser til faktureringshændelseslogen {1}
 msgid "Reply sent"
 msgstr "Svar sendt"
 
-msgid "Reply to the customer… markdown supported"
-msgstr "Svar kunden… markdown understøttes"
+msgid "Reply to the user… markdown supported"
+msgstr "Svar brugeren… markdown understøttes"
 
 msgid "Reply to user"
 msgstr "Svar bruger"
@@ -2470,8 +2470,8 @@ msgstr "Send og løs"
 msgid "Send invite"
 msgstr "Send invitation"
 
-msgid "Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't want to notify them."
-msgstr "Når du sender dette svar, genåbnes sagen, og kunden får en e-mail. Brug en intern note i stedet, hvis du ikke vil give besked."
+msgid "Sending this reply reopens the ticket and emails the user. Use an internal note instead if you don't want to notify them."
+msgstr "Når du sender dette svar, genåbnes sagen, og brugeren får en e-mail. Brug en intern note i stedet, hvis du ikke vil give besked."
 
 msgid "Sending…"
 msgstr "Sender…"

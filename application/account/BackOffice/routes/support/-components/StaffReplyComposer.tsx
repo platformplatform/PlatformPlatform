@@ -37,7 +37,7 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
   const [files, setFiles] = useState<File[]>([]);
   const [primaryAction, setPrimaryAction] = useState<SendAction>("send");
   // Holds the pending public-reply action while the reopen confirmation dialog is shown. A public
-  // reply on a terminal ticket silently reopens it and emails the customer, so staff must confirm.
+  // reply on a terminal ticket silently reopens it and emails the user, so staff must confirm.
   const [pendingReopen, setPendingReopen] = useState<SendAction | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -65,8 +65,8 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
   };
 
   const executePrimary = (action: SendAction) => {
-    // A public reply on a terminal ticket reopens it and emails the customer. Confirm first so staff
-    // don't reopen a thread the customer considered closed by accident. (SplitSendButton only offers
+    // A public reply on a terminal ticket reopens it and emails the user. Confirm first so staff
+    // don't reopen a thread the user considered closed by accident. (SplitSendButton only offers
     // "send" on a terminal ticket, but the guard covers any reply action defensively.)
     if (isTerminal) {
       setPendingReopen(action);
@@ -104,9 +104,7 @@ export function StaffReplyComposer({ ticketId, status }: Readonly<StaffReplyComp
           value={body}
           onChange={(event) => setBody(event.target.value)}
           placeholder={
-            tab === TABS.internal
-              ? t`Internal note (visible only to staff)…`
-              : t`Reply to the customer… markdown supported`
+            tab === TABS.internal ? t`Internal note (visible only to staff)…` : t`Reply to the user… markdown supported`
           }
           rows={3}
           disabled={isAnyPending}
