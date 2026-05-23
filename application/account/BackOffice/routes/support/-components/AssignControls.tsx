@@ -129,19 +129,26 @@ export function AssignControls({ ticketId, currentAssignee }: Readonly<AssignCon
         </Tooltip>
       )}
       <DropdownMenu trackingTitle="Assign controls">
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="outline"
-              size="sm"
-              className="-ml-px rounded-l-none px-2"
-              aria-label={t`More assignment options`}
-              disabled={isPending}
-            >
-              <ChevronDownIcon className="size-3.5" />
-            </Button>
-          }
-        />
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="-ml-px rounded-l-none px-2"
+                    aria-label={t`More assignment options`}
+                    disabled={isPending}
+                  >
+                    <ChevronDownIcon className="size-3.5" />
+                  </Button>
+                }
+              />
+            }
+          />
+          <TooltipContent>{t`More assignment options`}</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent align="end" className="min-w-[14rem]">
           <DropdownMenuItem onClick={unassign} disabled={!currentAssignee} trackingLabel="Unassign">
             <UserMinusIcon className="size-4" />

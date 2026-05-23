@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckCheckIcon, CheckIcon, ChevronDownIcon, type LucideIcon, SendIcon } from "lucide-react";
 
 export type SendAction = "send" | "sendAndResolve" | "resolve";
@@ -90,19 +91,26 @@ export function SplitSendButton({
       </Button>
       {showDropdown && (
         <DropdownMenu trackingTitle="Send actions">
-          <DropdownMenuTrigger
-            render={
-              <Button
-                type="button"
-                size="sm"
-                className="-ml-px rounded-l-none px-2"
-                disabled={isPending}
-                aria-label={t`More send options`}
-              >
-                <ChevronDownIcon className="size-3.5" />
-              </Button>
-            }
-          />
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="-ml-px rounded-l-none px-2"
+                      disabled={isPending}
+                      aria-label={t`More send options`}
+                    >
+                      <ChevronDownIcon className="size-3.5" />
+                    </Button>
+                  }
+                />
+              }
+            />
+            <TooltipContent>{t`More send options`}</TooltipContent>
+          </Tooltip>
           <DropdownMenuContent align="end">
             {availableActions.map((key) => {
               const value = SEND_ACTION_LABELS[key];
