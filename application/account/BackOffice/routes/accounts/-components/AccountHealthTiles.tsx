@@ -1,4 +1,4 @@
-import { plural, t } from "@lingui/core/macro";
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LinkCard } from "@repo/ui/components/LinkCard";
 import { Skeleton } from "@repo/ui/components/Skeleton";
@@ -136,14 +136,7 @@ export function AccountHealthTiles({ tenant, tenantId, isLoading }: Readonly<Acc
           loading={supportTicketsLoading}
           tenantId={tenantId}
           tab="support-tickets"
-          subtitle={
-            totalTicketCount !== undefined
-              ? plural(totalTicketCount, {
-                  one: "# total",
-                  other: "# total"
-                })
-              : undefined
-          }
+          subtitle={totalTicketCount !== undefined ? <Trans>{totalTicketCount} total</Trans> : undefined}
         >
           <span className="text-2xl font-semibold tabular-nums">
             {openTicketCount !== undefined ? openTicketCount : "-"}

@@ -118,8 +118,8 @@ msgstr "{total} new signups · {priorTotal} prior period"
 msgid "{total} total · avg {average}/day"
 msgstr "{total} total · avg {average}/day"
 
-msgid "{totalTicketCount, plural, one {# total} other {# total}}"
-msgstr "{totalTicketCount, plural, one {# total} other {# total}}"
+msgid "{totalTicketCount} total"
+msgstr "{totalTicketCount} total"
 
 msgid "/ month"
 msgstr "/ month"

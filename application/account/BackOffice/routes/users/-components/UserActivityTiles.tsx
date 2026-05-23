@@ -90,14 +90,7 @@ export function UserActivityTiles({ user, userId, isLoading }: Readonly<UserActi
         <ActivityTile
           label={t`Support tickets`}
           loading={supportTicketsLoading}
-          subtitle={
-            totalTicketCount !== undefined
-              ? plural(totalTicketCount, {
-                  one: "# total",
-                  other: "# total"
-                })
-              : undefined
-          }
+          subtitle={totalTicketCount !== undefined ? <Trans>{totalTicketCount} total</Trans> : undefined}
           linkTo={totalTicketCount !== undefined && totalTicketCount > 0 ? "support-tickets" : undefined}
           userId={userId}
         >
