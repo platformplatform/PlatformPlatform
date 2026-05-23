@@ -540,6 +540,185 @@ public sealed class BackOfficeSupportTicketTests(SupportTicketBackOfficeWebAppli
         payload.Counts.ResolvedLast24Hours.Should().BeGreaterThanOrEqualTo(1);
     }
 
+    [Fact]
+    public async Task ReplyToTicketAsStaff_WhenTicketIsLegacyClosed_ShouldReopenAndAppend()
+    {
+        // Arrange. A legacy Closed row (the only path that still writes Status=Closed is historical
+        // data) is always reopenable. A staff reply must reopen it rather than be rejected.
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.Closed);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Following up on this old thread."), "body" },
+            { new StringContent("false"), "markAsResolved" }
+        };
+        factory.EmailClient.ClearReceivedCalls();
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/support-tickets/{ticketId}/reply", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.AwaitingUser));
+        var historyJson = Connection.ExecuteScalar<string>("SELECT history_events FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        historyJson.Should().Contain("Reopened");
+    }
+
+    [Fact]
+    public async Task MarkResolvedByStaff_WhenAwaitingAgent_ShouldTransitionToResolved()
+    {
+        // Arrange
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.PostAsync($"/api/back-office/support-tickets/{ticketId}/mark-resolved", null);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.Resolved));
+        var resolvedAt = Connection.ExecuteScalar<string>("SELECT resolved_at FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        resolvedAt.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task AssignTicket_WhenAssignedToSameStaffTwice_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        var command = new AssignTicketCommand { AssigneeObjectId = identity.ObjectId, AssigneeDisplayName = identity.Name };
+        await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/assignee", command);
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/assignee", command);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task AssignTicket_WhenReassignedToDifferentStaff_ShouldUpdateAssignee()
+    {
+        // Arrange
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/assignee", new AssignTicketCommand { AssigneeObjectId = identity.ObjectId, AssigneeDisplayName = identity.Name });
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/assignee", new AssignTicketCommand { AssigneeObjectId = "other-staff-object-id", AssigneeDisplayName = "Other Staff" });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var assigneeJson = Connection.ExecuteScalar<string>("SELECT assignee FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        assigneeJson.Should().Contain("other-staff-object-id");
+    }
+
+    [Fact]
+    public async Task GetAllTickets_WhenSearchMatchesInternalNoteBody_ShouldReturnTicket()
+    {
+        // Arrange. Search must match internal-note bodies — they are staff-visible, so the inbox
+        // search deliberately indexes them (contrast with the reporter-facing surfaces).
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        const string uniqueMarker = "internal-only-marker-zzz";
+        var form = new MultipartFormDataContent { { new StringContent($"Internal: {uniqueMarker}"), "body" } };
+        var noteResponse = await client.PostAsync($"/api/back-office/support-tickets/{ticketId}/internal-note", form);
+        noteResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/support-tickets?Search={uniqueMarker}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<AllTicketsResponse>();
+        payload.Should().NotBeNull();
+        payload.Tickets.Should().Contain(t => t.Id.Value == ticketId.Value);
+    }
+
+    [Fact]
+    public async Task GetAllTickets_WhenFilteredByAssigneeMe_ShouldReturnOnlyOwnAssignedTickets()
+    {
+        // Arrange. The "my queue" filter resolves "Me" from the staff NameIdentifier claim.
+        var mineTicketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var unassignedTicketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Member.Id, DatabaseSeeder.Tenant1Member.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        await client.PutAsJsonAsync($"/api/back-office/support-tickets/{mineTicketId}/assignee", new AssignTicketCommand { AssigneeObjectId = identity.ObjectId, AssigneeDisplayName = identity.Name });
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/support-tickets?Assignee=Me");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<AllTicketsResponse>();
+        payload.Should().NotBeNull();
+        payload.Tickets.Should().Contain(t => t.Id.Value == mineTicketId.Value);
+        payload.Tickets.Should().NotContain(t => t.Id.Value == unassignedTicketId.Value);
+    }
+
+    [Fact]
+    public async Task GetTicketDetailForStaff_WhenTicketExists_ShouldReturnDetailIncludingInternalNotes()
+    {
+        // Arrange. Unlike the reporter detail query, the staff detail must surface internal notes.
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        var form = new MultipartFormDataContent { { new StringContent("Staff-only context."), "body" } };
+        await client.PostAsync($"/api/back-office/support-tickets/{ticketId}/internal-note", form);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/support-tickets/{ticketId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<StaffTicketDetailResponse>();
+        payload.Should().NotBeNull();
+        payload.Id.Value.Should().Be(ticketId.Value);
+        payload.Messages.Should().Contain(m => m.AuthorKind == SupportMessageAuthorKind.Internal);
+    }
+
+    [Fact]
+    public async Task GetTicketDetailForStaff_WhenTicketBelongsToAnotherTenant_ShouldReturnDetail()
+    {
+        // Arrange. Back-office staff are cross-tenant by design; the staff detail query uses an
+        // unfiltered fetch and must return tickets regardless of tenant.
+        var otherTenantId = SeedOtherTenant();
+        var ticketId = SeedTicket(otherTenantId, UserId.NewId(), "other@tenant.example", SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/support-tickets/{ticketId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.Content.ReadFromJsonAsync<StaffTicketDetailResponse>();
+        payload.Should().NotBeNull();
+        payload.Id.Value.Should().Be(ticketId.Value);
+    }
+
+    [Fact]
+    public async Task GetTicketDetailForStaff_WhenTicketDoesNotExist_ShouldReturnNotFound()
+    {
+        // Arrange
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync($"/api/back-office/support-tickets/{SupportTicketId.NewId()}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private TenantId SeedOtherTenant()
     {
         var otherTenantId = DatabaseSeeder.Tenant1.Id.Value + 9999;
