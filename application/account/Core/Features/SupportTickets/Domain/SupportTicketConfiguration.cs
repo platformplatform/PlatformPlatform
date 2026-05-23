@@ -24,7 +24,16 @@ public sealed class SupportTicketConfiguration : IEntityTypeConfiguration<Suppor
 
         builder.HasOne<Tenant>().WithMany().HasForeignKey(t => t.TenantId).HasPrincipalKey(t => t.Id);
 
-        builder.OwnsOne(t => t.Assignee, b => b.ToJson());
+        // Assignee is mapped as a converted jsonb property rather than an owned ToJson() entity
+        // because clearing it (unassigning a ticket) must persist a SQL NULL on update. EF Core does
+        // not reliably write null back for an owned JSON reference, so unassign would silently no-op.
+        builder.Property(t => t.Assignee)
+            .HasColumnType("jsonb")
+            .HasConversion(
+                value => JsonSerializer.Serialize(value, JsonSerializerOptions),
+                value => JsonSerializer.Deserialize<BackOfficeStaffRef>(value, JsonSerializerOptions)
+            );
+
         builder.OwnsOne(t => t.Csat, b => b.ToJson());
 
         builder.Property(t => t.Messages)
