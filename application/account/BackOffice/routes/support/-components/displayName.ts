@@ -9,8 +9,3 @@ export function getInitials(name: string | null | undefined): string {
     .toUpperCase();
   return initials || "?";
 }
-
-export function formatReporterName(firstName?: string | null, lastName?: string | null, email?: string | null): string {
-  const composed = `${firstName ?? ""} ${lastName ?? ""}`.trim();
-  return composed || email || "Unknown";
-}
