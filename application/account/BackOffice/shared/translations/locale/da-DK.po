@@ -118,8 +118,8 @@ msgstr "{total} nye tilmeldinger · {priorTotal} forrige periode"
 msgid "{total} total · avg {average}/day"
 msgstr "{total} i alt · gns. {average}/dag"
 
-msgid "{totalTicketCount, plural, one {# total} other {# total}}"
-msgstr "{totalTicketCount, plural, one {# i alt} other {# i alt}}"
+msgid "{totalTicketCount} total"
+msgstr "{totalTicketCount} i alt"
 
 msgid "/ month"
 msgstr "/ måned"
