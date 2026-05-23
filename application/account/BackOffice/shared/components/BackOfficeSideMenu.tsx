@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import {
   Sidebar,
   SidebarContent,
@@ -8,34 +9,25 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import {
-  BlocksIcon,
-  Building2Icon,
-  FlagIcon,
-  HomeIcon,
-  InboxIcon,
-  ReceiptIcon,
-  UsersIcon,
-  ZapIcon
-} from "lucide-react";
+import { BlocksIcon, Building2Icon, FlagIcon, HomeIcon, ReceiptIcon, UsersIcon, ZapIcon } from "lucide-react";
 
 import { api } from "@/shared/lib/api/client";
 
 import { BackOfficeAvatarMenu } from "./BackOfficeAvatarMenu";
+import { SupportSidebarGroup } from "./SupportSidebarGroup";
 
 const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
-const isSupportSystemEnabled = import.meta.runtime_env.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
 
 export function BackOfficeSideMenu() {
   const router = useRouter();
+  const { enabled: isSupportSystemEnabled } = useFeatureFlag("support-system");
   const currentPath = normalizePath(router.state.location.pathname);
   const isAccountsActive = currentPath === "/accounts" || currentPath.startsWith("/accounts/");
   const isUsersActive = currentPath === "/users" || currentPath.startsWith("/users/");
@@ -45,8 +37,7 @@ export function BackOfficeSideMenu() {
   const isSupportTicketsActive = currentPath === "/support/tickets" || currentPath.startsWith("/support/tickets/");
   const isComponentsActive = currentPath === "/components" || currentPath.startsWith("/components/");
 
-  // Skip the unresolved-tickets badge query entirely when the support system is gated off so the
-  // back-office shell does not fan out to an endpoint the sidebar will never reveal.
+  // Skip the unresolved-tickets badge query when support is gated off, so the shell never fans out to a hidden endpoint.
   const { data: ticketsData } = api.useQuery(
     "get",
     "/api/back-office/support-tickets",
@@ -181,30 +172,5 @@ export function BackOfficeSideMenu() {
       </nav>
       <SidebarRail />
     </Sidebar>
-  );
-}
-
-function SupportSidebarGroup({ isActive, unresolvedCount }: { isActive: boolean; unresolvedCount: number }) {
-  return (
-    <SidebarGroup>
-      <SidebarGroupLabel>
-        <Trans>Support</Trans>
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild={true} isActive={isActive} tooltip={t`Tickets`}>
-              <RouterLink to="/support/tickets">
-                <InboxIcon />
-                <span>
-                  <Trans>Tickets</Trans>
-                </span>
-              </RouterLink>
-            </SidebarMenuButton>
-            {unresolvedCount > 0 && <SidebarMenuBadge>{unresolvedCount}</SidebarMenuBadge>}
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
   );
 }
