@@ -8,9 +8,11 @@ namespace Account.Features.SupportTickets.Domain;
 
 public interface ISupportTicketRepository : ICrudRepository<SupportTicket, SupportTicketId>
 {
-    Task<SupportTicket[]> GetTenantTicketsAsync(CancellationToken cancellationToken);
-
-    Task<int> CountTenantTicketsAwaitingUserAsync(UserId reporterId, CancellationToken cancellationToken);
+    /// <summary>
+    ///     Returns the current reporter's tickets, scoped via the (tenant_id, reporter_id) index
+    ///     rather than loading every tenant ticket and filtering in memory.
+    /// </summary>
+    Task<SupportTicket[]> GetByReporterIdAsync(UserId reporterId, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Retrieves a ticket without applying tenant query filters. Used by the back-office
@@ -46,21 +48,13 @@ public sealed class SupportTicketRepository(AccountDbContext accountDbContext)
     }
 
     /// <summary>
-    ///     Returns every ticket for the current tenant. Sort happens in memory because SQLite (test
-    ///     database) cannot translate DateTimeOffset comparisons in ORDER BY; the tenant-scoped result
-    ///     set is bounded by how many tickets a tenant can reasonably open in v1.
+    ///     Returns the current reporter's tickets using the (tenant_id, reporter_id) index. The tenant
+    ///     query filter still applies; ordering is left to the caller (SQLite cannot translate
+    ///     DateTimeOffset comparisons in ORDER BY).
     /// </summary>
-    public async Task<SupportTicket[]> GetTenantTicketsAsync(CancellationToken cancellationToken)
+    public async Task<SupportTicket[]> GetByReporterIdAsync(UserId reporterId, CancellationToken cancellationToken)
     {
-        var tickets = await DbSet.ToArrayAsync(cancellationToken);
-        return tickets.OrderByDescending(t => t.LastActivityAt).ToArray();
-    }
-
-    public async Task<int> CountTenantTicketsAwaitingUserAsync(UserId reporterId, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .Where(t => t.ReporterId == reporterId && t.Status == SupportTicketStatus.AwaitingUser)
-            .CountAsync(cancellationToken);
+        return await DbSet.Where(t => t.ReporterId == reporterId).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>

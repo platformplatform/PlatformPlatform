@@ -30,8 +30,7 @@ public sealed class GetMyTicketsHandler(ISupportTicketRepository ticketRepositor
     public async Task<Result<MyTicketsResponse>> Handle(GetMyTicketsQuery query, CancellationToken cancellationToken)
     {
         var reporterId = executionContext.UserInfo.Id!;
-        var tickets = await ticketRepository.GetTenantTicketsAsync(cancellationToken);
-        var owned = tickets.Where(t => t.ReporterId == reporterId).ToArray();
+        var owned = await ticketRepository.GetByReporterIdAsync(reporterId, cancellationToken);
         var now = timeProvider.GetUtcNow();
 
         var active = owned
