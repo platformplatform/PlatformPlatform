@@ -61,6 +61,21 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
+    public async Task SubmitCsat_WhenReporterIsAnotherUserInSameTenant_ShouldReturnNotFound()
+    {
+        // Arrange. CSAT submission is gated by the same reporter-ownership check as replies, so a
+        // different user in the same tenant must not be able to rate someone else's ticket.
+        var ticketId = await CreateTicketViaApi(); // Created by Tenant1Owner
+        var rateCommand = new SubmitCsatCommand(SupportTicketCsatScore.Helpful, null);
+
+        // Act
+        var response = await AuthenticatedMemberHttpClient.PostAsJsonAsync($"/api/account/support-tickets/{ticketId}/csat", rateCommand);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task ReplyToTicketAsUser_WhenStatusIsResolvedWithinReopenWindow_ShouldReopenWithReopenedEventAndAppend()
     {
         // Arrange. The ticket is Resolved inside the 7-day reopen window. A user reply must reopen
