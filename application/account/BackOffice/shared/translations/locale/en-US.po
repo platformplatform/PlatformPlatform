@@ -2264,8 +2264,8 @@ msgstr "Replayed {0} archived events into the billing event ledger at {1}."
 msgid "Reply sent"
 msgstr "Reply sent"
 
-msgid "Reply to the customer… markdown supported"
-msgstr "Reply to the customer… markdown supported"
+msgid "Reply to the user… markdown supported"
+msgstr "Reply to the user… markdown supported"
 
 msgid "Reply to user"
 msgstr "Reply to user"
@@ -2472,8 +2472,8 @@ msgstr "Send & resolve"
 msgid "Send invite"
 msgstr "Send invite"
 
-msgid "Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't want to notify them."
-msgstr "Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't want to notify them."
+msgid "Sending this reply reopens the ticket and emails the user. Use an internal note instead if you don't want to notify them."
+msgstr "Sending this reply reopens the ticket and emails the user. Use an internal note instead if you don't want to notify them."
 
 msgid "Sending…"
 msgstr "Sending…"

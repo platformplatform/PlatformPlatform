@@ -19,7 +19,7 @@ interface ReopenConfirmDialogProps {
 }
 
 // Confirms a public staff reply on a terminal ticket. Sending reopens the ticket and emails the
-// customer, so staff must opt in rather than reopen a closed thread by accident.
+// user, so staff must opt in rather than reopen a closed thread by accident.
 export function ReopenConfirmDialog({ isOpen, onCancel, onConfirm }: Readonly<ReopenConfirmDialogProps>) {
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()} trackingTitle="Reopen ticket on reply">
@@ -33,8 +33,8 @@ export function ReopenConfirmDialog({ isOpen, onCancel, onConfirm }: Readonly<Re
           </AlertDialogTitle>
           <AlertDialogDescription>
             <Trans>
-              Sending this reply reopens the ticket and emails the customer. Use an internal note instead if you don't
-              want to notify them.
+              Sending this reply reopens the ticket and emails the user. Use an internal note instead if you don't want
+              to notify them.
             </Trans>
           </AlertDialogDescription>
         </AlertDialogHeader>
