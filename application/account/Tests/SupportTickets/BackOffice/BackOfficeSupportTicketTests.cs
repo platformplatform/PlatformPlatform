@@ -586,6 +586,25 @@ public sealed class BackOfficeSupportTicketTests(SupportTicketBackOfficeWebAppli
     }
 
     [Fact]
+    public async Task AssignTicket_WhenClearedWithNull_ShouldRemoveAssignee()
+    {
+        // Arrange. Unassigning sends a null AssigneeObjectId; the cleared assignee must persist as a
+        // SQL NULL rather than silently retaining the previous staff member.
+        var ticketId = SeedTicket(DatabaseSeeder.Tenant1.Id, DatabaseSeeder.Tenant1Owner.Id, DatabaseSeeder.Tenant1Owner.Email, SupportTicketStatus.AwaitingAgent);
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+        await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/assignee", new AssignTicketCommand { AssigneeObjectId = identity.ObjectId, AssigneeDisplayName = identity.Name });
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/back-office/support-tickets/{ticketId}/assignee", new AssignTicketCommand { AssigneeObjectId = null, AssigneeDisplayName = null });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var assigneeJson = Connection.ExecuteScalar<string?>("SELECT assignee FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        assigneeJson.Should().BeNull();
+    }
+
+    [Fact]
     public async Task AssignTicket_WhenAssignedToSameStaffTwice_ShouldReturnBadRequest()
     {
         // Arrange
