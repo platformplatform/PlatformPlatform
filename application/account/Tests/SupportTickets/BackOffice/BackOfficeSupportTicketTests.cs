@@ -719,6 +719,20 @@ public sealed class BackOfficeSupportTicketTests(SupportTicketBackOfficeWebAppli
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task GetAllTickets_WhenPageOffsetExceedsTotalPages_ShouldReturnBadRequest()
+    {
+        // Arrange. An out-of-range page must be rejected rather than silently returning an empty page.
+        var identity = MockEasyAuthIdentities.Default.Single(i => i.Id == "user");
+        using var client = CreateBackOfficeClientForIdentity(identity);
+
+        // Act
+        var response = await client.GetAsync("/api/back-office/support-tickets?PageOffset=999");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     private TenantId SeedOtherTenant()
     {
         var otherTenantId = DatabaseSeeder.Tenant1.Id.Value + 9999;
