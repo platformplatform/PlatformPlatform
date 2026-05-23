@@ -91,6 +91,32 @@ public sealed class UserTicketLifecycleTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
+    public async Task ReplyToTicketAsUser_WhenStatusIsLegacyClosed_ShouldReopenWithReopenedEventAndAppend()
+    {
+        // Arrange. A legacy Closed row is always reopenable (no 7-day window applies to Closed). A
+        // user reply must reopen it and emit the Reopened history event.
+        var ticketId = await CreateTicketViaApi();
+        SetTicketStatus(ticketId, SupportTicketStatus.Closed);
+        TelemetryEventsCollectorSpy.Reset();
+        var form = new MultipartFormDataContent
+        {
+            { new StringContent("Reopening this old closed ticket."), "body" },
+            { new StringContent("false"), "markAsResolved" }
+        };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/support-tickets/{ticketId}/reply", form);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var status = Connection.ExecuteScalar<string>("SELECT status FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        status.Should().Be(nameof(SupportTicketStatus.AwaitingAgent));
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "SupportTicketReopened");
+        var historyJson = Connection.ExecuteScalar<string>("SELECT history_events FROM support_tickets WHERE id = @id", [new { id = ticketId.ToString() }]);
+        historyJson.Should().Contain("Reopened");
+    }
+
+    [Fact]
     public async Task ReplyToTicketAsUser_WhenStatusIsResolvedPastReopenWindow_ShouldReturnBadRequestAndKeepResolved()
     {
         // Arrange. The ticket is Resolved 8 days ago, past the 7-day reopen window. The handler must
