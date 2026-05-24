@@ -20,6 +20,18 @@ function getMailpitBaseUrl(): string {
 
 const MAILPIT_BASE = getMailpitBaseUrl();
 
+// Flag-off skip-guard: navigate ownerPage to a non-support route first so a flag-off state does
+// not 404 the support endpoints before we can read the runtime env. Mirrors subscription-flows.spec.ts:6-14.
+test.beforeEach(async ({ ownerPage }) => {
+  await ownerPage.goto("/dashboard");
+  const isSupportSystemEnabled = await ownerPage.evaluate(() => {
+    const meta = document.head.querySelector('meta[name="runtimeEnv"]');
+    const runtimeEnv = JSON.parse(meta?.getAttribute("content") ?? "{}");
+    return runtimeEnv.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
+  });
+  test.skip(!isSupportSystemEnabled, "Support system is not enabled (PUBLIC_SUPPORT_SYSTEM_ENABLED=false)");
+});
+
 interface MailpitMessage {
   subject: string;
   html: string;
