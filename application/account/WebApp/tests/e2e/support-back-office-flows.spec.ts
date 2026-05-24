@@ -20,6 +20,20 @@ function getMailpitBaseUrl(): string {
 
 const MAILPIT_BASE = getMailpitBaseUrl();
 
+// Flag-off skip-guard: navigate ownerPage (always provided) to a non-support route first so the
+// reporter-API seed in the test body does not 404 before we can read the runtime env. SystemFeatureFlag
+// values are config-driven and identical across the user-facing and back-office SPAs, so reading once
+// from ownerPage is sufficient. Mirrors subscription-flows.spec.ts:6-14.
+test.beforeEach(async ({ ownerPage }) => {
+  await ownerPage.goto("/dashboard");
+  const isSupportSystemEnabled = await ownerPage.evaluate(() => {
+    const meta = document.head.querySelector('meta[name="runtimeEnv"]');
+    const runtimeEnv = JSON.parse(meta?.getAttribute("content") ?? "{}");
+    return runtimeEnv.PUBLIC_SUPPORT_SYSTEM_ENABLED === "true";
+  });
+  test.skip(!isSupportSystemEnabled, "Support system is not enabled (PUBLIC_SUPPORT_SYSTEM_ENABLED=false)");
+});
+
 interface MailpitSearchResult {
   messages: { ID: string; Subject: string }[];
 }
@@ -175,7 +189,7 @@ test.describe("@smoke", () => {
     await step("Compose a public reply, switch primary action to Send & resolve, click & verify Reply sent toast")(
       async () => {
         await backOfficePage
-          .getByPlaceholder("Reply to the customer… markdown supported")
+          .getByPlaceholder("Reply to the user… markdown supported")
           .fill("Glad to help — resolving this for you now.");
         await backOfficePage.getByRole("button", { name: "More send options" }).click();
         const sendMenu = backOfficePage.getByRole("menu");
@@ -215,10 +229,9 @@ test.describe("@comprehensive", () => {
    *   from the reporter's ticket detail page
    * - Search by the internal-note body returns the parent ticket (staff search hits internal notes)
    * - Sort by Assignee flips orderBy and sortOrder URL params on subsequent clicks
-   * - Status PUTs against Closed and the current status both return 400 with the documented copy
    * - PageOffset overflow returns 400 with overflow copy
    */
-  test("should filter, search, sort, paginate, surface internal notes without affecting reporter view, and enforce status transitions", async ({
+  test("should filter, search, sort, paginate, and surface internal notes without affecting reporter view", async ({
     ownerPage,
     browser
   }) => {
