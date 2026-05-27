@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -86,6 +87,53 @@ public static class Configuration
         var jsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
         var configuration = JsonSerializer.Serialize(configurationSetting, jsonSerializerOptions);
         File.WriteAllText(ConfigFile, configuration);
+    }
+
+    public static void ExitIfRunningFromWrongRepository()
+    {
+        try
+        {
+            var cwd = Directory.GetCurrentDirectory();
+            var cwdRoot = RunGit("rev-parse --show-toplevel", cwd);
+            if (cwdRoot is null) return;
+
+            if (string.Equals(Path.GetFullPath(cwdRoot), Path.GetFullPath(SourceCodeFolder), StringComparison.Ordinal)) return;
+
+            AnsiConsole.MarkupLine($"[red]The {AliasName} alias cannot run from a different repository or worktree ([blue]{Path.GetFullPath(cwdRoot)}[/]).[/]");
+            AnsiConsole.MarkupLine($"[red]Run it from [blue]{SourceCodeFolder}[/] or from outside any git repository.[/]");
+            Environment.Exit(1);
+        }
+        catch
+        {
+            // Git not available or unexpected error — skip silently
+        }
+    }
+
+    private static string? RunGit(string arguments, string workingDirectory)
+    {
+        try
+        {
+            var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "git",
+                    Arguments = arguments,
+                    WorkingDirectory = workingDirectory,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            );
+
+            if (process is null) return null;
+            var output = process.StandardOutput.ReadToEnd().Trim();
+            process.WaitForExit();
+            return process.ExitCode == 0 ? output : null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public static class Windows
