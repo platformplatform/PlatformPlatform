@@ -38,25 +38,12 @@ else
   session_dur="${session_mins}m"
 fi
 
-# Session id for daily cost tracking
-session_id=$(echo "$input" | jq -r '.session_id // empty')
-[ -z "$session_id" ] && session_id="default"
 now=$(date +%s)
 
-# Daily cost tracking — accumulate deltas across sessions
-today=$(date +%Y-%m-%d)
-daily_file="$STATE_DIR/daily_${today}.txt"
-prev_file="$STATE_DIR/prev_session_${session_id}.txt"
-prev_cost=0
-[ -f "$prev_file" ] && prev_cost=$(cat "$prev_file")
-delta=$(echo "$session_cost $prev_cost" | awk '{printf "%.4f", $1 - $2}')
-echo "$session_cost" > "$prev_file"
-daily_total=0
-[ -f "$daily_file" ] && daily_total=$(cat "$daily_file")
-daily_total=$(echo "$daily_total $delta" | awk '{v = $1 + $2; if (v < 0) v = 0; printf "%.4f", v}')
-echo "$daily_total" > "$daily_file"
+# Clean up legacy state files from earlier delta tracker
 find "$STATE_DIR" -name "daily_*" -mtime +2 -delete 2>/dev/null
 find "$STATE_DIR" -name "prev_session_*" -mtime +2 -delete 2>/dev/null
+find "$STATE_DIR" -name "session_start_*" -mtime +2 -delete 2>/dev/null
 
 # Cumulative cached tokens — sum cache_read_input_tokens across the whole transcript
 cached_total=0
@@ -183,7 +170,6 @@ if [ "$cached_total" -gt 0 ] 2>/dev/null; then
 fi
 
 seg_session_cost="$(printf "💰 ${GREEN}\$%s${RESET} ${DIM}(%s)${RESET}" "$session_cost" "$session_dur")"
-seg_daily_cost="$(printf "📅 ${GREEN}\$%s${RESET} ${DIM}today${RESET}" "$(printf '%.2f' "$daily_total")")"
 
 # Rate limits
 seg_rl=""
@@ -309,7 +295,6 @@ assemble() {
   fi
 
   [ "$show_session_cost" = "1" ] && out="${out}${SEP}${seg_session_cost}"
-  [ "$show_daily_cost" = "1" ] && out="${out}${SEP}${seg_daily_cost}"
   [ "$show_style" = "1" ] && [ -n "$seg_style" ] && out="${out}${SEP}${seg_style}"
 
   out=$(printf "%b" "$out" | sed 's/^ *| *//')
