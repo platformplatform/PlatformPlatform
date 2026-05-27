@@ -312,6 +312,7 @@ public class RunCommand : Command
     {
         const string readyMarker = "Distributed application started.";
         const string misleadingShutdownHint = " Press Ctrl+C to shut down.";
+        const string dashboardLoginMarker = "Login to the dashboard at ";
         var deadline = DateTime.UtcNow.AddSeconds(60);
         var offset = 0L;
         var sawFirstLine = false;
@@ -331,6 +332,14 @@ public class RunCommand : Command
                     sawFirstLine = true;
                     var displayLine = line.Replace(misleadingShutdownHint, "").TrimEnd();
                     AnsiConsole.WriteLine(displayLine);
+
+                    var dashboardIndex = line.IndexOf(dashboardLoginMarker, StringComparison.Ordinal);
+                    if (dashboardIndex >= 0)
+                    {
+                        var dashboardUrl = line[(dashboardIndex + dashboardLoginMarker.Length)..].Trim();
+                        var dashboardUrlPath = Path.Combine(Configuration.WorkspaceFolder, "aspire-dashboard-url.txt");
+                        File.WriteAllText(dashboardUrlPath, dashboardUrl);
+                    }
 
                     if (line.Contains(readyMarker))
                     {
