@@ -108,7 +108,7 @@ public class BuildCommand : Command
 
             if (quiet)
             {
-                Console.WriteLine("Build succeeded.");
+                Console.WriteLine($"Build succeeded in {Stopwatch.GetElapsedTime(startTime).Format()}.");
             }
             else
             {

@@ -226,7 +226,14 @@ public partial class End2EndCommand : Command
 
         stopwatch.Stop();
 
-        if (!quiet)
+        if (quiet)
+        {
+            Console.WriteLine(overallSuccess
+                ? $"All tests completed in {stopwatch.Elapsed.TotalSeconds:F1}s."
+                : $"Some tests failed in {stopwatch.Elapsed.TotalSeconds:F1}s."
+            );
+        }
+        else
         {
             AnsiConsole.MarkupLine(overallSuccess
                 ? $"[green]All tests completed in {stopwatch.Elapsed.TotalSeconds:F1} seconds[/]"
