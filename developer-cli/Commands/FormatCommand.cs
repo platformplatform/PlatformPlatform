@@ -86,7 +86,7 @@ public class FormatCommand : Command
 
             if (quiet)
             {
-                Console.WriteLine("Code formatted successfully.");
+                Console.WriteLine($"Code formatted successfully in {Stopwatch.GetElapsedTime(startTime).Format()}.");
             }
             else
             {

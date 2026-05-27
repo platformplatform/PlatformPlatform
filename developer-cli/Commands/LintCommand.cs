@@ -90,7 +90,7 @@ public class LintCommand : Command
                     Environment.Exit(1);
                 }
 
-                Console.WriteLine("Linting completed successfully. No issues found.");
+                Console.WriteLine($"Linting completed successfully in {Stopwatch.GetElapsedTime(startTime).Format()}. No issues found.");
             }
             else
             {
