@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Rejects pushes whose branch name does not match the project's naming convention.
+# Rejects pushes whose branch name does not match the project's naming convention,
+# or whose diff contains words banned via the developer CLI.
+#
+# Branch-name rules:
 # GitHub's server-side branch-name restriction (rulesets / metadata restrictions) is Enterprise-only,
 # so this hook is the source of truth on the free plan.
 #
@@ -11,28 +14,103 @@
 # The regex is RE2-compatible (no lookahead) so the same pattern can be reused server-side
 # if the project ever moves to a plan that supports branch-name rulesets.
 #
+# Banned-word rules:
+# The developer CLI stores per-machine banned words in ~/.PlatformPlatform/<alias>.banned-push-words.
+# Both the diff and the word list are normalized (lowercased, spaces/hyphens/underscores stripped)
+# before comparison, so "FooBar" catches foo_bar, Foo Bar, foo-bar, FOOBAR, etc.
+#
+# An optional remotes file (~/.PlatformPlatform/<alias>.banned-push-words-remotes) narrows enforcement
+# to specific remotes. If the file is absent or empty, banned words are checked on all pushes.
+# Configure with: <alias> banned-push-words
+#
 # Installed into .git/hooks/pre-push by `pp install` and re-synced by the CLI's auto-rebuild
 # whenever any file under developer-cli/git-hooks/ changes.
 
+remote="$1"
 zero='0000000000000000000000000000000000000000'
-pattern='^(demo/|experiment/)?([a-z0-9]{1,7}|[a-z0-9]{9,}|[a-vx-z0-9][a-z0-9]{7}|w[a-np-z0-9][a-z0-9]{6}|wo[a-qs-z0-9][a-z0-9]{5}|wor[a-jl-z0-9][a-z0-9]{4}|work[a-su-z0-9][a-z0-9]{3}|workt[a-qs-z0-9][a-z0-9]{2}|worktr[a-df-z0-9][a-z0-9]|worktre[a-df-z0-9])(-[a-z0-9]+)*$'
+
+# --- Resolve CLI alias and publish folder ---
+repo_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+csproj="$repo_root/developer-cli/DeveloperCli.csproj"
+alias_name=""
+if [ -f "$csproj" ]; then
+    alias_name=$(sed -n 's/.*<AssemblyName>\([^<]*\)<\/AssemblyName>.*/\1/p' "$csproj" | head -1)
+fi
+[ -z "$alias_name" ] && alias_name="pp"
+
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*) publish_folder="${LOCALAPPDATA}/PlatformPlatform" ;;
+    *)                     publish_folder="$HOME/.PlatformPlatform" ;;
+esac
+
+# --- Determine whether banned-word check applies to this remote ---
+normalize_git_url() {
+    local url="$1"
+    url="${url#https://}"
+    url="${url#http://}"
+    if [[ "$url" == git@* ]]; then
+        url="${url#git@}"
+        url="${url/://}"
+    fi
+    url="${url%.git}"
+    url="${url%/}"
+    echo "$url" | tr '[:upper:]' '[:lower:]'
+}
+
+banned_file="${publish_folder}/${alias_name}.banned-push-words"
+remotes_file="${publish_folder}/${alias_name}.banned-push-words-remotes"
+has_banned_words=false
+
+if [ -f "$banned_file" ] && grep -q '[^[:space:]]' "$banned_file" 2>/dev/null; then
+    if [ -f "$remotes_file" ] && grep -q '[^[:space:]]' "$remotes_file" 2>/dev/null; then
+        push_url=$(git remote get-url --push "$remote" 2>/dev/null)
+        if [ -n "$push_url" ]; then
+            normalized_push_url=$(normalize_git_url "$push_url")
+            if grep -qiFx "$normalized_push_url" "$remotes_file" 2>/dev/null; then
+                has_banned_words=true
+            fi
+        fi
+    else
+        has_banned_words=true
+    fi
+fi
+
+# --- Per-ref checks ---
+branch_pattern='^(demo/|experiment/)?([a-z0-9]{1,7}|[a-z0-9]{9,}|[a-vx-z0-9][a-z0-9]{7}|w[a-np-z0-9][a-z0-9]{6}|wo[a-qs-z0-9][a-z0-9]{5}|wor[a-jl-z0-9][a-z0-9]{4}|work[a-su-z0-9][a-z0-9]{3}|workt[a-qs-z0-9][a-z0-9]{2}|worktr[a-df-z0-9][a-z0-9]|worktre[a-df-z0-9])(-[a-z0-9]+)*$'
 
 while read -r local_ref local_oid remote_ref remote_oid; do
     # Skip deletions
     [ "$local_oid" = "$zero" ] && continue
 
-    # Skip non-branch refs (tags, etc.)
+    # --- Branch name check ---
     branch="${remote_ref#refs/heads/}"
-    [ "$branch" = "$remote_ref" ] && continue
+    if [ "$branch" != "$remote_ref" ] && [ "$branch" != "main" ]; then
+        if ! printf '%s' "$branch" | grep -Eq "$branch_pattern"; then
+            echo "pre-push: refusing to push '$branch'." >&2
+            echo "  Branch names must be lowercase kebab-case, optionally prefixed with 'demo/' or 'experiment/'," >&2
+            echo "  and must not start with 'worktree-'." >&2
+            exit 1
+        fi
+    fi
 
-    # The `main` branch is exempt so it can always be pushed regardless of the pattern
-    [ "$branch" = "main" ] && continue
+    # --- Banned word check ---
+    if [ "$has_banned_words" = true ]; then
+        if [ "$remote_oid" = "$zero" ]; then
+            range="${remote}/main..${local_oid}"
+        else
+            range="${remote_oid}..${local_oid}"
+        fi
 
-    if ! printf '%s' "$branch" | grep -Eq "$pattern"; then
-        echo "pre-push: refusing to push '$branch'." >&2
-        echo "  Branch names must be lowercase kebab-case, optionally prefixed with 'demo/' or 'experiment/'," >&2
-        echo "  and must not start with 'worktree-'." >&2
-        exit 1
+        if git diff "$range" 2>/dev/null \
+            | grep '^+' | grep -v '^+++' \
+            | sed 's/[ _-]//g' | tr '[:upper:]' '[:lower:]' \
+            | grep -qFf <(grep -v '^$' "$banned_file" | sed 's/[ _-]//g' | tr '[:upper:]' '[:lower:]'); then
+            echo "pre-push: refusing to push -- the diff contains a banned word." >&2
+            echo "  Banned words: $(grep -v '^$' "$banned_file" | paste -sd ', ' -)" >&2
+            echo "  Matching ignores case, spaces, hyphens, and underscores." >&2
+            echo "  Configure with: $alias_name banned-push-words" >&2
+            exit 1
+        fi
     fi
 done
 

@@ -53,6 +53,16 @@ public class LintCommand : Command
 
         try
         {
+            const string cacheKey = "lint";
+            if (SourceStateCache.IsUpToDate(cacheKey))
+            {
+                if (quiet)
+                    Console.WriteLine("No changes since last lint run, skipping.");
+                else
+                    AnsiConsole.MarkupLine("[green]No changes since last lint run, skipping.[/]");
+                return;
+            }
+
             var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
@@ -82,6 +92,8 @@ public class LintCommand : Command
                 developerCliTime = Stopwatch.GetElapsedTime(startTime) - backendTime - frontendTime;
             }
 
+            if (!hasIssues) SourceStateCache.Save(cacheKey);
+
             if (quiet)
             {
                 if (hasIssues)
@@ -90,7 +102,7 @@ public class LintCommand : Command
                     Environment.Exit(1);
                 }
 
-                Console.WriteLine("Linting completed successfully. No issues found.");
+                Console.WriteLine($"Linting completed successfully in {Stopwatch.GetElapsedTime(startTime).Format()}. No issues found.");
             }
             else
             {

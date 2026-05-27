@@ -42,8 +42,8 @@ public sealed class EndpointMetadataTests : IDisposable
         "GET:/internal-api/live",
         "GET:/internal-api/ready",
         // /internal-api/account/tenants/{id} stays anonymous: server-to-server call from main SCS in
-        // downstream projects (DataMentor, ProductConnect). Until downstream callers can pass an auth
-        // token, the BlockInternalApiTransform + ACA private ingress are the perimeter.
+        // downstream projects. Until downstream callers can pass an auth token, the
+        // BlockInternalApiTransform + ACA private ingress are the perimeter.
         "DELETE:/internal-api/account/tenants/{id}",
         // SinglePageAppFallbackExtensions registers a framework-level catch-all that emits 404 for
         // any unmatched /internal-api/* path. The 404 emitter is not a callable endpoint.

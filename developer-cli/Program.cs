@@ -13,6 +13,8 @@ if (!Configuration.IsMacOs && !Configuration.IsWindows && !Configuration.IsLinux
     Environment.Exit(1);
 }
 
+Configuration.ExitIfRunningFromWrongRepository();
+
 if (args.Length == 0)
 {
     args = ["--help"];
