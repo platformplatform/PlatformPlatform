@@ -132,7 +132,14 @@ SEP="$(printf " ${DIM}|${RESET} ")"
 seg_cwd="$(printf "📂 ${BOLD}${BRIGHT_WHITE}%s${RESET}" "$repo_name")"
 port=""
 [ -n "$worktree_top" ] && [ -f "$worktree_top/.workspace/port.txt" ] && port=$(tr -d '[:space:]' < "$worktree_top/.workspace/port.txt" | head -c 8)
-[ -n "$port" ] && seg_cwd="${seg_cwd}$(printf " ${YELLOW}\033]8;;https://app.dev.localhost:%s\007%s\033]8;;\007${RESET}" "$port" "$port")"
+seg_port=""
+if [ -n "$port" ]; then
+  aspire_url_file="$worktree_top/.workspace/aspire-dashboard-url.txt"
+  if [ -f "$aspire_url_file" ]; then
+    aspire_url=$(tr -d '[:space:]' < "$aspire_url_file")
+    seg_port="$(printf "${CYAN}\033]8;;%s\007aspire\033]8;;\007${RESET}" "$aspire_url")"
+  fi
+fi
 seg_git=""
 [ -n "$git_segment" ] && seg_git="${git_segment}"
 seg_model="$(printf "🤖 ${CYAN}%s${RESET}" "$model")"
@@ -260,6 +267,10 @@ assemble() {
   local show_rl=${9:-1} show_model=${10:-1}
 
   [ "$show_cwd" = "1" ] && out="${out}${seg_cwd}"
+  if [ -n "$seg_port" ]; then
+    [ -n "$out" ] && out="${out} "
+    out="${out}${seg_port}"
+  fi
   if [ "$show_git" = "1" ] && [ -n "$seg_git" ]; then
     [ -n "$out" ] && out="${out} ${DIM}|${RESET} "
     out="${out}${seg_git}"
