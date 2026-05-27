@@ -52,6 +52,16 @@ public class FormatCommand : Command
 
         try
         {
+            const string cacheKey = "format";
+            if (SourceStateCache.IsUpToDate(cacheKey))
+            {
+                if (quiet)
+                    Console.WriteLine("No changes since last format run, skipping.");
+                else
+                    AnsiConsole.MarkupLine("[green]No changes since last format run, skipping.[/]");
+                return;
+            }
+
             var initialUncommittedFiles = quiet ? null : GitHelper.GetChangedFiles();
             if (!quiet && initialUncommittedFiles!.Count > 0)
             {
@@ -83,6 +93,8 @@ public class FormatCommand : Command
                 RunDeveloperCliFormat(noBuild, allFiles, quiet);
                 developerCliTime = Stopwatch.GetElapsedTime(startTime) - backendTime - frontendTime;
             }
+
+            SourceStateCache.Save(cacheKey);
 
             if (quiet)
             {
