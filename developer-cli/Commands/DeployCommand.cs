@@ -577,7 +577,7 @@ public class DeployCommand : Command
 
                 [yellow]** All variables can be changed on the GitHub Settings page. For example, if you want to deploy production or staging to different locations.[/]
 
-             4. Disable the reusable GitHub workflows [blue]Deploy Container[/] and [blue]Plan and Deploy Infrastructure[/].
+             4. Disable the reusable GitHub workflows [blue]Deploy Container[/], [blue]Deploy Infrastructure[/], and [blue]Migrate Database[/].
 
              5. The [blue]Cloud Infrastructure - Deployment[/] GitHub Actions will be triggered deployment of Azure Infrastructure. This will take [yellow]between 15 and 45 minutes[/].
 
