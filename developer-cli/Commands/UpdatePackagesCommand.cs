@@ -448,7 +448,14 @@ public sealed class UpdatePackagesCommand : Command
 
     private static string? GetLatestVersionFromJson(JsonDocument jsonDocument, string packageName)
     {
-        var projects = jsonDocument.RootElement.GetProperty("projects");
+        // `dotnet list package --outdated` runs once per project/props file. After the first file
+        // (Directory.Packages.props) is rewritten with new versions, a later call restores against a
+        // now-stale state and can return JSON containing only `problems` with no `projects` array.
+        // Treat a missing `projects` key as "not found" so the caller falls back to the NuGet API.
+        if (!jsonDocument.RootElement.TryGetProperty("projects", out var projects))
+        {
+            return null;
+        }
 
         foreach (var project in projects.EnumerateArray())
         {
@@ -460,9 +467,11 @@ public sealed class UpdatePackagesCommand : Command
 
                 foreach (var package in packages.EnumerateArray())
                 {
-                    if (package.GetProperty("id").GetString() == packageName)
+                    if (package.TryGetProperty("id", out var id) &&
+                        id.GetString() == packageName &&
+                        package.TryGetProperty("latestVersion", out var latestVersion))
                     {
-                        return package.GetProperty("latestVersion").GetString();
+                        return latestVersion.GetString();
                     }
                 }
             }
