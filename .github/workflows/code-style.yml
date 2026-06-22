@@ -37,7 +37,7 @@ jobs:
       format_label: ${{ steps.scope.outputs.format_label }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Need history to diff against the base ref
           fetch-depth: 0
@@ -110,7 +110,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
@@ -182,7 +182,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
@@ -241,7 +241,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v6
