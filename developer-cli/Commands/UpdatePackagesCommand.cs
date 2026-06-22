@@ -1332,6 +1332,10 @@ public sealed class UpdatePackagesCommand : Command
                 var updatedJson = Encoding.UTF8.GetString(stream.ToArray());
                 await File.WriteAllTextAsync(dotnetToolsPath, updatedJson);
                 if (!_quietMode) AnsiConsole.MarkupLine($"[green]{relativePath} updated successfully![/]");
+
+                // Restore the manifest so the newly pinned tool versions are installed and available to later commands
+                var manifestDirectory = Path.GetDirectoryName(dotnetToolsPath)!;
+                ProcessHelper.StartProcess("dotnet tool restore", manifestDirectory, redirectOutput: _quietMode);
             }
             else if (dotnetToolUpdatesToApply.Count > 0 && !_quietMode)
             {
