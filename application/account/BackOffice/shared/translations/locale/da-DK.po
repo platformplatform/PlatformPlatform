@@ -113,11 +113,9 @@ msgstr "+39 06 555 0000"
 msgid "<0>{totalUsers}</0> total"
 msgstr "<0>{totalUsers}</0> i alt"
 
-msgid ""
-"123 Example Street\n"
+msgid "123 Example Street\n"
 "Anytown, AA 12345"
-msgstr ""
-"123 Example Street\n"
+msgstr "123 Example Street\n"
 "Anytown, AA 12345"
 
 msgid "14 h 30 min logged"
