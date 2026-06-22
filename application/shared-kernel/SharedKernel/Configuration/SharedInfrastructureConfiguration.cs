@@ -309,12 +309,16 @@ public static class SharedInfrastructureConfiguration
                     .ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
             }
 
-            builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
-                {
-                    options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
-                                               "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
-                }
-            );
+            // Azure Monitor exports to Application Insights only from Azure-hosted instances. Outside Azure the
+            // connection string is a localhost placeholder, so the exporter and Live Metrics have nothing real to
+            // reach; their background flush then blocks host shutdown (e.g. WebApplicationFactory teardown in
+            // integration tests). Only wire it when running in Azure.
+            if (IsRunningInAzure)
+            {
+                builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
+                    options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+                );
+            }
 
             return builder;
         }
