@@ -6,7 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
-        <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.2.4" />
+        <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.4.6" />
         <PackageVersion Include="Aspire.Hosting" Version="13.4.6" />
         <PackageVersion Include="Aspire.Hosting.Azure" Version="13.4.6" />
         <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.4.6" />
