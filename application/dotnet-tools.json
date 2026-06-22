@@ -15,19 +15,19 @@
       ]
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2026.1.0.1",
+      "version": "2026.1.3",
       "commands": [
         "jb"
       ]
     },
     "dotnet-ef": {
-      "version": "10.0.7",
+      "version": "10.0.9",
       "commands": [
         "dotnet-ef"
       ]
     },
     "aspire.cli": {
-      "version": "13.2.4",
+      "version": "13.4.6",
       "commands": [
         "aspire"
       ]
