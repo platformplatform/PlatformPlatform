@@ -76,6 +76,8 @@
         <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
         <PackageVersion Include="Scalar.AspNetCore" Version="2.16.4" />
         <PackageVersion Include="Scrutor" Version="7.0.0" />
+        <!-- Security: forces the patched SQLite native binary (advisory GHSA-2m69-gcr7-jv3q, fixed in SQLite 3.50.2); remove once Microsoft.EntityFrameworkCore.Sqlite ships a SQLitePCLRaw built on SQLite >= 3.50.2. -->
+        <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
         <PackageVersion Include="Stripe.net" Version="50.3.0" />
         <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
         <PackageVersion Include="coverlet.collector" Version="10.0.1">
