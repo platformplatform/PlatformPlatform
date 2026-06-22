@@ -70,8 +70,7 @@ export function InvoicesToolbar({ search, view }: Readonly<InvoicesToolbarProps>
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupInput
-            type="text"
-            role="searchbox"
+            type="search"
             aria-label={t`Search`}
             placeholder={t`Search by account name`}
             value={searchInput}

@@ -80,8 +80,7 @@ export function AccountsToolbar({ search, plans, statuses, unsynced, driftDetect
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupInput
-            type="text"
-            role="searchbox"
+            type="search"
             aria-label={t`Search`}
             placeholder={t`Search by name`}
             value={searchInput}

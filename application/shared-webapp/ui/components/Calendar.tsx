@@ -553,6 +553,7 @@ function PickerGrid({ cols, rows, initialFocusIndex, children }: PickerGridProps
     <div
       ref={gridRef}
       role="grid"
+      tabIndex={-1}
       onKeyDown={handleKeyDown}
       className="grid h-full gap-0"
       style={{

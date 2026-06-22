@@ -184,7 +184,7 @@ export declare global {
    */
   type Environment = BuildEnv & RuntimeEnv;
 
-  declare interface ImportMeta {
+  interface ImportMeta {
     env: Environment;
     build_env: BuildEnv;
     runtime_env: RuntimeEnv;

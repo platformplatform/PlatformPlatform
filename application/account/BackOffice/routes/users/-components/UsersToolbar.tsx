@@ -72,8 +72,7 @@ export function UsersToolbar({ search, roles, activity }: Readonly<UsersToolbarP
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupInput
-            type="text"
-            role="searchbox"
+            type="search"
             aria-label={t`Search`}
             placeholder={t`Search by email, name, or account`}
             value={searchInput}

@@ -101,8 +101,7 @@ function UserFilters({
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupInput
-            type="text"
-            role="searchbox"
+            type="search"
             aria-label={t`Search users`}
             placeholder={t`Search by name or email`}
             value={searchInput}

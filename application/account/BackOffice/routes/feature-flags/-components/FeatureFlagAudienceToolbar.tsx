@@ -80,8 +80,7 @@ export function FeatureFlagAudienceToolbar({
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupInput
-            type="text"
-            role="searchbox"
+            type="search"
             aria-label={t`Search`}
             placeholder={searchPlaceholder}
             value={searchInput}
