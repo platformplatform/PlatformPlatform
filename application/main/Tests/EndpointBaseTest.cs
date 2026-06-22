@@ -1,55 +1,38 @@
 using System.Net.Http.Headers;
 using Bogus;
 using JetBrains.Annotations;
-using Mapster;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using SharedKernel.Authentication;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.ExecutionContext;
 using SharedKernel.Integrations.Email;
-using SharedKernel.SinglePageApp;
 using SharedKernel.Telemetry;
 using SharedKernel.Tests.Telemetry;
 
 namespace Main.Tests;
 
+// Base class for Main API endpoint tests. Each derived class declares
+// IClassFixture<MainWebApplicationFactory> (or a subclass) to share a single host across its tests;
+// per-test isolation is preserved by the MainTestContext routed through the fixture's AsyncLocal slot.
 public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : DbContext
 {
-    // Tests use the in-memory test server (WebApplicationFactory); no real listener is bound.
-    // SinglePageAppConfiguration only consumes this as a URI for CSP construction.
-    private const string TestPublicUrl = "https://localhost";
     protected readonly AccessTokenGenerator AccessTokenGenerator;
     protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
     [UsedImplicitly] protected readonly TimeProvider TimeProvider;
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
-    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
+    private readonly MainWebApplicationFactory _factory;
+    private readonly IDisposable _testScope;
 
-    protected EndpointBaseTest()
+    protected EndpointBaseTest(MainWebApplicationFactory factory)
     {
-        Environment.SetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey, TestPublicUrl);
-        Environment.SetEnvironmentVariable(SinglePageAppConfiguration.CdnUrlKey, $"{TestPublicUrl}/main");
-        Environment.SetEnvironmentVariable(
-            "APPLICATIONINSIGHTS_CONNECTION_STRING",
-            "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost"
-        );
-
-        Services = new ServiceCollection();
+        _factory = factory;
         TimeProvider = TimeProvider.System;
-
-        Services.AddLogging();
-        Services.AddTransient<DatabaseSeeder>();
 
         // Create connection using shared cache mode so isolated connections can access the same in-memory database
         Connection = new SqliteConnection($"Data Source=TestDb_{Guid.NewGuid():N};Mode=Memory;Cache=Shared");
@@ -75,74 +58,56 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
             command.ExecuteNonQuery();
         }
 
-        Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
-
-        Services.AddMainServices();
-
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-        Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-
         EmailClient = Substitute.For<IEmailClient>();
-        Services.AddScoped<IEmailClient>(_ => EmailClient);
 
-        var telemetryChannel = Substitute.For<ITelemetryChannel>();
-        Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
-
-        Services.AddScoped<IExecutionContext, HttpExecutionContext>();
-
-        // Make sure the database is created
-        using var serviceScope = Provider!.CreateScope();
-        serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
-        DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-
-        AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
-
-        _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        // BeginTest must run before any service resolution on the shared host so per-request DI lookups
+        // see the per-test state.
+        _testScope = factory.BeginTest(new MainTestContext
             {
-                builder.ConfigureLogging(logging =>
-                    {
-                        logging.AddFilter(_ => false); // Suppress all logs during tests
-                    }
-                );
-
-                builder.ConfigureTestServices(services =>
-                    {
-                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)));
-                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
-
-                        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-                        services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
-                        services.AddTransient<IEmailClient>(_ => EmailClient);
-
-                        RegisterMockLoggers(services);
-
-                        services.AddScoped<IExecutionContext, HttpExecutionContext>();
-                    }
-                );
+                Connection = Connection,
+                TelemetryCollector = TelemetryEventsCollectorSpy,
+                EmailClient = EmailClient
             }
         );
 
-        AnonymousHttpClient = _webApplicationFactory.CreateClient();
+        // The local Services collection is unit-test scaffolding (not part of the WAF). Tests can
+        // resolve handlers and repositories directly via Provider without going through HTTP.
+        Services = new ServiceCollection();
+        Services.AddLogging();
+        Services.AddTransient<DatabaseSeeder>();
+        Services.AddDbContext<TContext>(options => options.UseSqlite(Connection).UseSnakeCaseNamingConvention());
+        Services.AddMainServices();
+        Services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
+        Services.AddScoped<IEmailClient>(_ => EmailClient);
+        Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = Substitute.For<ITelemetryChannel>() }));
+        Services.AddScoped<IExecutionContext, HttpExecutionContext>();
+
+        // Fill this test's database from the seeded template with a fast binary copy instead of
+        // recreating the schema and reseeding per test. The shared seeder's entity references match the
+        // rows copied into this connection.
+        DatabaseSeeder = SeededDatabaseTemplate.EnsureSeeded();
+        SeededDatabaseTemplate.RestoreInto(Connection);
+
+        using var serviceScope = Provider!.CreateScope();
+        AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
+
+        AnonymousHttpClient = factory.CreateClient();
 
         var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner);
-        AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedOwnerHttpClient = factory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
 
-        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
-        AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
+        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member);
+        AuthenticatedMemberHttpClient = factory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
-
-        // Set the environment variable to bypass antiforgery validation on the server. ASP.NET uses a cryptographic
-        // double-submit pattern that encrypts the user's ClaimUid in the token, which is complex to replicate in tests
-        Environment.SetEnvironmentVariable("BypassAntiforgeryValidation", "true");
     }
 
     protected SqliteConnection Connection { get; }
 
     protected DatabaseSeeder DatabaseSeeder { get; }
+
+    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy { get; }
 
     protected ServiceProvider Provider
     {
@@ -160,14 +125,12 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
     protected HttpClient AuthenticatedMemberHttpClient { get; }
 
+    protected IServiceProvider WebApplicationServices => _factory.Services;
+
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
-    }
-
-    protected virtual void RegisterMockLoggers(IServiceCollection services)
-    {
     }
 
     // SonarLint complains if the virtual keyword is missing, as it is required to correctly implement the dispose pattern.
@@ -177,6 +140,6 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         if (!disposing) return;
         Provider.Dispose();
         Connection.Close();
-        _webApplicationFactory.Dispose();
+        _testScope.Dispose();
     }
 }

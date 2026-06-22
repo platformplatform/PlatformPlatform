@@ -91,11 +91,13 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = Substitute.For<ITelemetryChannel>() }));
         Services.AddScoped<IExecutionContext, HttpExecutionContext>();
 
-        // Make sure the database is created
-        using var serviceScope = Provider!.CreateScope();
-        serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
-        DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        // Fill this test's database from the seeded template with a fast binary copy instead of
+        // recreating the schema and reseeding per test. The shared seeder's entity references match the
+        // rows copied into this connection.
+        DatabaseSeeder = SeededDatabaseTemplate.EnsureSeeded();
+        SeededDatabaseTemplate.RestoreInto(Connection);
 
+        using var serviceScope = Provider!.CreateScope();
         AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
 
         AnonymousHttpClient = factory.CreateClient();
