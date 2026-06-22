@@ -70,8 +70,7 @@ export function UserFilterDialog({
                 <SearchIcon />
               </InputGroupAddon>
               <InputGroupInput
-                type="text"
-                role="searchbox"
+                type="search"
                 placeholder={t`Search`}
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}

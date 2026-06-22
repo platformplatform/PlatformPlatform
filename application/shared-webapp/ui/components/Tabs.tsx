@@ -42,7 +42,7 @@ function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
         ref={listRef}
         data-slot="tabs-list"
         className={cn(
-          "relative flex gap-1 overflow-x-auto border-b border-border p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          "relative flex [scrollbar-width:none] gap-1 overflow-x-auto border-b border-border p-1 [&::-webkit-scrollbar]:hidden",
           className
         )}
         onScroll={updateScrollState}

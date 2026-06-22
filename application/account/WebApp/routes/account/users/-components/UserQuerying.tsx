@@ -34,8 +34,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
             <SearchIcon />
           </InputGroupAddon>
           <InputGroupInput
-            type="text"
-            role="searchbox"
+            type="search"
             placeholder={t`Search`}
             value={filters.search}
             onChange={(e) => filters.setSearch(e.target.value)}

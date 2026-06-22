@@ -60,7 +60,9 @@ public class BlobStorageClient(BlobServiceClient blobServiceClient, TimeProvider
             return blobClient.GenerateSasUri(BlobSasPermissions.Read, expiresOn);
         }
 
-        var userDelegationKey = blobServiceClient.GetUserDelegationKey(utcNow, expiresOn);
+        var userDelegationKey = blobServiceClient.GetUserDelegationKey(
+            new BlobGetUserDelegationKeyOptions(expiresOn) { StartsOn = utcNow }
+        );
         var builder = new BlobSasBuilder
         {
             BlobContainerName = container,

@@ -46,11 +46,11 @@
     "update-translations": "lingui extract --clean && lingui compile --typescript"
   },
   "dependencies": {
-    "@base-ui/react": "1.4.1",
+    "@base-ui/react": "1.6.0",
     "cmdk": "1.1.1",
     "react-dropzone": "15.0.0",
-    "react-resizable-panels": "4.10.0",
-    "recharts": "3.8.0",
+    "react-resizable-panels": "4.11.2",
+    "recharts": "3.8.1",
     "vaul": "1.1.2"
   },
   "devDependencies": {

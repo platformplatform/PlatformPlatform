@@ -73,7 +73,7 @@ jobs:
           echo "should_deploy=$should_deploy" >> $GITHUB_OUTPUT
 
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install Bicep CLI
         run: |
@@ -264,7 +264,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install Bicep CLI
         run: |

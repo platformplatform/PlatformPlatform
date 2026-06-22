@@ -11,12 +11,12 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Bogus" Version="35.6.5" />
-        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+        <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
         <PackageReference Include="Karambolo.PO" Version="1.13.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.7" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
-        <PackageReference Include="Spectre.Console" Version="0.55.2" />
-        <PackageReference Include="System.CommandLine" Version="2.0.7" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+        <PackageReference Include="Spectre.Console" Version="0.57.0" />
+        <PackageReference Include="System.CommandLine" Version="2.0.9" />
     </ItemGroup>
     <ItemGroup>
         <None Remove="DeveloperCli.slnx" />
@@ -28,7 +28,7 @@
              stays isolated from shared-kernel's heavy dependency closure (MediatR, EFCore, NSwag,
              OpenTelemetry, multiple Azure SDKs). PortAllocation and DockerVolumeNaming are the shared
              definitions; AppGateway and AppHost get them natively, developer-cli compiles the same files. -->
-        <Compile Include="..\application\shared-kernel\SharedKernel\Configuration\PortAllocation.cs" Link="Utilities\PortAllocation.cs"/>
-        <Compile Include="..\application\shared-kernel\SharedKernel\Configuration\DockerVolumeNaming.cs" Link="Utilities\DockerVolumeNaming.cs"/>
+        <Compile Include="..\application\shared-kernel\SharedKernel\Configuration\PortAllocation.cs" Link="Utilities\PortAllocation.cs" />
+        <Compile Include="..\application\shared-kernel\SharedKernel\Configuration\DockerVolumeNaming.cs" Link="Utilities\DockerVolumeNaming.cs" />
     </ItemGroup>
 </Project>

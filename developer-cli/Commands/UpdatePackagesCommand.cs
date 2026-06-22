@@ -12,11 +12,21 @@ namespace DeveloperCli.Commands;
 
 public sealed class UpdatePackagesCommand : Command
 {
-    private static readonly string[] RestrictedNuGetPackages = ["MediatR", "FluentAssertions"];
+    // Packages kept on their current major version. A new major requires code changes that must be
+    // handled in a dedicated upgrade, so these are never auto-bumped across a major boundary:
+    // - MediatR and FluentAssertions changed their licensing/APIs in later majors.
+    // - Microsoft.ApplicationInsights drops PageView tracking (used heavily) when moving to OpenTelemetry.
+    private static readonly string[] RestrictedNuGetPackages =
+        ["MediatR", "FluentAssertions", "Microsoft.ApplicationInsights", "Microsoft.ApplicationInsights.AspNetCore"];
+
     private static readonly Dictionary<string, string?> NuGetApiCache = new();
     private static readonly UpdateSummary BackendSummary = new();
     private static readonly UpdateSummary FrontendSummary = new();
     private static readonly HttpClient HttpClient = CreateHttpClient();
+
+    // When true, decorative output (tables, banners, progress chatter) is replaced with a terse,
+    // machine-parseable plain-text report so the command can be driven from scripts and skills.
+    private static bool _quietMode;
 
     public UpdatePackagesCommand() : base("update-packages", "Updates packages to their latest versions while preserving major versions for restricted packages")
     {
@@ -25,19 +35,22 @@ public sealed class UpdatePackagesCommand : Command
         var dryRunOption = new Option<bool>("--dry-run", "-d") { Description = "Show what would be updated without making changes" };
         var excludeOption = new Option<string?>("--exclude", "-e") { Description = "Comma-separated list of packages to exclude from updates" };
         var includeMajorFrameworkUpdatesOption = new Option<bool>("--include-major-framework-updates") { Description = "Allow updating .NET and Node.js to new major versions (default: only update within current major)" };
+        var quietOption = new Option<bool>("--quiet", "-q") { Description = "Terse, machine-parseable output for scripting (no tables or banners)" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
         Options.Add(dryRunOption);
         Options.Add(excludeOption);
         Options.Add(includeMajorFrameworkUpdatesOption);
+        Options.Add(quietOption);
 
         SetAction(async parseResult => await Execute(
                 parseResult.GetValue(backendOption),
                 parseResult.GetValue(frontendOption),
                 parseResult.GetValue(dryRunOption),
                 parseResult.GetValue(excludeOption),
-                parseResult.GetValue(includeMajorFrameworkUpdatesOption)
+                parseResult.GetValue(includeMajorFrameworkUpdatesOption),
+                parseResult.GetValue(quietOption)
             )
         );
     }
@@ -49,13 +62,15 @@ public sealed class UpdatePackagesCommand : Command
         return client;
     }
 
-    private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool includeMajorFrameworkUpdates)
+    private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool includeMajorFrameworkUpdates, bool quiet)
     {
+        _quietMode = quiet;
+
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
         var excludedPackages = exclude?.Split(',').Select(p => p.Trim()).Where(p => p != "").ToList() ?? [];
 
-        if (excludedPackages.Count > 0)
+        if (excludedPackages.Count > 0 && !_quietMode)
         {
             AnsiConsole.MarkupLine($"[yellow]Excluding packages: {string.Join(", ", excludedPackages)}[/]");
             AnsiConsole.WriteLine();
@@ -63,7 +78,7 @@ public sealed class UpdatePackagesCommand : Command
 
         var excludedPackagesArray = excludedPackages.ToArray();
 
-        if (dryRun)
+        if (dryRun && !_quietMode)
         {
             AnsiConsole.MarkupLine("[blue]Running in dry-run mode - no changes will be made[/]");
             AnsiConsole.WriteLine();
@@ -134,7 +149,7 @@ public sealed class UpdatePackagesCommand : Command
         }
 
         var fileName = Path.GetFileName(filePath);
-        AnsiConsole.MarkupLine($"Analyzing NuGet packages in {fileName}...");
+        if (!_quietMode) AnsiConsole.MarkupLine($"Analyzing NuGet packages in {fileName}...");
 
         var outdatedPackagesJson = await GetOutdatedPackagesJsonAsync();
 
@@ -159,6 +174,7 @@ public sealed class UpdatePackagesCommand : Command
             if (IsPackageExcluded(packageName, excludedPackages))
             {
                 table.AddRow(packageName, currentVersion, "-", "[blue]Excluded[/]");
+                if (_quietMode) Console.WriteLine($"backend excluded {packageName} {currentVersion}");
                 BackendSummary.Excluded++;
                 continue;
             }
@@ -182,6 +198,7 @@ public sealed class UpdatePackagesCommand : Command
             {
                 // Show restricted packages in the table but don't count them as updates
                 table.AddRow(packageName, currentVersion, versionResolution.LatestVersion!, "[red]Excluded[/]");
+                if (_quietMode) Console.WriteLine($"backend restricted {packageName} {currentVersion} (latest {versionResolution.LatestVersion} is a new major, pinned)");
                 BackendSummary.Excluded++;
             }
         }
@@ -330,16 +347,20 @@ public sealed class UpdatePackagesCommand : Command
             };
 
             table.AddRow(update.PackageName, update.CurrentVersion, update.NewVersion, statusColor);
+            if (_quietMode) Console.WriteLine($"backend {updateType.ToString().ToLowerInvariant()} {update.PackageName} {update.CurrentVersion} -> {update.NewVersion}");
             packageUpdatesToApply.Add(update);
         }
 
-        if (table.Rows.Count > 0)
+        if (!_quietMode)
         {
-            AnsiConsole.Write(table);
-        }
-        else
-        {
-            AnsiConsole.MarkupLine($"[green]All {fileName} NuGet packages are up to date![/]");
+            if (table.Rows.Count > 0)
+            {
+                AnsiConsole.Write(table);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[green]All {fileName} NuGet packages are up to date![/]");
+            }
         }
 
         if (packageUpdatesToApply.Count > 0 && !dryRun)
@@ -367,9 +388,9 @@ public sealed class UpdatePackagesCommand : Command
                 await xDocument.SaveAsync(writer, CancellationToken.None);
             }
 
-            AnsiConsole.MarkupLine($"[green]{fileName} updated successfully![/]");
+            if (!_quietMode) AnsiConsole.MarkupLine($"[green]{fileName} updated successfully![/]");
         }
-        else if (packageUpdatesToApply.Count > 0)
+        else if (packageUpdatesToApply.Count > 0 && !_quietMode)
         {
             AnsiConsole.MarkupLine($"[blue]Would update {packageUpdatesToApply.Count} {fileName} NuGet package(s) (dry-run mode)[/]");
         }
@@ -448,7 +469,14 @@ public sealed class UpdatePackagesCommand : Command
 
     private static string? GetLatestVersionFromJson(JsonDocument jsonDocument, string packageName)
     {
-        var projects = jsonDocument.RootElement.GetProperty("projects");
+        // `dotnet list package --outdated` runs once per project/props file. After the first file
+        // (Directory.Packages.props) is rewritten with new versions, a later call restores against a
+        // now-stale state and can return JSON containing only `problems` with no `projects` array.
+        // Treat a missing `projects` key as "not found" so the caller falls back to the NuGet API.
+        if (!jsonDocument.RootElement.TryGetProperty("projects", out var projects))
+        {
+            return null;
+        }
 
         foreach (var project in projects.EnumerateArray())
         {
@@ -460,9 +488,11 @@ public sealed class UpdatePackagesCommand : Command
 
                 foreach (var package in packages.EnumerateArray())
                 {
-                    if (package.GetProperty("id").GetString() == packageName)
+                    if (package.TryGetProperty("id", out var id) &&
+                        id.GetString() == packageName &&
+                        package.TryGetProperty("latestVersion", out var latestVersion))
                     {
-                        return package.GetProperty("latestVersion").GetString();
+                        return latestVersion.GetString();
                     }
                 }
             }
@@ -769,15 +799,18 @@ public sealed class UpdatePackagesCommand : Command
             return;
         }
 
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("Analyzing npm packages in package.json...");
+        if (!_quietMode)
+        {
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine("Analyzing npm packages in package.json...");
+        }
 
         var workspaceMap = BuildNpmWorkspaceMap(packageJsonPath);
         var output = ProcessHelper.StartProcess("npm outdated --json", Configuration.ApplicationFolder, true, exitOnError: false, throwOnError: false);
 
         if (string.IsNullOrWhiteSpace(output))
         {
-            AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
+            if (!_quietMode) AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
             return;
         }
 
@@ -787,7 +820,7 @@ public sealed class UpdatePackagesCommand : Command
 
         if (jsonStart == -1 || jsonEnd == -1 || jsonEnd < jsonStart)
         {
-            AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
+            if (!_quietMode) AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
             return;
         }
 
@@ -854,6 +887,7 @@ public sealed class UpdatePackagesCommand : Command
             if (candidate.IsExcluded)
             {
                 table.AddRow(candidate.PackageName, workspaceLabel, candidate.WantedVersion, "-", "[blue]Excluded[/]");
+                if (_quietMode) Console.WriteLine($"frontend excluded {candidate.PackageName} {candidate.WantedVersion} [{workspaceLabel}]");
                 FrontendSummary.Excluded++;
                 continue;
             }
@@ -872,6 +906,7 @@ public sealed class UpdatePackagesCommand : Command
             };
 
             table.AddRow(candidate.PackageName, workspaceLabel, candidate.WantedVersion, candidate.LatestVersion, statusColor);
+            if (_quietMode) Console.WriteLine($"frontend {updateType.ToString().ToLowerInvariant()} {candidate.PackageName} {candidate.WantedVersion} -> {candidate.LatestVersion} [{workspaceLabel}]");
 
             var bucketKey = candidate.WorkspaceName ?? string.Empty;
             if (!updatesByWorkspace.TryGetValue(bucketKey, out var list))
@@ -885,19 +920,22 @@ public sealed class UpdatePackagesCommand : Command
 
         if (table.Rows.Count > 0)
         {
-            AnsiConsole.Write(table);
+            if (!_quietMode) AnsiConsole.Write(table);
         }
         else
         {
-            AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
+            if (!_quietMode) AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
             return;
         }
 
         var totalUpdates = updatesByWorkspace.Values.Sum(l => l.Count);
         if (totalUpdates > 0 && !dryRun)
         {
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[blue]Updating packages...[/]");
+            if (!_quietMode)
+            {
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine("[blue]Updating packages...[/]");
+            }
 
             // Run a separate `npm install` per workspace so each workspace's package.json picks up
             // the new exact versions. With npm workspaces, omitting `-w` only updates root.
@@ -912,16 +950,20 @@ public sealed class UpdatePackagesCommand : Command
                 ProcessHelper.StartProcess(updateCommand, Configuration.ApplicationFolder);
             }
 
-            AnsiConsole.MarkupLine("[green]npm packages updated successfully![/]");
+            if (!_quietMode) AnsiConsole.MarkupLine("[green]npm packages updated successfully![/]");
 
             // Patch transitive vulnerabilities that resolve within the current semver ranges.
             // Running this here keeps the update-packages command as the single source of truth
             // for dependency hygiene; otherwise transitive vulns linger silently between bumps.
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[blue]Running npm audit fix...[/]");
+            if (!_quietMode)
+            {
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine("[blue]Running npm audit fix...[/]");
+            }
+
             ProcessHelper.StartProcess("npm audit fix", Configuration.ApplicationFolder, exitOnError: false, throwOnError: false);
         }
-        else if (totalUpdates > 0)
+        else if (totalUpdates > 0 && !_quietMode)
         {
             AnsiConsole.MarkupLine($"[blue]Would update {totalUpdates} npm package(s) (dry-run mode)[/]");
         }
@@ -1103,17 +1145,24 @@ public sealed class UpdatePackagesCommand : Command
         var targetSdkVersion = appHostPackageElement?.Attribute("Version")?.Value;
         if (targetSdkVersion is null || targetSdkVersion == currentSdkVersion) return;
 
-        // Display SDK update information
-        AnsiConsole.MarkupLine("\nAnalyzing Aspire SDK version...");
-        var table = new Table();
-        table.AddColumn("SDK");
-        table.AddColumn("Current Version");
-        table.AddColumn("Target Version");
-        table.AddColumn("Status");
+        if (_quietMode)
+        {
+            Console.WriteLine($"backend {GetUpdateType(currentSdkVersion, targetSdkVersion).ToString().ToLowerInvariant()} Aspire.AppHost.Sdk {currentSdkVersion} -> {targetSdkVersion} (sdk)");
+        }
+        else
+        {
+            // Display SDK update information
+            AnsiConsole.MarkupLine("\nAnalyzing Aspire SDK version...");
+            var table = new Table();
+            table.AddColumn("SDK");
+            table.AddColumn("Current Version");
+            table.AddColumn("Target Version");
+            table.AddColumn("Status");
 
-        var statusColor = dryRun ? "[yellow]Will update[/]" : "[green]Updated[/]";
-        table.AddRow("Aspire.AppHost.Sdk", currentSdkVersion, targetSdkVersion, statusColor);
-        AnsiConsole.Write(table);
+            var statusColor = dryRun ? "[yellow]Will update[/]" : "[green]Updated[/]";
+            table.AddRow("Aspire.AppHost.Sdk", currentSdkVersion, targetSdkVersion, statusColor);
+            AnsiConsole.Write(table);
+        }
 
         if (!dryRun)
         {
@@ -1125,9 +1174,9 @@ public sealed class UpdatePackagesCommand : Command
 
             // Write back preserving original formatting
             File.WriteAllText(appHostPath, updatedContent);
-            AnsiConsole.MarkupLine($"[green]Updated Aspire.AppHost.Sdk from {currentSdkVersion} to {targetSdkVersion}[/]");
+            if (!_quietMode) AnsiConsole.MarkupLine($"[green]Updated Aspire.AppHost.Sdk from {currentSdkVersion} to {targetSdkVersion}[/]");
         }
-        else
+        else if (!_quietMode)
         {
             AnsiConsole.MarkupLine("[blue]Would update Aspire SDK version (dry-run mode)[/]");
         }
@@ -1144,8 +1193,11 @@ public sealed class UpdatePackagesCommand : Command
         {
             var relativePath = Path.GetRelativePath(Configuration.SourceCodeFolder, dotnetToolsPath);
 
-            AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine($"Analyzing .NET tools in {relativePath}...");
+            if (!_quietMode)
+            {
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine($"Analyzing .NET tools in {relativePath}...");
+            }
 
             var toolsJson = await File.ReadAllTextAsync(dotnetToolsPath);
             var toolsDocument = JsonDocument.Parse(toolsJson);
@@ -1212,16 +1264,20 @@ public sealed class UpdatePackagesCommand : Command
                 };
 
                 table.AddRow(toolName, currentVersion, latestVersion, statusColor);
+                if (_quietMode) Console.WriteLine($"backend {updateType.ToString().ToLowerInvariant()} {toolName} {currentVersion} -> {latestVersion} (tool)");
                 dotnetToolUpdatesToApply.Add((toolName, currentVersion, latestVersion));
             }
 
-            if (table.Rows.Count > 0)
+            if (!_quietMode)
             {
-                AnsiConsole.Write(table);
-            }
-            else
-            {
-                AnsiConsole.MarkupLine($"[green]All .NET tools in {relativePath} are up to date![/]");
+                if (table.Rows.Count > 0)
+                {
+                    AnsiConsole.Write(table);
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine($"[green]All .NET tools in {relativePath} are up to date![/]");
+                }
             }
 
             if (dotnetToolUpdatesToApply.Count > 0 && !dryRun)
@@ -1275,9 +1331,13 @@ public sealed class UpdatePackagesCommand : Command
 
                 var updatedJson = Encoding.UTF8.GetString(stream.ToArray());
                 await File.WriteAllTextAsync(dotnetToolsPath, updatedJson);
-                AnsiConsole.MarkupLine($"[green]{relativePath} updated successfully![/]");
+                if (!_quietMode) AnsiConsole.MarkupLine($"[green]{relativePath} updated successfully![/]");
+
+                // Restore the manifest so the newly pinned tool versions are installed and available to later commands
+                var manifestDirectory = Path.GetDirectoryName(dotnetToolsPath)!;
+                ProcessHelper.StartProcess("dotnet tool restore", manifestDirectory, redirectOutput: _quietMode);
             }
-            else if (dotnetToolUpdatesToApply.Count > 0)
+            else if (dotnetToolUpdatesToApply.Count > 0 && !_quietMode)
             {
                 AnsiConsole.MarkupLine($"[blue]Would update {dotnetToolUpdatesToApply.Count} .NET tool(s) in {relativePath} (dry-run mode)[/]");
             }
@@ -1310,7 +1370,7 @@ public sealed class UpdatePackagesCommand : Command
 
         if (latestVersion == currentVersion)
         {
-            if (!earlyCheck)
+            if (!earlyCheck && !_quietMode)
             {
                 AnsiConsole.MarkupLine("[green]✓ .NET SDK version is already up to date[/]");
             }
@@ -1334,7 +1394,14 @@ public sealed class UpdatePackagesCommand : Command
             Environment.Exit(1);
         }
 
-        AnsiConsole.MarkupLine($"[blue]A newer .NET SDK version is available: {latestVersion} (current: {currentVersion})[/]");
+        if (_quietMode)
+        {
+            Console.WriteLine($"backend {GetUpdateType(currentVersion, latestVersion).ToString().ToLowerInvariant()} dotnet-sdk {currentVersion} -> {latestVersion} (sdk)");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[blue]A newer .NET SDK version is available: {latestVersion} (current: {currentVersion})[/]");
+        }
 
         // Late check - show status information
         if (!isInstalledLocally)
@@ -1632,6 +1699,13 @@ public sealed class UpdatePackagesCommand : Command
                           (showFrontend && FrontendSummary.UpToDate > 0);
 
         if (!hasUpdates && !hasExcluded && !hasUpToDate) return;
+
+        if (_quietMode)
+        {
+            if (showBackend) Console.WriteLine($"summary backend patch={BackendSummary.Patch} minor={BackendSummary.Minor} major={BackendSummary.Major} excluded={BackendSummary.Excluded} uptodate={BackendSummary.UpToDate}");
+            if (showFrontend) Console.WriteLine($"summary frontend patch={FrontendSummary.Patch} minor={FrontendSummary.Minor} major={FrontendSummary.Major} excluded={FrontendSummary.Excluded} uptodate={FrontendSummary.UpToDate}");
+            return;
+        }
 
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("📊 Update Summary:");

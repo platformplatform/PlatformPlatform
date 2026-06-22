@@ -52,6 +52,9 @@ function InputGroupAddon({
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>) {
   const inputRef = useContext(InputGroupInputRefContext);
   return (
+    // The addon only forwards focus to the fully-accessible sibling input (mirrors native <label> click-to-focus), so promoting
+    // it to an interactive role would wrongly add it to the tab order.
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       role="group"
       data-slot="input-group-addon"
@@ -142,7 +145,7 @@ function InputGroupInput({ className, ref, ...props }: React.ComponentProps<"inp
       ref={handleRef}
       data-slot="input-group-control"
       className={cn(
-        "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none disabled:opacity-100 aria-invalid:ring-0 aria-invalid:outline-none aria-invalid:focus-visible:shadow-none! dark:bg-transparent",
+        "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none disabled:opacity-100 aria-invalid:ring-0 aria-invalid:outline-none aria-invalid:focus-visible:shadow-none! dark:bg-transparent [&::-webkit-search-cancel-button]:appearance-none",
         className
       )}
       {...props}

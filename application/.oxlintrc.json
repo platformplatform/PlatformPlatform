@@ -36,6 +36,10 @@
 
     // ACCESSIBILITY
     "jsx-a11y/no-autofocus": "off",
+    // The design system is built on headless BaseUI/React-Aria primitives that apply ARIA roles to styled elements by design.
+    // frontend.md mandates these styled components instead of native <fieldset>/<select>/<option>/<ul>/<ol>, so the rule's preferred
+    // native tags are disallowed here and accessibility is provided by the primitives. Deliberate architecture decision, not a per-case suppression.
+    "jsx-a11y/prefer-tag-over-role": "off",
 
     // REACT HOOKS
     "react/exhaustive-deps": "error",
