@@ -539,3 +539,23 @@ export async function typeOneTimeCode(page: Page, code: string): Promise<void> {
     }
   }, code);
 }
+
+/**
+ * Removes all request route handlers registered on the page.
+ *
+ * Playwright 1.60's Firefox driver throws a protocol-level "NS_BINDING_ABORTED" from
+ * `resetInterceptionWithURI` when a route is torn down while a matching request is still being
+ * intercepted -- it surfaces on `page.unroute`/`page.unrouteAll` regardless of the `behavior`
+ * option, because it is a transport error rather than a route-handler error. The routes are still
+ * removed when it fires, so swallowing only this specific Firefox abort keeps mock teardown
+ * deterministic without masking real failures (other errors still propagate).
+ */
+export async function removeAllRoutes(page: Page): Promise<void> {
+  try {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  } catch (error) {
+    if (!(error instanceof Error) || !error.message.includes("NS_BINDING_ABORTED")) {
+      throw error;
+    }
+  }
+}
