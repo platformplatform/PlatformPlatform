@@ -86,7 +86,7 @@ public sealed class ApiResult<T>(Result<T> result, string? routePrefix = null, I
 
         if (result.StatusCode is HttpStatusCode.Redirect)
         {
-            return Results.Redirect(result.Value.Adapt<string>());
+            return Results.Redirect(result.Value.Adapt<string>()!);
         }
 
         return RoutePrefix is null
