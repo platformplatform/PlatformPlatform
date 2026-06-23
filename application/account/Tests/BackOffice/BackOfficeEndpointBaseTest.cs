@@ -1,10 +1,8 @@
-using Account.Database;
 using Account.Integrations.Stripe;
 using Bogus;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Authentication.BackOfficeIdentity;
 using SharedKernel.Authentication.MockEasyAuth;
 using SharedKernel.Telemetry;
@@ -35,7 +33,7 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
         StripeState = new MockStripeState();
 
         // BeginTest must run before any service resolution so the host's startup hosted services
-        // (PlatformCurrencyStartupResolver) and the EnsureCreated call below see the per-test state.
+        // (PlatformCurrencyStartupResolver) see the per-test state.
         _testScope = factory.BeginTest(new BackOfficeTestContext
             {
                 Connection = Connection,
@@ -44,9 +42,11 @@ public abstract class BackOfficeEndpointBaseTest : IDisposable
             }
         );
 
-        using var scope = factory.Services.CreateScope();
-        scope.ServiceProvider.GetRequiredService<AccountDbContext>().Database.EnsureCreated();
-        DatabaseSeeder = ActivatorUtilities.CreateInstance<DatabaseSeeder>(scope.ServiceProvider);
+        // Fill this test's database from the seeded template with a fast binary copy instead of
+        // recreating the schema and reseeding per test. The shared seeder's entity references match the
+        // rows copied into this connection.
+        DatabaseSeeder = SeededDatabaseTemplate.EnsureSeeded();
+        SeededDatabaseTemplate.RestoreInto(Connection);
     }
 
     protected SqliteConnection Connection { get; }

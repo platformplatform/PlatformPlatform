@@ -9,9 +9,6 @@ using Account.Integrations.OAuth;
 using Bogus;
 using FluentAssertions;
 using JetBrains.Annotations;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -39,7 +36,7 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
     protected readonly Faker Faker = new();
     protected readonly TimeProvider TimeProvider;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
-    protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
+    protected readonly TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
 
     protected ExternalAuthenticationTestBase()
     {
@@ -68,27 +65,14 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
             command.ExecuteNonQuery();
         }
 
-        var services = new ServiceCollection();
-        services.AddLogging();
-        services.AddTransient<DatabaseSeeder>();
-        services.AddDbContext<AccountDbContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
-        services.AddAccountServices();
+        // Fill this test's database from the seeded template with a fast binary copy instead of
+        // recreating the schema and reseeding per test. The shared seeder's entity references match the
+        // rows copied into this connection.
+        DatabaseSeeder = SeededDatabaseTemplate.EnsureSeeded();
+        SeededDatabaseTemplate.RestoreInto(Connection);
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-        services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
-
         var emailClient = Substitute.For<IEmailClient>();
-        services.AddScoped<IEmailClient>(_ => emailClient);
-
-        var telemetryChannel = Substitute.For<ITelemetryChannel>();
-        services.AddSingleton(new TelemetryClient(new TelemetryConfiguration { TelemetryChannel = telemetryChannel }));
-
-        services.AddScoped<IExecutionContext, HttpExecutionContext>();
-
-        using var serviceProvider = services.BuildServiceProvider();
-        using var serviceScope = serviceProvider.CreateScope();
-        serviceScope.ServiceProvider.GetRequiredService<AccountDbContext>().Database.EnsureCreated();
-        DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
@@ -109,7 +93,6 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
                         testServices.Remove(testServices.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<AccountDbContext>)));
                         testServices.AddDbContext<AccountDbContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
 
-                        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         testServices.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
                         testServices.Remove(testServices.Single(d => d.ServiceType == typeof(IEmailClient)));
