@@ -41,33 +41,41 @@ export function ModuleFederationPlugin({
               filename: manifestFile,
               shared: {
                 ...dependencies,
+                // `react`, `react-dom`, `@lingui/core` and `@lingui/react` are EAGER singletons: they are
+                // placed in the shared scope during the host's synchronous startup, before any remote's
+                // federated module consumes them. Without eager, a remote loaded early (e.g. account's
+                // AuthSyncModal on a direct page load) falls back to its own bundled copy, producing a second
+                // `@lingui` `i18n`/`LinguiContext` — which makes `useLingui` in a federated
+                // `withSystemTranslations` gate throw "used without I18nProvider". Lingui's eager modules
+                // synchronously require react, so react/react-dom must be eager too.
                 react: {
                   singleton: true,
+                  eager: true,
                   requiredVersion: dependencies.react
                 },
                 "react-dom": {
                   singleton: true,
+                  eager: true,
                   requiredVersion: dependencies["react-dom"]
                 },
-                // Lingui's `i18n` is a module-level singleton exported from @lingui/core. It must be a
-                // single instance across every remote so the merged catalog activated by one system is
-                // the same object every other system's `<Trans>`/`useLingui` reads from.
                 "@lingui/core": {
                   singleton: true,
+                  eager: true,
                   requiredVersion: dependencies["@lingui/core"]
                 },
                 "@lingui/react": {
                   singleton: true,
+                  eager: true,
                   requiredVersion: dependencies["@lingui/react"]
                 },
-                // Router instances, route objects, and router context cross the federation boundary,
-                // so every remote must bind the exact same router module instance.
+                // Router instances, route objects, and router context cross the federation boundary, so every
+                // remote must bind the exact same router module instance.
                 "@tanstack/react-router": {
                   singleton: true,
                   requiredVersion: dependencies["@tanstack/react-router"]
                 },
-                // Federated components resolve their QueryClient from the host's provider; the context
-                // object doing that lookup must come from a single module instance.
+                // Federated components resolve their QueryClient from the host's provider; the context object
+                // doing that lookup must come from a single module instance.
                 "@tanstack/react-query": {
                   singleton: true,
                   requiredVersion: dependencies["@tanstack/react-query"]
