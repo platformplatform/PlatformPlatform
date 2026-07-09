@@ -1,5 +1,8 @@
 #!/bin/bash
 exec 2>/dev/null
+# LC_ALL would override LC_NUMERIC, so clear it to keep decimal points instead
+# of locale commas in numbers
+unset LC_ALL
 export LC_NUMERIC=C
 input=$(cat)
 
@@ -119,8 +122,8 @@ fi
 # Format big numbers (k/M/B)
 fmt_big() {
   echo "$1" | awk '{
-    if ($1 >= 1000000000) printf "%.1fB", $1 / 1000000000;
-    else if ($1 >= 1000000) printf "%.1fM", $1 / 1000000;
+    if ($1 >= 1000000000) { v = $1 / 1000000000; if (v == int(v)) printf "%dB", v; else printf "%.1fB", v }
+    else if ($1 >= 1000000) { v = $1 / 1000000; if (v == int(v)) printf "%dM", v; else printf "%.1fM", v }
     else if ($1 >= 1000) printf "%.0fk", $1 / 1000;
     else printf "%d", $1
   }'
@@ -137,7 +140,14 @@ if [ -n "$port" ]; then
   aspire_url_file="$worktree_top/.workspace/aspire-dashboard-url.txt"
   if [ -f "$aspire_url_file" ]; then
     aspire_url=$(tr -d '[:space:]' < "$aspire_url_file")
-    seg_port="$(printf "${CYAN}\033]8;;%s\007aspire\033]8;;\007${RESET}" "$aspire_url")"
+    # The URL file persists after Aspire stops, so only show the link when the
+    # dashboard port actually accepts a connection.
+    dashboard_port="${aspire_url#*://localhost:}"
+    dashboard_port="${dashboard_port%%/*}"
+    if [[ "$dashboard_port" =~ ^[0-9]+$ ]] && (exec 3<>"/dev/tcp/127.0.0.1/$dashboard_port") 2>/dev/null; then
+      exec 3>&- 3<&-
+      seg_port="$(printf "${CYAN}\033]8;;%s\007aspire\033]8;;\007${RESET}" "$aspire_url")"
+    fi
   fi
 fi
 seg_git=""
@@ -227,29 +237,51 @@ seg_style=""
 
 # --- Terminal width detection ---
 get_display_width() {
-  local stripped
-  stripped=$(printf "%b" "$1" | sed 's/\x1b\[[0-9;]*m//g' 2>/dev/null || printf "%b" "$1" | sed $'s/\033\\[[0-9;]*m//g')
-  printf "%s" "$stripped" | awk '{print length}' | head -1
+  # Strip both SGR color codes (ESC[...m) and OSC 8 hyperlinks (ESC]8;;URI BEL).
+  # The hyperlink URI is invisible on screen; counting it inflates the width and
+  # makes the progressive-drop logic collapse segments far too aggressively.
+  local esc bel stripped
+  esc=$(printf '\033'); bel=$(printf '\007')
+  stripped=$(printf "%b" "$1" | sed "s/${esc}\[[0-9;]*m//g; s/${esc}]8;;[^${bel}]*${bel}//g")
+  # wc -m under a UTF-8 locale counts characters; awk length counts bytes on
+  # macOS, which triples the width of the block-drawing context bar.
+  printf "%s" "$stripped" | LC_ALL=en_US.UTF-8 wc -m | tr -d ' '
 }
 
 get_term_width() {
+  # 1. Controlling terminal, if this process has one
+  local size
+  size=$(stty size </dev/tty 2>/dev/null)
+  if [ -n "$size" ]; then
+    echo "$size" | awk '{print $2}'; echo "dev-tty" >&3
+    return
+  fi
+  # 2. COLUMNS passed through the environment
+  if [[ "$COLUMNS" =~ ^[0-9]+$ ]] && [ "$COLUMNS" -gt 0 ]; then
+    echo "$COLUMNS"; echo "columns-env" >&3
+    return
+  fi
+  # 3. Walk up the process tree to find an ancestor with a tty
   local pid=$$
   for _ in 1 2 3 4 5 6 7 8 9 10; do
     local tty_device=$(ps -o tty= -p "$pid" 2>/dev/null | tr -d ' ')
     if [ -n "$tty_device" ] && [ "$tty_device" != "?" ] && [ "$tty_device" != "??" ]; then
-      local size=$(stty -F "/dev/$tty_device" size 2>/dev/null || stty -f "/dev/$tty_device" size 2>/dev/null)
+      size=$(stty -F "/dev/$tty_device" size 2>/dev/null || stty -f "/dev/$tty_device" size 2>/dev/null)
       if [ -n "$size" ]; then
-        echo "$size" | awk '{print $2}'
+        echo "$size" | awk '{print $2}'; echo "ps-walk /dev/$tty_device" >&3
         return
       fi
     fi
     pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
     [ -z "$pid" ] && break
   done
-  echo "200"
+  echo "200"; echo "fallback" >&3
 }
 
+exec 3>"$STATE_DIR/width-detection.txt"
 term_width=$(get_term_width)
+echo "width=$term_width" >&3
+exec 3>&-
 [[ "$term_width" =~ ^[0-9]+$ ]] || term_width=200
 term_width_full=$(( term_width - 15 ))
 term_width_compact=$term_width
@@ -267,7 +299,7 @@ assemble() {
   local show_rl=${9:-1} show_model=${10:-1}
 
   [ "$show_cwd" = "1" ] && out="${out}${seg_cwd}"
-  if [ -n "$seg_port" ]; then
+  if [ "$show_cwd" = "1" ] && [ -n "$seg_port" ]; then
     [ -n "$out" ] && out="${out} "
     out="${out}${seg_port}"
   fi
