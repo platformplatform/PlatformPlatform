@@ -300,7 +300,7 @@ assemble() {
 
   [ "$show_cwd" = "1" ] && out="${out}${seg_cwd}"
   if [ "$show_cwd" = "1" ] && [ -n "$seg_port" ]; then
-    [ -n "$out" ] && out="${out} "
+    [ -n "$out" ] && out="${out} ${DIM}|${RESET} "
     out="${out}${seg_port}"
   fi
   if [ "$show_git" = "1" ] && [ -n "$seg_git" ]; then
